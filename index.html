@@ -41,12 +41,12 @@
 
   <header class="topbar">
     <div class="topbar__inner">
-      <a class="brand" href="#workbench" aria-label="TechHat বাংলা কনভার্টার — হোম">
+      <a class="brand" href="#workbench" onclick="if(window.TechHatTools){event.preventDefault();window.TechHatTools.openTool('bijoy',true);}" aria-label="TechHat বাংলা কনভার্টার ও ইউটিলিটি — হোম">
         <img class="brand__mark" src="icons/icon-192.png" width="34" height="34" alt="">
-        <h1 class="brand__name">TechHat <b>বাংলা কনভার্টার</b></h1>
+        <h1 class="brand__name">TechHat <b>ইউটিলিটি হাব</b></h1>
       </a>
 
-      <div class="tabs" role="tablist" aria-label="কনভার্টারের ধরন">
+      <div class="tabs" id="bijoyTabs" role="tablist" aria-label="কনভার্টারের ধরন">
         <button class="tab" role="tab" id="tab-text" aria-controls="panel-text" aria-selected="true" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg> টেক্সট
         </button>
@@ -54,6 +54,14 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> ফাইল
         </button>
         <span class="tabs__ink" aria-hidden="true"></span>
+      </div>
+
+      <div class="active-tool-header" id="activeToolHeader" hidden>
+        <span class="active-tool-pill" id="activeToolName"></span>
+        <button class="chip-btn" id="btnCalReset" type="button" hidden title="আজকের তারিখে ফিরে যান">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4"/></svg>
+          আজকের তারিখ
+        </button>
       </div>
 
       <div class="topbar__actions">
@@ -71,7 +79,11 @@
   </header>
 
   <main id="workbench" class="workbench">
-    <section class="card" aria-label="কনভার্টার">
+    <div class="workbench-grid">
+      <div class="tool-stage">
+        <!-- ============================================================ TOOL 1: BIJOY CONVERTER -->
+        <div class="tool-view" id="tool-bijoy">
+          <section class="card" aria-label="কনভার্টার">
 
       <!-- ============================================================ TEXT PANEL -->
       <div class="panel" role="tabpanel" id="panel-text" aria-labelledby="tab-text">
@@ -264,10 +276,344 @@
           </div>
         </div>
       </div>
-    </section>
+          </section>
+        </div>
+
+        <!-- ============================================================ TOOL 2: DATE CONVERTER (CALENDAR) -->
+        <div class="tool-view" id="tool-calendar" data-cal-mode="en" hidden>
+          <section class="card util-card" aria-label="তারিখ কনভার্টার">
+            <div class="cal-mode-tabs" role="tablist" aria-label="ক্যালেন্ডার মোড">
+              <button class="cal-mode-tab active" type="button" onclick="window.TechHatTools.setMode('EN')" id="tEN">ইংরেজি</button>
+              <button class="cal-mode-tab" type="button" onclick="window.TechHatTools.setMode('BN')" id="tBN">বাংলা</button>
+              <button class="cal-mode-tab" type="button" onclick="window.TechHatTools.setMode('HJ')" id="tHJ">আরবি / হিজরি</button>
+            </div>
+
+            <div class="util-body">
+              <div class="picker-area">
+                <div class="picker-heads"><span>দিন</span><span>মাস</span><span>সাল</span></div>
+                <div class="p-row">
+                  <div class="swipe-box" id="boxD">
+                    <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(1,'d')" aria-label="দিন বাড়ান">▲</button>
+                    <div class="mid-area" data-grid="d" data-ref="txtD" title="ক্যালেন্ডার গ্রিড দেখতে ক্লিক করুন">
+                      <div class="val-disp" id="txtD">০১</div>
+                    </div>
+                    <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(-1,'d')" aria-label="দিন কমান">▼</button>
+                  </div>
+
+                  <div class="swipe-box" id="boxM">
+                    <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(1,'m')" aria-label="মাস বাড়ান">▲</button>
+                    <div class="mid-area" data-grid="m" data-ref="txtM" title="মাস নির্বাচন করতে ক্লিক করুন">
+                      <div class="val-disp small" id="txtM">Jan</div>
+                    </div>
+                    <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(-1,'m')" aria-label="মাস কমান">▼</button>
+                  </div>
+
+                  <div class="swipe-box" id="boxY">
+                    <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(1,'y')" aria-label="সাল বাড়ান">▲</button>
+                    <div class="mid-area" onclick="window.TechHatTools.editY()" title="সাল লিখতে ক্লিক করুন">
+                      <div class="val-disp" id="txtY">২০২৬</div>
+                      <input type="number" class="num-inp" id="yearInp" onblur="window.TechHatTools.closeY()">
+                    </div>
+                    <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(-1,'y')" aria-label="সাল কমান">▼</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="res-sec">
+                <div class="res-block">
+                  <div class="res-lbl" id="lblMain">বাংলা তারিখ</div>
+                  <div class="main-date" id="resMain">...</div>
+                  <div class="meta-pill" id="resMeta">...</div>
+                </div>
+                <div class="res-divider"></div>
+                <div class="res-block">
+                  <div class="res-lbl" id="lblSec">হিজরি তারিখ</div>
+                  <div class="sec-date" id="resSec">...</div>
+                  <div class="adj-box">
+                    <span>চাঁদ দেখা সমন্বয়:</span>
+                    <select class="adj-sel" id="hjAdj" onchange="window.TechHatTools.setAdj(this.value)">
+                      <option value="-2">-২ দিন</option>
+                      <option value="-1">-১ দিন</option>
+                      <option value="0" selected>অটো (০)</option>
+                      <option value="1">+১ দিন</option>
+                      <option value="2">+২ দিন</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="button" class="ai-btn" onclick="window.TechHatTools.showAIHoroscope()">
+                  ✦ এই দিনের বিস্তারিত ও রাশিচক্র
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============================================================ TOOL 3: AGE MANAGER -->
+        <div class="tool-view" id="tool-age" hidden>
+          <section class="card util-card" aria-label="বয়স ম্যানেজার">
+            <div class="sub-tabs" role="tablist">
+              <button type="button" class="sub-tab-btn active" onclick="window.TechHatTools.switchAgeTab('calc')" id="at-calc">বয়স বের করুন</button>
+              <button type="button" class="sub-tab-btn" onclick="window.TechHatTools.switchAgeTab('find')" id="at-find">জন্মতারিখ বের করুন</button>
+            </div>
+
+            <div class="util-body" id="av-calc">
+              <div class="dual-panel">
+                <div>
+                  <div class="picker-area">
+                    <div class="section-header">জন্ম তারিখ</div>
+                    <div class="p-row">
+                      <div class="swipe-box" id="adD"><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('dob','d',1)">▲</button><div class="mid-area" data-grid="d" data-ref="adD-txt"><div class="val-disp" id="adD-txt">০১</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('dob','d',-1)">▼</button></div>
+                      <div class="swipe-box" id="adM"><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('dob','m',1)">▲</button><div class="mid-area" data-grid="m" data-ref="adM-txt"><div class="val-disp small" id="adM-txt">Jan</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('dob','m',-1)">▼</button></div>
+                      <div class="swipe-box" id="adY"><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('dob','y',1)">▲</button><div class="mid-area" onclick="window.TechHatTools.edAgeY('dob')"><div class="val-disp" id="adY-txt">২০০০</div><input type="number" class="num-inp" id="adY-inp" onblur="window.TechHatTools.clAgeY('dob')"></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('dob','y',-1)">▼</button></div>
+                    </div>
+                  </div>
+                  <div class="picker-area">
+                    <div class="section-header">হিসাবের / আজকের তারিখ</div>
+                    <div class="p-row">
+                      <div class="swipe-box" id="arD"><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('ref','d',1)">▲</button><div class="mid-area" data-grid="d" data-ref="arD-txt"><div class="val-disp" id="arD-txt">০১</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('ref','d',-1)">▼</button></div>
+                      <div class="swipe-box" id="arM"><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('ref','m',1)">▲</button><div class="mid-area" data-grid="m" data-ref="arM-txt"><div class="val-disp small" id="arM-txt">Jan</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('ref','m',-1)">▼</button></div>
+                      <div class="swipe-box" id="arY"><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('ref','y',1)">▲</button><div class="mid-area" onclick="window.TechHatTools.edAgeY('ref')"><div class="val-disp" id="arY-txt">২০২৬</div><input type="number" class="num-inp" id="arY-inp" onblur="window.TechHatTools.clAgeY('ref')"></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('ref','y',-1)">▼</button></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="age-highlight-wrap">
+                  <div class="age-highlight-head">আপনার বর্তমান বয়স</div>
+                  <div class="age-highlight-body">
+                    <div class="age-main-val" id="age-main">...</div>
+                    <button type="button" class="ai-btn" onclick="window.TechHatTools.showAILifeInsights()">✦ আমার সম্পর্কে বিস্তারিত</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stats-grid">
+                <div class="stat-item"><div class="stat-val" id="st-month">০</div><div class="stat-lbl">মোট মাস</div></div>
+                <div class="stat-item"><div class="stat-val" id="st-week">০</div><div class="stat-lbl">মোট সপ্তাহ</div></div>
+                <div class="stat-item"><div class="stat-val" id="st-day">০</div><div class="stat-lbl">মোট দিন</div></div>
+                <div class="stat-item"><div class="stat-val" id="st-hour">০</div><div class="stat-lbl">মোট ঘণ্টা</div></div>
+                <div class="stat-item"><div class="stat-val" id="st-min">০</div><div class="stat-lbl">মোট মিনিট</div></div>
+                <div class="stat-item"><div class="stat-val" id="st-sec">০</div><div class="stat-lbl">মোট সেকেন্ড</div></div>
+              </div>
+            </div>
+
+            <div class="util-body" id="av-find" hidden>
+              <div class="dual-panel">
+                <div>
+                  <div class="picker-area">
+                    <div class="section-header">হিসাবের তারিখ</div>
+                    <div class="p-row">
+                      <div class="swipe-box" id="afD"><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('fref','d',1)">▲</button><div class="mid-area" data-grid="d" data-ref="afD-txt"><div class="val-disp" id="afD-txt">০১</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('fref','d',-1)">▼</button></div>
+                      <div class="swipe-box" id="afM"><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('fref','m',1)">▲</button><div class="mid-area" data-grid="m" data-ref="afM-txt"><div class="val-disp small" id="afM-txt">Jan</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('fref','m',-1)">▼</button></div>
+                      <div class="swipe-box" id="afY"><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('fref','y',1)">▲</button><div class="mid-area" onclick="window.TechHatTools.edAgeY('fref')"><div class="val-disp" id="afY-txt">২০২৬</div><input type="number" class="num-inp" id="afY-inp" onblur="window.TechHatTools.clAgeY('fref')"></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updAge('fref','y',-1)">▼</button></div>
+                    </div>
+                  </div>
+                  <div class="picker-area">
+                    <div class="section-header">বয়স কত?</div>
+                    <div class="p-row">
+                      <div class="swipe-box" id="agY"><button type="button" class="arr-btn" onclick="window.TechHatTools.updRev('y',1)">▲</button><div class="mid-area" onclick="window.TechHatTools.edRev('y')"><div class="val-disp" id="agY-txt">০</div><input type="number" class="num-inp" id="agY-inp" onblur="window.TechHatTools.clRev('y')"></div><div class="unit-sub">বছর</div><button type="button" class="arr-btn" onclick="window.TechHatTools.updRev('y',-1)">▼</button></div>
+                      <div class="swipe-box" id="agM"><button type="button" class="arr-btn" onclick="window.TechHatTools.updRev('m',1)">▲</button><div class="mid-area" onclick="window.TechHatTools.edRev('m')"><div class="val-disp" id="agM-txt">০</div><input type="number" class="num-inp" id="agM-inp" onblur="window.TechHatTools.clRev('m')"></div><div class="unit-sub">মাস</div><button type="button" class="arr-btn" onclick="window.TechHatTools.updRev('m',-1)">▼</button></div>
+                      <div class="swipe-box" id="agD"><button type="button" class="arr-btn" onclick="window.TechHatTools.updRev('d',1)">▲</button><div class="mid-area" onclick="window.TechHatTools.edRev('d')"><div class="val-disp" id="agD-txt">০</div><input type="number" class="num-inp" id="agD-inp" onblur="window.TechHatTools.clRev('d')"></div><div class="unit-sub">দিন</div><button type="button" class="arr-btn" onclick="window.TechHatTools.updRev('d',-1)">▼</button></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="age-highlight-wrap">
+                  <div class="age-highlight-head">সম্ভাব্য জন্ম তারিখ</div>
+                  <div class="age-highlight-body">
+                    <div class="dob-main-row">
+                      <div class="dob-main-val" id="dob-main">...</div>
+                      <span class="meta-pill" id="dob-season">...</span>
+                    </div>
+                    <div class="dob-sub-bn" id="dob-bn">...</div>
+                    <div class="dob-sub-hj" id="dob-hj">...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============================================================ TOOL 4: DATE CALCULATOR -->
+        <div class="tool-view" id="tool-datecalc" hidden>
+          <section class="card util-card" aria-label="দিন গণনা">
+            <div class="dc-banner">
+              <div class="dc-res-en" id="dcResEn">...</div>
+              <div class="dc-res-bn" id="dcResBn">...</div>
+            </div>
+
+            <div class="util-body">
+              <div class="dual-panel">
+                <div>
+                  <div class="picker-area">
+                    <div class="section-header">শুরুর তারিখ</div>
+                    <div class="p-row">
+                      <div class="swipe-box" id="dcD"><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','d',1)">▲</button><div class="mid-area" data-grid="d" data-ref="dcD-txt"><div class="val-disp" id="dcD-txt">০১</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','d',-1)">▼</button></div>
+                      <div class="swipe-box" id="dcM"><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','m',1)">▲</button><div class="mid-area" data-grid="m" data-ref="dcM-txt"><div class="val-disp small" id="dcM-txt">Jan</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','m',-1)">▼</button></div>
+                      <div class="swipe-box" id="dcY"><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','y',1)">▲</button><div class="mid-area" onclick="window.TechHatTools.edCalcY()"><div class="val-disp" id="dcY-txt">২০২৬</div><input type="number" class="num-inp" id="dcY-inp" onblur="window.TechHatTools.clCalcY()"></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','y',-1)">▼</button></div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="picker-area">
+                    <div class="section-header">ব্যবধান (Duration)</div>
+                    <div class="p-row">
+                      <div class="swipe-box" id="duY">
+                        <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','y',1)">▲</button>
+                        <div class="mid-area" onclick="window.TechHatTools.edDur('y')">
+                          <div class="val-disp" id="duY-txt">০</div>
+                          <input type="number" class="num-inp" id="duY-inp" onblur="window.TechHatTools.clDur('y')">
+                        </div>
+                        <div class="unit-sub">বছর</div>
+                        <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','y',-1)">▼</button>
+                      </div>
+                      <div class="swipe-box" id="duM">
+                        <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','m',1)">▲</button>
+                        <div class="mid-area" onclick="window.TechHatTools.edDur('m')">
+                          <div class="val-disp" id="duM-txt">০</div>
+                          <input type="number" class="num-inp" id="duM-inp" onblur="window.TechHatTools.clDur('m')">
+                        </div>
+                        <div class="unit-sub">মাস</div>
+                        <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','m',-1)">▼</button>
+                      </div>
+                      <div class="swipe-box" id="duD">
+                        <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','d',1)">▲</button>
+                        <div class="mid-area" onclick="window.TechHatTools.edDur('d')">
+                          <div class="val-disp" id="duD-txt">০</div>
+                          <input type="number" class="num-inp" id="duD-inp" onblur="window.TechHatTools.clDur('d')">
+                        </div>
+                        <div class="unit-sub">দিন</div>
+                        <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','d',-1)">▼</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="dc-dir-row">
+                    <label class="dc-radio"><input type="radio" name="dcDir" value="after" checked onchange="window.TechHatTools.compCalc()"> <span>পরে (ভবিষ্যৎ)</span></label>
+                    <label class="dc-radio"><input type="radio" name="dcDir" value="before" onchange="window.TechHatTools.compCalc()"> <span>আগে (অতীত)</span></label>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="ai-btn" onclick="window.TechHatTools.showAICalcAnalysis()">✦ সময়ের বিশ্লেষণ</button>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============================================================ TOOL 5: INVOICE GENERATOR -->
+        <div class="tool-view" id="tool-invoice" hidden>
+          <section class="card util-card inv-card" aria-label="ইনভয়েস জেনারেটর">
+            <div class="inv-controls inv-controls--top">
+              <div class="inv-controls__hint">সকল তথ্য সরাসরি ক্লিক করে এডিট করা যাবে (A4 প্রিন্ট রেডি)</div>
+              <button type="button" class="btn btn--primary btn--sm" onclick="window.TechHatTools.printInv()">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                প্রিন্ট বা PDF সেভ করুন
+              </button>
+            </div>
+
+            <div class="inv-stage">
+              <div class="inv-wrapper">
+                <div class="inv-shape-tr">
+                  <div class="inv-title-text">INVOICE</div>
+                </div>
+
+                <div class="inv-header-modern">
+                  <div style="display:flex; align-items:center; gap:15px; position:relative; z-index:2;">
+                    <img src="icons/icon-192.png" alt="TechHat লোগো" style="width:64px; height:64px; border-radius:12px;" width="64" height="64">
+                    <div>
+                      <input type="text" class="inv-inp-trans" value="টেকহাট ইউটিলিটি" style="margin:0; font-size:24px; font-weight:700; color:#1e293b; line-height:1.2;">
+                      <input type="text" class="inv-inp-trans" value="টেকনোলজির বিশ্বস্ত ঠিকানা" style="margin:2px 0 0; font-size:12px; color:#64748b; font-weight:600;">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="inv-meta-grid">
+                  <div>
+                    <div class="inv-label">Bill To:</div>
+                    <input type="text" class="inv-inp-trans" id="invCli" placeholder="কাস্টমারের নাম" style="font-size:18px; font-weight:700; color:#0f172a;">
+                    <input type="text" class="inv-inp-trans" id="invAddr" placeholder="ঠিকানা / মোবাইল নম্বর" style="font-size:14px; color:#334155;">
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="display:flex; justify-content:flex-end; gap:10px; align-items:center; margin-bottom:5px;">
+                      <span class="inv-label" style="margin:0;">Invoice No:</span>
+                      <input type="text" class="inv-inp-trans" id="invNo" value="#INV-001" style="width:110px; text-align:right; color:#0f172a;">
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; gap:10px; align-items:center;">
+                      <span class="inv-label" style="margin:0;">Date:</span>
+                      <input type="date" class="inv-inp-trans" id="invDate" style="width:135px; text-align:right; color:#0f172a;">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="inv-table-container">
+                  <table class="modern-table">
+                    <thead>
+                      <tr>
+                        <th style="width:50%;">বিবরণ (Description)</th>
+                        <th style="width:15%; text-align:center;">দাম</th>
+                        <th style="width:15%; text-align:center;">পরিমাণ</th>
+                        <th style="width:20%;">মোট</th>
+                        <th style="width:26px; background:transparent;"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="invList"></tbody>
+                  </table>
+                  <button type="button" class="btn-add-row" onclick="window.TechHatTools.addInvItem()">+ সারি যোগ করুন</button>
+                </div>
+
+                <div class="inv-bottom">
+                  <div style="width:45%; padding-top:16px; position:relative; z-index:2;">
+                    <div class="inv-label">Payment Info:</div>
+                    <input type="text" class="inv-inp-trans" value="বিকাশ/নগদ: ০১৯১১৭৭৭৬৯৪" style="font-size:13px; color:#475569; margin:3px 0;">
+                    <div class="inv-label" style="margin-top:16px;">Terms:</div>
+                    <input type="text" class="inv-inp-trans" value="বিক্রিত পণ্য ফেরত নেওয়া হয় না। ওয়ারেন্টির শর্তাবলী প্রযোজ্য।" style="font-size:12px; color:#64748b; margin:3px 0;">
+                  </div>
+
+                  <div style="position:relative; z-index:2;">
+                    <div class="inv-total-box">
+                      <div class="it-row"><span>সাব-টোটাল</span><span id="invSub">0.00</span></div>
+                      <div class="it-row" style="align-items:center;">
+                        <span>ভ্যাট (%) <input type="number" id="invTax" value="0" oninput="window.TechHatTools.calcInv()" style="width:46px; border:none; border-radius:4px; padding:2px 4px; color:#0f172a; background:#fff;"></span>
+                        <span id="invTaxVal">0.00</span>
+                      </div>
+                      <div class="it-row grand"><span>সর্বমোট</span><span id="invGrand">0.00</span></div>
+                    </div>
+                    <div style="text-align:right; margin-top:40px;">
+                      <div style="border-top:1px solid #334155; display:inline-block; width:150px; padding-top:5px; font-size:13px; font-weight:700; color:#1e293b;">স্বাক্ষর</div>
+                    </div>
+                  </div>
+
+                  <div class="inv-shape-bl"></div>
+                </div>
+
+                <div class="inv-footer-bar">
+                  <div class="if-item">📍 হলিধানী বাজার, ঝিনাইদহ</div>
+                  <div class="if-item">📞 ০১৯১১৭৭৭৬৯৪</div>
+                  <div class="if-item">✉️ techhat.shop@gmail.com</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- ============================================================ RIGHT SIDEBAR: OTHER TOOLS -->
+      <aside class="tools-sidebar" id="toolsSidebar" aria-label="অন্যান্য টুলস">
+        <div class="tools-sidebar__card">
+          <div class="tools-sidebar__head">
+            <div class="tools-sidebar__title">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+              <span>অন্যান্য টুলস</span>
+            </div>
+            <span class="tools-sidebar__count" id="toolsCountBadge">৪টি</span>
+          </div>
+          <div class="tools-sidebar__search">
+            <input type="search" id="toolSearch" placeholder="টুল খুঁজুন… (যেমন: বয়স, ক্যালেন্ডার)" autocomplete="off" aria-label="টুল খুঁজুন">
+          </div>
+          <div class="tools-sidebar__list" id="toolsSidebarList" role="navigation" aria-label="টুল তালিকা"></div>
+        </div>
+      </aside>
+    </div>
   </main>
 
-  <section class="guide" aria-labelledby="guideTitle">
+  <section class="guide" id="bijoyGuide" aria-labelledby="guideTitle">
     <h2 id="guideTitle" class="section-title">সাধারণ প্রশ্ন</h2>
     <details>
       <summary>মোবাইল বা অন্য ডিভাইসে বিজয় (SutonnyMJ) লেখা কীভাবে সঠিক দেখায়?</summary>
@@ -292,8 +638,34 @@
   </section>
 
   <footer class="footer">
-    <p>© <span id="year"></span> TechHat • সব রূপান্তর আপনার ডিভাইসেই হয়, কোনো ডেটা কোথাও পাঠানো হয় না।</p>
+    <p>© <span id="year"></span> TechHat • সব রূপান্তর ও হিসাব আপনার ডিভাইসেই হয়, কোনো ডেটা কোথাও পাঠানো হয় না।</p>
   </footer>
+
+  <!-- INSIGHTS MODAL -->
+  <div class="ai-modal-overlay" id="aiModal" hidden onclick="window.TechHatTools.closeAIModal(event)" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+    <div class="ai-modal">
+      <button type="button" class="ai-close" onclick="window.TechHatTools.closeAIModal()" aria-label="বন্ধ করুন">✕</button>
+      <div class="ai-title" id="aiTitle">✦ ফলাফল</div>
+      <div class="ai-content" id="aiContent"></div>
+    </div>
+  </div>
+
+  <!-- ADVANCED GRID PICKER MODAL -->
+  <div class="grid-modal-overlay" id="gridModalOverlay" hidden aria-hidden="true">
+    <div class="grid-modal" id="gridModal" role="dialog" aria-modal="true" aria-labelledby="gridTitle">
+      <div class="gm-header">
+        <div>
+          <div class="gm-title" id="gridTitle">নির্বাচন করুন</div>
+          <div class="gm-sub" id="gridSub"></div>
+        </div>
+        <button type="button" class="ai-close" id="gridCloseBtn" aria-label="বন্ধ করুন" style="position:static;">✕</button>
+      </div>
+      <div id="calHeader" class="cal-weekdays" style="display:none;">
+        <div class="cal-wd">রবি</div><div class="cal-wd">সোম</div><div class="cal-wd">মঙ্গল</div><div class="cal-wd">বুধ</div><div class="cal-wd">বৃহঃ</div><div class="cal-wd">শুক্র</div><div class="cal-wd">শনি</div>
+      </div>
+      <div class="grid-grid" id="gridContent"></div>
+    </div>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
@@ -302,5 +674,6 @@
   <script src="js/office.js" defer></script>
   <script src="js/formats.js" defer></script>
   <script src="js/app.js" defer></script>
+  <script src="js/tools.js" defer></script>
 </body>
 </html>

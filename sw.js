@@ -1,7 +1,7 @@
 /* TechHat Bangla Converter — service worker (offline app shell) */
 'use strict';
 
-var VERSION = 'thbc-v6';
+var VERSION = 'thbc-v7';
 var SHELL = 'shell-' + VERSION;
 var RUNTIME = 'runtime-' + VERSION;
 
@@ -15,6 +15,7 @@ var ASSETS = [
   'js/office.js',
   'js/formats.js',
   'js/app.js',
+  'js/tools.js',
   'vendor/jszip.min.js',
   'manifest.webmanifest',
   'icons/icon-48.png',

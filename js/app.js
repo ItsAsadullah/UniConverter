@@ -956,7 +956,9 @@
   window.addEventListener('drop', function (e) {
     if (e.target.closest && e.target.closest('#dropZone')) return;
     if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
-      e.preventDefault(); setTab('file'); addFiles(e.dataTransfer.files);
+      e.preventDefault();
+      if (window.TechHatTools) window.TechHatTools.openTool('bijoy', false);
+      setTab('file'); addFiles(e.dataTransfer.files);
     }
   });
 
