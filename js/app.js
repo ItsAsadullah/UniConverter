@@ -721,10 +721,10 @@
     var el = $('#fontStatus');
     if (fontAvailable('SutonnyMJ')) {
       el.className = 'font-status is-ok';
-      el.textContent = 'SutonnyMJ ফন্ট আপনার ডিভাইসে আছে — বিজয় লেখা সঠিকভাবে দেখাবে।';
+      el.textContent = 'SutonnyMJ ফন্ট সক্রিয় আছে — মোবাইল ও পিসিতে বিজয় লেখা সঠিকভাবে দেখাবে।';
     } else {
       el.className = 'font-status is-warn';
-      el.textContent = 'এই ডিভাইসে SutonnyMJ ফন্ট নেই, তাই বিজয় লেখা ইংরেজি অক্ষরের মতো দেখাবে — রূপান্তর তবুও সঠিক। Word-এ বসাতে “Word-এর জন্য কপি” ব্যবহার করুন।';
+      el.textContent = 'এই ডিভাইসে SutonnyMJ ফন্ট লোড হয়নি, তাই বিজয় লেখা ইংরেজি অক্ষরের মতো দেখাবে — রূপান্তর তবুও সঠিক। Word-এ বসাতে “Word-এর জন্য কপি” ব্যবহার করুন।';
     }
     el.title = el.textContent;
   }
@@ -1047,5 +1047,10 @@
   input.value = store.get('thbc-draft', '') || '';
   convertNow();
   updateFontStatus();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateFontStatus);
+  if (document.fonts) {
+    if (document.fonts.load) {
+      document.fonts.load('18px "SutonnyMJ"', 'Avwg evsjv').then(updateFontStatus, updateFontStatus);
+    }
+    if (document.fonts.ready) document.fonts.ready.then(updateFontStatus);
+  }
 })();

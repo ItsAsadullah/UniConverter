@@ -4,6 +4,27 @@
    Layout: Fully responsive, zero-scroll on standard screens, fluid zooming
    ========================================================================== */
 
+/* ------------------------------------------------------------------ EMBEDDED SUTONNYMJ FONT */
+@font-face {
+  font-family: "SutonnyMJ";
+  src: url("../SutonnyMJ-Regular.ttf") format("truetype"),
+       local("SutonnyMJ"),
+       local("SutonnyMJ Regular");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SutonnyMJ";
+  src: url("../SutonnyMJ-Italic.ttf") format("truetype"),
+       local("SutonnyMJ Italic"),
+       local("SutonnyMJ-Italic");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* ------------------------------------------------------------------ THEME TOKENS */
 :root {
   color-scheme: light dark;
