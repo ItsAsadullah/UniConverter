@@ -1,0 +1,664 @@
+---
+interface Props {
+  initialTab?: 'hub' | 'merge' | 'split' | 'compress' | 'organize' | 'pdf2other' | 'other2pdf';
+}
+
+const { initialTab = 'hub' } = Astro.props;
+---
+<div class="tool-view" id="tool-pdf" data-initial-tab={initialTab}>
+  <section class="card util-card pdf-studio-card" aria-label="পিডিএফ স্টুডিও">
+    <!-- Top Sub-Tool Navigation -->
+    <div class="pdf-nav-bar" role="tablist" aria-label="পিডিএফ টুলস মেনু">
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'hub' }]} data-pdf-tab="hub" role="tab" aria-selected={initialTab === 'hub' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>সব PDF টুলস</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'merge' }]} data-pdf-tab="merge" role="tab" aria-selected={initialTab === 'merge' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 8v8M8 12h8"/></svg>
+        <span>মার্জ PDF</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'split' }]} data-pdf-tab="split" role="tab" aria-selected={initialTab === 'split' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+        <span>স্প্লিট PDF</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'compress' }]} data-pdf-tab="compress" role="tab" aria-selected={initialTab === 'compress' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+        <span>কমপ্রেস PDF</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'organize' }]} data-pdf-tab="organize" role="tab" aria-selected={initialTab === 'organize' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/></svg>
+        <span>অর্গানাইজ PDF</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'pdf2other' }]} data-pdf-tab="pdf2other" role="tab" aria-selected={initialTab === 'pdf2other' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m10 15 2 2 4-4"/></svg>
+        <span>PDF → অন্যান্য</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'other2pdf' }]} data-pdf-tab="other2pdf" role="tab" aria-selected={initialTab === 'other2pdf' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <span>অন্যান্য → PDF</span>
+      </button>
+    </div>
+
+    <div class="util-body pdf-studio-body">
+      <!-- Global PDF Progress Bar (sticky so it is always visible while processing) -->
+      <div class="pdf-progress-wrap" id="pdfProgressWrap" hidden aria-live="polite">
+        <div class="pdf-progress-head">
+          <span id="pdfProgressText">প্রসেস হচ্ছে…</span>
+          <span id="pdfProgressPct">০%</span>
+        </div>
+        <div class="progress">
+          <div class="progress__bar" id="pdfProgressBar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- ========================================== 0. HUB OVERVIEW (iLovePDF Grid) -->
+      <div class="pdf-pane" id="pdf-pane-hub" hidden={initialTab !== 'hub'}>
+        <div class="pdf-hub-hero">
+          <h2 class="pdf-hub-title">অল-ইন-ওয়ান <span>PDF স্টুডিও</span></h2>
+          <p class="pdf-hub-sub">আপনার সব PDF কাজ এখন একই জায়গায় — ১০০% নিরাপদ ও ব্রাউজারেই প্রসেস হয়, কোনো ফাইল সার্ভারে আপলোড হয় না।</p>
+        </div>
+        <div class="pdf-hub-grid">
+          <button type="button" class="pdf-hub-card" data-open-pdf="merge" data-accent="red">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 8v8M8 12h8"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">মার্জ PDF (Merge)</span>
+            <span class="pdf-hub-card__desc">PDF, ছবি, Word, PowerPoint, Excel — সব ফাইল ড্র্যাগ করে সাজিয়ে একটি PDF-এ একত্রিত করুন।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-pdf="split" data-accent="orange">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">স্প্লিট PDF (Split)</span>
+            <span class="pdf-hub-card__desc">বড় PDF থেকে নির্দিষ্ট পেজ রেঞ্জ বা প্রতিটি পেজ আলাদা PDF ফাইলে ভাগ করুন।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-pdf="compress" data-accent="green">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">কমপ্রেস PDF (Compress)</span>
+            <span class="pdf-hub-card__desc">সাইজ ও কোয়ালিটি প্রিভিউ দেখে পছন্দ হলে তবেই কমপ্রেসড PDF ডাউনলোড করুন।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-pdf="organize" data-accent="purple">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">অর্গানাইজ ও রোটেট PDF</span>
+            <span class="pdf-hub-card__desc">পেজ ড্র্যাগ করে সাজান, ঘোরান (Rotate), ডিলিট করুন, সাদা পেজ বা পেজ নম্বর দিন।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-pdf="pdf2other" data-sub-opt="jpg" data-accent="amber">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">PDF থেকে JPG / PNG</span>
+            <span class="pdf-hub-card__desc">PDF-এর প্রতিটি পৃষ্ঠাকে হাই-রেজোলিউশন JPG বা PNG ছবিতে রূপান্তর করুন।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-pdf="pdf2other" data-sub-opt="doc" data-accent="blue">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">PDF থেকে Word / Text</span>
+            <span class="pdf-hub-card__desc">PDF ফাইলের ভেতরের লেখা এক্সট্র্যাক্ট করে এডিটেবল Word (.doc) বা .txt ফাইল বানান।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-pdf="other2pdf" data-sub-opt="img2pdf" data-accent="teal">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m21 15-5-5L5 21"/><path d="M14 3v4h4"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">ছবি থেকে PDF (JPG to PDF)</span>
+            <span class="pdf-hub-card__desc">একাধিক JPG, PNG বা WebP ছবি সাজিয়ে A4 বা কাস্টম সাইজের PDF তৈরি করুন।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-pdf="other2pdf" data-sub-opt="doc2pdf" data-accent="indigo">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/><path d="m17 15 3 3-3 3"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">Word / টেক্সট থেকে PDF</span>
+            <span class="pdf-hub-card__desc">Word, PowerPoint, Excel, টেক্সট কিংবা বাংলা (ইউনিকোড/বিজয়) লেখা থেকে সরাসরি PDF তৈরি করুন।</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================== 1. MERGE PDF WORKSPACE -->
+      <div class="pdf-pane" id="pdf-pane-merge" hidden={initialTab !== 'merge'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">মার্জ PDF (Merge PDF)</h3>
+            <p class="pdf-ws-sub">PDF-এর সাথে ছবি, Word, PowerPoint, Excel বা টেক্সট ফাইলও যোগ করুন — ড্র্যাগ করে ক্রম সাজান, ঘোরান এবং সব একটি PDF-এ একত্রিত করুন।</p>
+          </div>
+          <div class="pdf-ws-actions" id="pdfMergeTopActions" hidden>
+            <label class="chip-btn" for="pdfMergeAddMore">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              আরও ফাইল যোগ করুন
+              <input type="file" id="pdfMergeAddMore" accept=".pdf,application/pdf,image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.doc,.docx,.pptx,.xlsx,.txt,.md,.csv,.rtf" multiple class="visually-hidden">
+            </label>
+            <button type="button" class="chip-btn" id="pdfMergeRotLeftAll" title="সব ফাইল বামে ঘোরান">↺ সব</button>
+            <button type="button" class="chip-btn" id="pdfMergeRotRightAll" title="সব ফাইল ডানে ঘোরান">↻ সব</button>
+            <button type="button" class="chip-btn" id="pdfMergeSortBtn">নাম অনুসারে (A-Z)</button>
+            <button type="button" class="chip-btn chip-btn--danger" id="pdfMergeClearBtn">সব মুছুন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="pdfMergeDropzone" for="pdfMergeInput">
+          <input type="file" id="pdfMergeInput" accept=".pdf,application/pdf,image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.doc,.docx,.pptx,.xlsx,.txt,.md,.csv,.rtf" multiple class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M20 16.7A4.5 4.5 0 0 0 17.5 8h-1.1A7 7 0 1 0 4 14.9"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">ফাইলগুলো এখানে ড্র্যাগ করে ছাড়ুন অথবা <span class="link-ish">ব্রাউজ করুন</span></div>
+          <div class="pdf-dropzone__sub">PDF • JPG • PNG • WebP • Word (.doc/.docx) • PowerPoint (.pptx) • Excel (.xlsx) • TXT — সব স্বয়ংক্রিয়ভাবে PDF হয়ে যুক্ত হবে</div>
+          <div class="pdf-format-chips" aria-hidden="true">
+            <span data-k="pdf">PDF</span><span data-k="img">JPG</span><span data-k="img">PNG</span><span data-k="doc">DOCX</span><span data-k="doc">DOC</span><span data-k="ppt">PPTX</span><span data-k="xls">XLSX</span><span data-k="txt">TXT</span>
+          </div>
+        </label>
+
+        <div class="pdf-workspace-stage pdf-drop-target" id="pdfMergeStage" hidden>
+          <p class="pdf-hint-line">💡 কার্ড ধরে টেনে (Drag) ক্রম পরিবর্তন করুন • মোবাইলে <b>⠿</b> হ্যান্ডেল ধরে টানুন • এখানে নতুন ফাইলও ড্রপ করতে পারবেন</p>
+          <div class="pdf-cards-grid" id="pdfMergeList"></div>
+          <div class="pdf-action-bar">
+            <div class="pdf-summary-pill" id="pdfMergeSummary">০টি ফাইল • মোট ০ পৃষ্ঠা</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="pdfMergeRunBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 8v8M8 12h8"/></svg>
+              PDF মার্জ ও ডাউনলোড করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 2. SPLIT PDF WORKSPACE -->
+      <div class="pdf-pane" id="pdf-pane-split" hidden={initialTab !== 'split'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">স্প্লিট PDF (Split PDF)</h3>
+            <p class="pdf-ws-sub">পৃষ্ঠার ওপর ক্লিক করে অথবা পেজ রেঞ্জ লিখে নির্দিষ্ট পৃষ্ঠাগুলো আলাদা PDF হিসেবে ডাউনলোড করুন।</p>
+          </div>
+          <div class="pdf-ws-actions" id="pdfSplitTopActions" hidden>
+            <button type="button" class="chip-btn" id="pdfSplitRotLeftAll">↺ সব</button>
+            <button type="button" class="chip-btn" id="pdfSplitRotRightAll">↻ সব</button>
+            <button type="button" class="chip-btn" id="pdfSplitSelectAllBtn">সব পেজ সিলেক্ট</button>
+            <button type="button" class="chip-btn chip-btn--danger" id="pdfSplitResetBtn">অন্য ফাইল নিন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="pdfSplitDropzone" for="pdfSplitInput">
+          <input type="file" id="pdfSplitInput" accept=".pdf,application/pdf" class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">স্প্লিট করার জন্য একটি PDF ফাইল ছাড়ুন বা <span class="link-ish">সিলেক্ট করুন</span></div>
+          <div class="pdf-dropzone__sub">সবগুলো পৃষ্ঠার প্রিভিউ দেখে পেজ আলাদা করতে পারবেন</div>
+        </label>
+
+        <div class="pdf-workspace-stage" id="pdfSplitStage" hidden>
+          <div class="pdf-options-box">
+            <fieldset class="pdf-fieldset">
+              <legend class="pdf-legend">স্প্লিট করার ধরন নির্বাচন করুন</legend>
+              <div class="pdf-radio-cards">
+                <label class="pdf-radio-card">
+                  <input type="radio" name="pdfSplitMode" value="range" checked>
+                  <span class="pdf-radio-card__body">
+                    <strong>নির্দিষ্ট পেজ বা রেঞ্জ (Custom Range)</strong>
+                    <small>যেমন: 1-3, 5, 8-10 অথবা নিচের পেজগুলোতে ক্লিক করুন</small>
+                  </span>
+                </label>
+                <label class="pdf-radio-card">
+                  <input type="radio" name="pdfSplitMode" value="burst">
+                  <span class="pdf-radio-card__body">
+                    <strong>প্রতিটি পেজ আলাদা PDF (ZIP ফাইল)</strong>
+                    <small>নির্দিষ্ট সংখ্যক পৃষ্ঠা পর পর আলাদা ফাইল তৈরি হবে</small>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="pdf-sub-controls" id="pdfSplitRangeControls">
+              <div class="pdf-field-group">
+                <label for="pdfSplitRange">পেজ নম্বর / রেঞ্জ (কমা দিয়ে লিখুন):</label>
+                <input type="text" id="pdfSplitRange" name="pdfSplitRange" placeholder="যেমন: 1-3, 5, 7" autocorrect="off" autocapitalize="off" spellcheck="false">
+              </div>
+              <label class="switch pdf-inline-switch">
+                <input type="checkbox" id="pdfSplitMergeRanges" checked>
+                <span class="switch__track"><span class="switch__knob"></span></span>
+                <span class="switch__label">নির্বাচিত সব পেজ একটি PDF ফাইলে রাখুন (আনচেক করলে প্রতিটি রেঞ্জ আলাদা ZIP)</span>
+              </label>
+            </div>
+
+            <div class="pdf-sub-controls" id="pdfSplitBurstControls" hidden>
+              <div class="pdf-field-group">
+                <label for="pdfSplitEvery">কত পৃষ্ঠা পর পর আলাদা PDF হবে?</label>
+                <input type="number" id="pdfSplitEvery" name="pdfSplitEvery" value="1" min="1" max="500" style="max-width:120px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="pdf-pages-grid" id="pdfSplitPagesGrid"></div>
+
+          <div class="pdf-action-bar">
+            <div class="pdf-summary-pill" id="pdfSplitSummary">মোট ০ পৃষ্ঠা</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="pdfSplitRunBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              স্প্লিট ও ডাউনলোড করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 3. COMPRESS PDF WORKSPACE -->
+      <div class="pdf-pane" id="pdf-pane-compress" hidden={initialTab !== 'compress'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">কমপ্রেস PDF (Compress PDF)</h3>
+            <p class="pdf-ws-sub">কমপ্রেস করার পর নতুন সাইজ ও কোয়ালিটি প্রিভিউ দেখুন — পছন্দ হলে তবেই ডাউনলোড করুন।</p>
+          </div>
+          <div class="pdf-ws-actions" id="pdfCompressTopActions" hidden>
+            <button type="button" class="chip-btn" id="pdfCompressRotLeftAll">↺ সব</button>
+            <button type="button" class="chip-btn" id="pdfCompressRotRightAll">↻ সব</button>
+            <button type="button" class="chip-btn chip-btn--danger" id="pdfCompressResetBtn">অন্য ফাইল নিন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="pdfCompressDropzone" for="pdfCompressInput">
+          <input type="file" id="pdfCompressInput" accept=".pdf,application/pdf" class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">কমপ্রেস করার জন্য PDF ফাইল ছাড়ুন বা <span class="link-ish">সিলেক্ট করুন</span></div>
+          <div class="pdf-dropzone__sub">স্ক্যান করা বা ভারী PDF ফাইলের সাইজ দ্রুত কমান</div>
+        </label>
+
+        <div class="pdf-workspace-stage" id="pdfCompressStage" hidden>
+          <div class="pdf-file-banner" id="pdfCompressFileInfo"></div>
+
+          <div class="pdf-options-box">
+            <fieldset class="pdf-fieldset">
+              <legend class="pdf-legend">কমপ্রেশন লেভেল নির্বাচন করুন</legend>
+              <div class="pdf-radio-cards pdf-radio-cards--3">
+                <label class="pdf-radio-card">
+                  <input type="radio" name="pdfCompressLevel" value="extreme">
+                  <span class="pdf-radio-card__body">
+                    <strong>এক্সট্রিম কমপ্রেশন</strong>
+                    <small>সর্বোচ্চ সাইজ কমবে (মাঝারি কোয়ালিটি)</small>
+                  </span>
+                </label>
+                <label class="pdf-radio-card">
+                  <input type="radio" name="pdfCompressLevel" value="recommended" checked>
+                  <span class="pdf-radio-card__body">
+                    <strong>রেকমেন্ডেড কমপ্রেশন</strong>
+                    <small>ভালো কোয়ালিটি এবং কম সাইজ (সেরা ব্যালেন্স)</small>
+                  </span>
+                </label>
+                <label class="pdf-radio-card">
+                  <input type="radio" name="pdfCompressLevel" value="light">
+                  <span class="pdf-radio-card__body">
+                    <strong>হালকা কমপ্রেশন</strong>
+                    <small>উচ্চ প্রিন্ট কোয়ালিটি ও স্ট্রাকচার অপটিমাইজ</small>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="pdf-sub-controls">
+              <label class="switch pdf-inline-switch">
+                <input type="checkbox" id="pdfCompressGray">
+                <span class="switch__track"><span class="switch__knob"></span></span>
+                <span class="switch__label">সাদাকালো (Grayscale) মোডে রূপান্তর করে আরও সাইজ কমান</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="pdf-pages-grid pdf-pages-grid--compact" id="pdfCompressPagesGrid"></div>
+
+          <!-- Result panel: size comparison + quality preview + manual download -->
+          <div class="pdf-compress-result" id="pdfCompressResult" hidden>
+            <div class="pdf-compress-stat" id="pdfCompressStat"></div>
+            <div class="pdf-compress-preview-head">
+              <strong>কমপ্রেসড ফাইলের কোয়ালিটি প্রিভিউ</strong>
+              <span>যেকোনো পৃষ্ঠায় ক্লিক করে আগের ও পরের কোয়ালিটি পাশাপাশি তুলনা করুন</span>
+            </div>
+            <div class="pdf-pages-grid pdf-pages-grid--compact" id="pdfCompressPreviewGrid"></div>
+            <div class="pdf-compress-result-actions">
+              <button type="button" class="chip-btn" id="pdfCompressCompareBtn">🔍 আগে / পরে তুলনা করুন</button>
+              <button type="button" class="chip-btn" id="pdfCompressRetryBtn">↻ অন্য লেভেলে আবার কমপ্রেস করুন</button>
+              <button type="button" class="btn btn--primary" id="pdfCompressDownloadBtn">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                কমপ্রেসড PDF ডাউনলোড করুন
+              </button>
+            </div>
+          </div>
+
+          <div class="pdf-action-bar" id="pdfCompressActionBar">
+            <div class="pdf-summary-pill" id="pdfCompressSummary">প্রস্তুত</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="pdfCompressRunBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+              PDF কমপ্রেস করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 4. ORGANIZE PDF WORKSPACE -->
+      <div class="pdf-pane" id="pdf-pane-organize" hidden={initialTab !== 'organize'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">অর্গানাইজ ও রোটেট PDF (Organize PDF)</h3>
+            <p class="pdf-ws-sub">পৃষ্ঠাগুলো ড্র্যাগ করে সাজান, ঘোরান (Rotate), ডুপ্লিকেট বা ডিলিট করুন এবং পেজ নম্বর/ওয়াটারমার্ক দিন।</p>
+          </div>
+          <div class="pdf-ws-actions" id="pdfOrgTopActions" hidden>
+            <button type="button" class="chip-btn" id="pdfOrgRotLeftAll">↺ সব</button>
+            <button type="button" class="chip-btn" id="pdfOrgRotRightAll">↻ সব</button>
+            <button type="button" class="chip-btn" id="pdfOrgAddBlank">+ সাদা পেজ</button>
+            <button type="button" class="chip-btn" id="pdfOrgReverseBtn">⇅ উল্টো ক্রম</button>
+            <button type="button" class="chip-btn chip-btn--danger" id="pdfOrgResetBtn">অন্য ফাইল নিন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="pdfOrgDropzone" for="pdfOrgInput">
+          <input type="file" id="pdfOrgInput" accept=".pdf,application/pdf" class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">সাজানোর জন্য একটি PDF ফাইল ছাড়ুন বা <span class="link-ish">সিলেক্ট করুন</span></div>
+          <div class="pdf-dropzone__sub">পেজ রোটেশন, ডিলিট, রিঅর্ডার এবং পেজ নম্বর এক জায়গায়</div>
+        </label>
+
+        <div class="pdf-workspace-stage" id="pdfOrgStage" hidden>
+          <div class="pdf-options-box pdf-org-extras">
+            <label class="switch pdf-inline-switch">
+              <input type="checkbox" id="pdfOrgPageNums">
+              <span class="switch__track"><span class="switch__knob"></span></span>
+              <span class="switch__label">প্রতি পাতার নিচে পেজ নম্বর যুক্ত করুন (1 / N)</span>
+            </label>
+            <div class="pdf-field-group pdf-field-group--inline">
+              <label for="pdfOrgWatermark">ওয়াটারমার্ক টেক্সট (ঐচ্ছিক):</label>
+              <input type="text" id="pdfOrgWatermark" name="pdfOrgWatermark" placeholder="যেমন: CONFIDENTIAL / TechHat">
+            </div>
+          </div>
+
+          <p class="pdf-hint-line">💡 পৃষ্ঠা ধরে টেনে (Drag) ক্রম পরিবর্তন করুন • মোবাইলে <b>⠿</b> হ্যান্ডেল ধরে টানুন</p>
+          <div class="pdf-pages-grid" id="pdfOrgPagesGrid"></div>
+
+          <div class="pdf-action-bar">
+            <div class="pdf-summary-pill" id="pdfOrgSummary">মোট ০ পৃষ্ঠা</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="pdfOrgRunBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              সাজানো PDF ডাউনলোড করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 5. PDF TO OTHERS WORKSPACE -->
+      <div class="pdf-pane" id="pdf-pane-pdf2other" hidden={initialTab !== 'pdf2other'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">PDF থেকে অন্য ফরম্যাট (JPG / PNG / Word / Text)</h3>
+            <p class="pdf-ws-sub">PDF ফাইলকে হাই-রেজোলিউশন ছবি কিংবা এডিটেবল টেক্সট ও Word ফাইলে রূপান্তর করুন।</p>
+          </div>
+          <div class="pdf-ws-actions" id="pdfToOtherTopActions" hidden>
+            <button type="button" class="chip-btn" id="pdfToOtherRotLeftAll">↺ সব</button>
+            <button type="button" class="chip-btn" id="pdfToOtherRotRightAll">↻ সব</button>
+            <button type="button" class="chip-btn chip-btn--danger" id="pdfToOtherResetBtn">অন্য ফাইল নিন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="pdfToOtherDropzone" for="pdfToOtherInput">
+          <input type="file" id="pdfToOtherInput" accept=".pdf,application/pdf" class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m10 15 2 2 4-4"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">কনভার্ট করার জন্য PDF ফাইল ছাড়ুন বা <span class="link-ish">সিলেক্ট করুন</span></div>
+          <div class="pdf-dropzone__sub">JPG, PNG, TXT এবং Word (.doc) ফরম্যাট সাপোর্ট করে</div>
+        </label>
+
+        <div class="pdf-workspace-stage" id="pdfToOtherStage" hidden>
+          <div class="pdf-file-banner" id="pdfToOtherFileInfo"></div>
+
+          <div class="pdf-options-box">
+            <fieldset class="pdf-fieldset">
+              <legend class="pdf-legend">কোন ফরম্যাটে রূপান্তর করতে চান?</legend>
+              <div class="pdf-radio-cards pdf-radio-cards--4">
+                <label class="pdf-radio-card">
+                  <input type="radio" name="pdfToOtherFmt" value="jpg" checked>
+                  <span class="pdf-radio-card__body">
+                    <strong>PDF → JPG ইমেজ</strong>
+                    <small>প্রতিটি পৃষ্ঠা আলাদা JPG ছবি (ZIP)</small>
+                  </span>
+                </label>
+                <label class="pdf-radio-card">
+                  <input type="radio" name="pdfToOtherFmt" value="png">
+                  <span class="pdf-radio-card__body">
+                    <strong>PDF → PNG ইমেজ</strong>
+                    <small>শার্প ও লসলেস PNG ছবি (ZIP)</small>
+                  </span>
+                </label>
+                <label class="pdf-radio-card">
+                  <input type="radio" name="pdfToOtherFmt" value="doc">
+                  <span class="pdf-radio-card__body">
+                    <strong>PDF → Word (.doc)</strong>
+                    <small>এডিটেবল MS Word ডকুমেন্ট</small>
+                  </span>
+                </label>
+                <label class="pdf-radio-card">
+                  <input type="radio" name="pdfToOtherFmt" value="txt">
+                  <span class="pdf-radio-card__body">
+                    <strong>PDF → টেক্সট (.txt)</strong>
+                    <small>সব পৃষ্ঠার লেখা প্লেইন টেক্সট</small>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="pdf-sub-controls" id="pdfToImgDpiWrap">
+              <fieldset class="pdf-fieldset">
+                <legend class="pdf-legend">ছবির রেজোলিউশন (Image Quality)</legend>
+                <div class="pdf-radio-inline">
+                  <label class="dc-radio"><input type="radio" name="pdfImgScale" value="1.5"> স্ট্যান্ডার্ড (150 DPI)</label>
+                  <label class="dc-radio"><input type="radio" name="pdfImgScale" value="2.2" checked> হাই এইচডি (220 DPI)</label>
+                  <label class="dc-radio"><input type="radio" name="pdfImgScale" value="3.0"> আল্ট্রা প্রিন্ট (300 DPI)</label>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+
+          <div class="pdf-pages-grid pdf-pages-grid--compact" id="pdfToOtherPagesGrid"></div>
+
+          <div class="pdf-convert-preview" id="pdfToOtherPreview" hidden></div>
+
+          <div class="pdf-action-bar">
+            <div class="pdf-summary-pill" id="pdfToOtherSummary">প্রস্তুত</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="pdfToOtherRunBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              কনভার্ট ও ডাউনলোড করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 6. OTHERS TO PDF WORKSPACE -->
+      <div class="pdf-pane" id="pdf-pane-other2pdf" hidden={initialTab !== 'other2pdf'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">অন্য ফরম্যাট থেকে PDF (JPG / PNG / Word / PowerPoint / Excel / Text → PDF)</h3>
+            <p class="pdf-ws-sub">একাধিক ছবি, অফিস ফাইল অথবা বাংলা/ইংরেজি লেখা থেকে প্রিন্ট-রেডি PDF তৈরি করুন।</p>
+          </div>
+        </div>
+
+        <div class="pdf-options-box" style="margin-bottom: 1rem;">
+          <fieldset class="pdf-fieldset">
+            <legend class="pdf-legend">উৎস নির্বাচন করুন (Source Type)</legend>
+            <div class="pdf-radio-cards">
+              <label class="pdf-radio-card">
+                <input type="radio" name="otherToPdfMode" value="img2pdf" checked>
+                <span class="pdf-radio-card__body">
+                  <strong>ছবি থেকে PDF (JPG / PNG / WebP → PDF)</strong>
+                  <small>এক বা একাধিক ছবি সাজিয়ে PDF ফাইল বানান</small>
+                </span>
+              </label>
+              <label class="pdf-radio-card">
+                <input type="radio" name="otherToPdfMode" value="doc2pdf">
+                <span class="pdf-radio-card__body">
+                  <strong>অফিস ফাইল / টেক্সট / লেখা → PDF</strong>
+                  <small>.docx, .doc, .pptx, .xlsx, .txt আপলোড করুন বা সরাসরি লিখে PDF বানান</small>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Sub-view 6A: Images to PDF -->
+        <div id="other2pdfImgBox">
+          <label class="pdf-dropzone" id="img2pdfDropzone" for="img2pdfInput">
+            <input type="file" id="img2pdfInput" accept="image/jpeg,image/png,image/webp,image/bmp,image/gif,.jpg,.jpeg,.png,.webp,.gif,.bmp" multiple class="visually-hidden">
+            <div class="pdf-dropzone__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            </div>
+            <div class="pdf-dropzone__title">একাধিক ছবি (JPG, PNG, WebP) এখানে ছাড়ুন বা <span class="link-ish">ব্রাউজ করুন</span></div>
+            <div class="pdf-dropzone__sub">ছবিগুলো পছন্দমতো ক্রমে সাজিয়ে A4 বা Fit সাইজের PDF তৈরি করুন</div>
+          </label>
+
+          <div class="pdf-workspace-stage pdf-drop-target" id="img2pdfStage" hidden>
+            <div class="pdf-ws-actions" style="margin-bottom:.75rem; justify-content:flex-end;">
+              <label class="chip-btn" for="img2pdfAddMore">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                আরও ছবি যোগ করুন
+                <input type="file" id="img2pdfAddMore" accept="image/jpeg,image/png,image/webp,image/bmp,image/gif,.jpg,.jpeg,.png,.webp,.gif,.bmp" multiple class="visually-hidden">
+              </label>
+              <button type="button" class="chip-btn" id="img2pdfRotAll">↻ সব ঘোরান</button>
+              <button type="button" class="chip-btn chip-btn--danger" id="img2pdfClearBtn">সব ছবি মুছুন</button>
+            </div>
+
+            <div class="pdf-options-box pdf-img-settings">
+              <div class="pdf-field-group">
+                <label for="img2pdfPageSize">পেজ সাইজ:</label>
+                <select id="img2pdfPageSize" name="img2pdfPageSize">
+                  <option value="a4" selected>A4 (210 × 297 mm)</option>
+                  <option value="letter">US Letter</option>
+                  <option value="fit">ছবির অরিজিনাল সাইজ (Fit to Image)</option>
+                </select>
+              </div>
+              <div class="pdf-field-group">
+                <label for="img2pdfOrient">ওরিয়েন্টেশন:</label>
+                <select id="img2pdfOrient" name="img2pdfOrient">
+                  <option value="portrait" selected>পোর্ট্রেট (Portrait)</option>
+                  <option value="landscape">ল্যান্ডস্কেপ (Landscape)</option>
+                  <option value="auto">অটো (ছবির মাপ অনুযায়ী)</option>
+                </select>
+              </div>
+              <div class="pdf-field-group">
+                <label for="img2pdfMargin">মার্জিন:</label>
+                <select id="img2pdfMargin" name="img2pdfMargin">
+                  <option value="0">কোনো মার্জিন নেই</option>
+                  <option value="24" selected>ছোট মার্জিন</option>
+                  <option value="48">বড় মার্জিন</option>
+                </select>
+              </div>
+            </div>
+
+            <p class="pdf-hint-line">💡 ছবি ধরে টেনে (Drag) ক্রম পরিবর্তন করুন</p>
+            <div class="pdf-pages-grid" id="img2pdfGrid"></div>
+
+            <div class="pdf-action-bar">
+              <div class="pdf-summary-pill" id="img2pdfSummary">০টি ছবি</div>
+              <button type="button" class="btn btn--primary pdf-main-action" id="img2pdfRunBtn">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                PDF তৈরি ও ডাউনলোড করুন
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-view 6B: Office / Text to PDF -->
+        <div id="other2pdfDocBox" hidden>
+          <div class="pdf-doc-upload-bar">
+            <label class="chip-btn" for="doc2pdfInput">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              অফিস ফাইল সরাসরি PDF করুন
+              <input type="file" id="doc2pdfInput" accept=".docx,.doc,.pptx,.xlsx,.txt,.md,.csv,.rtf" class="visually-hidden">
+            </label>
+            <span class="pdf-doc-hint" id="doc2pdfFileName">.docx / .doc / .pptx / .xlsx ফাইল দিলে লেআউটসহ সরাসরি PDF ডাউনলোড হবে — অথবা নিচের বক্সে লিখুন</span>
+          </div>
+
+          <div class="pdf-options-box pdf-img-settings" style="margin-top:.75rem;">
+            <div class="pdf-field-group">
+              <label for="doc2pdfFont">ফন্ট নির্বাচন:</label>
+              <select id="doc2pdfFont" name="doc2pdfFont">
+                <option value="unicode" selected>ইউনিকোড বাংলা ও ইংরেজি</option>
+                <option value="bijoy">বিজয় ফন্ট (SutonnyMJ)</option>
+              </select>
+            </div>
+            <div class="pdf-field-group">
+              <label for="doc2pdfFontSize">ফন্ট সাইজ:</label>
+              <select id="doc2pdfFontSize" name="doc2pdfFontSize">
+                <option value="11">ছোট (11 pt)</option>
+                <option value="13" selected>মাঝারি (13 pt)</option>
+                <option value="16">বড় (16 pt)</option>
+                <option value="20">শিরোনাম (20 pt)</option>
+              </select>
+            </div>
+            <div class="pdf-field-group">
+              <label for="doc2pdfTitle">ডকুমেন্ট শিরোনাম (ঐচ্ছিক):</label>
+              <input type="text" id="doc2pdfTitle" name="doc2pdfTitle" placeholder="যেমন: দাপ্তরিক চিঠি / প্রতিবেদন">
+            </div>
+          </div>
+
+          <div class="pdf-field-group" style="margin-top:.75rem;">
+            <label for="doc2pdfText">ডকুমেন্টের বিস্তারিত লেখা:</label>
+            <textarea id="doc2pdfText" class="textbox pdf-doc-textarea" rows="8" placeholder="এখানে আপনার লেখা পেস্ট করুন বা লিখুন…"></textarea>
+          </div>
+
+          <div class="pdf-action-bar" style="margin-top:.85rem;">
+            <div class="pdf-summary-pill" id="doc2pdfSummary">A4 প্রিন্ট রেডি PDF</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="doc2pdfRunBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              লেখা থেকে PDF তৈরি করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Merge: per-file multi-page viewer (rotate / delete / drag-reorder each page) -->
+  <dialog class="pdf-dialog" id="pdfPagesDialog" closedby="any" aria-labelledby="pdfPagesDialogTitle">
+    <div class="pdf-dialog__head">
+      <div>
+        <h3 class="pdf-dialog__title" id="pdfPagesDialogTitle">সব পৃষ্ঠা</h3>
+        <p class="pdf-dialog__sub" id="pdfPagesDialogSub"></p>
+      </div>
+      <div class="pdf-ws-actions">
+        <button type="button" class="chip-btn" id="pdfPagesDlgRotL">↺ সব</button>
+        <button type="button" class="chip-btn" id="pdfPagesDlgRotR">↻ সব</button>
+        <button type="button" class="ai-close pdf-dialog__close" id="pdfPagesDlgClose" aria-label="বন্ধ করুন">✕</button>
+      </div>
+    </div>
+    <div class="pdf-dialog__body">
+      <div class="pdf-pages-grid pdf-pages-grid--dialog" id="pdfPagesDialogGrid"></div>
+    </div>
+    <div class="pdf-dialog__foot">
+      <button type="button" class="btn btn--primary" id="pdfPagesDlgDone">সম্পন্ন</button>
+    </div>
+  </dialog>
+
+  <!-- Large page preview / before-after quality comparison -->
+  <dialog class="pdf-dialog pdf-dialog--wide" id="pdfPreviewDialog" closedby="any" aria-labelledby="pdfPreviewTitle">
+    <div class="pdf-dialog__head">
+      <div>
+        <h3 class="pdf-dialog__title" id="pdfPreviewTitle">প্রিভিউ</h3>
+        <p class="pdf-dialog__sub" id="pdfPreviewSub"></p>
+      </div>
+      <div class="pdf-ws-actions">
+        <button type="button" class="chip-btn" id="pdfPreviewPrev" aria-label="আগের পৃষ্ঠা">← আগের</button>
+        <span class="pdf-summary-pill" id="pdfPreviewCounter">১ / ১</span>
+        <button type="button" class="chip-btn" id="pdfPreviewNext" aria-label="পরের পৃষ্ঠা">পরের →</button>
+        <button type="button" class="ai-close pdf-dialog__close" id="pdfPreviewClose" aria-label="বন্ধ করুন">✕</button>
+      </div>
+    </div>
+    <div class="pdf-dialog__body">
+      <div class="pdf-preview-stage" id="pdfPreviewStage"></div>
+    </div>
+  </dialog>
+</div>

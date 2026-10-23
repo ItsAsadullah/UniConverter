@@ -1,0 +1,14 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import PdfStudio from '../../components/PdfStudio.astro';
+---
+<ToolLayout toolId="pdf">
+  <PdfStudio initialTab="hub" />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/vendor/jszip.min.js" defer></script>
+    <script is:inline src="/js/bijoy-engine.js" defer></script>
+    <script is:inline src="/js/pdf-convert.js" defer></script>
+    <script is:inline src="/js/pdf-tools.js" defer></script>
+  </Fragment>
+</ToolLayout>

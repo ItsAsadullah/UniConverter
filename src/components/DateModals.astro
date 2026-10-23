@@ -1,0 +1,25 @@
+<!-- INSIGHTS MODAL -->
+<div class="ai-modal-overlay" id="aiModal" hidden onclick="window.TechHatTools && window.TechHatTools.closeAIModal(event)" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+  <div class="ai-modal">
+    <button type="button" class="ai-close" onclick="window.TechHatTools && window.TechHatTools.closeAIModal()" aria-label="বন্ধ করুন">✕</button>
+    <div class="ai-title" id="aiTitle">✦ ফলাফল</div>
+    <div class="ai-content" id="aiContent"></div>
+  </div>
+</div>
+
+<!-- ADVANCED GRID PICKER MODAL -->
+<div class="grid-modal-overlay" id="gridModalOverlay" hidden aria-hidden="true">
+  <div class="grid-modal" id="gridModal" role="dialog" aria-modal="true" aria-labelledby="gridTitle">
+    <div class="gm-header">
+      <div>
+        <div class="gm-title" id="gridTitle">নির্বাচন করুন</div>
+        <div class="gm-sub" id="gridSub"></div>
+      </div>
+      <button type="button" class="ai-close" id="gridCloseBtn" aria-label="বন্ধ করুন" style="position:static;">✕</button>
+    </div>
+    <div id="calHeader" class="cal-weekdays" style="display:none;">
+      <div class="cal-wd">রবি</div><div class="cal-wd">সোম</div><div class="cal-wd">মঙ্গল</div><div class="cal-wd">বুধ</div><div class="cal-wd">বৃহঃ</div><div class="cal-wd">শুক্র</div><div class="cal-wd">শনি</div>
+    </div>
+    <div class="grid-grid" id="gridContent"></div>
+  </div>
+</div>

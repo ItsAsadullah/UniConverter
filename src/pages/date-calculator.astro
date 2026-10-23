@@ -1,0 +1,73 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+import DateModals from '../components/DateModals.astro';
+---
+<ToolLayout toolId="datecalc">
+  <div class="tool-view" id="tool-datecalc">
+    <section class="card util-card" aria-label="দিন গণনা">
+      <div class="dc-banner">
+        <div class="dc-res-en" id="dcResEn">...</div>
+        <div class="dc-res-bn" id="dcResBn">...</div>
+      </div>
+
+      <div class="util-body">
+        <div class="dual-panel dual-panel--equal">
+          <div class="picker-area">
+            <div class="section-header">শুরুর তারিখ</div>
+            <div class="picker-heads"><span>দিন</span><span>মাস</span><span>সাল</span></div>
+            <div class="p-row">
+              <div class="swipe-box" id="dcD"><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','d',1)">▲</button><div class="mid-area" data-grid="d" data-ref="dcD-txt"><div class="val-disp" id="dcD-txt">০১</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','d',-1)">▼</button></div>
+              <div class="swipe-box" id="dcM"><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','m',1)">▲</button><div class="mid-area" data-grid="m" data-ref="dcM-txt"><div class="val-disp small" id="dcM-txt">Jan</div></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','m',-1)">▼</button></div>
+              <div class="swipe-box" id="dcY"><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','y',1)">▲</button><div class="mid-area" onclick="window.TechHatTools.edCalcY()"><div class="val-disp" id="dcY-txt">২০২৬</div><input type="number" class="num-inp" id="dcY-inp" onblur="window.TechHatTools.clCalcY()"></div><button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('s','y',-1)">▼</button></div>
+            </div>
+          </div>
+
+          <div class="picker-area">
+            <div class="section-header">ব্যবধান (Duration)</div>
+            <div class="picker-heads"><span>বছর</span><span>মাস</span><span>দিন</span></div>
+            <div class="p-row">
+              <div class="swipe-box" id="duY">
+                <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','y',1)">▲</button>
+                <div class="mid-area" onclick="window.TechHatTools.edDur('y')">
+                  <div class="val-disp" id="duY-txt">০</div>
+                  <input type="number" class="num-inp" id="duY-inp" onblur="window.TechHatTools.clDur('y')">
+                </div>
+                <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','y',-1)">▼</button>
+              </div>
+              <div class="swipe-box" id="duM">
+                <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','m',1)">▲</button>
+                <div class="mid-area" onclick="window.TechHatTools.edDur('m')">
+                  <div class="val-disp" id="duM-txt">০</div>
+                  <input type="number" class="num-inp" id="duM-inp" onblur="window.TechHatTools.clDur('m')">
+                </div>
+                <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','m',-1)">▼</button>
+              </div>
+              <div class="swipe-box" id="duD">
+                <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','d',1)">▲</button>
+                <div class="mid-area" onclick="window.TechHatTools.edDur('d')">
+                  <div class="val-disp" id="duD-txt">০</div>
+                  <input type="number" class="num-inp" id="duD-inp" onblur="window.TechHatTools.clDur('d')">
+                </div>
+                <button type="button" class="arr-btn" onclick="window.TechHatTools.updCalc('c','d',-1)">▼</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dc-footer-bar">
+          <div class="dc-dir-row">
+            <label class="dc-radio"><input type="radio" name="dcDir" value="after" checked onchange="window.TechHatTools.compCalc()"> <span>পরে (ভবিষ্যৎ)</span></label>
+            <label class="dc-radio"><input type="radio" name="dcDir" value="before" onchange="window.TechHatTools.compCalc()"> <span>আগে (অতীত)</span></label>
+          </div>
+          <button type="button" class="ai-btn" style="margin:0;" onclick="window.TechHatTools.showAICalcAnalysis()">✦ সময়ের বিশ্লেষণ</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <DateModals slot="after-workbench" />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/js/tools.js" defer></script>
+  </Fragment>
+</ToolLayout>

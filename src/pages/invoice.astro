@@ -1,0 +1,152 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+---
+<ToolLayout toolId="invoice">
+  <div class="tool-view" id="tool-invoice">
+    <section class="card util-card inv-card" aria-label="ইনভয়েস জেনারেটর">
+      <div class="inv-controls inv-controls--top no-print">
+        <div class="inv-controls__left">
+          <label class="chip-btn" for="invLogoInput" title="প্রতিষ্ঠানের লোগো পরিবর্তন করুন">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            লোগো পরিবর্তন
+            <input type="file" id="invLogoInput" accept="image/*" hidden>
+          </label>
+          <select class="chip-select inv-curr-select" id="invCurrency" onchange="window.TechHatTools.calcInv()" aria-label="মুদ্রা নির্বাচন">
+            <option value="৳">৳ টাকা (BDT)</option>
+            <option value="$">$ ডলার (USD)</option>
+            <option value="₹">₹ রুপি (INR)</option>
+          </select>
+          <button type="button" class="chip-btn" onclick="window.TechHatTools.resetInv()" title="নতুন ইনভয়েস শুরু করুন">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4"/></svg>
+            নতুন বিল
+          </button>
+        </div>
+        <button type="button" class="btn btn--primary btn--sm" onclick="window.TechHatTools.printInv()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          প্রিন্ট / PDF সেভ করুন
+        </button>
+      </div>
+
+      <div class="inv-stage">
+        <div class="inv-wrapper" id="invPrintable">
+          <div class="inv-shape-tr">
+            <input type="text" class="inv-title-inp" id="invDocTitle" value="INVOICE" aria-label="ইনভয়েস শিরোনাম">
+          </div>
+
+          <div class="inv-header-modern">
+            <div class="inv-brand-row">
+              <img id="invLogoImg" src="/icons/icon-192.png" alt="লোগো" class="inv-logo-img" width="60" height="60">
+              <div class="inv-shop-fields">
+                <input type="text" class="inv-inp-trans inv-shop-name" id="invShopName" value="টেকহাট (TechHat)" placeholder="প্রতিষ্ঠানের নাম">
+                <input type="text" class="inv-inp-trans inv-shop-sub" id="invShopSub" value="টেকনোলজির বিশ্বস্ত ঠিকানা" placeholder="স্লোগান বা ব্যবসার ধরন">
+              </div>
+            </div>
+          </div>
+
+          <div class="inv-meta-grid">
+            <div class="inv-bill-to">
+              <div class="inv-label">প্রাপক (Bill To):</div>
+              <input type="text" class="inv-inp-trans inv-cli-name" id="invCli" placeholder="ক্রেতার নাম লিখুন">
+              <input type="text" class="inv-inp-trans inv-cli-sub" id="invPhone" placeholder="মোবাইল নম্বর">
+              <input type="text" class="inv-inp-trans inv-cli-sub" id="invAddr" placeholder="ঠিকানা">
+            </div>
+            <div class="inv-meta-right">
+              <div class="inv-meta-row">
+                <span class="inv-label">ইনভয়েস নং:</span>
+                <input type="text" class="inv-inp-trans inv-meta-inp" id="invNo" value="#INV-001">
+              </div>
+              <div class="inv-meta-row">
+                <span class="inv-label">তারিখ:</span>
+                <input type="date" class="inv-inp-trans inv-meta-inp" id="invDate">
+              </div>
+              <div class="inv-meta-row">
+                <span class="inv-label">স্ট্যাটাস:</span>
+                <span class="inv-status-badge" id="invStatusBadge" data-status="due">বাকি (DUE)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="inv-table-container">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th style="width:7%; text-align:center;">ক্রমিক</th>
+                  <th style="width:45%;">পণ্য বা সেবার বিবরণ (Description)</th>
+                  <th style="width:16%; text-align:right;">একক দর</th>
+                  <th style="width:12%; text-align:center;">পরিমাণ</th>
+                  <th style="width:20%; text-align:right;">মোট টাকা</th>
+                  <th class="no-print inv-del-col" style="width:32px;"></th>
+                </tr>
+              </thead>
+              <tbody id="invList"></tbody>
+            </table>
+            <button type="button" class="btn-add-row no-print" onclick="window.TechHatTools.addInvItem()">+ নতুন সারি যোগ করুন</button>
+          </div>
+
+          <div class="inv-words-bar">
+            <strong>কথায়:</strong> <span id="invWords">শূন্য টাকা মাত্র</span>
+          </div>
+
+          <div class="inv-bottom">
+            <div class="inv-notes-col">
+              <div class="inv-label">পেমেন্ট তথ্য (Payment Info):</div>
+              <input type="text" class="inv-inp-trans inv-note-inp" id="invPayInfo" value="বিকাশ / নগদ: ০১৯১১৭৭৭৬৯৪">
+              <div class="inv-label" style="margin-top:12px;">শর্তাবলী ও নোট (Terms &amp; Notes):</div>
+              <textarea class="inv-inp-trans inv-note-area" id="invTerms" rows="2">বিক্রিত পণ্য ফেরত নেওয়া হয় না। ওয়ারেন্টির শর্তাবলী প্রযোজ্য।</textarea>
+            </div>
+
+            <div class="inv-summary-col">
+              <div class="inv-total-box">
+                <div class="it-row">
+                  <span>সাব-টোটাল</span>
+                  <span id="invSub">৳ 0.00</span>
+                </div>
+                <div class="it-row">
+                  <span>ডিসকাউন্ট (-)</span>
+                  <input type="number" class="inv-sum-inp" id="invDisc" value="0" min="0" step="any" oninput="window.TechHatTools.calcInv()">
+                </div>
+                <div class="it-row">
+                  <span>ভ্যাট / ট্যাক্স (%) <input type="number" class="inv-tax-pct" id="invTax" value="0" min="0" step="any" oninput="window.TechHatTools.calcInv()"></span>
+                  <span id="invTaxVal">৳ 0.00</span>
+                </div>
+                <div class="it-row">
+                  <span>ডেলিভারি / অন্যান্য (+)</span>
+                  <input type="number" class="inv-sum-inp" id="invShip" value="0" min="0" step="any" oninput="window.TechHatTools.calcInv()">
+                </div>
+                <div class="it-row grand">
+                  <span>সর্বমোট</span>
+                  <span id="invGrand">৳ 0.00</span>
+                </div>
+                <div class="it-row it-row--paid">
+                  <span>জমা (Paid)</span>
+                  <input type="number" class="inv-sum-inp" id="invPaid" value="0" min="0" step="any" oninput="window.TechHatTools.calcInv()">
+                </div>
+                <div class="it-row it-row--due">
+                  <span>বাকি (Due)</span>
+                  <span id="invDue">৳ 0.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="inv-shape-bl"></div>
+          </div>
+
+          <div class="inv-sig-row">
+            <div class="inv-sig-box">ক্রেতার স্বাক্ষর</div>
+            <div class="inv-sig-box">বিক্রেতার স্বাক্ষর</div>
+          </div>
+
+          <div class="inv-footer-bar">
+            <div class="if-item">📍 <input type="text" class="inv-foot-inp" id="invFootAddr" value="হলিধানী বাজার, ঝিনাইদহ"></div>
+            <div class="if-item">📞 <input type="text" class="inv-foot-inp" id="invFootPhone" value="০১৯১১৭৭৭৬৯৪"></div>
+            <div class="if-item">✉️ <input type="text" class="inv-foot-inp" id="invFootEmail" value="techhat.shop@gmail.com"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <Fragment slot="scripts">
+    <script is:inline src="/js/tools.js" defer></script>
+  </Fragment>
+</ToolLayout>

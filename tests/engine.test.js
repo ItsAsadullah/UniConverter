@@ -1,6 +1,6 @@
 // Run: node tests/engine.test.js
 'use strict';
-const E = require('../js/bijoy-engine.js');
+const E = require('../public/js/bijoy-engine.js');
 
 let pass = 0, fail = 0;
 function eq(label, got, want) {

@@ -57,17 +57,29 @@
   var TOOLS = [
     {
       id: 'bijoy',
-      title: 'বিজয় ⇄ ইউনিকোড কনভার্টার',
-      desc: 'টেক্সট, ভয়েস টাইপিং ও Office ফাইল রূপান্তর',
+      href: '/',
+      title: 'বিজয় ⇄ ইউনিকোড',
+      desc: 'টেক্সট, ভয়েস ও ফাইল রূপান্তর',
       badge: 'কনভার্টার',
       color: 'emerald',
       keywords: 'bijoy unicode bangla converter sutonny ফন্ট বিজয় ইউনিকোড ভয়েস টাইপ',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/><path d="m18 14 3 3-3 3"/></svg>'
     },
     {
+      id: 'pdf',
+      href: '/pdf',
+      title: 'পিডিএফ স্টুডিও',
+      desc: 'মার্জ, স্প্লিট, কমপ্রেস ও কনভার্ট',
+      badge: 'PDF টুলস',
+      color: 'crimson',
+      keywords: 'pdf merge split compress organize rotate jpg to pdf word to pdf ilovepdf পিডিএফ মার্জ স্প্লিট কমপ্রেস কনভার্ট',
+      icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h2a2 2 0 0 1 0 4H8v-4Z"/><path d="M14 13h2v4h-2z"/></svg>'
+    },
+    {
       id: 'calendar',
+      href: '/calendar',
       title: 'তারিখ কনভার্টার',
-      desc: 'ইংরেজি, বাংলা ও হিজরি তারিখ রূপান্তর',
+      desc: 'ইংরেজি, বাংলা ও হিজরি সন',
       badge: 'ক্যালেন্ডার',
       color: 'blue',
       keywords: 'calendar date converter bangla hijri arabic তারিখ ক্যালেন্ডার বাংলা আরবি হিজরি সন',
@@ -75,8 +87,9 @@
     },
     {
       id: 'age',
+      href: '/age-calculator',
       title: 'বয়স ম্যানেজার',
-      desc: 'বয়স ও বিস্তারিত সময় এবং জন্মতারিখ নির্ণয়',
+      desc: 'বয়স ও জন্মতারিখ নির্ণয়',
       badge: 'বয়স হিসাব',
       color: 'purple',
       keywords: 'age calculator dob birthday বয়স ক্যালকুলেটর জন্মতারিখ হিসাব',
@@ -84,8 +97,9 @@
     },
     {
       id: 'datecalc',
+      href: '/date-calculator',
       title: 'দিন গণনা',
-      desc: 'অতীত বা ভবিষ্যৎ তারিখের ব্যবধান হিসাব',
+      desc: 'তারিখের ব্যবধান হিসাব',
       badge: 'সময় হিসাব',
       color: 'amber',
       keywords: 'date duration calculator days before after দিন গণনা তারিখ ব্যবধান',
@@ -93,8 +107,9 @@
     },
     {
       id: 'invoice',
-      title: 'ইনভয়েস জেনারেটর',
-      desc: 'দ্রুত ক্যাশ মেমো, বিল ও PDF তৈরি করুন',
+      href: '/invoice',
+      title: 'ইনভয়েস মেকার',
+      desc: 'ক্যাশ মেমো ও A4 বিল প্রিন্ট',
       badge: 'বিজনেস',
       color: 'rose',
       keywords: 'invoice bill pdf generator cash memo ইনভয়েস বিল মেমো প্রিন্ট',
@@ -104,6 +119,9 @@
 
   var activeTool = 'bijoy';
   var searchQuery = '';
+  var isMultiPage = function () {
+    return document.body && document.body.getAttribute('data-astro-mpa') === '1';
+  };
 
   function getToolById(id) {
     for (var i = 0; i < TOOLS.length; i++) {
@@ -141,32 +159,38 @@
     }
 
     otherTools.forEach(function (t) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'tool-nav-card';
-      btn.setAttribute('data-color', t.color);
-      btn.setAttribute('data-tool-id', t.id);
-      btn.innerHTML =
+      var link = document.createElement('a');
+      link.href = t.href;
+      link.className = 'tool-nav-card';
+      link.setAttribute('data-color', t.color);
+      link.setAttribute('data-tool-id', t.id);
+      link.innerHTML =
         '<span class="tool-nav-card__icon">' + t.icon + '</span>' +
         '<span class="tool-nav-card__body">' +
-          '<span class="tool-nav-card__top">' +
-            '<span class="tool-nav-card__title">' + t.title + '</span>' +
-            '<span class="tool-nav-card__badge">' + t.badge + '</span>' +
-          '</span>' +
+          '<span class="tool-nav-card__title">' + t.title + '</span>' +
           '<span class="tool-nav-card__desc">' + t.desc + '</span>' +
         '</span>' +
         '<span class="tool-nav-card__arrow" aria-hidden="true">' +
           '<svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>' +
         '</span>';
-      btn.addEventListener('click', function () {
-        openTool(t.id, true);
+      link.addEventListener('click', function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        // If target section exists in the current DOM (SPA mode), switch in-place; otherwise navigate to Astro page
+        if ($('#tool-' + t.id) && !isMultiPage()) {
+          e.preventDefault();
+          openTool(t.id, true);
+        }
       });
-      listEl.appendChild(btn);
+      listEl.appendChild(link);
     });
   }
 
   function openTool(id, scrollUp) {
     var tool = getToolById(id);
+    if (!$('#tool-' + tool.id) && isMultiPage()) {
+      location.href = tool.href;
+      return;
+    }
     activeTool = tool.id;
 
     // Toggle tool views
@@ -189,7 +213,8 @@
     if (bijoyGuide) bijoyGuide.hidden = activeTool !== 'bijoy';
 
     // Initialize the selected tool
-    if (activeTool === 'calendar') initConv();
+    if (activeTool === 'pdf' && window.TechHatPDF) window.TechHatPDF.init();
+    else if (activeTool === 'calendar') initConv();
     else if (activeTool === 'age') initAge();
     else if (activeTool === 'datecalc') initCalc();
     else if (activeTool === 'invoice') initInv();
@@ -197,9 +222,9 @@
     // Re-render right sidebar excluding the currently open tool
     renderSidebar();
 
-    // Save state & hash
+    // Save state & hash (only mutate hash in single-page mode)
     try { localStorage.setItem('thbc-active-tool', activeTool); } catch (e) {}
-    if (history.replaceState) {
+    if (!isMultiPage() && history.replaceState) {
       history.replaceState(null, '', activeTool === 'bijoy' ? location.pathname + location.search : '#tool-' + activeTool);
     }
 
@@ -777,15 +802,131 @@
   }
 
   /* ==================================================================
-   * TOOL 5: INVOICE GENERATOR
+   * TOOL 5: INVOICE GENERATOR (FULL-FEATURED & PRINT READY)
    * ================================================================== */
   var invItems = [{ desc: '', qty: 1, price: 0 }];
   var invInitialized = false;
 
+  var bnNumWords = [
+    'শূন্য', 'এক', 'দুই', 'তিন', 'চার', 'পাঁচ', 'ছয়', 'সাত', 'আট', 'নয়',
+    'দশ', 'এগারো', 'বারো', 'তেরো', 'চৌদ্দ', 'পনেরো', 'ষোলো', 'সতেরো', 'আঠারো', 'উনিশ',
+    'বিশ', 'একুশ', 'বাইশ', 'তেইশ', 'চব্বিশ', 'পঁচিশ', 'ছাব্বিশ', 'সাতাশ', 'আটাশ', 'ঊনত্রিশ',
+    'ত্রিশ', 'একত্রিশ', 'বত্রিশ', 'তেত্রিশ', 'চৌত্রিশ', 'পঁয়ত্রিশ', 'ছত্রিশ', 'সাঁইত্রিশ', 'আটত্রিশ', 'ঊনচল্লিশ',
+    'চল্লিশ', 'একচল্লিশ', 'বিয়াল্লিশ', 'তেতাল্লিশ', 'চুয়াল্লিশ', 'পঁয়তাল্লিশ', 'ছেচল্লিশ', 'সাতচল্লিশ', 'আটচল্লিশ', 'ঊনপঞ্চাশ',
+    'পঞ্চাশ', 'একান্ন', 'বায়ান্ন', 'তিপ্পান্ন', 'চুয়ান্ন', 'পঞ্চান্ন', 'ছাপ্পান্ন', 'সাতান্ন', 'আটান্ন', 'ঊনষাট',
+    'ষাট', 'একষট্টি', 'বাষট্টি', 'তেষট্টি', 'চৌষট্টি', 'পঁয়ষট্টি', 'ছেষট্টি', 'সাতষট্টি', 'আটষট্টি', 'ঊনসত্তর',
+    'সত্তর', 'একাত্তর', 'বাহাত্তর', 'তিয়াত্তর', 'চুয়াত্তর', 'পঁচাত্তর', 'ছিয়াত্তর', 'সাতাত্তর', 'আটাত্তর', 'ঊনআশি',
+    'আশি', 'একাশি', 'বিরাশি', 'তিরাশি', 'চুরাশি', 'পঁচাশি', 'ছিয়াশি', 'সাতাশি', 'আটাশি', 'ঊননব্বই',
+    'নব্বই', 'একানব্বই', 'বিরানব্বই', 'তিরানব্বই', 'চুরানব্বই', 'পঁচানব্বই', 'ছিয়ানব্বই', 'সাতানব্বই', 'আটানব্বই', 'নিরানব্বই'
+  ];
+
+  function intToBnWords(n) {
+    n = Math.floor(Math.abs(n));
+    if (n === 0) return 'শূন্য';
+    var parts = [];
+    if (n >= 10000000) {
+      parts.push(intToBnWords(Math.floor(n / 10000000)) + ' কোটি');
+      n %= 10000000;
+    }
+    if (n >= 100000) {
+      parts.push(bnNumWords[Math.floor(n / 100000)] + ' লক্ষ');
+      n %= 100000;
+    }
+    if (n >= 1000) {
+      parts.push(bnNumWords[Math.floor(n / 1000)] + ' হাজার');
+      n %= 1000;
+    }
+    if (n >= 100) {
+      parts.push(bnNumWords[Math.floor(n / 100)] + ' শত');
+      n %= 100;
+    }
+    if (n > 0) {
+      parts.push(bnNumWords[n]);
+    }
+    return parts.join(' ');
+  }
+
+  function numberToBanglaWords(amount, currSym) {
+    var num = Math.max(0, parseFloat(amount) || 0);
+    var unitName = currSym === '$' ? 'ডলার' : (currSym === '₹' ? 'রুপি' : 'টাকা');
+    var subUnit = currSym === '$' ? 'সেন্ট' : 'পয়সা';
+    var whole = Math.floor(num);
+    var frac = Math.round((num - whole) * 100);
+    if (frac === 100) { whole += 1; frac = 0; }
+    var text = intToBnWords(whole) + ' ' + unitName;
+    if (frac > 0) {
+      text += ' ' + intToBnWords(frac) + ' ' + subUnit;
+    }
+    return text + ' মাত্র';
+  }
+
+  function getInvCurr() {
+    var el = $('#invCurrency');
+    return (el && el.value) ? el.value : '৳';
+  }
+
+  function saveShopMeta() {
+    try {
+      var data = {
+        shopName: ($('#invShopName') && $('#invShopName').value) || '',
+        shopSub: ($('#invShopSub') && $('#invShopSub').value) || '',
+        payInfo: ($('#invPayInfo') && $('#invPayInfo').value) || '',
+        terms: ($('#invTerms') && $('#invTerms').value) || '',
+        footAddr: ($('#invFootAddr') && $('#invFootAddr').value) || '',
+        footPhone: ($('#invFootPhone') && $('#invFootPhone').value) || '',
+        footEmail: ($('#invFootEmail') && $('#invFootEmail').value) || ''
+      };
+      localStorage.setItem('thbc-inv-shop', JSON.stringify(data));
+    } catch (e) {}
+  }
+
+  function loadShopMeta() {
+    try {
+      var raw = localStorage.getItem('thbc-inv-shop');
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data.shopName && $('#invShopName')) $('#invShopName').value = data.shopName;
+        if (data.shopSub && $('#invShopSub')) $('#invShopSub').value = data.shopSub;
+        if (data.payInfo && $('#invPayInfo')) $('#invPayInfo').value = data.payInfo;
+        if (data.terms && $('#invTerms')) $('#invTerms').value = data.terms;
+        if (data.footAddr && $('#invFootAddr')) $('#invFootAddr').value = data.footAddr;
+        if (data.footPhone && $('#invFootPhone')) $('#invFootPhone').value = data.footPhone;
+        if (data.footEmail && $('#invFootEmail')) $('#invFootEmail').value = data.footEmail;
+      }
+      var savedLogo = localStorage.getItem('thbc-inv-logo');
+      if (savedLogo && $('#invLogoImg')) {
+        $('#invLogoImg').src = savedLogo;
+      }
+    } catch (e) {}
+  }
+
   function initInv() {
-    var dateInp = $('#invDate');
-    if (dateInp && !invInitialized) {
-      try { dateInp.valueAsDate = new Date(); } catch (e) {}
+    if (!invInitialized) {
+      var dateInp = $('#invDate');
+      if (dateInp) {
+        try { dateInp.valueAsDate = getBDDate(); } catch (e) {}
+      }
+      loadShopMeta();
+      ['invShopName', 'invShopSub', 'invPayInfo', 'invTerms', 'invFootAddr', 'invFootPhone', 'invFootEmail'].forEach(function (id) {
+        var el = $('#' + id);
+        if (el) el.addEventListener('input', saveShopMeta);
+      });
+      var logoInp = $('#invLogoInput');
+      if (logoInp) {
+        logoInp.addEventListener('change', function () {
+          var file = logoInp.files && logoInp.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function (ev) {
+            var dataUrl = ev.target && ev.target.result;
+            if (dataUrl && $('#invLogoImg')) {
+              $('#invLogoImg').src = dataUrl;
+              try { localStorage.setItem('thbc-inv-logo', dataUrl); } catch (e) {}
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
       invInitialized = true;
     }
     renderInvItems();
@@ -794,16 +935,18 @@
   function renderInvItems() {
     var list = $('#invList');
     if (!list) return;
+    var curr = getInvCurr();
     list.innerHTML = '';
     invItems.forEach(function (item, index) {
       var row = document.createElement('tr');
       var lineTotal = ((parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0)).toFixed(2);
       row.innerHTML =
-        '<td><input type="text" class="inv-inp-trans" placeholder="পণ্যের নাম বা বিবরণ" value="' + String(item.desc).replace(/"/g, '&quot;') + '" data-idx="' + index + '" data-field="desc"></td>' +
-        '<td style="text-align:center;"><input type="number" class="inv-inp-trans" style="text-align:center;" placeholder="0" value="' + item.price + '" data-idx="' + index + '" data-field="price"></td>' +
-        '<td style="text-align:center;"><input type="number" class="inv-inp-trans" style="text-align:center;" placeholder="1" value="' + item.qty + '" data-idx="' + index + '" data-field="qty"></td>' +
-        '<td class="inv-line-total" style="text-align:right;">' + lineTotal + '</td>' +
-        '<td style="text-align:center;"><button type="button" class="btn-del" data-del="' + index + '" title="সারি মুছুন" aria-label="সারি মুছুন">✕</button></td>';
+        '<td class="inv-sl-cell" style="text-align:center;">' + toBn(index + 1) + '</td>' +
+        '<td><input type="text" class="inv-inp-trans" placeholder="পণ্যের নাম বা বিবরণ লিখুন..." value="' + String(item.desc).replace(/"/g, '&quot;') + '" data-idx="' + index + '" data-field="desc"></td>' +
+        '<td style="text-align:right;"><input type="number" class="inv-inp-trans" style="text-align:right;" placeholder="0" min="0" step="any" value="' + item.price + '" data-idx="' + index + '" data-field="price"></td>' +
+        '<td style="text-align:center;"><input type="number" class="inv-inp-trans" style="text-align:center;" placeholder="1" min="0" step="any" value="' + item.qty + '" data-idx="' + index + '" data-field="qty"></td>' +
+        '<td class="inv-line-total" style="text-align:right;">' + curr + ' ' + lineTotal + '</td>' +
+        '<td class="no-print inv-del-col" style="text-align:center;"><button type="button" class="btn-del no-print" data-del="' + index + '" title="সারি মুছুন" aria-label="সারি মুছুন">✕</button></td>';
       list.appendChild(row);
     });
 
@@ -816,7 +959,7 @@
         if (tr && field !== 'desc') {
           var lt = ((parseFloat(invItems[idx].qty) || 0) * (parseFloat(invItems[idx].price) || 0)).toFixed(2);
           var cell = tr.querySelector('.inv-line-total');
-          if (cell) cell.textContent = lt;
+          if (cell) cell.textContent = getInvCurr() + ' ' + lt;
         }
         calcInv();
       });
@@ -828,6 +971,9 @@
         if (invItems.length > 1) {
           invItems.splice(idx, 1);
           renderInvItems();
+        } else {
+          invItems[0] = { desc: '', qty: 1, price: 0 };
+          renderInvItems();
         }
       });
     });
@@ -838,20 +984,80 @@
   function addInvItem() {
     invItems.push({ desc: '', qty: 1, price: 0 });
     renderInvItems();
+    var inputs = $$('#invList input[data-field="desc"]');
+    if (inputs.length) {
+      inputs[inputs.length - 1].focus();
+    }
   }
 
   function calcInv() {
     if (!$('#invSub')) return;
+    var curr = getInvCurr();
     var sub = 0;
-    invItems.forEach(function (i) {
-      sub += (parseFloat(i.qty) || 0) * (parseFloat(i.price) || 0);
+    var lineCells = $$('#invList .inv-line-total');
+    invItems.forEach(function (i, idx) {
+      var lt = (parseFloat(i.qty) || 0) * (parseFloat(i.price) || 0);
+      sub += lt;
+      if (lineCells[idx]) {
+        lineCells[idx].textContent = curr + ' ' + lt.toFixed(2);
+      }
     });
-    var taxRate = parseFloat(($('#invTax') && $('#invTax').value) || 0) || 0;
-    var tax = sub * (taxRate / 100);
-    var total = sub + tax;
-    $('#invSub').textContent = sub.toFixed(2);
-    $('#invTaxVal').textContent = tax.toFixed(2);
-    $('#invGrand').textContent = total.toFixed(2);
+
+    var disc = Math.max(0, parseFloat(($('#invDisc') && $('#invDisc').value) || 0) || 0);
+    var afterDisc = Math.max(0, sub - disc);
+    var taxRate = Math.max(0, parseFloat(($('#invTax') && $('#invTax').value) || 0) || 0);
+    var tax = afterDisc * (taxRate / 100);
+    var ship = Math.max(0, parseFloat(($('#invShip') && $('#invShip').value) || 0) || 0);
+    var total = afterDisc + tax + ship;
+    var paid = Math.max(0, parseFloat(($('#invPaid') && $('#invPaid').value) || 0) || 0);
+    var due = Math.max(0, total - paid);
+
+    $('#invSub').textContent = curr + ' ' + sub.toFixed(2);
+    $('#invTaxVal').textContent = curr + ' ' + tax.toFixed(2);
+    $('#invGrand').textContent = curr + ' ' + total.toFixed(2);
+    if ($('#invDue')) $('#invDue').textContent = curr + ' ' + due.toFixed(2);
+    if ($('#invWords')) $('#invWords').textContent = numberToBanglaWords(total, curr);
+
+    var badge = $('#invStatusBadge');
+    if (badge) {
+      if (total <= 0) {
+        badge.setAttribute('data-status', 'draft');
+        badge.textContent = 'খসড়া (DRAFT)';
+      } else if (due <= 0.005) {
+        badge.setAttribute('data-status', 'paid');
+        badge.textContent = 'পরিশোধিত (PAID)';
+      } else if (paid > 0) {
+        badge.setAttribute('data-status', 'partial');
+        badge.textContent = 'আংশিক বাকি (PARTIAL)';
+      } else {
+        badge.setAttribute('data-status', 'due');
+        badge.textContent = 'বাকি (DUE)';
+      }
+    }
+  }
+
+  function resetInv() {
+    invItems = [{ desc: '', qty: 1, price: 0 }];
+    if ($('#invCli')) $('#invCli').value = '';
+    if ($('#invPhone')) $('#invPhone').value = '';
+    if ($('#invAddr')) $('#invAddr').value = '';
+    if ($('#invDisc')) $('#invDisc').value = '0';
+    if ($('#invTax')) $('#invTax').value = '0';
+    if ($('#invShip')) $('#invShip').value = '0';
+    if ($('#invPaid')) $('#invPaid').value = '0';
+    if ($('#invDate')) {
+      try { $('#invDate').valueAsDate = getBDDate(); } catch (e) {}
+    }
+    if ($('#invNo')) {
+      var curNo = $('#invNo').value || '#INV-001';
+      var m = /^(.*?)(\d+)$/.exec(curNo);
+      if (m) {
+        var nextNum = String(parseInt(m[2], 10) + 1);
+        while (nextNum.length < m[2].length) nextNum = '0' + nextNum;
+        $('#invNo').value = m[1] + nextNum;
+      }
+    }
+    renderInvItems();
   }
 
   function printInv() {
@@ -1133,6 +1339,7 @@
     compCalc: compCalc,
     addInvItem: addInvItem,
     calcInv: calcInv,
+    resetInv: resetInv,
     printInv: printInv,
     showAIHoroscope: showAIHoroscope,
     showAILifeInsights: showAILifeInsights,
@@ -1140,8 +1347,8 @@
     closeAIModal: closeAIModal
   };
 
-  // Initialize from URL hash or localStorage (defaulting to 'bijoy')
-  var initialTool = 'bijoy';
+  // Initialize from page's data-active-tool (Astro multi-page) or URL hash (defaulting to 'bijoy')
+  var initialTool = (document.body && document.body.getAttribute('data-active-tool')) || 'bijoy';
   var hashMatch = /^#tool-([a-z]+)$/i.exec(location.hash || '');
   if (hashMatch) {
     initialTool = hashMatch[1].toLowerCase();

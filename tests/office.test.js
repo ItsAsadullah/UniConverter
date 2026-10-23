@@ -4,9 +4,9 @@ const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
 global.DOMParser = DOMParser;
 global.XMLSerializer = XMLSerializer;
 global.JSZip = require('jszip');
-global.BijoyEngine = require('../js/bijoy-engine.js');
-const Office = require('../js/office.js');
-const Formats = require('../js/formats.js');
+global.BijoyEngine = require('../public/js/bijoy-engine.js');
+const Office = require('../public/js/office.js');
+const Formats = require('../public/js/formats.js');
 
 let pass = 0, fail = 0;
 function ok(label, cond, extra) {

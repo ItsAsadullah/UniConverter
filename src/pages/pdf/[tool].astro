@@ -1,0 +1,33 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import PdfStudio from '../../components/PdfStudio.astro';
+import { PDF_SUBTOOLS, type PdfSubToolMeta } from '../../data/tools';
+
+export function getStaticPaths() {
+  return PDF_SUBTOOLS.map((sub) => ({
+    params: { tool: sub.slug },
+    props: { sub }
+  }));
+}
+
+interface Props {
+  sub: PdfSubToolMeta;
+}
+
+const { sub } = Astro.props;
+---
+<ToolLayout
+  toolId="pdf"
+  title={sub.seoTitle}
+  description={sub.seoDesc}
+  activeBadgeText={`পিডিএফ স্টুডিও • ${sub.title}`}
+>
+  <PdfStudio initialTab={sub.tabId} />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/vendor/jszip.min.js" defer></script>
+    <script is:inline src="/js/bijoy-engine.js" defer></script>
+    <script is:inline src="/js/pdf-convert.js" defer></script>
+    <script is:inline src="/js/pdf-tools.js" defer></script>
+  </Fragment>
+</ToolLayout>

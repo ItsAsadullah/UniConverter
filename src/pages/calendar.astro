@@ -1,0 +1,79 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+import DateModals from '../components/DateModals.astro';
+---
+<ToolLayout toolId="calendar">
+  <div class="tool-view" id="tool-calendar" data-cal-mode="en">
+    <section class="card util-card" aria-label="তারিখ কনভার্টার">
+      <div class="cal-mode-tabs" role="tablist" aria-label="ক্যালেন্ডার মোড">
+        <button class="cal-mode-tab active" type="button" onclick="window.TechHatTools.setMode('EN')" id="tEN">ইংরেজি</button>
+        <button class="cal-mode-tab" type="button" onclick="window.TechHatTools.setMode('BN')" id="tBN">বাংলা</button>
+        <button class="cal-mode-tab" type="button" onclick="window.TechHatTools.setMode('HJ')" id="tHJ">আরবি / হিজরি</button>
+      </div>
+
+      <div class="util-body">
+        <div class="picker-area">
+          <div class="picker-heads"><span>দিন</span><span>মাস</span><span>সাল</span></div>
+          <div class="p-row">
+            <div class="swipe-box" id="boxD">
+              <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(1,'d')" aria-label="দিন বাড়ান">▲</button>
+              <div class="mid-area" data-grid="d" data-ref="txtD" title="ক্যালেন্ডার গ্রিড দেখতে ক্লিক করুন">
+                <div class="val-disp" id="txtD">০১</div>
+              </div>
+              <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(-1,'d')" aria-label="দিন কমান">▼</button>
+            </div>
+
+            <div class="swipe-box" id="boxM">
+              <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(1,'m')" aria-label="মাস বাড়ান">▲</button>
+              <div class="mid-area" data-grid="m" data-ref="txtM" title="মাস নির্বাচন করতে ক্লিক করুন">
+                <div class="val-disp small" id="txtM">Jan</div>
+              </div>
+              <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(-1,'m')" aria-label="মাস কমান">▼</button>
+            </div>
+
+            <div class="swipe-box" id="boxY">
+              <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(1,'y')" aria-label="সাল বাড়ান">▲</button>
+              <div class="mid-area" onclick="window.TechHatTools.editY()" title="সাল লিখতে ক্লিক করুন">
+                <div class="val-disp" id="txtY">২০২৬</div>
+                <input type="number" class="num-inp" id="yearInp" onblur="window.TechHatTools.closeY()">
+              </div>
+              <button type="button" class="arr-btn" onclick="window.TechHatTools.upd(-1,'y')" aria-label="সাল কমান">▼</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="res-sec">
+          <div class="res-block">
+            <div class="res-lbl" id="lblMain">বাংলা তারিখ</div>
+            <div class="main-date" id="resMain">...</div>
+            <div class="meta-pill" id="resMeta">...</div>
+          </div>
+          <div class="res-divider"></div>
+          <div class="res-block">
+            <div class="res-lbl" id="lblSec">হিজরি তারিখ</div>
+            <div class="sec-date" id="resSec">...</div>
+            <div class="adj-box">
+              <span>চাঁদ দেখা সমন্বয়:</span>
+              <select class="adj-sel" id="hjAdj" onchange="window.TechHatTools.setAdj(this.value)">
+                <option value="-2">-২ দিন</option>
+                <option value="-1">-১ দিন</option>
+                <option value="0" selected>অটো (০)</option>
+                <option value="1">+১ দিন</option>
+                <option value="2">+২ দিন</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" class="ai-btn" onclick="window.TechHatTools.showAIHoroscope()">
+            ✦ এই দিনের বিস্তারিত ও রাশিচক্র
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <DateModals slot="after-workbench" />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/js/tools.js" defer></script>
+  </Fragment>
+</ToolLayout>

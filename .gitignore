@@ -1,6 +1,6 @@
 node_modules/
 tests/node_modules/
-calender.html
+.astro/
+dist/
 .DS_Store
 Thumbs.db
-*.log

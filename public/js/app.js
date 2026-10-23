@@ -951,13 +951,18 @@
     drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('is-over'); });
   });
   drop.addEventListener('drop', function (e) { if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files); });
-  // dropping a file anywhere on the page opens the file tab
+  // dropping a file anywhere on the page opens the file tab (only while the Bijoy converter is active;
+  // other tools such as PDF Studio manage their own drag & drop and must never be navigated away from)
+  function bijoyToolActive() {
+    var sec = document.getElementById('tool-bijoy');
+    return !sec || !sec.hidden;
+  }
   window.addEventListener('dragover', function (e) { if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types, 'Files') !== -1) e.preventDefault(); });
   window.addEventListener('drop', function (e) {
     if (e.target.closest && e.target.closest('#dropZone')) return;
     if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
       e.preventDefault();
-      if (window.TechHatTools) window.TechHatTools.openTool('bijoy', false);
+      if (!bijoyToolActive()) return;
       setTab('file'); addFiles(e.dataTransfer.files);
     }
   });
@@ -993,7 +998,8 @@
   }
 
   var themeToggleBtn = $('#themeToggle');
-  if (themeToggleBtn) {
+  if (themeToggleBtn && !themeToggleBtn.dataset.shellBound) {
+    themeToggleBtn.dataset.shellBound = '1';
     themeToggleBtn.addEventListener('click', function () {
       var current = getCurrentTheme();
       var next = current === 'dark' ? 'light' : 'dark';

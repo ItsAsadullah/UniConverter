@@ -1,0 +1,234 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+---
+<ToolLayout toolId="bijoy">
+  <div class="tool-view" id="tool-bijoy">
+    <section class="card" aria-label="কনভার্টার">
+
+      <!-- ============================================================ TEXT PANEL -->
+      <div class="panel" role="tabpanel" id="panel-text" aria-labelledby="tab-text">
+        <div class="toolbar">
+          <div class="seg" role="radiogroup" aria-label="রূপান্তরের দিক">
+            <input type="radio" name="textDir" id="textDirB2U" value="b2u" checked>
+            <label for="textDirB2U">বিজয় → ইউনিকোড</label>
+            <input type="radio" name="textDir" id="textDirU2B" value="u2b">
+            <label for="textDirU2B">ইউনিকোড → বিজয়</label>
+            <span class="seg__thumb" aria-hidden="true"></span>
+          </div>
+          <div class="toolbar__right">
+            <label class="switch" title="লেখার সাথে সাথে রূপান্তর">
+              <input type="checkbox" id="liveToggle" checked>
+              <span class="switch__track" aria-hidden="true"><span class="switch__knob"></span></span>
+              <span>লাইভ</span>
+            </label>
+            <button class="btn btn--primary btn--sm" id="convertBtn" type="button" hidden title="Ctrl+Enter">
+              রূপান্তর <kbd>Ctrl</kbd>+<kbd>Enter</kbd>
+            </button>
+            <button class="btn btn--ghost" id="swapBtn" type="button" title="দিক ও লেখা অদলবদল (Ctrl+Shift+S)">
+              <svg class="swap-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>
+              অদলবদল
+            </button>
+            <button class="btn btn--ghost btn--danger" id="clearBtn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
+              মুছুন
+            </button>
+          </div>
+        </div>
+
+        <div class="panes">
+          <div class="pane">
+            <div class="pane__head">
+              <label class="pane__label" for="inputText" id="inputLabel">বিজয় টেক্সট <small>(SutonnyMJ)</small></label>
+              <div class="pane__tools">
+                <div class="voice-group" id="voiceGroup">
+                  <button class="chip-btn chip-btn--voice" id="voiceBtn" type="button" aria-pressed="false" title="ভয়েস টাইপিং চালু বা বন্ধ করুন (Alt+V)">
+                    <svg class="voice-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="9" y="2" width="6" height="11" rx="3"/>
+                      <path d="M5 10a7 7 0 0 0 14 0M12 17v4m-4 0h8"/>
+                    </svg>
+                    <span class="voice-dot" aria-hidden="true"></span>
+                    <span id="voiceBtnLabel">ভয়েস টাইপ</span>
+                  </button>
+                  <select class="chip-select" id="voiceLang" aria-label="ভয়েস টাইপিংয়ের ভাষা" title="ভয়েস টাইপিংয়ের ভাষা">
+                    <option value="bn-BD">বাংলা (BD)</option>
+                    <option value="bn-IN">বাংলা (IN)</option>
+                    <option value="en-US">English</option>
+                  </select>
+                </div>
+                <button class="chip-btn" id="pasteBtn" type="button" title="ক্লিপবোর্ড থেকে পেস্ট করুন">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v3H9zM8 5H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2"/></svg>
+                  পেস্ট
+                </button>
+                <button class="chip-btn" id="copyInputBtn" type="button" title="ইনপুট টেক্সট কপি করুন">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>
+                  কপি
+                </button>
+              </div>
+            </div>
+            <div class="voice-bar" id="voiceBar" hidden aria-live="polite">
+              <div class="voice-bar__status">
+                <span class="voice-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                <span id="voiceStatusText">শুনছি… কথা বলুন</span>
+              </div>
+              <div class="voice-bar__actions" role="group" aria-label="দ্রুত যতিচিহ্ন ও কমান্ড">
+                <button type="button" class="voice-chip" data-insert="। " title="দাঁড়ি বসান">। দাঁড়ি</button>
+                <button type="button" class="voice-chip" data-insert=", " title="কমা বসান">, কমা</button>
+                <button type="button" class="voice-chip" data-insert="? " title="প্রশ্নবোধক চিহ্ন বসান">?</button>
+                <button type="button" class="voice-chip" data-insert="! " title="বিস্ময়সূচক চিহ্ন বসান">!</button>
+                <button type="button" class="voice-chip" data-insert="&#10;" title="নতুন লাইন">↵ লাইন</button>
+                <button type="button" class="voice-chip voice-chip--undo" id="voiceBackspaceBtn" title="শেষ শব্দ মুছুন">⌫ শব্দ মুছুন</button>
+              </div>
+            </div>
+            <textarea id="inputText" class="textbox is-bijoy" spellcheck="false" autocomplete="off" autocapitalize="off"
+              placeholder="বিজয় টেক্সট লিখুন বা পেস্ট করুন… (Word থেকে পেস্ট করলে ইংরেজি অংশ অক্ষত থাকবে)"></textarea>
+            <div class="pane__foot">
+              <span class="counter" id="inputCount">০ অক্ষর • ০ শব্দ</span>
+              <span class="hint" id="smartHint" hidden>✦ স্মার্ট পেস্ট: ইংরেজি অংশ অক্ষত</span>
+            </div>
+          </div>
+
+          <div class="pane pane--out">
+            <div class="pane__head">
+              <label class="pane__label" for="outputText" id="outputLabel">ইউনিকোড আউটপুট</label>
+              <div class="pane__tools">
+                <button class="chip-btn" id="copyBtn" type="button" title="সাধারণ কপি">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>
+                  কপি
+                </button>
+                <button class="chip-btn chip-btn--accent" id="copyRichBtn" type="button" title="ফন্টসহ কপি — Word-এ পেস্ট করলে সঠিক ফন্ট থাকবে">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13 7l4 4"/></svg>
+                  Word-এর জন্য কপি
+                </button>
+                <button class="chip-btn" id="downloadTxtBtn" type="button" title=".txt ফাইল ডাউনলোড">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>
+                  .txt
+                </button>
+              </div>
+            </div>
+            <textarea id="outputText" class="textbox textbox--out" readonly spellcheck="false"
+              placeholder="রূপান্তরিত লেখা এখানে দেখাবে…"></textarea>
+            <div class="pane__foot">
+              <span class="counter" id="outputCount">০ অক্ষর • ০ শব্দ</span>
+              <span class="timing" id="timing"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-options">
+          <label class="field field--inline">
+            <span>আউটপুট ফন্ট</span>
+            <select id="previewFont"></select>
+          </label>
+          <label class="field field--inline field--range">
+            <span>আকার</span>
+            <input type="range" id="fontSize" min="13" max="34" value="18">
+            <output id="fontSizeOut" for="fontSize">১৮</output>
+          </label>
+          <label class="field field--inline field--check" id="textEnglishFontField" hidden>
+            <input type="checkbox" id="textEnglishTnrToggle" checked>
+            <span>ইংরেজি লেটার</span>
+          </label>
+          <p class="font-status" id="fontStatus" role="note"></p>
+        </div>
+      </div>
+
+      <!-- ============================================================ FILE PANEL -->
+      <div class="panel" role="tabpanel" id="panel-file" aria-labelledby="tab-file" hidden>
+        <div class="toolbar">
+          <div class="seg" role="radiogroup" aria-label="ফাইল রূপান্তরের দিক">
+            <input type="radio" name="fileDir" id="fileDirB2U" value="b2u" checked>
+            <label for="fileDirB2U">বিজয় → ইউনিকোড</label>
+            <input type="radio" name="fileDir" id="fileDirU2B" value="u2b">
+            <label for="fileDirU2B">ইউনিকোড → বিজয়</label>
+            <span class="seg__thumb" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <div class="file-layout">
+          <label class="drop" id="dropZone" for="fileInput">
+            <input type="file" id="fileInput" multiple
+              accept=".docx,.docm,.dotx,.dotm,.xlsx,.xlsm,.pptx,.pptm,.ppsx,.rtf,.txt">
+            <span class="drop__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+            </span>
+            <span class="drop__title">ফাইল টেনে আনুন অথবা <u>নির্বাচন করুন</u></span>
+            <span class="drop__badges" aria-hidden="true">
+              <span class="badge badge--word">Word</span><span class="badge badge--excel">Excel</span><span class="badge badge--ppt">PowerPoint</span><span class="badge badge--rtf">RTF / TXT</span>
+            </span>
+            <span class="drop__note">পুরোনো .doc / .xls / .ppt হলে আগে .docx / .xlsx / .pptx হিসেবে সেভ করুন</span>
+          </label>
+
+          <div class="file-side">
+            <div class="file-options">
+              <label class="field" id="unicodeFontField">
+                <span>আউটপুট ইউনিকোড ফন্ট</span>
+                <select id="unicodeFont"></select>
+              </label>
+              <label class="field" id="bijoyFontField" hidden>
+                <span>আউটপুট বিজয় ফন্ট</span>
+                <select id="bijoyFont"></select>
+              </label>
+              <label class="field" id="customFontField" hidden>
+                <span>ফন্টের নাম লিখুন</span>
+                <input type="text" id="customFont" placeholder="যেমন: Kalpurush" autocomplete="off">
+              </label>
+              <fieldset class="field field--radios" id="englishFontField" hidden>
+                <legend>ইংরেজি অক্ষরের ফন্ট</legend>
+                <label><input type="checkbox" id="englishTnrToggle" checked> <span>ইংরেজি লেটার</span></label>
+              </fieldset>
+              <fieldset class="field field--radios" id="detectField">
+                <legend>কোন লেখা রূপান্তর হবে?</legend>
+                <label><input type="radio" name="detect" value="auto" checked> শুধু বিজয় ফন্টের লেখা <small>(সুপারিশকৃত)</small></label>
+                <label><input type="radio" name="detect" value="all"> ফন্ট না দেখে সব লেখা</label>
+              </fieldset>
+            </div>
+
+            <ul class="queue" id="queue" aria-live="polite"></ul>
+
+            <div class="file-actions">
+              <button class="btn btn--primary" id="convertFilesBtn" type="button" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4"/></svg>
+                ফাইল রূপান্তর করুন
+              </button>
+              <button class="btn btn--ghost" id="zipAllBtn" type="button" hidden>সব ডাউনলোড (ZIP)</button>
+              <button class="btn btn--ghost btn--danger" id="clearQueueBtn" type="button" hidden>তালিকা মুছুন</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <section slot="after-workbench" class="guide" id="bijoyGuide" aria-labelledby="guideTitle">
+    <h2 id="guideTitle" class="section-title">সাধারণ প্রশ্ন</h2>
+    <details>
+      <summary>মোবাইল বা অন্য ডিভাইসে বিজয় (SutonnyMJ) লেখা কীভাবে সঠিক দেখায়?</summary>
+      <p>এই কনভার্টারে <b>SutonnyMJ</b> ওয়েব ফন্ট সংযুক্ত করা আছে, তাই আপনার ফোন বা কম্পিউটারে ফন্টটি ইনস্টল না থাকলেও এখানে বিজয় লেখা বাংলাতেই পরিষ্কার দেখাবে। তবে MS Word বা অন্য সফটওয়্যারে পেস্ট করার জন্য “Word-এর জন্য কপি” ব্যবহার করুন এবং সেই ডিভাইসে SutonnyMJ ফন্ট ইনস্টল রাখুন।</p>
+    </details>
+    <details>
+      <summary>ফাইলে ইংরেজি লেখাও কি বদলে যাবে?</summary>
+      <p>না। “শুধু বিজয় ফন্টের লেখা” অপশনে কেবল SutonnyMJ বা অন্য MJ ফন্টে লেখা অংশ রূপান্তর হয়। কোনো বিজয় ফন্ট না পেলে লেখার ধরন দেখে স্বয়ংক্রিয়ভাবে সিদ্ধান্ত নেওয়া হয়।</p>
+    </details>
+    <details>
+      <summary>রূপান্তরের পর লেখা ছোট/বোল্ড হারিয়ে যায় — এখানে কি হবে?</summary>
+      <p>না। Office-এ বাংলা ইউনিকোড “কমপ্লেক্স স্ক্রিপ্ট” হিসেবে আলাদা সাইজ ও বোল্ড সেটিং ব্যবহার করে। এই কনভার্টার সেগুলো মিলিয়ে দেয়, তাই সাইজ, বোল্ড, ইটালিক ঠিক থাকে।</p>
+    </details>
+    <details>
+      <summary>ভয়েস টাইপ কীভাবে কাজ করে?</summary>
+      <p>“ভয়েস টাইপ” বাটনে (বা <kbd>Alt</kbd>+<kbd>V</kbd>) চাপ দিয়ে মাইক্রোফোনের অনুমতি দিন এবং বাংলায় বা ইংরেজিতে কথা বলুন। আপনার কথা তাৎক্ষণিক ইউনিকোড ও বিজয় (SutonnyMJ) দুই ফরম্যাটেই রূপান্তর হবে। কথা বলার সময় “পূর্ণচ্ছেদ”, “প্রশ্নবোধক চিহ্ন”, “নতুন লাইন” বললে বা উপরের শর্টকাট বাটনে চাপ দিলে যতিচিহ্ন বসবে। (ভয়েস টাইপিংয়ের জন্য Chrome বা Edge ব্রাউজার এবং ইন্টারনেট সংযোগ প্রয়োজন।)</p>
+    </details>
+    <details>
+      <summary>মোবাইলে অ্যাপের মতো ব্যবহার করা যাবে?</summary>
+      <p>হ্যাঁ। ব্রাউজারের মেনু থেকে “Add to Home screen / Install” করুন। এরপর ইন্টারনেট ছাড়াই অ্যাপের মতো চলবে।</p>
+    </details>
+  </section>
+
+  <Fragment slot="scripts">
+    <script is:inline src="/vendor/jszip.min.js" defer></script>
+    <script is:inline src="/js/bijoy-engine.js" defer></script>
+    <script is:inline src="/js/office.js" defer></script>
+    <script is:inline src="/js/formats.js" defer></script>
+    <script is:inline src="/js/app.js" defer></script>
+  </Fragment>
+</ToolLayout>

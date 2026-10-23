@@ -1,7 +1,7 @@
 /* TechHat Bangla Converter — service worker (offline app shell) */
 'use strict';
 
-var VERSION = 'thbc-v7';
+var VERSION = 'thbc-v11';
 var SHELL = 'shell-' + VERSION;
 var RUNTIME = 'runtime-' + VERSION;
 
@@ -15,8 +15,13 @@ var ASSETS = [
   'js/office.js',
   'js/formats.js',
   'js/app.js',
+  'js/pdf-convert.js',
+  'js/pdf-tools.js',
   'js/tools.js',
   'vendor/jszip.min.js',
+  'vendor/pdf-lib.min.js',
+  'vendor/pdf.min.js',
+  'vendor/pdf.worker.min.js',
   'manifest.webmanifest',
   'icons/icon-48.png',
   'icons/icon-180.png',
@@ -69,15 +74,19 @@ self.addEventListener('fetch', function (event) {
   }
   if (url.origin !== self.location.origin) return;
 
-  // page navigations: network first (fresh deploys), fall back to cached shell offline
+  // page navigations: network first (fresh deploys), fall back to cached page or home shell offline
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req).then(function (res) {
-        var copy = res.clone();
-        caches.open(SHELL).then(function (c) { c.put('index.html', copy); });
+        if (res && res.ok) {
+          var copy = res.clone();
+          caches.open(SHELL).then(function (c) { c.put(req, copy); });
+        }
         return res;
       }).catch(function () {
-        return caches.match('index.html', { ignoreSearch: true });
+        return caches.match(req, { ignoreSearch: true }).then(function (m) {
+          return m || caches.match('./', { ignoreSearch: true }) || caches.match('index.html', { ignoreSearch: true });
+        });
       })
     );
     return;
