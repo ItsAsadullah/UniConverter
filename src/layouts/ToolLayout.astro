@@ -32,6 +32,26 @@ const currentYearBn = toBn(new Date().getFullYear());
         document.documentElement.setAttribute('data-theme', theme);
         var meta = document.querySelector('meta[name="color-scheme"]');
         if (meta) meta.content = theme;
+        if (localStorage.getItem('thbc-cache-ver') !== 'v18') {
+          localStorage.setItem('thbc-cache-ver', 'v18');
+          var hadStale = false;
+          var p = [];
+          if (window.caches) {
+            p.push(caches.keys().then(function (ks) {
+              if (ks.length) hadStale = true;
+              return Promise.all(ks.map(function (k) { return caches.delete(k); }));
+            }));
+          }
+          if ('serviceWorker' in navigator) {
+            p.push(navigator.serviceWorker.getRegistrations().then(function (rs) {
+              if (rs.length) hadStale = true;
+              return Promise.all(rs.map(function (r) { return r.unregister(); }));
+            }));
+          }
+          if (p.length) {
+            Promise.all(p).then(function () { if (hadStale) location.reload(); });
+          }
+        }
       } catch (e) {}
     })();
   </script>
@@ -47,7 +67,7 @@ const currentYearBn = toBn(new Date().getFullYear());
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700&family=Tiro+Bangla&display=swap">
-  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/app.css?v=18">
 </head>
 <body data-astro-mpa="1" data-active-tool={toolId}>
   <a class="skip-link" href="#workbench">মূল অংশে যান</a>
@@ -147,7 +167,7 @@ const currentYearBn = toBn(new Date().getFullYear());
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script is:inline src="/js/shell.js" defer></script>
+  <script is:inline src="/js/shell.js?v=16" defer></script>
   <slot name="scripts" />
 </body>
 </html>

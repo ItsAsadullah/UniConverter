@@ -1,7 +1,7 @@
 /* TechHat Bangla Converter — service worker (offline app shell) */
 'use strict';
 
-var VERSION = 'thbc-v11';
+var VERSION = 'thbc-v15';
 var SHELL = 'shell-' + VERSION;
 var RUNTIME = 'runtime-' + VERSION;
 
@@ -11,12 +11,14 @@ var ASSETS = [
   'css/app.css',
   'SutonnyMJ-Regular.ttf',
   'SutonnyMJ-Italic.ttf',
+  'js/shell.js',
   'js/bijoy-engine.js',
   'js/office.js',
   'js/formats.js',
   'js/app.js',
   'js/pdf-convert.js',
   'js/pdf-tools.js',
+  'js/image-tools.js',
   'js/tools.js',
   'vendor/jszip.min.js',
   'vendor/pdf-lib.min.js',
@@ -92,16 +94,16 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // static assets: cache first, then network (and store)
+  // static assets: network first for CSS/JS so updates appear immediately, fallback to cache offline
   event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then(function (cached) {
-      return cached || fetch(req).then(function (res) {
-        if (res && res.ok) {
-          var copy = res.clone();
-          caches.open(RUNTIME).then(function (c) { c.put(req, copy); });
-        }
-        return res;
-      });
+    fetch(req).then(function (res) {
+      if (res && res.ok) {
+        var copy = res.clone();
+        caches.open(RUNTIME).then(function (c) { c.put(req, copy); });
+      }
+      return res;
+    }).catch(function () {
+      return caches.match(req, { ignoreSearch: true });
     })
   );
 });

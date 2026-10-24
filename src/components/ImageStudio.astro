@@ -1,0 +1,933 @@
+---
+interface Props {
+  initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'colors';
+}
+
+const { initialTab = 'hub' } = Astro.props;
+---
+<div class="tool-view" id="tool-image" data-initial-tab={initialTab}>
+  <section class="card util-card pdf-studio-card img-studio-card" aria-label="ইমেজ স্টুডিও">
+    <!-- Top Sub-Tool Navigation -->
+    <div class="pdf-nav-bar" role="tablist" aria-label="ইমেজ টুলস মেনু">
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'hub' }]} data-img-tab="hub" role="tab" aria-selected={initialTab === 'hub' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>সব ইমেজ টুলস</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'resize' }]} data-img-tab="resize" role="tab" aria-selected={initialTab === 'resize' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+        <span>রিসাইজ ও প্রিসেট</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'compress' }]} data-img-tab="compress" role="tab" aria-selected={initialTab === 'compress' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+        <span>কমপ্রেস ইমেজ</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'crop' }]} data-img-tab="crop" role="tab" aria-selected={initialTab === 'crop' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+        <span>ক্রপ ও রাউন্ড</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'convert' }]} data-img-tab="convert" role="tab" aria-selected={initialTab === 'convert' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <span>কনভার্ট ও ইফেক্ট</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'combine' }]} data-img-tab="combine" role="tab" aria-selected={initialTab === 'combine' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg>
+        <span>ছবি জোড়া / NID</span>
+      </button>
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'colors' }]} data-img-tab="colors" role="tab" aria-selected={initialTab === 'colors' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-.5a1.5 1.5 0 0 1 1.5-1.5H17a5 5 0 0 0 5-5c0-5.5-4.5-11-10-11z"/></svg>
+        <span>কালার পিকার</span>
+      </button>
+    </div>
+
+    <div class="util-body pdf-studio-body">
+      <!-- ========================================== 0. HUB OVERVIEW -->
+      <div class="img-pane" id="img-pane-hub" hidden={initialTab !== 'hub'}>
+        <div class="pdf-hub-hero">
+          <h2 class="pdf-hub-title">অল-ইন-ওয়ান <span>ইমেজ স্টুডিও</span></h2>
+        </div>
+
+        <div class="pdf-hub-grid">
+          <button type="button" class="pdf-hub-card" data-open-img="resize" data-preset="job-photo" data-accent="teal">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">রিসাইজ ও সরকারি ফর্ম প্রিসেট</span>
+            <span class="pdf-hub-card__desc">চাকরির ছবি (300×300), আনসার ভিডিপি (250×250), স্বাক্ষর (300×80 ও 300×100), পাসপোর্ট সাইজ ও পজিশনিং।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-img="compress" data-accent="green">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">কমপ্রেস ইমেজ</span>
+            <span class="pdf-hub-card__desc">কোয়ালিটি ঠিক রেখে ছবির KB কমান এবং প্রিভিউ দেখে ডাউনলোড করুন।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-img="crop" data-accent="purple">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">ক্রপ, কাস্টম সাইজ ও রাউন্ড ফটো</span>
+            <span class="pdf-hub-card__desc">কাস্টম সাইজে (px) বা অনুপাতে ছবি ক্রপ (250×250, 300×100, 1:1), ঘোরান ও বৃত্তাকার ছবি তৈরি করুন।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-img="convert" data-accent="amber">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">কনভার্ট, ইফেক্ট ও ওয়াটারমার্ক</span>
+            <span class="pdf-hub-card__desc">JPG ⇄ PNG ⇄ WebP ⇄ Base64 রূপান্তর, ছবির ওপর লেখা, বর্ডার ও ফটো ইফেক্ট।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-img="combine" data-accent="blue">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">আইডি কার্ড স্ক্যানার ও ছবি জোড়া</span>
+            <span class="pdf-hub-card__desc">অটো এজ ডিটেকশন, ৪-কোণা পার্সপেক্টিভ ক্রপ ও কালার এডজাস্ট করে A4 পাতায় উপরে-নিচে বসান।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card" data-open-img="colors" data-accent="red">
+            <span class="pdf-hub-card__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-.5a1.5 1.5 0 0 1 1.5-1.5H17a5 5 0 0 0 5-5c0-5.5-4.5-11-10-11z"/></svg>
+            </span>
+            <span class="pdf-hub-card__title">কালার পিকার ও প্যালেট</span>
+            <span class="pdf-hub-card__desc">যেকোনো ছবি থেকে প্রধান রঙগুলোর প্যালেট বের করুন এবং ক্লিক করে HEX/RGB কোড কপি করুন।</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================== 1. RESIZE & GOVT FORM PRESETS -->
+      <div class="img-pane" id="img-pane-resize" hidden={initialTab !== 'resize'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">রিসাইজ ও সরকারি ফর্ম প্রিসেট</h3>
+          </div>
+          <div class="pdf-ws-actions" id="imgResizeTopActions" hidden>
+            <button type="button" class="chip-btn chip-btn--danger" id="imgResizeResetBtn">অন্য ছবি নিন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="imgResizeDropzone" for="imgResizeInput">
+          <input type="file" id="imgResizeInput" name="imgResizeInput" accept="image/*" class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">রিসাইজ করার জন্য ছবি এখানে ছাড়ুন অথবা <span class="link-ish">ব্রাউজ করুন</span></div>
+          <div class="pdf-dropzone__sub">JPG • PNG • WebP • GIF • BMP — সরকারি ফর্ম ও পাসপোর্ট প্রিসেটসহ</div>
+        </label>
+
+        <div class="pdf-workspace-stage" id="imgResizeStage" hidden>
+          <div class="pdf-options-box">
+            <fieldset class="pdf-fieldset">
+              <legend class="pdf-legend">এক ক্লিকে কুইক প্রিসেট নির্বাচন করুন (Quick Presets)</legend>
+              <div class="img-preset-pills" id="imgResizePresets">
+                <button type="button" class="img-preset-pill active" data-w="300" data-h="300" data-kb="100" data-fit="cover" data-fmt="image/jpeg">
+                  <strong>চাকরির ছবি (300×300)</strong>
+                  <small>সর্বোচ্চ 100 KB • JPG</small>
+                </button>
+                <button type="button" class="img-preset-pill" data-w="300" data-h="80" data-kb="60" data-fit="contain" data-fmt="image/jpeg">
+                  <strong>স্বাক্ষর (300×80)</strong>
+                  <small>সর্বোচ্চ 60 KB • JPG</small>
+                </button>
+                <button type="button" class="img-preset-pill" data-w="250" data-h="250" data-kb="100" data-fit="cover" data-fmt="image/jpeg">
+                  <strong>আনসার ভিডিপি ছবি (250×250)</strong>
+                  <small>সর্বোচ্চ 100 KB • JPG</small>
+                </button>
+                <button type="button" class="img-preset-pill" data-w="300" data-h="100" data-kb="60" data-fit="contain" data-fmt="image/jpeg">
+                  <strong>আনসার সাইন (300×100)</strong>
+                  <small>সর্বোচ্চ 60 KB • JPG</small>
+                </button>
+                <button type="button" class="img-preset-pill" data-w="450" data-h="570" data-kb="0" data-fit="cover" data-fmt="image/jpeg">
+                  <strong>পাসপোর্ট সাইজ (450×570)</strong>
+                  <small>38×48 mm @ 300 DPI</small>
+                </button>
+                <button type="button" class="img-preset-pill" data-w="240" data-h="300" data-kb="0" data-fit="cover" data-fmt="image/jpeg">
+                  <strong>স্ট্যাম্প সাইজ (240×300)</strong>
+                  <small>20×25 mm @ 300 DPI</small>
+                </button>
+                <button type="button" class="img-preset-pill" data-w="1080" data-h="1080" data-kb="0" data-fit="cover" data-fmt="image/jpeg">
+                  <strong>সোশ্যাল স্কয়ার (1080×1080)</strong>
+                  <small>Instagram / FB Post</small>
+                </button>
+                <button type="button" class="img-preset-pill" data-w="1280" data-h="720" data-kb="0" data-fit="cover" data-fmt="image/jpeg">
+                  <strong>HD থাম্বনেইল (1280×720)</strong>
+                  <small>16:9 YouTube / Web</small>
+                </button>
+              </div>
+            </fieldset>
+
+            <div class="pdf-img-settings img-grid-4" style="margin-top: .9rem;">
+              <div class="pdf-field-group">
+                <label for="imgResizeW">প্রস্থ — Width (px):</label>
+                <input type="number" id="imgResizeW" name="imgResizeW" value="300" min="1" max="8000">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgResizeH">উচ্চতা — Height (px):</label>
+                <input type="number" id="imgResizeH" name="imgResizeH" value="300" min="1" max="8000">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgResizeMaxKb">সর্বোচ্চ সাইজ (KB লিমিট, 0 = আনলিমিটেড):</label>
+                <input type="number" id="imgResizeMaxKb" name="imgResizeMaxKb" value="100" min="0" max="10000" step="5">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgResizeBg">ব্যাকগ্রাউন্ড রঙ (Contain/JPG):</label>
+                <div class="img-color-row">
+                  <input type="color" id="imgResizeBg" name="imgResizeBg" value="#ffffff">
+                  <button type="button" class="chip-btn" id="imgResizeBgWhite" title="সাদা ব্যাকগ্রাউন্ড">সাদা</button>
+                  <button type="button" class="chip-btn" id="imgResizeBgBlue" title="পাসপোর্ট নীল ব্যাকগ্রাউন্ড">নীল</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="img-controls-row" style="margin-top: .85rem;">
+              <label class="switch pdf-inline-switch">
+                <input type="checkbox" id="imgResizeLockRatio" name="imgResizeLockRatio">
+                <span class="switch__track"><span class="switch__knob"></span></span>
+                <span class="switch__label">অরিজিনাল অনুপাত লক রাখুন (Lock Aspect Ratio)</span>
+              </label>
+
+              <fieldset class="pdf-fieldset">
+                <legend class="pdf-legend">ফিট মোড (Fit Mode):</legend>
+                <div class="pdf-radio-inline">
+                  <label class="dc-radio"><input type="radio" name="imgResizeFit" value="cover" checked> কভার / সেন্টার ক্রপ</label>
+                  <label class="dc-radio"><input type="radio" name="imgResizeFit" value="contain"> পুরো ছবি রাখুন (Contain)</label>
+                  <label class="dc-radio"><input type="radio" name="imgResizeFit" value="stretch"> টেনে মাপ মেলান (Stretch)</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="pdf-fieldset">
+                <legend class="pdf-legend">আউটপুট ফরম্যাট:</legend>
+                <div class="pdf-radio-inline">
+                  <label class="dc-radio"><input type="radio" name="imgResizeFmt" value="image/jpeg" checked> JPG</label>
+                  <label class="dc-radio"><input type="radio" name="imgResizeFmt" value="image/png"> PNG</label>
+                  <label class="dc-radio"><input type="radio" name="imgResizeFmt" value="image/webp"> WebP</label>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="img-controls-row img-pos-toolbar" id="imgResizePosToolbar" style="margin-top: .85rem; padding-top: .75rem; border-top: 1px dashed var(--line);">
+              <div class="pdf-field-group" style="min-width: 220px; flex: 1;">
+                <label for="imgResizeZoom">ছবির জুম ও পজিশন (Zoom &amp; Pan): <strong id="imgResizeZoomVal">১০০%</strong></label>
+                <input type="range" id="imgResizeZoom" name="imgResizeZoom" min="50" max="300" value="100">
+              </div>
+              <div class="img-color-row">
+                <span class="pdf-hint-line" style="margin:0;">✋ প্রিভিউ ছবির ওপর মাউস বা আঙুল দিয়ে টেনে পজিশন ঠিক করুন</span>
+                <button type="button" class="chip-btn" id="imgResizePosReset">🎯 মাঝখানে বসান</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="img-dual-preview">
+            <div class="img-preview-box">
+              <div class="img-preview-box__head">
+                <strong>অরিজিনাল ছবি</strong>
+                <span id="imgResizeOrigMeta">—</span>
+              </div>
+              <div class="img-preview-box__canvas">
+                <img id="imgResizeOrigPreview" alt="অরিজিনাল ছবির প্রিভিউ" width="300" height="300">
+              </div>
+            </div>
+            <div class="img-preview-box img-preview-box--out">
+              <div class="img-preview-box__head">
+                <strong>রিসাইজড আউটপুট প্রিভিউ (টেনে পজিশন সরান)</strong>
+                <span id="imgResizeOutMeta">—</span>
+              </div>
+              <div
+                class="img-preview-box__canvas img-pan-stage"
+                id="imgResizePanWrap"
+                tabindex="0"
+                aria-label="রিসাইজড ছবির পজিশন — মাউস বা টাচ দিয়ে টেনে অথবা অ্যারো কী চেপে ছবির অবস্থান পরিবর্তন করুন"
+              >
+                <img id="imgResizeOutPreview" alt="রিসাইজড ছবির প্রিভিউ" width="300" height="300" draggable="false">
+                <span class="img-pan-badge" id="imgResizePanHint">✥ ড্রাগ করে পজিশন মেলান</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pdf-action-bar">
+            <div class="pdf-summary-pill" id="imgResizeSummary">প্রস্তুত</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="imgResizeDownloadBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              রিসাইজড ছবি ডাউনলোড করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 2. COMPRESS IMAGE WORKSPACE -->
+      <div class="img-pane" id="img-pane-compress" hidden={initialTab !== 'compress'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">কমপ্রেস ইমেজ</h3>
+          </div>
+          <div class="pdf-ws-actions" id="imgCompressTopActions" hidden>
+            <label class="chip-btn" for="imgCompressAddMore">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              আরও ছবি যোগ করুন
+              <input type="file" id="imgCompressAddMore" name="imgCompressAddMore" accept="image/*" multiple class="visually-hidden">
+            </label>
+            <button type="button" class="chip-btn chip-btn--danger" id="imgCompressClearBtn">সব মুছুন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="imgCompressDropzone" for="imgCompressInput">
+          <input type="file" id="imgCompressInput" name="imgCompressInput" accept="image/*" multiple class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">কমপ্রেস করার জন্য এক বা একাধিক ছবি ছাড়ুন বা <span class="link-ish">সিলেক্ট করুন</span></div>
+          <div class="pdf-dropzone__sub">JPG • PNG • WebP — কোয়ালিটি স্লাইডার ও সর্বোচ্চ KB লিমিটসহ</div>
+        </label>
+
+        <div class="pdf-workspace-stage" id="imgCompressStage" hidden>
+          <div class="pdf-options-box">
+            <div class="pdf-img-settings img-grid-4">
+              <div class="pdf-field-group">
+                <label for="imgCompressQuality">কোয়ালিটি লেভেল: <strong id="imgCompressQualityLbl">৭৫%</strong></label>
+                <input type="range" id="imgCompressQuality" name="imgCompressQuality" min="10" max="98" value="75">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgCompressTargetKb">টার্গেট সর্বোচ্চ সাইজ (KB, 0 = স্লাইডার অনুযায়ী):</label>
+                <input type="number" id="imgCompressTargetKb" name="imgCompressTargetKb" value="0" min="0" max="10000" step="10" placeholder="যেমন: 100">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgCompressMaxDim">সর্বোচ্চ রেজোলিউশন (Max Width/Height):</label>
+                <select id="imgCompressMaxDim" name="imgCompressMaxDim">
+                  <option value="0" selected>অরিজিনাল ডাইমেনশন রাখুন</option>
+                  <option value="2560">2560 px (2K QHD)</option>
+                  <option value="1920">1920 px (Full HD)</option>
+                  <option value="1280">1280 px (HD)</option>
+                  <option value="800">800 px (ওয়েব অপটিমাইজড)</option>
+                </select>
+              </div>
+              <fieldset class="pdf-fieldset">
+                <legend class="pdf-legend">আউটপুট ফরম্যাট:</legend>
+                <div class="pdf-radio-inline">
+                  <label class="dc-radio"><input type="radio" name="imgCompressFmt" value="image/jpeg" checked> JPG</label>
+                  <label class="dc-radio"><input type="radio" name="imgCompressFmt" value="image/webp"> WebP (সবচেয়ে ছোট)</label>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+
+          <div class="pdf-compress-stat" id="imgCompressTotalStat"></div>
+
+          <div class="img-compress-grid" id="imgCompressList"></div>
+
+          <div class="pdf-action-bar">
+            <div class="pdf-summary-pill" id="imgCompressSummary">০টি ছবি</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="imgCompressDownloadAllBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              কমপ্রেসড ছবি ডাউনলোড করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 3. CROP, ROTATE & ROUND AVATAR -->
+      <div class="img-pane" id="img-pane-crop" hidden={initialTab !== 'crop'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">ক্রপ, কাস্টম সাইজ ও রাউন্ড ফটো</h3>
+          </div>
+          <div class="pdf-ws-actions" id="imgCropTopActions" hidden>
+            <button type="button" class="chip-btn" id="imgCropRotL">↺ বামে</button>
+            <button type="button" class="chip-btn" id="imgCropRotR">↻ ডানে</button>
+            <button type="button" class="chip-btn" id="imgCropFlipH">⇄ ফ্লিপ H</button>
+            <button type="button" class="chip-btn" id="imgCropFlipV">⇅ ফ্লিপ V</button>
+            <button type="button" class="chip-btn chip-btn--danger" id="imgCropResetBtn">অন্য ছবি নিন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="imgCropDropzone" for="imgCropInput">
+          <input type="file" id="imgCropInput" name="imgCropInput" accept="image/*" class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">ক্রপ বা রাউন্ড করার জন্য ছবি ছাড়ুন বা <span class="link-ish">সিলেক্ট করুন</span></div>
+          <div class="pdf-dropzone__sub">কাস্টম সাইজ (px) • 250×250 আনসার • 300×100 সাইন • 300×300 ছবি • বৃত্তাকার (Circle PNG)</div>
+        </label>
+
+        <div class="pdf-workspace-stage" id="imgCropStage" hidden>
+          <div class="pdf-options-box">
+            <div class="img-controls-row">
+              <fieldset class="pdf-fieldset">
+                <legend class="pdf-legend">ক্রপ অনুপাত ও প্রিসেট সাইজ (Aspect Ratio &amp; Presets):</legend>
+                <div class="pdf-radio-inline" id="imgCropRatioGroup">
+                  <label class="dc-radio"><input type="radio" name="imgCropRatio" value="free" checked> মুক্ত (Free)</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropRatio" value="1:1"> 1:1 (বর্গাকার)</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropRatio" value="250:250" data-cw="250" data-ch="250"> 250×250 (আনসার ছবি)</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropRatio" value="300:300" data-cw="300" data-ch="300"> 300×300 (চাকরির ছবি)</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropRatio" value="300:80" data-cw="300" data-ch="80"> 300×80 (স্বাক্ষর)</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropRatio" value="300:100" data-cw="300" data-ch="100"> 300×100 (আনসার সাইন)</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropRatio" value="4:5" data-cw="450" data-ch="570"> 4:5 (পাসপোর্ট)</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropRatio" value="16:9"> 16:9 (ওয়াইড)</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropRatio" value="custom"> কাস্টম সাইজ (px)</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="pdf-fieldset">
+                <legend class="pdf-legend">আকৃতি / কোণা (Corner Shape):</legend>
+                <div class="pdf-radio-inline">
+                  <label class="dc-radio"><input type="radio" name="imgCropShape" value="rect" checked> চারকোণা</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropShape" value="rounded"> রাউন্ডেড কোণা</label>
+                  <label class="dc-radio"><input type="radio" name="imgCropShape" value="circle"> বৃত্তাকার (Circle PNG)</label>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="pdf-img-settings img-grid-4" style="margin-top: .85rem; padding-top: .75rem; border-top: 1px dashed var(--line);">
+              <div class="pdf-field-group">
+                <label for="imgCropCustomW">কাস্টম প্রস্থ — Width (px):</label>
+                <input type="number" id="imgCropCustomW" name="imgCropCustomW" min="1" max="8000" placeholder="অটো (ক্রপ অনুযায়ী)">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgCropCustomH">কাস্টম উচ্চতা — Height (px):</label>
+                <input type="number" id="imgCropCustomH" name="imgCropCustomH" min="1" max="8000" placeholder="অটো (ক্রপ অনুযায়ী)">
+              </div>
+              <div class="pdf-field-group" style="grid-column: span 2;">
+                <label for="imgCropLockCustomRatio">কাস্টম সাইজ অপশন:</label>
+                <div class="img-color-row">
+                  <label class="switch pdf-inline-switch">
+                    <input type="checkbox" id="imgCropLockCustomRatio" name="imgCropLockCustomRatio" checked>
+                    <span class="switch__track"><span class="switch__knob"></span></span>
+                    <span class="switch__label">কাস্টম মাপের অনুপাতে ক্রপ বক্স লক রাখুন</span>
+                  </label>
+                  <button type="button" class="chip-btn" id="imgCropClearCustomBtn">অটো সাইজে ফিরুন</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="img-crop-workbench">
+            <div class="img-crop-stage-wrap" id="imgCropInteractiveWrap">
+              <canvas id="imgCropSourceCanvas"></canvas>
+              <div
+                class="img-crop-box"
+                id="imgCropBox"
+                tabindex="0"
+                aria-label="ক্রপ বক্স — মাউস বা টাচ দিয়ে টেনে অথবা অ্যারো কী চেপে ক্রপ এরিয়া পরিবর্তন করুন"
+              >
+                <span class="img-crop-handle" data-h="nw"></span>
+                <span class="img-crop-handle" data-h="n"></span>
+                <span class="img-crop-handle" data-h="ne"></span>
+                <span class="img-crop-handle" data-h="e"></span>
+                <span class="img-crop-handle" data-h="se"></span>
+                <span class="img-crop-handle" data-h="s"></span>
+                <span class="img-crop-handle" data-h="sw"></span>
+                <span class="img-crop-handle" data-h="w"></span>
+              </div>
+            </div>
+            <div class="img-preview-box img-preview-box--out">
+              <div class="img-preview-box__head">
+                <strong>ক্রপড আউটপুট প্রিভিউ</strong>
+                <span id="imgCropOutMeta">—</span>
+              </div>
+              <div class="img-preview-box__canvas">
+                <img id="imgCropOutPreview" alt="ক্রপড ছবির প্রিভিউ" width="260" height="260">
+              </div>
+            </div>
+          </div>
+
+          <div class="pdf-action-bar">
+            <div class="pdf-summary-pill" id="imgCropSummary">ক্রপ বক্স টেনে অংশ নির্বাচন করুন</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="imgCropDownloadBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              ক্রপ করা ছবি ডাউনলোড করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 4. CONVERT, EFFECTS, WATERMARK & BORDER -->
+      <div class="img-pane" id="img-pane-convert" hidden={initialTab !== 'convert'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">ফরম্যাট কনভার্টার, ফটো ইফেক্ট ও ওয়াটারমার্ক</h3>
+          </div>
+          <div class="pdf-ws-actions" id="imgConvertTopActions" hidden>
+            <button type="button" class="chip-btn" id="imgConvertResetFiltersBtn">↺ ইফেক্ট রিসেট</button>
+            <button type="button" class="chip-btn chip-btn--danger" id="imgConvertResetBtn">অন্য ছবি নিন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="imgConvertDropzone" for="imgConvertInput">
+          <input type="file" id="imgConvertInput" name="imgConvertInput" accept="image/*" class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">কনভার্ট বা এডিট করার জন্য ছবি ছাড়ুন বা <span class="link-ish">সিলেক্ট করুন</span></div>
+          <div class="pdf-dropzone__sub">JPG ⇄ PNG ⇄ WebP ⇄ Base64 • ফটো ফিল্টার • বাংলা ওয়াটারমার্ক ও বর্ডার</div>
+        </label>
+
+        <div class="pdf-workspace-stage" id="imgConvertStage" hidden>
+          <div class="pdf-options-box">
+            <fieldset class="pdf-fieldset">
+              <legend class="pdf-legend">আউটপুট ফরম্যাট নির্বাচন করুন:</legend>
+              <div class="pdf-radio-inline">
+                <label class="dc-radio"><input type="radio" name="imgConvertFmt" value="image/jpeg" checked> JPG (.jpg)</label>
+                <label class="dc-radio"><input type="radio" name="imgConvertFmt" value="image/png"> PNG (.png)</label>
+                <label class="dc-radio"><input type="radio" name="imgConvertFmt" value="image/webp"> WebP (.webp)</label>
+                <label class="dc-radio"><input type="radio" name="imgConvertFmt" value="base64"> Base64 Data URL</label>
+              </div>
+            </fieldset>
+
+            <div class="pdf-img-settings img-grid-4" style="margin-top: .9rem;">
+              <div class="pdf-field-group">
+                <label for="imgEffBright">উজ্জ্বলতা (Brightness): <span id="imgEffBrightVal">100%</span></label>
+                <input type="range" id="imgEffBright" name="imgEffBright" min="40" max="180" value="100">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgEffContrast">কনট্রাস্ট (Contrast): <span id="imgEffContrastVal">100%</span></label>
+                <input type="range" id="imgEffContrast" name="imgEffContrast" min="40" max="200" value="100">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgEffSat">রঙের গভীরতা (Saturation): <span id="imgEffSatVal">100%</span></label>
+                <input type="range" id="imgEffSat" name="imgEffSat" min="0" max="200" value="100">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgEffBorder">বর্ডার প্রশস্ততা (Border px):</label>
+                <div class="img-color-row">
+                  <input type="number" id="imgEffBorder" name="imgEffBorder" value="0" min="0" max="120" style="max-width:78px;">
+                  <input type="color" id="imgEffBorderColor" name="imgEffBorderColor" value="#ffffff" aria-label="বর্ডারের রঙ">
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-img-settings img-grid-4" style="margin-top: .85rem;">
+              <div class="pdf-field-group" style="grid-column: span 2;">
+                <label for="imgWatermarkText">ছবির ওপর লেখা / ক্যাপশন / ওয়াটারমার্ক (ঐচ্ছিক):</label>
+                <input type="text" id="imgWatermarkText" name="imgWatermarkText" placeholder="যেমন: © TechHat অথবা আপনার নাম/তারিখ">
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgWatermarkPos">লেখার অবস্থান:</label>
+                <select id="imgWatermarkPos" name="imgWatermarkPos">
+                  <option value="bottom" selected>নিচে মাঝখানে (Bottom)</option>
+                  <option value="center">একদম মাঝখানে (Center)</option>
+                  <option value="top">উপরে মাঝখানে (Top)</option>
+                  <option value="br">নিচে ডান কোণায়</option>
+                </select>
+              </div>
+              <div class="pdf-field-group">
+                <label for="imgWatermarkColor">লেখার রঙ:</label>
+                <div class="img-color-row">
+                  <input type="color" id="imgWatermarkColor" name="imgWatermarkColor" value="#ffffff">
+                  <label class="switch pdf-inline-switch">
+                    <input type="checkbox" id="imgEffGray" name="imgEffGray">
+                    <span class="switch__track"><span class="switch__knob"></span></span>
+                    <span class="switch__label">সাদাকালো</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="img-preview-box img-preview-box--out" style="max-width: 640px; margin-inline: auto;">
+            <div class="img-preview-box__head">
+              <strong>লাইভ প্রিভিউ</strong>
+              <span id="imgConvertOutMeta">—</span>
+            </div>
+            <div class="img-preview-box__canvas">
+              <img id="imgConvertOutPreview" alt="কনভার্টেড ছবির প্রিভিউ" width="400" height="300">
+            </div>
+          </div>
+
+          <div id="imgBase64Box" class="pdf-options-box" hidden style="margin-top: .85rem;">
+            <div class="pdf-field-group">
+              <label for="imgBase64Output">Base64 Data URL (HTML / CSS-এ ব্যবহারের জন্য):</label>
+              <textarea id="imgBase64Output" name="imgBase64Output" class="textbox" rows="4" readonly autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+            </div>
+            <div style="margin-top: .5rem; display:flex; justify-content:flex-end;">
+              <button type="button" class="chip-btn chip-btn--accent" id="imgBase64CopyBtn">📋 Base64 কোড কপি করুন</button>
+            </div>
+          </div>
+
+          <div class="pdf-action-bar">
+            <div class="pdf-summary-pill" id="imgConvertSummary">প্রস্তুত</div>
+            <button type="button" class="btn btn--primary pdf-main-action" id="imgConvertDownloadBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              ইমেজ ডাউনলোড করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 5. ID CARD SCANNER & TOP-BOTTOM COMBINER -->
+      <div class="img-pane" id="img-pane-combine" hidden={initialTab !== 'combine'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">আইডি কার্ড স্ক্যানার ও প্রিন্ট স্টুডিও</h3>
+          </div>
+          <div class="pdf-ws-actions" id="imgCombineTopActions" hidden>
+            <label class="chip-btn" for="imgCombineAddMore">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              আরও ছবি
+              <input type="file" id="imgCombineAddMore" name="imgCombineAddMore" accept="image/*" multiple class="visually-hidden">
+            </label>
+            <button type="button" class="chip-btn" id="nidCloneSameImgBtn" title="একই ছবির ভেতর সামনের ও পেছনের অংশ থাকলে এই বাটনে ক্লিক করে অপর পাশ ক্রপ করুন">⧉ একই ছবি থেকে অপর পাশ</button>
+            <button type="button" class="chip-btn" id="nidCameraStageBtn">📷 ক্যামেরা</button>
+            <button type="button" class="chip-btn" id="imgCombineSwapBtn">⇅ উপর-নিচ উল্টান</button>
+            <button type="button" class="chip-btn chip-btn--danger" id="imgCombineClearBtn">সব মুছুন</button>
+          </div>
+        </div>
+
+        <div id="imgCombineDropzone">
+          <div class="nid-scanner-slots">
+            <div class="nid-slot-card">
+              <div class="nid-slot-card__badge">ধাপ ১ • সামনের অংশ</div>
+              <div class="nid-slot-card__title">আইডি কার্ডের সামনের অংশ (Front Side)</div>
+              <div class="nid-slot-card__actions">
+                <label class="btn btn--primary" for="nidFrontInput">
+                  সামনের ছবি নির্বাচন করুন
+                  <input type="file" id="nidFrontInput" name="nidFrontInput" accept="image/*" class="visually-hidden">
+                </label>
+                <button type="button" class="chip-btn" data-cam-slot="0">📷 ক্যামেরা স্ক্যান</button>
+              </div>
+            </div>
+
+            <div class="nid-slot-card">
+              <div class="nid-slot-card__badge">ধাপ ২ • পেছনের অংশ</div>
+              <div class="nid-slot-card__title">আইডি কার্ডের পেছনের অংশ (Back Side)</div>
+              <div class="nid-slot-card__actions">
+                <label class="btn btn--primary" for="nidBackInput">
+                  পেছনের ছবি নির্বাচন করুন
+                  <input type="file" id="nidBackInput" name="nidBackInput" accept="image/*" class="visually-hidden">
+                </label>
+                <button type="button" class="chip-btn" data-cam-slot="1">📷 ক্যামেরা স্ক্যান</button>
+              </div>
+            </div>
+          </div>
+
+          <label class="pdf-dropzone" for="imgCombineInput" style="margin-top: .85rem;">
+            <input type="file" id="imgCombineInput" name="imgCombineInput" accept="image/*" multiple class="visually-hidden">
+            <div class="pdf-dropzone__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg>
+            </div>
+            <div class="pdf-dropzone__title">অথবা সামনের ও পেছনের ছবি একসাথে এখানে ছাড়ুন বা <span class="link-ish">সিলেক্ট করুন</span></div>
+            <div class="pdf-dropzone__sub">অটো এজ ডিটেকশন • ৪-কোণা পার্সপেক্টিভ ক্রপ • কালার এনহ্যান্স • ৩০০ DPI A4 প্রিন্ট ও PDF</div>
+          </label>
+        </div>
+
+        <div class="pdf-workspace-stage" id="imgCombineStage" hidden>
+          <!-- TOP CARD SIDE SWITCHER BAR -->
+          <div class="nid-studio-topbar">
+            <div class="nid-card-tabs" id="nidCardTabs" role="tablist" aria-label="আইডি কার্ডের পৃষ্ঠা নির্বাচন"></div>
+            <div class="nid-card-slot-Adders">
+              <label class="chip-btn" for="nidReplaceFrontInput">
+                সামনের ছবি বদলান
+                <input type="file" id="nidReplaceFrontInput" name="nidReplaceFrontInput" accept="image/*" class="visually-hidden">
+              </label>
+              <label class="chip-btn" for="nidReplaceBackInput">
+                পেছনের ছবি যোগ/বদলান
+                <input type="file" id="nidReplaceBackInput" name="nidReplaceBackInput" accept="image/*" class="visually-hidden">
+              </label>
+            </div>
+          </div>
+
+          <!-- MAIN 2-COLUMN SPLIT STUDIO WORKBENCH -->
+          <div class="nid-studio-grid">
+            <!-- LEFT COLUMN: INTERACTIVE PERSPECTIVE CROP + FINE STRAIGHTEN + COLOR ENHANCER -->
+            <div class="nid-studio-col nid-studio-col--left">
+              <div class="pdf-options-box nid-scanner-box" id="nidScannerCropPanel">
+                <div class="nid-scanner-box__head">
+                  <strong class="nid-step-title">১. পার্সপেক্টিভ ক্রপ ও সোজা করা</strong>
+                  <div class="nid-crop-toolbar">
+                    <button type="button" class="chip-btn chip-btn--accent" id="nidAutoCropBtn">✨ অটো এজ ডিটেক্ট</button>
+                    <button type="button" class="chip-btn" id="nidSnapRatioBtn" title="আসল আইডি কার্ডের অনুপাতে (85.6×54mm) চার কোণা সেট করুন">📐 কার্ড অনুপাত</button>
+                    <button type="button" class="chip-btn" id="nidFullCropBtn">🔲 পুরো ফ্রেম</button>
+                    <button type="button" class="chip-btn" id="nidRotLBtn" title="৯০ ডিগ্রি বামে ঘোরান">↺ বামে</button>
+                    <button type="button" class="chip-btn" id="nidRotRBtn" title="৯০ ডিগ্রি ডানে ঘোরান">↻ ডানে</button>
+                    <button type="button" class="chip-btn" id="nidFlipHBtn" title="পাশাপাশি উল্টান (Mirror Flip)">⇄ ফ্লিপ</button>
+                  </div>
+                </div>
+
+                <div class="nid-crop-canvas-shell">
+                  <div
+                    class="img-crop-stage-wrap nid-perspective-stage"
+                    id="nidCropInteractiveWrap"
+                    tabindex="0"
+                    aria-label="আইডি কার্ড পার্সপেক্টিভ ক্রপ — চার কোণার বিন্দু টেনে বাঁকা কার্ড সোজা করে ক্রপ করুন"
+                  >
+                    <canvas id="nidCropSourceCanvas"></canvas>
+                    <div class="nid-scan-beam" id="nidScanBeam" hidden aria-hidden="true"></div>
+                    <svg class="nid-quad-svg" id="nidQuadSvg" viewBox="0 0 100 100" aria-hidden="true">
+                      <defs>
+                        <mask id="nidQuadMask">
+                          <rect id="nidQuadMaskBg" x="0" y="0" width="100" height="100" fill="white" />
+                          <polygon id="nidQuadHole" points="10,10 90,10 90,90 10,90" fill="black" />
+                        </mask>
+                      </defs>
+                      <rect id="nidQuadDimRect" x="0" y="0" width="100" height="100" fill="rgba(8, 18, 16, 0.62)" mask="url(#nidQuadMask)" />
+                      <line id="nidGridH1" class="nid-quad-grid" x1="10" y1="36" x2="90" y2="36" />
+                      <line id="nidGridH2" class="nid-quad-grid" x1="10" y1="63" x2="90" y2="63" />
+                      <line id="nidGridV1" class="nid-quad-grid" x1="36" y1="10" x2="36" y2="90" />
+                      <line id="nidGridV2" class="nid-quad-grid" x1="63" y1="10" x2="63" y2="90" />
+                      <polygon id="nidQuadPoly" class="nid-quad-poly" points="10,10 90,10 90,90 10,90" />
+                    </svg>
+                    <div class="nid-quad-handles" id="nidQuadHandles">
+                      <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="0" aria-label="উপরের বাম কোণা"></button>
+                      <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="1" aria-label="উপরের ডান কোণা"></button>
+                      <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="2" aria-label="নিচের ডান কোণা"></button>
+                      <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="3" aria-label="নিচের বাম কোণা"></button>
+                      <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="0" aria-label="উপরের ধার"></button>
+                      <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="1" aria-label="ডান ধার"></button>
+                      <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="2" aria-label="নিচের ধার"></button>
+                      <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="3" aria-label="বাম ধার"></button>
+                    </div>
+                    <canvas class="nid-crop-loupe" id="nidCropLoupe" width="116" height="116" hidden aria-hidden="true"></canvas>
+                  </div>
+                </div>
+
+                <!-- Fine Straighten / Deskew Slider + Active Cropped Card Preview Bar -->
+                <div class="nid-deskew-bar">
+                  <div class="pdf-field-group" style="flex:1; min-width:180px;">
+                    <label for="nidFineAngle">সূক্ষ্ম রোটেশন / সোজা করুন (Straighten): <strong id="nidFineAngleVal">০°</strong></label>
+                    <input type="range" id="nidFineAngle" name="nidFineAngle" min="-15" max="15" step="0.5" value="0">
+                  </div>
+                  <button type="button" class="chip-btn" id="nidFineAngleReset">০° সোজা</button>
+                </div>
+
+                <!-- Active Single Card Cropped Preview + Dual Card Strip -->
+                <div class="nid-active-card-strip">
+                  <div class="img-preview-box img-preview-box--out nid-single-preview-box">
+                    <div class="img-preview-box__head">
+                      <strong id="nidActiveCardTitle">সোজা ও ক্রপকৃত প্রিভিউ</strong>
+                      <span id="nidActiveCardMeta">প্রস্তুত ✓</span>
+                    </div>
+                    <div class="img-preview-box__canvas nid-single-preview-canvas">
+                      <img id="nidActiveCardPreview" alt="সোজা ও ক্রপ করা আইডি কার্ডের প্রিভিউ" width="320" height="200">
+                    </div>
+                  </div>
+                  <div class="nid-mini-thumbs" id="nidDualPreviewStrip" aria-label="উভয় পাশের কার্ড থাম্বনেইল"></div>
+                </div>
+              </div>
+
+              <!-- STEP 2: COLOR ADJUSTMENT & ENHANCEMENT -->
+              <div class="pdf-options-box">
+                <div class="img-controls-row" style="justify-content:space-between;">
+                  <fieldset class="pdf-fieldset">
+                    <legend class="pdf-legend">২. কালার ও ডকুমেন্ট ফিল্টার:</legend>
+                    <div class="pdf-radio-inline">
+                      <label class="dc-radio"><input type="radio" name="imgCombineScanMode" value="original" checked> অরিজিনাল</label>
+                      <label class="dc-radio"><input type="radio" name="imgCombineScanMode" value="magic"> অটো এনহ্যান্স</label>
+                      <label class="dc-radio"><input type="radio" name="imgCombineScanMode" value="clean"> পরিষ্কার সাদা (Clean)</label>
+                      <label class="dc-radio"><input type="radio" name="imgCombineScanMode" value="bw"> ফটোকপি (B&amp;W)</label>
+                      <label class="dc-radio"><input type="radio" name="imgCombineScanMode" value="grayscale"> গ্রেস্কেল</label>
+                    </div>
+                  </fieldset>
+                  <button type="button" class="chip-btn" id="imgCombineColorResetBtn">↺ রিসেট</button>
+                </div>
+
+                <div class="pdf-img-settings img-grid-2" style="margin-top: .75rem;">
+                  <div class="pdf-field-group">
+                    <label for="imgCombineBright">উজ্জ্বলতা (Brightness): <strong id="imgCombineBrightVal">১০০%</strong></label>
+                    <input type="range" id="imgCombineBright" name="imgCombineBright" min="50" max="180" value="100">
+                  </div>
+                  <div class="pdf-field-group">
+                    <label for="imgCombineContrast">কনট্রাস্ট (Contrast): <strong id="imgCombineContrastVal">১০০%</strong></label>
+                    <input type="range" id="imgCombineContrast" name="imgCombineContrast" min="50" max="220" value="100">
+                  </div>
+                  <div class="pdf-field-group">
+                    <label for="imgCombineSat">রঙের গভীরতা (Saturation): <strong id="imgCombineSatVal">১০০%</strong></label>
+                    <input type="range" id="imgCombineSat" name="imgCombineSat" min="0" max="200" value="100">
+                  </div>
+                  <div class="pdf-field-group">
+                    <label for="imgCombineSharp">লেখার স্পষ্টতা (Sharpness): <strong id="imgCombineSharpVal">২০%</strong></label>
+                    <input type="range" id="imgCombineSharp" name="imgCombineSharp" min="0" max="100" value="20">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN: LIVE A4 PRINT SHEET PREVIEW + LAYOUT & PRINT CONTROLS -->
+            <div class="nid-studio-col nid-studio-col--right">
+              <div class="pdf-options-box nid-sheet-panel">
+                <div class="img-preview-box__head nid-sheet-panel__head">
+                  <strong>৩. ফাইনাল প্রিন্ট শিট প্রিভিউ (Live 300 DPI)</strong>
+                  <span id="imgCombineOutMeta">—</span>
+                </div>
+
+                <div class="nid-sheet-stage">
+                  <img id="imgCombineOutPreview" alt="জোড়া লাগানো ছবির প্রিভিউ" width="420" height="594">
+                </div>
+
+                <div class="nid-layout-controls">
+                  <fieldset class="pdf-fieldset">
+                    <legend class="pdf-legend">পেজ লেআউট:</legend>
+                    <div class="pdf-radio-inline">
+                      <label class="dc-radio"><input type="radio" name="imgCombineMode" value="nid-a4" checked> A4 শিট (উপরে-নিচে)</label>
+                      <label class="dc-radio"><input type="radio" name="imgCombineMode" value="nid-a4-side"> A4 শিট (পাশাপাশি)</label>
+                      <label class="dc-radio"><input type="radio" name="imgCombineMode" value="vertical"> শুধু কার্ড (উপরে-নিচে)</label>
+                      <label class="dc-radio"><input type="radio" name="imgCombineMode" value="horizontal"> শুধু কার্ড (পাশাপাশি)</label>
+                    </div>
+                  </fieldset>
+
+                  <div class="nid-size-presets" id="nidSizePresets">
+                    <span class="pdf-legend" style="margin:0;">কার্ডের সাইজ প্রিসেট:</span>
+                    <button type="button" class="chip-btn" data-cardw="520">আসল NID মাপ (85.6×54mm)</button>
+                    <button type="button" class="chip-btn chip-btn--accent" data-cardw="660">স্ট্যান্ডার্ড ফটোকপি</button>
+                    <button type="button" class="chip-btn" data-cardw="800">বড় প্রিন্ট</button>
+                  </div>
+
+                  <div class="pdf-img-settings img-grid-4" style="margin-top: .65rem;">
+                    <div class="pdf-field-group">
+                      <label for="imgCombineCardW">কার্ড প্রস্থ (px):</label>
+                      <input type="number" id="imgCombineCardW" name="imgCombineCardW" value="660" min="300" max="1120" step="20">
+                    </div>
+                    <div class="pdf-field-group">
+                      <label for="imgCombineGap">মাঝের ফাঁকা (Gap):</label>
+                      <input type="number" id="imgCombineGap" name="imgCombineGap" value="36" min="0" max="240">
+                    </div>
+                    <div class="pdf-field-group">
+                      <label for="imgCombineAlign">A4 পাতায় অবস্থান:</label>
+                      <select id="imgCombineAlign" name="imgCombineAlign">
+                        <option value="top" selected>উপরে মাঝখানে (ফটোকপি স্ট্যান্ডার্ড)</option>
+                        <option value="center">একদম মাঝখানে (Center)</option>
+                      </select>
+                    </div>
+                    <div class="pdf-field-group">
+                      <label for="imgCombineCopies">পাতায় কপি সংখ্যা:</label>
+                      <select id="imgCombineCopies" name="imgCombineCopies">
+                        <option value="1" selected>১ সেট (সাধারণ)</option>
+                        <option value="2">২ সেট (এক পাতায় ২ জোড়া)</option>
+                        <option value="4">৪ সেট (এক পাতায় ৪ জোড়া)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="img-controls-row" style="margin-top: .65rem; justify-content: space-between;">
+                    <div class="img-color-row">
+                      <label for="imgCombineBg" style="font-size:.8rem; font-weight:700;">পাতার রঙ:</label>
+                      <input type="color" id="imgCombineBg" name="imgCombineBg" value="#ffffff">
+                    </div>
+                    <label class="switch pdf-inline-switch">
+                      <input type="checkbox" id="imgCombineRoundCorner" name="imgCombineRoundCorner" checked>
+                      <span class="switch__track"><span class="switch__knob"></span></span>
+                      <span class="switch__label">রাউন্ডেড কোণা</span>
+                    </label>
+                    <label class="switch pdf-inline-switch">
+                      <input type="checkbox" id="imgCombineCardBorder" name="imgCombineCardBorder" checked>
+                      <span class="switch__track"><span class="switch__knob"></span></span>
+                      <span class="switch__label">কার্ড বর্ডার</span>
+                    </label>
+                    <label class="switch pdf-inline-switch">
+                      <input type="checkbox" id="imgCombineCutMarks" name="imgCombineCutMarks">
+                      <span class="switch__track"><span class="switch__knob"></span></span>
+                      <span class="switch__label">কাটিং মার্ক</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="pdf-action-bar nid-studio-actions">
+                  <div class="pdf-summary-pill" id="imgCombineSummary">প্রস্তুত</div>
+                  <div class="img-download-group" style="display:flex; gap:.5rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn--primary pdf-main-action" id="imgCombineDownloadBtn">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                      JPG ডাউনলোড
+                    </button>
+                    <button type="button" class="btn btn--primary pdf-main-action" id="imgCombineDownloadPdfBtn">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6m0 6-3-3m3 3 3-3"/></svg>
+                      PDF ডাউনলোড
+                    </button>
+                    <button type="button" class="chip-btn chip-btn--accent" id="imgCombinePrintBtn" style="padding:.55rem .9rem; font-weight:800;">
+                      🖨 প্রিন্ট
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== 6. COLOR PICKER & PALETTE -->
+      <div class="img-pane" id="img-pane-colors" hidden={initialTab !== 'colors'}>
+        <div class="pdf-ws-head">
+          <div>
+            <h3 class="pdf-ws-title">কালার পিকার ও প্যালেট জেনারেটর</h3>
+          </div>
+          <div class="pdf-ws-actions" id="imgColorsTopActions" hidden>
+            <button type="button" class="chip-btn chip-btn--danger" id="imgColorsResetBtn">অন্য ছবি নিন</button>
+          </div>
+        </div>
+
+        <label class="pdf-dropzone" id="imgColorsDropzone" for="imgColorsInput">
+          <input type="file" id="imgColorsInput" name="imgColorsInput" accept="image/*" class="visually-hidden">
+          <div class="pdf-dropzone__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-.5a1.5 1.5 0 0 1 1.5-1.5H17a5 5 0 0 0 5-5c0-5.5-4.5-11-10-11z"/></svg>
+          </div>
+          <div class="pdf-dropzone__title">রঙ বাছাই করার জন্য একটি ছবি ছাড়ুন বা <span class="link-ish">সিলেক্ট করুন</span></div>
+          <div class="pdf-dropzone__sub">লোগো, ব্যানার বা ফটো থেকে নিখুঁত HEX এবং RGB কোড বের করুন</div>
+        </label>
+
+        <div class="pdf-workspace-stage" id="imgColorsStage" hidden>
+          <div class="img-color-picker-layout">
+            <div class="img-color-canvas-wrap">
+              <canvas id="imgColorsCanvas"></canvas>
+            </div>
+            <div class="img-color-side">
+              <div class="pdf-options-box">
+                <div class="img-picked-swatch" id="imgPickedSwatch" style="background: #059669;"></div>
+                <div class="img-picked-codes">
+                  <button type="button" class="chip-btn" id="imgCopyHexBtn" title="HEX কোড কপি করুন">
+                    HEX: <strong id="imgPickedHex">#059669</strong> 📋
+                  </button>
+                  <button type="button" class="chip-btn" id="imgCopyRgbBtn" title="RGB কোড কপি করুন">
+                    RGB: <strong id="imgPickedRgb">rgb(5, 150, 105)</strong> 📋
+                  </button>
+                </div>
+              </div>
+
+              <div class="pdf-options-box" style="margin-top: .85rem;">
+                <strong style="display:block; font-size:.86rem; margin-bottom:.55rem;">ছবির প্রধান রঙের প্যালেট (ক্লিক করে কপি করুন):</strong>
+                <div class="img-palette-grid" id="imgPaletteGrid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Before / After Image Quality Comparison Dialog -->
+  <dialog class="pdf-dialog pdf-dialog--wide" id="imgPreviewDialog" closedby="any" aria-labelledby="imgPreviewTitle">
+    <div class="pdf-dialog__head">
+      <div>
+        <h3 class="pdf-dialog__title" id="imgPreviewTitle">আগে ও পরে তুলনা</h3>
+        <p class="pdf-dialog__sub" id="imgPreviewSub"></p>
+      </div>
+      <div class="pdf-ws-actions">
+        <button type="button" class="ai-close pdf-dialog__close" id="imgPreviewClose" aria-label="বন্ধ করুন">✕</button>
+      </div>
+    </div>
+    <div class="pdf-dialog__body">
+      <div class="pdf-preview-stage" id="imgPreviewStage"></div>
+    </div>
+  </dialog>
+
+  <!-- Live Camera Capture Dialog -->
+  <dialog class="pdf-dialog" id="nidCameraDialog" closedby="any" aria-labelledby="nidCameraTitle">
+    <div class="pdf-dialog__head">
+      <div>
+        <h3 class="pdf-dialog__title" id="nidCameraTitle">আইডি কার্ড ক্যামেরা স্ক্যানার</h3>
+      </div>
+      <div class="pdf-ws-actions">
+        <button type="button" class="ai-close pdf-dialog__close" id="nidCameraClose" aria-label="বন্ধ করুন">✕</button>
+      </div>
+    </div>
+    <div class="pdf-dialog__body">
+      <div class="nid-cam-viewfinder">
+        <video id="nidCameraVideo" width="640" height="400" autoplay playsinline muted></video>
+        <div class="nid-cam-guide" aria-hidden="true">
+          <span>আইডি কার্ড এই ফ্রেমের ভেতর রাখুন</span>
+        </div>
+      </div>
+      <div class="pdf-action-bar" style="margin-top: .85rem;">
+        <button type="button" class="chip-btn" id="nidCameraSwitchBtn">🔄 ক্যামেরা পরিবর্তন</button>
+        <button type="button" class="btn btn--primary" id="nidCameraSnapBtn">📸 ছবি তুলুন ও অটো-ক্রপ করুন</button>
+      </div>
+    </div>
+  </dialog>
+</div>

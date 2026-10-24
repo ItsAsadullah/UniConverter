@@ -17,6 +17,7 @@
   /* ------------------------------------------------------------------ Legacy #tool-* Hash Redirects */
   var HASH_ROUTES = {
     '#tool-pdf': '/pdf',
+    '#tool-image': '/image',
     '#tool-calendar': '/calendar',
     '#tool-age': '/age-calculator',
     '#tool-datecalc': '/date-calculator',
@@ -127,7 +128,13 @@
   }
 
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-    navigator.serviceWorker.register('/sw.js').catch(function () {});
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.unregister(); });
+      }).catch(function () {});
+    } else {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    }
   }
 
   var installBtn = $('#installBtn');

@@ -1,0 +1,12 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ImageStudio from '../../components/ImageStudio.astro';
+---
+<ToolLayout toolId="image">
+  <ImageStudio initialTab="hub" />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/vendor/jszip.min.js" defer></script>
+    <script is:inline src="/js/image-tools.js?v=18" defer></script>
+  </Fragment>
+</ToolLayout>

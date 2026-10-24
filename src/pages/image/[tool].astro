@@ -1,0 +1,31 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import ImageStudio from '../../components/ImageStudio.astro';
+import { IMAGE_SUBTOOLS, type ImageSubToolMeta } from '../../data/tools';
+
+export function getStaticPaths() {
+  return IMAGE_SUBTOOLS.map((sub) => ({
+    params: { tool: sub.slug },
+    props: { sub }
+  }));
+}
+
+interface Props {
+  sub: ImageSubToolMeta;
+}
+
+const { sub } = Astro.props;
+---
+<ToolLayout
+  toolId="image"
+  title={sub.seoTitle}
+  description={sub.seoDesc}
+  activeBadgeText={`ইমেজ স্টুডিও • ${sub.title}`}
+>
+  <ImageStudio initialTab={sub.tabId} />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/vendor/jszip.min.js" defer></script>
+    <script is:inline src="/js/image-tools.js?v=18" defer></script>
+  </Fragment>
+</ToolLayout>

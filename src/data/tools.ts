@@ -1,10 +1,10 @@
 export interface ToolMeta {
-  id: 'bijoy' | 'pdf' | 'calendar' | 'age' | 'datecalc' | 'invoice';
+  id: 'bijoy' | 'pdf' | 'image' | 'calendar' | 'age' | 'datecalc' | 'invoice';
   href: string;
   title: string;
   desc: string;
   badge: string;
-  color: 'emerald' | 'crimson' | 'blue' | 'purple' | 'amber' | 'rose';
+  color: 'emerald' | 'crimson' | 'teal' | 'blue' | 'purple' | 'amber' | 'rose';
   keywords: string;
   icon: string;
   seoTitle: string;
@@ -14,6 +14,14 @@ export interface ToolMeta {
 export interface PdfSubToolMeta {
   slug: string;
   tabId: 'merge' | 'split' | 'compress' | 'organize' | 'pdf2other' | 'other2pdf';
+  title: string;
+  seoTitle: string;
+  seoDesc: string;
+}
+
+export interface ImageSubToolMeta {
+  slug: string;
+  tabId: 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'colors';
   title: string;
   seoTitle: string;
   seoDesc: string;
@@ -43,6 +51,18 @@ export const TOOLS: ToolMeta[] = [
     icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h2a2 2 0 0 1 0 4H8v-4Z"/><path d="M14 13h2v4h-2z"/></svg>',
     seoTitle: 'অল-ইন-ওয়ান PDF স্টুডিও — মার্জ, স্প্লিট, কমপ্রেস ও কনভার্ট | TechHat',
     seoDesc: 'ফ্রি অনলাইন ও অফলাইন PDF টুলস — PDF মার্জ (Word, Excel, PowerPoint, ছবিসহ), স্প্লিট, কোয়ালিটি প্রিভিউসহ কমপ্রেস, পেজ রোটেশন ও অর্গানাইজ এবং PDF কনভার্টার। ১০০% নিরাপদ, ব্রাউজারেই প্রসেস হয়।'
+  },
+  {
+    id: 'image',
+    href: '/image',
+    title: 'ইমেজ স্টুডিও',
+    desc: 'রিসাইজ, কমপ্রেস, ক্রপ ও আইডি স্ক্যানার',
+    badge: 'Image টুলস',
+    color: 'teal',
+    keywords: 'image resize compress crop convert jpg png webp passport photo signature 300x300 250x250 ansar vdp 300x80 300x100 nid scanner perspective crop combine color picker ছবি রিসাইজ কমপ্রেস ক্রপ স্বাক্ষর পাসপোর্ট সাইজ আনসার',
+    icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>',
+    seoTitle: 'ইমেজ স্টুডিও — রিসাইজ, কমপ্রেস, ক্রপ ও আইডি কার্ড স্ক্যানার | TechHat',
+    seoDesc: 'সরকারি চাকরির ছবি (300×300), আনসার ভিডিপি (250×250) ও স্বাক্ষর (300×80, 300×100) রিসাইজার, ইমেজ কমপ্রেসর, কাস্টম ক্রপ, আইডি কার্ড পাসপেক্টিভ স্ক্যানার ও কালার পিকার।'
   },
   {
     id: 'calendar',
@@ -136,6 +156,51 @@ export const PDF_SUBTOOLS: PdfSubToolMeta[] = [
     title: 'ছবি ও অফিস ফাইল → PDF',
     seoTitle: 'JPG, PNG, Word, PowerPoint, Excel ও টেক্সট থেকে PDF তৈরি করুন | TechHat',
     seoDesc: 'একাধিক ছবি (JPG, PNG, WebP), অফিস ডকুমেন্ট (.docx, .pptx, .xlsx) কিংবা বাংলা (ইউনিকোড ও বিজয়) লেখা থেকে সরাসরি A4 প্রিন্ট-রেডি PDF তৈরি করুন।'
+  }
+];
+
+export const IMAGE_SUBTOOLS: ImageSubToolMeta[] = [
+  {
+    slug: 'resize',
+    tabId: 'resize',
+    title: 'রিসাইজ ও সরকারি ফর্ম প্রিসেট',
+    seoTitle: 'ইমেজ রিসাইজার — সরকারি চাকরির ছবি (300×300), আনসার (250×250) ও স্বাক্ষর (300×80, 300×100) | TechHat',
+    seoDesc: 'এক ক্লিকে সরকারি চাকরির আবেদনের ছবি (300×300), আনসার ভিডিপি (250×250), স্বাক্ষর (300×80 ও 300×100), পাসপোর্ট ও স্ট্যাম্প সাইজ এবং মাউস/টাচ ড্রাগ পজিশনিংসহ ছবি রিসাইজ করুন।'
+  },
+  {
+    slug: 'compress',
+    tabId: 'compress',
+    title: 'কমপ্রেস ইমেজ',
+    seoTitle: 'কমপ্রেস ইমেজ (Compress Image) — কোয়ালিটি ঠিক রেখে ছবির KB কমান | TechHat',
+    seoDesc: 'JPG, PNG ও WebP ছবির ফাইল সাইজ (KB) কমান এবং ডাউনলোডের আগেই আগে/পরে (Before/After) কোয়ালিটি প্রিভিউ দেখে নিন।'
+  },
+  {
+    slug: 'crop',
+    tabId: 'crop',
+    title: 'ক্রপ, কাস্টম সাইজ ও রাউন্ড ফটো',
+    seoTitle: 'ইমেজ ক্রপ, কাস্টম সাইজ (px), রোটেট ও বৃত্তাকার প্রোফাইল ছবি তৈরি | TechHat',
+    seoDesc: 'ছবি যেকোনো কাস্টম পিক্সেল মাপে (যেমন 250×250, 300×100, 300×300) বা অনুপাতে ক্রপ (Crop) করুন, ঘোরান (Rotate/Flip), কিংবা গোল (Circle) প্রোফাইল ছবি তৈরি করুন।'
+  },
+  {
+    slug: 'convert',
+    tabId: 'convert',
+    title: 'কনভার্ট, ইফেক্ট ও ওয়াটারমার্ক',
+    seoTitle: 'ইমেজ কনভার্টার (JPG ⇄ PNG ⇄ WebP ⇄ Base64) ও ফটো ইফেক্ট | TechHat',
+    seoDesc: 'ছবিকে JPG, PNG, WebP বা Base64 কোডে রূপান্তর করুন এবং ছবির ওপর বাংলা/ইংরেজি লেখা (Watermark), বর্ডার ও ফটো ইফেক্ট যুক্ত করুন।'
+  },
+  {
+    slug: 'combine',
+    tabId: 'combine',
+    title: 'আইডি কার্ড স্ক্যানার ও জোড়া',
+    seoTitle: 'আইডি কার্ড স্ক্যানার, পাসপেক্টিভ ক্রপ, কালার এডজাস্ট ও A4 প্রিন্ট মেকার | TechHat',
+    seoDesc: 'জাতীয় পরিচয়পত্র (NID) বা যেকোনো কার্ডের সামনের ও পেছনের অংশ অটো এজ ডিটেকশন ও পাসপেক্টিভ ক্রপ করে সোজা করুন, কালার এডজাস্ট করুন এবং উপরে-নিচে A4 প্রিন্ট শিটে বসান।'
+  },
+  {
+    slug: 'colors',
+    tabId: 'colors',
+    title: 'কালার পিকার ও প্যালেট',
+    seoTitle: 'ইমেজ কালার পিকার ও কালার প্যালেট জেনারেটর (HEX / RGB) | TechHat',
+    seoDesc: 'যেকোনো ছবি থেকে প্রধান রঙগুলোর কালার প্যালেট (Color Palette) এবং ছবির যেকোনো বিন্দুতে ক্লিক করে নিখুঁত HEX ও RGB কোড কপি করুন।'
   }
 ];
 
