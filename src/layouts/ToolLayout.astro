@@ -32,8 +32,8 @@ const currentYearBn = toBn(new Date().getFullYear());
         document.documentElement.setAttribute('data-theme', theme);
         var meta = document.querySelector('meta[name="color-scheme"]');
         if (meta) meta.content = theme;
-        if (localStorage.getItem('thbc-cache-ver') !== 'v18') {
-          localStorage.setItem('thbc-cache-ver', 'v18');
+        if (localStorage.getItem('thbc-cache-ver') !== 'v22') {
+          localStorage.setItem('thbc-cache-ver', 'v22');
           var hadStale = false;
           var p = [];
           if (window.caches) {
@@ -67,7 +67,7 @@ const currentYearBn = toBn(new Date().getFullYear());
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700&family=Tiro+Bangla&display=swap">
-  <link rel="stylesheet" href="/css/app.css?v=18">
+  <link rel="stylesheet" href="/css/app.css?v=26">
 </head>
 <body data-astro-mpa="1" data-active-tool={toolId}>
   <a class="skip-link" href="#workbench">মূল অংশে যান</a>
