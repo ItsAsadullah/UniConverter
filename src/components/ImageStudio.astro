@@ -1,4 +1,5 @@
 ---
+import '../styles/nid-editor.css';
 interface Props {
   initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'colors';
 }
@@ -559,7 +560,7 @@ const { initialTab = 'hub' } = Astro.props;
       </div>
 
       <!-- ========================================== 5. ID CARD SCANNER & TOP-BOTTOM COMBINER -->
-      <div class="img-pane th-nid-studio" id="img-pane-combine" hidden={initialTab !== 'combine'}>
+      <div class="img-pane th-nid-studio" id="img-pane-combine" data-mobile-view="edit" hidden={initialTab !== 'combine'}>
         <!-- UNIFIED STUDIO TOP APPLICATION BAR -->
         <div class="pdf-ws-head th-studio-header">
           <div class="th-studio-brand">
@@ -569,7 +570,7 @@ const { initialTab = 'hub' } = Astro.props;
               </span>
               <span class="th-studio-brand__text">
                 <strong class="th-studio-brand__name">TechHat Studio</strong>
-                <span class="th-studio-brand__meta">ID Card &amp; Print</span>
+                <span class="th-studio-brand__meta">NID এডিটর</span>
               </span>
             </a>
 
@@ -621,6 +622,10 @@ const { initialTab = 'hub' } = Astro.props;
             </div>
 
             <div class="pdf-ws-actions nid-top-actions" id="imgCombineTopActions" hidden>
+              <button type="button" class="chip-btn" id="nidReplaceActiveBtn" title="নির্বাচিত পাশের ছবি বদলান">ছবি বদলান</button>
+              <input type="file" id="nidReplaceFrontInput" accept="image/*" hidden>
+              <input type="file" id="nidReplaceBackInput" accept="image/*" hidden>
+              <input type="file" id="nidReplaceExtraInput" accept="image/*" hidden>
               <button type="button" class="chip-btn nid-icon-btn" id="nidCameraStageBtn" title="ক্যামেরা দিয়ে সরাসরি আইডি কার্ড স্ক্যান করুন">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
                 <span>ক্যামেরা</span>
@@ -631,7 +636,7 @@ const { initialTab = 'hub' } = Astro.props;
               </button>
               <button type="button" class="chip-btn nid-icon-btn" id="imgCombineSwapBtn" title="সামনের ও পেছনের অংশের অবস্থান অদলবদল করুন">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
-                <span>উল্টান</span>
+                <span>পাশ বদলান</span>
               </button>
               <label class="chip-btn nid-icon-btn" for="imgCombineAddMore" title="আরও কার্ডের ছবি যুক্ত করুন">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -665,8 +670,8 @@ const { initialTab = 'hub' } = Astro.props;
                 <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11.5" r="2"/><path d="M5.5 15.5c.6-1.2 1.4-1.8 2.5-1.8s1.9.6 2.5 1.8M13 10h6M13 13.5h4"/></svg>
               </div>
 
-              <h4 class="th-empty-artboard__title">আইডি কার্ডের ছবি আপলোড করুন</h4>
-              <p class="th-empty-artboard__desc">সামনের ও পেছনের ছবি এখানে ড্র্যাগ করে ছাড়ুন — অটো বর্ডার ডিটেকশন ও ৪-কোণা পার্সপেক্টিভ ক্রপ স্বয়ংক্রিয়ভাবে কার্ড সোজা করে নেবে</p>
+              <h4 class="th-empty-artboard__title">দুই পাশের ছবি থেকে প্রিন্ট-রেডি কার্ড</h4>
+              <p class="th-empty-artboard__desc">প্রথমে সামনের ছবি যোগ করুন। তারপর চার কোণা মিলিয়ে ক্রপ করুন, পেছনের ছবি যোগ করুন এবং প্রিভিউ দেখে ডাউনলোড করুন।</p>
 
               <div class="th-empty-artboard__actions">
                 <label class="btn btn--primary nid-slot-upload-btn" for="nidFrontInput">
@@ -681,6 +686,7 @@ const { initialTab = 'hub' } = Astro.props;
                   <input type="file" id="nidBackInput" name="nidBackInput" accept="image/*" class="visually-hidden">
                 </label>
               </div>
+              <p class="nid-upload-note">অথবা ছবি এখানে টেনে ছাড়ুন · JPG, PNG, WebP</p>
 
               <div class="th-empty-artboard__subactions">
                 <label class="th-empty-link" for="imgCombineInput">
@@ -701,61 +707,15 @@ const { initialTab = 'hub' } = Astro.props;
 
         <!-- ACTIVE PROFESSIONAL DESIGN WORKSPACE -->
         <div class="pdf-workspace-stage th-studio-stage" id="imgCombineStage" hidden>
+          <nav class="nid-mobile-nav" aria-label="এডিটরের ভিউ">
+            <button type="button" data-nid-view="images" aria-pressed="false" aria-controls="nidImagesPanel">রঙ ও আলো</button>
+            <button type="button" data-nid-view="edit" aria-pressed="true" aria-controls="nidScannerCropPanel">ক্যানভাস</button>
+            <button type="button" data-nid-view="print" aria-pressed="false" aria-controls="nidPreviewPanel nidPrintPanel">প্রিন্ট ও সেভ</button>
+          </nav>
           <div class="th-studio-3panel">
 
-            <!-- ========================================== RAIL: LEFT CREATION & TOOL RAIL -->
-            <nav class="th-tool-rail" aria-label="স্টুডিও টুলবার">
-              <button type="button" class="th-rail-btn active" data-nid-panel-tab="layers" title="লেয়ার ও ডকুমেন্ট ফিল্টার (Layers &amp; Presets)">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                <span>লেয়ার</span>
-              </button>
-              <button type="button" class="th-rail-btn" data-nid-panel-tab="upload" title="সামনের ও পেছনের ছবি আপলোড বা পরিবর্তন করুন (Upload)">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <span>আপলোড</span>
-              </button>
-              <button type="button" class="th-rail-btn" data-nid-panel-tab="adjust" title="উজ্জ্বলতা, কনট্রাস্ট ও শার্পনেস টিউনিং (Adjust)">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="2" y1="14" x2="6" y2="14"/><line x1="10" y1="8" x2="14" y2="8"/><line x1="18" y1="16" x2="22" y2="16"/></svg>
-                <span>টিউনিং</span>
-              </button>
-              <span class="th-rail-sep" aria-hidden="true"></span>
-              <button type="button" class="th-rail-btn" id="nidRailAutoBtn" title="অটো বর্ডার ডিটেক্ট (Auto Detect)">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/><circle cx="12" cy="12" r="2"/></svg>
-                <span>ডিটেক্ট</span>
-              </button>
-              <button type="button" class="th-rail-btn" id="nidRailCamBtn" title="ক্যামেরা দিয়ে স্ক্যান করুন">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-                <span>স্ক্যান</span>
-              </button>
-            </nav>
-
-            <!-- ========================================== PANEL 1: LEFT SECONDARY PANEL (TABBED) -->
-            <aside class="th-panel th-panel--left" aria-label="কার্ড স্লট ও কালার ফিল্টার">
-              <div class="th-left-tabs" role="tablist" aria-label="বাম প্যানেল ট্যাব">
-                <button type="button" class="th-left-tab active" data-nid-panel-tab="layers" role="tab" aria-selected="true">LAYERS</button>
-                <button type="button" class="th-left-tab" data-nid-panel-tab="upload" role="tab" aria-selected="false">UPLOAD</button>
-                <button type="button" class="th-left-tab" data-nid-panel-tab="adjust" role="tab" aria-selected="false">ADJUST</button>
-              </div>
-
-              <!-- Card Slots / Layers & Upload Section -->
-              <div class="th-sidebar-section" id="nidLeftLayersSection">
-                <div class="th-section-head">
-                  <strong class="th-section-title">কার্ডের পৃষ্ঠা (Front / Back)</strong>
-                </div>
-                <div class="nid-mini-thumbs" id="nidDualPreviewStrip" aria-label="উভয় পাশের কার্ড থাম্বনেইল"></div>
-                <div class="nid-card-slot-Adders" id="nidLeftUploadBox">
-                  <label class="th-flat-upload-btn" for="nidReplaceFrontInput">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span>সামনের ছবি বদলান</span>
-                    <input type="file" id="nidReplaceFrontInput" name="nidReplaceFrontInput" accept="image/*" class="visually-hidden">
-                  </label>
-                  <label class="th-flat-upload-btn" for="nidReplaceBackInput">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span>পেছনের ছবি যোগ/বদলান</span>
-                    <input type="file" id="nidReplaceBackInput" name="nidReplaceBackInput" accept="image/*" class="visually-hidden">
-                  </label>
-                </div>
-              </div>
-
+            <aside class="th-panel th-panel--left" id="nidImagesPanel" aria-label="রঙ ও আলো">
+              <div class="nid-adjust-title"><strong>রঙ ও আলো</strong><span>ছবির মান ঠিক করুন</span></div>
               <!-- Document Scan Mode & Color Presets -->
               <div class="th-sidebar-section" id="nidLeftScanSection">
                 <div class="th-section-head">
@@ -792,8 +752,8 @@ const { initialTab = 'hub' } = Astro.props;
                 </fieldset>
               </div>
 
-              <!-- Fine Color & Sharpness Sliders (Shown when ADJUST tab is selected, or toggled) -->
-              <div class="th-sidebar-section" id="nidLeftAdjustSection" hidden>
+              <!-- Always-visible color and sharpness controls -->
+              <div class="th-sidebar-section" id="nidLeftAdjustSection">
                 <div class="th-section-head">
                   <strong class="th-section-title">ম্যানুয়াল কালার টিউনিং</strong>
                 </div>
@@ -832,144 +792,138 @@ const { initialTab = 'hub' } = Astro.props;
 
             <!-- ========================================== PANEL 2: CENTER CANVAS WORKSPACE (LEVEL 1 FOCUS) -->
             <div class="th-panel th-panel--center" id="nidScannerCropPanel">
-              <!-- Floating Contextual Editor Toolbar -->
-              <div class="th-context-toolbar" role="toolbar" aria-label="আইডি কার্ড ক্রপ ও রোটেশন টুলবার">
-                <div class="nid-tool-group">
-                  <button type="button" class="chip-btn chip-btn--accent nid-dock-btn" id="nidAutoCropBtn" title="স্বয়ংক্রিয়ভাবে আইডি কার্ডের চার কোণা ও বর্ডার শনাক্ত করুন (অথবা ছবির ওপর ডাবল-ক্লিক করুন)">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/><circle cx="12" cy="12" r="2"/></svg>
-                    <span>অটো ডিটেক্ট</span>
-                  </button>
-                  <button type="button" class="chip-btn chip-btn--accent nid-dock-btn" id="nidMagSnapBtn" aria-pressed="true" title="কোণা বা ধার টানার সময় কার্ডের বর্ডারে অটো ম্যাগনেটিক স্ন্যাপ চালু/বন্ধ করুন">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15-4-4 6.75-6.77a7.79 7.79 0 0 1 11 11L13 22l-4-4 6.39-6.36a2.14 2.14 0 0 0-3-3L6 15Z"/><path d="m5 8 4 4m3 3 4 4"/></svg>
-                    <span class="nid-btn-txt">স্ন্যাপ: চালু</span>
-                  </button>
-                  <button type="button" class="chip-btn nid-dock-btn" id="nidSnapEdgesBtn" title="বর্তমান বক্সের চারপাশ নিকটস্থ কার্ডের বর্ডারে নিখুঁতভাবে লক করুন">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
-                    <span>লক</span>
-                  </button>
-                </div>
-                <span class="nid-dock-sep" aria-hidden="true"></span>
-                <div class="nid-tool-group">
-                  <button type="button" class="chip-btn nid-dock-btn" id="nidTightenCropBtn" title="লেমিনেশন বা অতিরিক্ত বর্ডার বাদ দিতে চারপাশ সামান্য ভেতরে চাপান">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6m10-10h-6V4m0 6 7-7M3 21l7-7"/></svg>
-                    <span>টাইট</span>
-                  </button>
-                  <button type="button" class="chip-btn nid-dock-btn" id="nidExpandCropBtn" title="কার্ডের চারপাশে সামান্য বাড়তি মার্জিন যোগ করুন">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-                    <span>মার্জিন</span>
-                  </button>
-                  <button type="button" class="chip-btn nid-dock-btn" id="nidSnapRatioBtn" title="আসল আইডি কার্ডের অনুপাতে (85.6×54mm) চার কোণা সেট করুন">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h2m-2 4h4"/></svg>
-                    <span>অনুপাত</span>
-                  </button>
-                  <button type="button" class="chip-btn nid-dock-btn" id="nidFullCropBtn" title="সম্পূর্ণ ছবি নির্বাচন করুন">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-                    <span>পুরো</span>
-                  </button>
-                </div>
-                <span class="nid-dock-sep" aria-hidden="true"></span>
-                <div class="nid-tool-group">
-                  <button type="button" class="chip-btn nid-dock-btn" id="nidRotLBtn" title="৯০ ডিগ্রি বামে ঘোরান">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-                    <span>বামে</span>
-                  </button>
-                  <button type="button" class="chip-btn nid-dock-btn" id="nidRotRBtn" title="৯০ ডিগ্রি ডানে ঘোরান">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
-                    <span>ডানে</span>
-                  </button>
-                  <button type="button" class="chip-btn nid-dock-btn" id="nidFlipHBtn" title="পাশাপাশি উল্টান (Mirror Flip)">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 5 5-5 5V7zm18 0-5 5 5 5V7zm-9-4v18"/></svg>
-                    <span>ফ্লিপ</span>
-                  </button>
-                </div>
-                <span class="nid-dock-sep" aria-hidden="true"></span>
-                <!-- Compact Inline Straighten Scrubber in Contextual Bar -->
-                <div class="nid-inline-deskew">
-                  <label class="nid-deskew-label" for="nidFineAngle" title="সূক্ষ্ম কোণ পরিবর্তন করে কার্ড সোজা করুন">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h20M6 14l12-6"/></svg>
-                    <strong class="nid-angle-badge" id="nidFineAngleVal">০°</strong>
-                  </label>
-                  <input type="range" id="nidFineAngle" name="nidFineAngle" min="-15" max="15" step="0.5" value="0" class="nid-deskew-range" aria-label="সূক্ষ্ম কোণ (Straighten)">
-                  <button type="button" class="chip-btn nid-dock-btn" id="nidFineAngleReset" title="কোণ ০ ডিগ্রিতে রিসেট করুন">০°</button>
-                </div>
-              </div>
-
-              <!-- Main Interactive 4-Corner Perspective Canvas Stage with Studio Rulers -->
-              <div class="nid-crop-canvas-shell" id="nidCanvasViewport">
-                <div class="th-canvas-ruler th-canvas-ruler--h" aria-hidden="true"></div>
-                <div class="th-canvas-ruler th-canvas-ruler--v" aria-hidden="true"></div>
-
-                <div class="nid-canvas-zoom-plane" id="nidCanvasZoomPlane">
-                  <div
-                    class="img-crop-stage-wrap nid-perspective-stage"
-                    id="nidCropInteractiveWrap"
-                    tabindex="0"
-                    aria-label="আইডি কার্ড পার্সপেক্টিভ ক্রপ — চার কোণার বিন্দু টেনে বাঁকা কার্ড সোজা করে ক্রপ করুন"
-                  >
-                    <canvas id="nidCropSourceCanvas"></canvas>
-                    <div class="nid-scan-beam" id="nidScanBeam" hidden aria-hidden="true"></div>
-                    <svg class="nid-quad-svg" id="nidQuadSvg" viewBox="0 0 100 100" aria-hidden="true">
-                      <defs>
-                        <mask id="nidQuadMask">
-                          <rect id="nidQuadMaskBg" x="0" y="0" width="100" height="100" fill="white" />
-                          <polygon id="nidQuadHole" points="10,10 90,10 90,90 10,90" fill="black" />
-                        </mask>
-                      </defs>
-                      <rect id="nidQuadDimRect" x="0" y="0" width="100" height="100" fill="rgba(9, 13, 22, 0.62)" mask="url(#nidQuadMask)" />
-                      <line id="nidGridH1" class="nid-quad-grid" x1="10" y1="36" x2="90" y2="36" />
-                      <line id="nidGridH2" class="nid-quad-grid" x1="10" y1="63" x2="90" y2="63" />
-                      <line id="nidGridV1" class="nid-quad-grid" x1="36" y1="10" x2="36" y2="90" />
-                      <line id="nidGridV2" class="nid-quad-grid" x1="63" y1="10" x2="63" y2="90" />
-                      <line id="nidSnapGuideH" class="nid-snap-guide" x1="0" y1="0" x2="0" y2="0" hidden />
-                      <line id="nidSnapGuideV" class="nid-snap-guide" x1="0" y1="0" x2="0" y2="0" hidden />
-                      <polygon id="nidQuadPoly" class="nid-quad-poly" points="10,10 90,10 90,90 10,90" />
-                    </svg>
-                    <div class="nid-quad-handles" id="nidQuadHandles">
-                      <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="0" aria-label="উপরের বাম কোণা"></button>
-                      <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="1" aria-label="উপরের ডান কোণা"></button>
-                      <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="2" aria-label="নিচের ডান কোণা"></button>
-                      <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="3" aria-label="নিচের বাম কোণা"></button>
-                      <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="0" aria-label="উপরের ধার"></button>
-                      <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="1" aria-label="ডান ধার"></button>
-                      <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="2" aria-label="নিচের ধার"></button>
-                      <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="3" aria-label="বাম ধার"></button>
+              <div class="nid-workspace-split">
+                <div class="nid-canvas-column">
+                  <!-- Floating Contextual Editor Toolbar -->
+                  <div class="th-context-toolbar" role="toolbar" aria-label="আইডি কার্ড ক্রপ ও রোটেশন টুলবার">
+                    <div class="nid-tool-group">
+                      <button type="button" class="chip-btn chip-btn--accent nid-dock-btn" id="nidAutoCropBtn" title="স্বয়ংক্রিয়ভাবে আইডি কার্ডের চার কোণা ও বর্ডার শনাক্ত করুন (অথবা ছবির ওপর ডাবল-ক্লিক করুন)">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/><circle cx="12" cy="12" r="2"/></svg>
+                        <span>অটো ডিটেক্ট</span>
+                      </button>
+                      <button type="button" class="chip-btn chip-btn--accent nid-dock-btn" id="nidMagSnapBtn" aria-pressed="true" title="কোণা বা ধার টানার সময় কার্ডের বর্ডারে অটো ম্যাগনেটিক স্ন্যাপ চালু/বন্ধ করুন">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15-4-4 6.75-6.77a7.79 7.79 0 0 1 11 11L13 22l-4-4 6.39-6.36a2.14 2.14 0 0 0-3-3L6 15Z"/><path d="m5 8 4 4m3 3 4 4"/></svg>
+                        <span class="nid-btn-txt">স্ন্যাপ: চালু</span>
+                      </button>
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidSnapEdgesBtn" title="বর্তমান বক্সের চারপাশ নিকটস্থ কার্ডের বর্ডারে নিখুঁতভাবে লক করুন">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+                        <span>বর্ডার মেলান</span>
+                      </button>
                     </div>
-                    <canvas class="nid-crop-loupe" id="nidCropLoupe" width="116" height="116" hidden aria-hidden="true"></canvas>
+
+                    <div class="nid-tool-group">
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidTightenCropBtn" title="লেমিনেশন বা অতিরিক্ত বর্ডার বাদ দিতে চারপাশ সামান্য ভেতরে চাপান">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6m10-10h-6V4m0 6 7-7M3 21l7-7"/></svg>
+                        <span>ক্রপ কমান</span>
+                      </button>
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidExpandCropBtn" title="কার্ডের চারপাশে সামান্য বাড়তি মার্জিন যোগ করুন">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                        <span>ক্রপ বাড়ান</span>
+                      </button>
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidSnapRatioBtn" title="আসল আইডি কার্ডের অনুপাতে (85.6×54mm) চার কোণা সেট করুন">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h2m-2 4h4"/></svg>
+                        <span>অনুপাত</span>
+                      </button>
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidFullCropBtn" title="সম্পূর্ণ ছবি নির্বাচন করুন">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                        <span>পুরো ছবি</span>
+                      </button>
+                    </div>
+                    <span class="nid-dock-sep" aria-hidden="true"></span>
+                    <div class="nid-tool-group">
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidRotLBtn" title="৯০ ডিগ্রি বামে ঘোরান">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+                        <span>বামে</span>
+                      </button>
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidRotRBtn" title="৯০ ডিগ্রি ডানে ঘোরান">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+                        <span>ডানে</span>
+                      </button>
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidFlipHBtn" title="পাশাপাশি উল্টান (Mirror Flip)">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 5 5-5 5V7zm18 0-5 5 5 5V7zm-9-4v18"/></svg>
+                        <span>ফ্লিপ</span>
+                      </button>
+                    </div>
+                    <span class="nid-dock-sep" aria-hidden="true"></span>
+                    <!-- Compact Inline Straighten Scrubber in Contextual Bar -->
+                    <div class="nid-inline-deskew">
+                      <label class="nid-deskew-label" for="nidFineAngle" title="সূক্ষ্ম কোণ পরিবর্তন করে কার্ড সোজা করুন">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h20M6 14l12-6"/></svg>
+                        <strong class="nid-angle-badge" id="nidFineAngleVal">০°</strong>
+                      </label>
+                      <input type="range" id="nidFineAngle" name="nidFineAngle" min="-15" max="15" step="0.5" value="0" class="nid-deskew-range" aria-label="সূক্ষ্ম কোণ (Straighten)">
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidFineAngleReset" title="কোণ ০ ডিগ্রিতে রিসেট করুন">০°</button>
+                    </div>
+                  </div>
+
+                  <!-- Main Interactive 4-Corner Perspective Canvas Stage with Studio Rulers -->
+                  <div class="nid-crop-canvas-shell" id="nidCanvasViewport" tabindex="0" aria-label="এডিটিং ক্যানভাস। Ctrl প্লাস বা মাইনাস দিয়ে জুম, Space ধরে টেনে সরান।">
+                    <div class="th-canvas-ruler th-canvas-ruler--h" aria-hidden="true"></div>
+                    <div class="th-canvas-ruler th-canvas-ruler--v" aria-hidden="true"></div>
+
+                    <div class="nid-canvas-zoom-plane" id="nidCanvasZoomPlane">
+                      <div
+                        class="img-crop-stage-wrap nid-perspective-stage"
+                        id="nidCropInteractiveWrap"
+                        tabindex="0"
+                        aria-label="আইডি কার্ড পার্সপেক্টিভ ক্রপ — চার কোণার বিন্দু টেনে বাঁকা কার্ড সোজা করে ক্রপ করুন"
+                      >
+                        <canvas id="nidCropSourceCanvas"></canvas>
+                        <div class="nid-scan-beam" id="nidScanBeam" hidden aria-hidden="true"></div>
+                        <svg class="nid-quad-svg" id="nidQuadSvg" viewBox="0 0 100 100" aria-hidden="true">
+                          <defs>
+                            <mask id="nidQuadMask">
+                              <rect id="nidQuadMaskBg" x="0" y="0" width="100" height="100" fill="white" />
+                              <polygon id="nidQuadHole" points="10,10 90,10 90,90 10,90" fill="black" />
+                            </mask>
+                          </defs>
+                          <rect id="nidQuadDimRect" x="0" y="0" width="100" height="100" fill="rgba(9, 13, 22, 0.62)" mask="url(#nidQuadMask)" />
+                          <line id="nidGridH1" class="nid-quad-grid" x1="10" y1="36" x2="90" y2="36" />
+                          <line id="nidGridH2" class="nid-quad-grid" x1="10" y1="63" x2="90" y2="63" />
+                          <line id="nidGridV1" class="nid-quad-grid" x1="36" y1="10" x2="36" y2="90" />
+                          <line id="nidGridV2" class="nid-quad-grid" x1="63" y1="10" x2="63" y2="90" />
+                          <line id="nidSnapGuideH" class="nid-snap-guide" x1="0" y1="0" x2="0" y2="0" hidden />
+                          <line id="nidSnapGuideV" class="nid-snap-guide" x1="0" y1="0" x2="0" y2="0" hidden />
+                          <polygon id="nidQuadPoly" class="nid-quad-poly" points="10,10 90,10 90,90 10,90" />
+                        </svg>
+                        <div class="nid-quad-handles" id="nidQuadHandles">
+                          <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="0" aria-label="উপরের বাম কোণা"></button>
+                          <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="1" aria-label="উপরের ডান কোণা"></button>
+                          <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="2" aria-label="নিচের ডান কোণা"></button>
+                          <button type="button" class="nid-quad-handle nid-quad-handle--corner" data-pt="3" aria-label="নিচের বাম কোণা"></button>
+                          <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="0" aria-label="উপরের ধার"></button>
+                          <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="1" aria-label="ডান ধার"></button>
+                          <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="2" aria-label="নিচের ধার"></button>
+                          <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="3" aria-label="বাম ধার"></button>
+                        </div>
+                        <canvas class="nid-crop-loupe" id="nidCropLoupe" width="116" height="116" hidden aria-hidden="true"></canvas>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Bottom Studio Status & Zoom Bar -->
+                  <div class="th-canvas-statusbar">
+                    <div class="th-status-left">
+                      <div class="th-zoom-controls" role="group" aria-label="ক্যানভাস জুম">
+                        <button type="button" class="th-status-btn" id="nidZoomOutBtn" title="জুম আউট (−)">−</button>
+                        <label class="nid-zoom-input"><input type="number" id="nidZoomPercent" min="1" max="800" step="1" value="100" aria-label="ক্যানভাস জুম শতাংশ"><span>%</span></label>
+                        <button type="button" class="th-status-btn" id="nidZoomInBtn" title="জুম ইন (+)">+</button>
+                      </div>
+                      <button type="button" class="th-status-btn" id="nidZoomFitBtn" title="স্ক্রিনে ফিট করুন (Ctrl+0)">Fit</button>
+                      <button type="button" class="th-status-btn" id="nidZoomResetBtn" title="আসল পিক্সেল সাইজ (Ctrl+1)">100%</button>
+                      <button type="button" class="th-status-btn" id="nidHandToolBtn" aria-pressed="false" title="হ্যান্ড টুল (H)। ক্রপে ফিরতে V চাপুন।">হ্যান্ড</button>
+                      <span class="th-status-sep" aria-hidden="true"></span>
+                      <button type="button" class="th-status-btn active" id="nidToggleGridBtn" aria-pressed="true" title="গ্রিড লাইন চালু/বন্ধ করুন">গ্রিড</button>
+                    </div>
+
+                    <p class="nid-shortcut-hint"><kbd>Ctrl + / −</kbd> জুম · <kbd>Alt + Scroll</kbd> জুম · <kbd>Space + Drag</kbd> প্যান</p>
                   </div>
                 </div>
-              </div>
 
-              <!-- Bottom Studio Status & Zoom Bar -->
-              <div class="th-canvas-statusbar">
-                <div class="th-status-left">
-                  <div class="th-zoom-controls" role="group" aria-label="ক্যানভাস জুম">
-                    <button type="button" class="th-status-btn" id="nidZoomOutBtn" title="জুম আউট (−)">−</button>
-                    <button type="button" class="th-status-btn th-zoom-readout" id="nidZoomResetBtn" title="১০০% জুমে রিসেট করুন">100%</button>
-                    <button type="button" class="th-status-btn" id="nidZoomInBtn" title="জুম ইন (+)">+</button>
-                  </div>
-                  <span class="th-status-sep" aria-hidden="true"></span>
-                  <button type="button" class="th-status-btn active" id="nidToggleGridBtn" aria-pressed="true" title="গ্রিড লাইন চালু/বন্ধ করুন">Grid</button>
-                </div>
-
-                <div class="th-rectified-strip">
-                  <div class="th-rectified-strip__thumb">
-                    <img id="nidActiveCardPreview" alt="সোজা ও ক্রপ করা আইডি কার্ডের প্রিভিউ" width="84" height="52">
-                  </div>
-                  <div class="th-rectified-strip__meta">
-                    <strong id="nidActiveCardTitle">সোজা ও ক্রপকৃত প্রিভিউ</strong>
-                    <span id="nidActiveCardMeta">প্রস্তুত</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ========================================== PANEL 3: RIGHT PROPERTIES & PRINT PREVIEW -->
-            <aside class="th-panel th-panel--right nid-sheet-panel" aria-label="A4 প্রিন্ট প্রিভিউ ও পেজ সেটআপ">
-              <div class="th-right-scroll">
-                <!-- Print Preview Stage -->
-                <div class="th-prop-section">
+                <!-- Print Preview Stage (Full-Height Preview Window Column) -->
+                <section class="nid-workspace-preview" id="nidPreviewPanel" aria-label="বড় প্রিন্ট প্রিভিউ">
                   <div class="th-section-head nid-sheet-panel__head">
-                    <strong class="th-section-title">প্রিন্ট প্রিভিউ (A4)</strong>
+                    <strong class="th-section-title">প্রিন্ট প্রিভিউ</strong><span class="nid-paper-label" id="nidPaperLabel">A4 · 210 × 297 mm</span>
                     <span class="nid-meta-pill" id="imgCombineOutMeta">—</span>
                   </div>
 
@@ -979,15 +933,20 @@ const { initialTab = 'hub' } = Astro.props;
 
                   <div class="nid-export-summary">
                     <span class="nid-export-dot" aria-hidden="true"></span>
-                    <span id="imgCombineSummary">প্রস্তুত</span>
+                    <span id="imgCombineSummary" role="status">প্রস্তুত</span>
                   </div>
-                </div>
+                </section>
+              </div>
+            </div>
 
+            <!-- ========================================== PANEL 3: RIGHT PROPERTIES & PRINT PREVIEW -->
+            <aside class="th-panel th-panel--right nid-sheet-panel" id="nidPrintPanel" aria-label="পেজ সেটআপ ও ডাউনলোড">
+              <div class="th-right-scroll">
                 <!-- Collapsible Print Settings Accordions -->
                 <div class="nid-layout-controls">
                   <details class="th-prop-acc" open>
                     <summary class="th-prop-acc__head">
-                      <span>পেজ লেআউট ও কার্ডের মাপ</span>
+                      <span>পেজ লেআউট</span>
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                     </summary>
                     <div class="th-prop-acc__body">
@@ -1013,14 +972,6 @@ const { initialTab = 'hub' } = Astro.props;
                         </div>
                       </fieldset>
 
-                      <div class="nid-size-presets" id="nidSizePresets">
-                        <span class="th-sub-label">সাইজ</span>
-                        <div class="nid-size-preset-btns">
-                          <button type="button" class="chip-btn nid-dock-btn" data-cardw="520">আসল (85.6mm)</button>
-                          <button type="button" class="chip-btn chip-btn--accent nid-dock-btn" data-cardw="660">ফটোকপি</button>
-                          <button type="button" class="chip-btn nid-dock-btn" data-cardw="800">বড় প্রিন্ট</button>
-                        </div>
-                      </div>
                     </div>
                   </details>
 
@@ -1070,16 +1021,12 @@ const { initialTab = 'hub' } = Astro.props;
 
                   <details class="th-prop-acc">
                     <summary class="th-prop-acc__head">
-                      <span>কাস্টম প্রস্থ, গ্যাপ ও পেজ কালার</span>
+                      <span>গ্যাপ ও পেজ কালার</span>
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                     </summary>
                     <div class="th-prop-acc__body">
                       <div class="pdf-img-settings nid-settings-grid">
-                        <div class="pdf-field-group">
-                          <label for="imgCombineCardW">প্রস্থ (px)</label>
-                          <input type="number" id="imgCombineCardW" name="imgCombineCardW" value="660" min="300" max="1120" step="20">
-                        </div>
-                        <div class="pdf-field-group">
+<div class="pdf-field-group">
                           <label for="imgCombineGap">মাঝের ফাঁকা (Gap)</label>
                           <input type="number" id="imgCombineGap" name="imgCombineGap" value="36" min="0" max="240">
                         </div>
@@ -1097,7 +1044,7 @@ const { initialTab = 'hub' } = Astro.props;
               <div class="nid-export-bar">
                 <button type="button" class="btn btn--primary nid-export-btn nid-export-btn--pdf" id="imgCombineDownloadPdfBtn">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6m0 6-3-3m3 3 3-3"/></svg>
-                  <span>PDF ডাউনলোড করুন (300 DPI)</span>
+                  <span>PDF ডাউনলোড করুন</span>
                 </button>
                 <div class="nid-export-secondary-row">
                   <button type="button" class="nid-export-btn nid-export-btn--print" id="imgCombinePrintBtn" title="সরাসরি প্রিন্ট করুন">

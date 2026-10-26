@@ -2245,9 +2245,11 @@
       return;
     }
     activeNidIdx = Math.min(activeNidIdx, combineItems.length - 1);
+    clearNidHistory();
     $('#imgCombineDropzone').hidden = true;
     $('#imgCombineStage').hidden = false;
     $('#imgCombineTopActions').hidden = false;
+    switchNidView('edit');
     renderNidCardTabs();
     syncNidDeskewControl();
     drawNidCropSourceCanvas();
@@ -2279,8 +2281,10 @@
         activeNidIdx = combineItems.length - 1;
       }
       $('#imgCombineDropzone').hidden = true;
+      clearNidHistory();
       $('#imgCombineStage').hidden = false;
       $('#imgCombineTopActions').hidden = false;
+      switchNidView('edit');
       renderNidCardTabs();
       syncNidDeskewControl();
       drawNidCropSourceCanvas();
@@ -2327,6 +2331,7 @@
       snapField: srcEntry.snapField || null
     };
 
+    clearNidHistory();
     if (combineItems.length === 1) {
       combineItems.push(clonedEntry);
       activeNidIdx = 1;
@@ -2346,6 +2351,10 @@
   var nidUndoStack = [];
   var nidRedoStack = [];
   var nidCanvasZoom = 1;
+  var nidPan = { x: 0, y: 0 };
+  var nidFitMode = true;
+  var nidHandTool = false;
+  var nidSpaceHeld = false;
 
   function captureNidSnapshot() {
     return {
@@ -2367,6 +2376,12 @@
     var rBtn = $('#nidRedoBtn');
     if (uBtn) uBtn.disabled = nidUndoStack.length === 0;
     if (rBtn) rBtn.disabled = nidRedoStack.length === 0;
+  }
+
+  function clearNidHistory() {
+    nidUndoStack = [];
+    nidRedoStack = [];
+    updateNidHistoryButtons();
   }
 
   function pushNidHistory() {
@@ -2394,34 +2409,158 @@
     updateNidHistoryButtons();
   }
 
-  function setNidCanvasZoom(z) {
-    nidCanvasZoom = Math.max(0.6, Math.min(1.5, Math.round(z * 100) / 100));
+  function syncNidViewport() {
+    var entry = combineItems[activeNidIdx];
+    var viewport = $('#nidCanvasViewport');
     var plane = $('#nidCanvasZoomPlane');
-    if (plane) {
-      plane.style.transform = nidCanvasZoom === 1 ? '' : 'scale(' + nidCanvasZoom + ')';
-    }
-    var rBtn = $('#nidZoomResetBtn');
-    if (rBtn) {
-      rBtn.textContent = Math.round(nidCanvasZoom * 100) + '%';
-    }
+    if (!entry || !viewport || !plane || !entry.viewWidth) return;
+    var w = entry.viewWidth * nidCanvasZoom;
+    var h = entry.viewHeight * nidCanvasZoom;
+    // Keep a reachable part of the image in the viewport, even after a long pan.
+    var maxX = Math.max(0, (w + viewport.clientWidth) / 2 - 48);
+    var maxY = Math.max(0, (h + viewport.clientHeight) / 2 - 48);
+    nidPan.x = Math.max(-maxX, Math.min(maxX, nidPan.x));
+    nidPan.y = Math.max(-maxY, Math.min(maxY, nidPan.y));
+    plane.style.width = w + 'px';
+    plane.style.height = h + 'px';
+    plane.style.transform = 'translate(-50%, -50%) translate(' + nidPan.x + 'px,' + nidPan.y + 'px)';
+    $('#nidZoomPercent').value = Math.round(nidCanvasZoom * 100);
+    $('#nidZoomFitBtn').classList.toggle('active', nidFitMode);
+    $('#nidZoomOutBtn').disabled = nidCanvasZoom <= 0.01;
+    $('#nidZoomInBtn').disabled = nidCanvasZoom >= 8;
   }
 
-  function switchNidLeftTab(tabName) {
-    $$('[data-nid-panel-tab]').forEach(function (btn) {
-      var active = btn.getAttribute('data-nid-panel-tab') === tabName;
-      btn.classList.toggle('active', active);
-      if (btn.getAttribute('role') === 'tab') {
-        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+  function setNidCanvasZoom(z, anchor) {
+    if (!Number.isFinite(z)) return;
+    var next = Math.max(0.01, Math.min(8, z));
+    var ratio = next / nidCanvasZoom;
+    var at = anchor || { x: 0, y: 0 };
+    nidPan.x = at.x - (at.x - nidPan.x) * ratio;
+    nidPan.y = at.y - (at.y - nidPan.y) * ratio;
+    nidCanvasZoom = next;
+    nidFitMode = false;
+    syncNidViewport();
+  }
+
+  function fitNidCanvas() {
+    var entry = combineItems[activeNidIdx];
+    var viewport = $('#nidCanvasViewport');
+    if (!entry || !entry.viewWidth || !viewport.clientWidth || !viewport.clientHeight) return;
+    nidCanvasZoom = Math.max(0.01, Math.min(1,
+      (viewport.clientWidth - 72) / entry.viewWidth,
+      (viewport.clientHeight - 72) / entry.viewHeight));
+    nidPan = { x: 0, y: 0 };
+    nidFitMode = true;
+    syncNidViewport();
+  }
+
+  function setNidHandTool(enabled) {
+    nidHandTool = enabled;
+    $('#nidHandToolBtn').setAttribute('aria-pressed', String(enabled));
+    $('#nidHandToolBtn').classList.toggle('active', enabled);
+    $('#nidCanvasViewport').classList.toggle('is-hand', enabled || nidSpaceHeld);
+  }
+
+  function installNidViewport() {
+    var viewport = $('#nidCanvasViewport');
+    var panDrag = null;
+    function editingField(target) {
+      return target instanceof Element && !!target.closest('input, textarea, select, [contenteditable="true"]');
+    }
+    function active() {
+      return combineItems.length && !$('#img-pane-combine').hidden && !$('#imgCombineStage').hidden;
+    }
+    document.addEventListener('keydown', function (e) {
+      if (!active() || editingField(e.target) || e.isComposing) return;
+      var key = e.key.toLowerCase();
+      var mod = e.ctrlKey || e.metaKey;
+      if (mod && (key === '+' || key === '=' || key === '-')) {
+        e.preventDefault();
+        setNidCanvasZoom(nidCanvasZoom * (key === '-' ? 1 / 1.25 : 1.25));
+      } else if (mod && (key === '0' || key === '1')) {
+        e.preventDefault();
+        if (key === '0') fitNidCanvas();
+        else { nidPan = { x: 0, y: 0 }; setNidCanvasZoom(1); }
+      } else if (mod && (key === 'z' || key === 'y')) {
+        e.preventDefault();
+        $(key === 'y' || e.shiftKey ? '#nidRedoBtn' : '#nidUndoBtn').click();
+      } else if (!mod && !e.altKey && (key === 'h' || key === 'v')) {
+        e.preventDefault();
+        setNidHandTool(key === 'h');
+      } else if (e.code === 'Space' && (viewport.contains(document.activeElement) || viewport.matches(':hover'))) {
+        e.preventDefault();
+        nidSpaceHeld = true;
+        setNidHandTool(nidHandTool);
       }
     });
-    var adjSec = $('#nidLeftAdjustSection');
-    if (adjSec) {
-      adjSec.hidden = tabName !== 'adjust';
+    document.addEventListener('keyup', function (e) {
+      if (e.code === 'Space') { nidSpaceHeld = false; setNidHandTool(nidHandTool); }
+    });
+    window.addEventListener('blur', function () {
+      nidSpaceHeld = false;
+      panDrag = null;
+      viewport.classList.remove('is-panning');
+      setNidHandTool(nidHandTool);
+    });
+    viewport.addEventListener('wheel', function (e) {
+      if (!active()) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) {
+        e.preventDefault();
+        var rect = viewport.getBoundingClientRect();
+        var delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? viewport.clientHeight : 1);
+        setNidCanvasZoom(nidCanvasZoom * Math.exp(-Math.max(-200, Math.min(200, delta)) * 0.002), {
+          x: e.clientX - rect.left - rect.width / 2,
+          y: e.clientY - rect.top - rect.height / 2
+        });
+      }
+    }, { passive: false });
+    // Capture before crop handles: hand panning must never change the crop polygon.
+    viewport.addEventListener('pointerdown', function (e) {
+      if (!active() || !(e.button === 1 || (e.button === 0 && (nidHandTool || nidSpaceHeld)))) return;
+      e.preventDefault();
+      e.stopPropagation();
+      viewport.focus({ preventScroll: true });
+      panDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, panX: nidPan.x, panY: nidPan.y };
+      viewport.setPointerCapture(e.pointerId);
+      viewport.classList.add('is-panning');
+      nidFitMode = false;
+    }, true);
+    viewport.addEventListener('pointermove', function (e) {
+      if (!panDrag || panDrag.id !== e.pointerId) return;
+      e.preventDefault();
+      nidPan.x = panDrag.panX + e.clientX - panDrag.x;
+      nidPan.y = panDrag.panY + e.clientY - panDrag.y;
+      syncNidViewport();
+    });
+    function stopPan(e) {
+      if (!panDrag || panDrag.id !== e.pointerId) return;
+      panDrag = null;
+      viewport.classList.remove('is-panning');
+      if (viewport.hasPointerCapture(e.pointerId)) viewport.releasePointerCapture(e.pointerId);
     }
-    var upBox = $('#nidLeftUploadBox');
-    if (upBox) {
-      upBox.classList.toggle('is-highlighted', tabName === 'upload');
-    }
+    viewport.addEventListener('pointerup', stopPan);
+    viewport.addEventListener('pointercancel', stopPan);
+    viewport.addEventListener('lostpointercapture', stopPan);
+    new ResizeObserver(function () {
+      if (nidFitMode) fitNidCanvas(); else syncNidViewport();
+    }).observe(viewport);
+  }
+
+  function switchNidView(view) {
+    $('#img-pane-combine').setAttribute('data-mobile-view', view);
+    $$('[data-nid-view]').forEach(function (btn) {
+      btn.setAttribute('aria-pressed', btn.getAttribute('data-nid-view') === view ? 'true' : 'false');
+    });
+    if (view === 'edit') requestAnimationFrame(function () {
+      if (nidFitMode) fitNidCanvas(); else syncNidViewport();
+    });
+  }
+
+  function setNidExportReady(ready) {
+    ['imgCombineDownloadBtn', 'imgCombineDownloadPdfBtn', 'imgCombinePrintBtn'].forEach(function (id) {
+      var btn = $('#' + id);
+      if (btn) btn.disabled = !ready;
+    });
   }
 
   function renderNidCardTabs() {
@@ -2429,7 +2568,7 @@
     if (!tabsEl) return;
     tabsEl.innerHTML = '';
     combineItems.forEach(function (entry, idx) {
-      var label = idx === 0 ? 'FRONT • সামনের পৃষ্ঠা' : (idx === 1 ? 'BACK • পেছনের পৃষ্ঠা' : 'কার্ড ' + toBn(idx + 1));
+      var label = idx === 0 ? 'সামনের পৃষ্ঠা' : (idx === 1 ? 'পেছনের পৃষ্ঠা' : 'কার্ড ' + toBn(idx + 1));
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'nid-card-tab' + (idx === activeNidIdx ? ' active' : '');
@@ -2449,56 +2588,12 @@
       var addBackBtn = document.createElement('button');
       addBackBtn.type = 'button';
       addBackBtn.className = 'nid-card-tab nid-card-tab--add';
-      addBackBtn.textContent = '+ BACK যোগ করুন';
+      addBackBtn.textContent = '+ পেছনের ছবি';
       addBackBtn.addEventListener('click', function () {
         var inp = $('#nidReplaceBackInput') || $('#nidBackInput');
         if (inp) inp.click();
       });
       tabsEl.appendChild(addBackBtn);
-    }
-  }
-
-  function renderNidDualPreviewStrip() {
-    var strip = $('#nidDualPreviewStrip');
-    if (!strip) return;
-    strip.innerHTML = '';
-    combineItems.forEach(function (entry, idx) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'nid-mini-thumb' + (idx === activeNidIdx ? ' active' : '');
-      var imgUrl = entry.croppedCanvas ? entry.croppedCanvas.toDataURL('image/jpeg', 0.85) : entry.item.url;
-      var sideTitle = idx === 0 ? '১. সামনের অংশ' : (idx === 1 ? '২. পেছনের অংশ' : 'কার্ড ' + toBn(idx + 1));
-      var dimText = entry.croppedCanvas ? (entry.croppedCanvas.width + '×' + entry.croppedCanvas.height + ' px') : 'প্রস্তুত';
-      btn.innerHTML =
-        '<img src="' + imgUrl + '" alt="' + sideTitle + '" width="58" height="38">' +
-        '<span class="nid-mini-thumb__info">' +
-          '<span class="nid-mini-thumb__title">' + sideTitle + '</span>' +
-          '<span class="nid-mini-thumb__sub">' + dimText + '</span>' +
-        '</span>';
-      btn.addEventListener('click', function () {
-        activeNidIdx = idx;
-        renderNidCardTabs();
-        syncNidDeskewControl();
-        drawNidCropSourceCanvas();
-        renderCombineOutput();
-      });
-      strip.appendChild(btn);
-    });
-
-    if (combineItems.length === 1) {
-      var cloneBtn = document.createElement('button');
-      cloneBtn.type = 'button';
-      cloneBtn.className = 'nid-mini-thumb';
-      cloneBtn.style.borderStyle = 'dashed';
-      cloneBtn.innerHTML =
-        '<span class="nid-mini-thumb__info">' +
-          '<span class="nid-mini-thumb__title" style="color:var(--brand);">+ পেছনের অংশ যোগ করুন</span>' +
-          '<span class="nid-mini-thumb__sub">একই ছবি বা নতুন ফাইল থেকে</span>' +
-        '</span>';
-      cloneBtn.addEventListener('click', function () {
-        cloneCurrentImageToOtherSide();
-      });
-      strip.appendChild(cloneBtn);
     }
   }
 
@@ -2512,7 +2607,7 @@
     var srcW = swapped ? it.height : it.width;
     var srcH = swapped ? it.width : it.height;
 
-    var maxStage = 540;
+    var maxStage = 1600;
     var scale = Math.min(1, maxStage / Math.max(srcW, srcH));
     var cw = Math.max(120, Math.round(srcW * scale));
     var ch = Math.max(120, Math.round(srcH * scale));
@@ -2531,8 +2626,11 @@
 
     entry.cw = cw;
     entry.ch = ch;
+    entry.viewWidth = srcW;
+    entry.viewHeight = srcH;
     entry.snapField = buildMagneticSnapField(canvas);
     positionNidQuadDOM();
+    fitNidCanvas();
   }
 
   function positionNidQuadDOM(snapInfo) {
@@ -2840,6 +2938,7 @@
     });
 
     wrapEl.addEventListener('dblclick', function (e) {
+      if (nidHandTool || nidSpaceHeld) return;
       var entry = combineItems[activeNidIdx];
       if (!entry) return;
       var rect = wrapEl.getBoundingClientRect();
@@ -3167,6 +3266,8 @@
   async function renderCombineOutput() {
     if (!combineItems.length) return;
     var token = ++combineToken;
+    setNidExportReady(false);
+    $('#imgCombineSummary').textContent = 'প্রিভিউ তৈরি হচ্ছে…';
     var modeEl = $('input[name="imgCombineMode"]:checked');
     var mode = modeEl ? modeEl.value : 'nid-a4';
     var scanEl = $('input[name="imgCombineScanMode"]:checked');
@@ -3174,7 +3275,7 @@
 
     var br = $('#imgCombineBright') ? (parseInt($('#imgCombineBright').value, 10) || 100) : 100;
     var ct = $('#imgCombineContrast') ? (parseInt($('#imgCombineContrast').value, 10) || 100) : 100;
-    var st = $('#imgCombineSat') ? (parseInt($('#imgCombineSat').value, 10) || 100) : 100;
+    var st = $('#imgCombineSat') ? Number($('#imgCombineSat').value) : 100;
     var sharp = $('#imgCombineSharp') ? (parseInt($('#imgCombineSharp').value, 10) || 0) : 20;
 
     if ($('#imgCombineBrightVal')) $('#imgCombineBrightVal').textContent = toBn(br) + '%';
@@ -3182,7 +3283,7 @@
     if ($('#imgCombineSatVal')) $('#imgCombineSatVal').textContent = toBn(st) + '%';
     if ($('#imgCombineSharpVal')) $('#imgCombineSharpVal').textContent = toBn(sharp) + '%';
 
-    var cardWInput = $('#imgCombineCardW') ? (parseInt($('#imgCombineCardW').value, 10) || 660) : 660;
+    var cardWInput = 660; // Default print width; the size controls have been removed.
     var gap = Math.max(0, parseInt($('#imgCombineGap').value, 10) || 36);
     var bg = $('#imgCombineBg').value || '#ffffff';
     var alignMode = $('#imgCombineAlign') ? $('#imgCombineAlign').value : 'top';
@@ -3198,17 +3299,6 @@
       return c;
     });
 
-    // Update Active Card Cropped Preview + Dual Mini Thumbnails in Left Column
-    var activeEntry = combineItems[activeNidIdx];
-    if (activeEntry && activeEntry.croppedCanvas && $('#nidActiveCardPreview')) {
-      $('#nidActiveCardPreview').src = activeEntry.croppedCanvas.toDataURL('image/jpeg', 0.96);
-      var lbl = activeNidIdx === 0 ? 'সামনের অংশ (Front)' : (activeNidIdx === 1 ? 'পেছনের অংশ (Back)' : 'কার্ড ' + toBn(activeNidIdx + 1));
-      if ($('#nidActiveCardTitle')) $('#nidActiveCardTitle').textContent = lbl + ' — প্রিভিউ';
-      if ($('#nidActiveCardMeta')) {
-        $('#nidActiveCardMeta').textContent = activeEntry.croppedCanvas.width + ' × ' + activeEntry.croppedCanvas.height + ' px • ' + (activeEntry.autoDetected ? 'অটো এজ ডিটেক্ট ✓' : 'পার্সপেক্টিভ ক্রপ ✓');
-      }
-    }
-    renderNidDualPreviewStrip();
 
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
@@ -3332,8 +3422,11 @@
     combineOut.mode = mode;
 
     $('#imgCombineOutPreview').src = combineOut.url;
+    $('#nidPreviewPanel').style.setProperty('--nid-output-ratio', canvas.width / canvas.height);
+    $('#nidPaperLabel').textContent = mode === 'nid-a4' || mode === 'nid-a4-side' ? 'A4 · 210 × 297 mm' : 'কার্ড লেআউট';
     $('#imgCombineOutMeta').textContent = canvas.width + ' × ' + canvas.height + ' px (300 DPI) • ' + fmtSize(blob.size);
     $('#imgCombineSummary').textContent = toBn(combineItems.length) + 'টি কার্ড • ' + toBn(copySets) + ' সেট • 300 DPI HD • ' + fmtSize(blob.size);
+    setNidExportReady(true);
   }
 
   function stopNidCamera() {
@@ -3718,8 +3811,36 @@
     });
 
     // 5. CamScanner ID Card Scanner & Combine Images
+    setNidExportReady(false);
+    $$('[data-nid-view]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        switchNidView(btn.getAttribute('data-nid-view'));
+      });
+    });
     wireDropzone($('#imgCombineDropzone'), $('#imgCombineInput'), addCombineFiles);
+    installNidViewport();
     installNidCropInteraction();
+    on('nidReplaceActiveBtn', 'click', function () {
+      if (activeNidIdx < 2) {
+        $(activeNidIdx === 0 ? '#nidReplaceFrontInput' : '#nidReplaceBackInput').click();
+      } else {
+        $('#nidReplaceExtraInput').click();
+      }
+    });
+    on('nidReplaceExtraInput', 'change', async function (e) {
+      var index = activeNidIdx;
+      var file = e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      try {
+        var loaded = await loadImageFile(file);
+        if (!combineItems[index]) return;
+        combineItems[index] = createCombineEntry(loaded);
+        clearNidHistory();
+        renderNidCardTabs(); syncNidDeskewControl(); drawNidCropSourceCanvas();
+        renderCombineOutput();
+      } catch (err) { showToast('ছবিটি লোড করা যায়নি'); }
+    });
     ['nidFrontInput', 'nidReplaceFrontInput'].forEach(function (id) {
       on(id, 'change', function (e) {
         if (e.target.files && e.target.files.length) {
@@ -3861,9 +3982,22 @@
       var next = nidRedoStack.pop();
       applyNidSnapshot(next);
     });
-    on('nidZoomOutBtn', 'click', function () { setNidCanvasZoom(nidCanvasZoom - 0.15); });
-    on('nidZoomInBtn', 'click', function () { setNidCanvasZoom(nidCanvasZoom + 0.15); });
-    on('nidZoomResetBtn', 'click', function () { setNidCanvasZoom(1); });
+    on('nidZoomOutBtn', 'click', function () { setNidCanvasZoom(nidCanvasZoom / 1.25); });
+    on('nidZoomInBtn', 'click', function () { setNidCanvasZoom(nidCanvasZoom * 1.25); });
+    on('nidZoomResetBtn', 'click', function () { nidPan = { x: 0, y: 0 }; setNidCanvasZoom(1); });
+    on('nidZoomFitBtn', 'click', fitNidCanvas);
+    on('nidHandToolBtn', 'click', function () { setNidHandTool(!nidHandTool); });
+    function commitNidZoom(e) {
+      var percent = parseFloat(e.target.value);
+      if (Number.isFinite(percent)) setNidCanvasZoom(percent / 100);
+      else syncNidViewport();
+    }
+    on('nidZoomPercent', 'change', commitNidZoom);
+    on('nidZoomPercent', 'blur', commitNidZoom);
+    on('nidZoomPercent', 'keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); commitNidZoom(e); e.target.blur(); $('#nidCanvasViewport').focus(); }
+      if (e.key === 'Escape') { syncNidViewport(); e.target.blur(); $('#nidCanvasViewport').focus(); }
+    });
     on('nidToggleGridBtn', 'click', function () {
       var svg = $('#nidQuadSvg');
       var btn = $('#nidToggleGridBtn');
@@ -3871,18 +4005,6 @@
       var hidden = svg.classList.toggle('is-grid-hidden');
       btn.classList.toggle('active', !hidden);
       btn.setAttribute('aria-pressed', !hidden ? 'true' : 'false');
-    });
-    $$('[data-nid-panel-tab]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        switchNidLeftTab(btn.getAttribute('data-nid-panel-tab'));
-      });
-    });
-    on('nidRailAutoBtn', 'click', function () {
-      var b = $('#nidAutoCropBtn');
-      if (b) b.click();
-    });
-    on('nidRailCamBtn', 'click', function () {
-      openNidCamera(-1);
     });
     $$('[data-launch-img-tab]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -3909,20 +4031,10 @@
       syncNidDeskewControl();
       renderCombineOutput();
     });
-    $$('#nidSizePresets [data-cardw]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        $$('#nidSizePresets [data-cardw]').forEach(function (b) { b.classList.remove('chip-btn--accent'); });
-        btn.classList.add('chip-btn--accent');
-        if ($('#imgCombineCardW')) {
-          $('#imgCombineCardW').value = btn.getAttribute('data-cardw');
-        }
-        renderCombineOutput();
-      });
-    });
     $$('input[name="imgCombineMode"], input[name="imgCombineScanMode"]').forEach(function (r) {
       r.addEventListener('change', renderCombineOutput);
     });
-    ['imgCombineBright', 'imgCombineContrast', 'imgCombineSat', 'imgCombineSharp', 'imgCombineCardW', 'imgCombineGap', 'imgCombineAlign', 'imgCombineCopies', 'imgCombineBg', 'imgCombineRoundCorner', 'imgCombineCardBorder', 'imgCombineCutMarks'].forEach(function (id) {
+    ['imgCombineBright', 'imgCombineContrast', 'imgCombineSat', 'imgCombineSharp', 'imgCombineGap', 'imgCombineAlign', 'imgCombineCopies', 'imgCombineBg', 'imgCombineRoundCorner', 'imgCombineCardBorder', 'imgCombineCutMarks'].forEach(function (id) {
       on(id, 'input', renderCombineOutput);
       on(id, 'change', renderCombineOutput);
     });
@@ -3936,6 +4048,7 @@
       renderCombineOutput();
     });
     on('imgCombineSwapBtn', 'click', function () {
+      clearNidHistory();
       combineItems.reverse();
       activeNidIdx = 0;
       renderNidCardTabs();
@@ -3944,12 +4057,21 @@
       renderCombineOutput();
     });
     on('imgCombineClearBtn', 'click', function () {
+      combineToken++;
+      if (combineOut.url) URL.revokeObjectURL(combineOut.url);
+      combineOut = {};
+      setNidExportReady(false);
+      switchNidView('edit');
       combineItems = [];
       activeNidIdx = 0;
       nidUndoStack = [];
       nidRedoStack = [];
       updateNidHistoryButtons();
       setNidCanvasZoom(1);
+      nidFitMode = true;
+      nidPan = { x: 0, y: 0 };
+      nidSpaceHeld = false;
+      setNidHandTool(false);
       if ($('#nidCardTabs')) $('#nidCardTabs').innerHTML = '';
       $('#imgCombineStage').hidden = true;
       $('#imgCombineTopActions').hidden = true;
