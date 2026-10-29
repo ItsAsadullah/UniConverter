@@ -1,5 +1,6 @@
 ---
 import '../styles/nid-editor.css';
+import ToolsMenu from './ToolsMenu.astro';
 interface Props {
   initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'colors';
 }
@@ -564,43 +565,12 @@ const { initialTab = 'hub' } = Astro.props;
         <!-- UNIFIED STUDIO TOP APPLICATION BAR -->
         <div class="pdf-ws-head th-studio-header">
           <div class="th-studio-brand">
-            <a href="/" class="th-studio-brand__logo" title="TechHat ইউটিলিটি হাব — হোমে ফিরে যান">
-              <span class="th-studio-brand__mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/><rect x="7" y="8" width="10" height="8" rx="1.2"/></svg>
-              </span>
-              <span class="th-studio-brand__text">
-                <strong class="th-studio-brand__name">TechHat Studio</strong>
-                <span class="th-studio-brand__meta">NID এডিটর</span>
-              </span>
+            <a href="/" class="brand" title="TechHat ইউটিলিটি হাব — হোমে ফিরে যান" aria-label="TechHat ইউটিলিটি হাব — হোম">
+              <img class="brand__mark" src="/icons/icon-192.png" width="34" height="34" alt="">
+              <span class="brand__name">TechHat <b>ইউটিলিটি হাব</b></span>
             </a>
 
-            <span class="th-header-divider" aria-hidden="true"></span>
-
-            <!-- Dedicated Secondary Tools Launcher (Replaces noisy top navbars) -->
-            <details class="th-tools-launcher" id="nidToolsLauncher">
-              <summary class="th-tools-launcher__btn" title="সকল ইমেজ ও ইউটিলিটি টুলস">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>
-                <span>টুলস</span>
-                <svg class="th-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </summary>
-              <div class="th-tools-launcher__menu" role="menu">
-                <div class="th-tools-launcher__group-lbl">ইমেজ স্টুডিও</div>
-                <button type="button" class="th-tools-launcher__item" data-launch-img-tab="resize">পাসপোর্ট ও ফর্ম ফটো রিসাইজ</button>
-                <button type="button" class="th-tools-launcher__item" data-launch-img-tab="crop">ক্রপ ও রাউন্ড ফটো</button>
-                <button type="button" class="th-tools-launcher__item" data-launch-img-tab="compress">ইমেজ কমপ্রেসর (KB কমান)</button>
-                <button type="button" class="th-tools-launcher__item" data-launch-img-tab="convert">ফরম্যাট কনভার্ট ও ওয়াটারমার্ক</button>
-                <button type="button" class="th-tools-launcher__item" data-launch-img-tab="colors">কালার পিকার ও প্যালেট</button>
-                <button type="button" class="th-tools-launcher__item" data-launch-img-tab="hub">সব ইমেজ টুলস ড্যাশবোর্ড</button>
-                <div class="th-tools-launcher__sep"></div>
-                <div class="th-tools-launcher__group-lbl">অন্যান্য ইউটিলিটি টুলস</div>
-                <a href="/" class="th-tools-launcher__item">বিজয় ⇄ ইউনিকোড কনভার্টার</a>
-                <a href="/pdf" class="th-tools-launcher__item">পিডিএফ স্টুডিও (PDF Tools)</a>
-                <a href="/calendar" class="th-tools-launcher__item">বাংলা ও হিজরি ক্যালেন্ডার</a>
-                <a href="/age-calculator" class="th-tools-launcher__item">বয়স ক্যালকুলেটর</a>
-                <a href="/date-calculator" class="th-tools-launcher__item">দিন ও তারিখ গণনা</a>
-                <a href="/invoice" class="th-tools-launcher__item">ইনভয়েস ও ক্যাশ মেমো</a>
-              </div>
-            </details>
+            
 
             <h3 class="pdf-ws-title th-doc-title">আইডি কার্ড ও প্রিন্ট এডিটর</h3>
           </div>
@@ -652,6 +622,8 @@ const { initialTab = 'hub' } = Astro.props;
             <button type="button" class="th-icon-action" id="nidStudioThemeBtn" title="থিম পরিবর্তন করুন (Light / Dark)">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
             </button>
+
+            <ToolsMenu scope="studio" />
           </div>
         </div>
 
@@ -714,81 +686,7 @@ const { initialTab = 'hub' } = Astro.props;
           </nav>
           <div class="th-studio-3panel">
 
-            <aside class="th-panel th-panel--left" id="nidImagesPanel" aria-label="রঙ ও আলো">
-              <div class="nid-adjust-title"><strong>রঙ ও আলো</strong><span>ছবির মান ঠিক করুন</span></div>
-              <!-- Document Scan Mode & Color Presets -->
-              <div class="th-sidebar-section" id="nidLeftScanSection">
-                <div class="th-section-head">
-                  <strong class="th-section-title">ডকুমেন্ট ফিল্টার প্রিসেট</strong>
-                  <button type="button" class="nid-reset-link" id="imgCombineColorResetBtn" title="কালার ও ফিল্টার রিসেট করুন">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-                    <span>রিসেট</span>
-                  </button>
-                </div>
-                <fieldset class="pdf-fieldset nid-fieldset-clean">
-                  <legend class="visually-hidden">কালার ও ডকুমেন্ট ফিল্টার নির্বাচন করুন</legend>
-                  <div class="nid-filter-pills">
-                    <label class="nid-pill-option">
-                      <input type="radio" name="imgCombineScanMode" value="original" checked>
-                      <span class="nid-pill-option__label">অরিজিনাল</span>
-                    </label>
-                    <label class="nid-pill-option">
-                      <input type="radio" name="imgCombineScanMode" value="magic">
-                      <span class="nid-pill-option__label">অটো এনহ্যান্স</span>
-                    </label>
-                    <label class="nid-pill-option">
-                      <input type="radio" name="imgCombineScanMode" value="clean">
-                      <span class="nid-pill-option__label">পরিষ্কার সাদা</span>
-                    </label>
-                    <label class="nid-pill-option">
-                      <input type="radio" name="imgCombineScanMode" value="bw">
-                      <span class="nid-pill-option__label">ফটোকপি (B/W)</span>
-                    </label>
-                    <label class="nid-pill-option nid-pill-option--wide">
-                      <input type="radio" name="imgCombineScanMode" value="grayscale">
-                      <span class="nid-pill-option__label">গ্রেস্কেল (সাদাকালো)</span>
-                    </label>
-                  </div>
-                </fieldset>
-              </div>
-
-              <!-- Always-visible color and sharpness controls -->
-              <div class="th-sidebar-section" id="nidLeftAdjustSection">
-                <div class="th-section-head">
-                  <strong class="th-section-title">ম্যানুয়াল কালার টিউনিং</strong>
-                </div>
-                <div class="th-slider-stack">
-                  <div class="th-slider-row">
-                    <div class="th-slider-lbl">
-                      <label for="imgCombineBright">উজ্জ্বলতা (Brightness)</label>
-                      <strong id="imgCombineBrightVal">১০০%</strong>
-                    </div>
-                    <input type="range" id="imgCombineBright" name="imgCombineBright" min="50" max="180" value="100">
-                  </div>
-                  <div class="th-slider-row">
-                    <div class="th-slider-lbl">
-                      <label for="imgCombineContrast">কনট্রাস্ট (Contrast)</label>
-                      <strong id="imgCombineContrastVal">১০০%</strong>
-                    </div>
-                    <input type="range" id="imgCombineContrast" name="imgCombineContrast" min="50" max="220" value="100">
-                  </div>
-                  <div class="th-slider-row">
-                    <div class="th-slider-lbl">
-                      <label for="imgCombineSat">রঙের গভীরতা (Saturation)</label>
-                      <strong id="imgCombineSatVal">১০০%</strong>
-                    </div>
-                    <input type="range" id="imgCombineSat" name="imgCombineSat" min="0" max="200" value="100">
-                  </div>
-                  <div class="th-slider-row">
-                    <div class="th-slider-lbl">
-                      <label for="imgCombineSharp">লেখার স্পষ্টতা (Sharpness)</label>
-                      <strong id="imgCombineSharpVal">২০%</strong>
-                    </div>
-                    <input type="range" id="imgCombineSharp" name="imgCombineSharp" min="0" max="100" value="20">
-                  </div>
-                </div>
-              </div>
-            </aside>
+            
 
             <!-- ========================================== PANEL 2: CENTER CANVAS WORKSPACE (LEVEL 1 FOCUS) -->
             <div class="th-panel th-panel--center" id="nidScannerCropPanel">
@@ -801,11 +699,11 @@ const { initialTab = 'hub' } = Astro.props;
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/><circle cx="12" cy="12" r="2"/></svg>
                         <span>অটো ডিটেক্ট</span>
                       </button>
-                      <button type="button" class="chip-btn chip-btn--accent nid-dock-btn" id="nidMagSnapBtn" aria-pressed="true" title="কোণা বা ধার টানার সময় কার্ডের বর্ডারে অটো ম্যাগনেটিক স্ন্যাপ চালু/বন্ধ করুন">
+                      <button type="button" class="chip-btn chip-btn--accent nid-dock-btn" id="nidMagSnapBtn" aria-pressed="true" title="রাউন্ড আইডি কার্ডের হরিজেন্টাল ও ভার্টিক্যাল বর্ডার লাইন বরাবর অটো ম্যাগনেটিক স্ন্যাপ চালু/বন্ধ করুন">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15-4-4 6.75-6.77a7.79 7.79 0 0 1 11 11L13 22l-4-4 6.39-6.36a2.14 2.14 0 0 0-3-3L6 15Z"/><path d="m5 8 4 4m3 3 4 4"/></svg>
                         <span class="nid-btn-txt">স্ন্যাপ: চালু</span>
                       </button>
-                      <button type="button" class="chip-btn nid-dock-btn" id="nidSnapEdgesBtn" title="বর্তমান বক্সের চারপাশ নিকটস্থ কার্ডের বর্ডারে নিখুঁতভাবে লক করুন">
+                      <button type="button" class="chip-btn nid-dock-btn" id="nidSnapEdgesBtn" title="রাউন্ড কর্নার বাদ দিয়ে কার্ডের সোজা হরিজেন্টাল ও ভার্টিক্যাল লাইন বরাবর চার কোণা নিখুঁতভাবে স্ন্যাপ করুন">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
                         <span>বর্ডার মেলান</span>
                       </button>
@@ -896,7 +794,7 @@ const { initialTab = 'hub' } = Astro.props;
                           <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="2" aria-label="নিচের ধার"></button>
                           <button type="button" class="nid-quad-handle nid-quad-handle--edge" data-edge="3" aria-label="বাম ধার"></button>
                         </div>
-                        <canvas class="nid-crop-loupe" id="nidCropLoupe" width="116" height="116" hidden aria-hidden="true"></canvas>
+                        <canvas class="nid-crop-loupe" id="nidCropLoupe" width="220" height="220" hidden aria-hidden="true"></canvas>
                       </div>
                     </div>
                   </div>
@@ -916,7 +814,7 @@ const { initialTab = 'hub' } = Astro.props;
                       <button type="button" class="th-status-btn active" id="nidToggleGridBtn" aria-pressed="true" title="গ্রিড লাইন চালু/বন্ধ করুন">গ্রিড</button>
                     </div>
 
-                    <p class="nid-shortcut-hint"><kbd>Ctrl + / −</kbd> জুম · <kbd>Alt + Scroll</kbd> জুম · <kbd>Space + Drag</kbd> প্যান</p>
+                    <p class="nid-shortcut-hint"><kbd>Shift + Drag</kbd> ৫× লুপ · <kbd>Alt + Scroll</kbd> জুম · <kbd>Space + Drag</kbd> প্যান</p>
                   </div>
                 </div>
 
@@ -928,6 +826,7 @@ const { initialTab = 'hub' } = Astro.props;
                   </div>
 
                   <div class="nid-sheet-stage">
+                    <canvas id="nidLivePreviewCanvas" class="nid-live-preview-canvas" width="806" height="1140" aria-label="জোড়া লাগানো ছবির লাইভ প্রিভিউ" hidden></canvas>
                     <img id="imgCombineOutPreview" alt="জোড়া লাগানো ছবির প্রিভিউ" width="420" height="594">
                   </div>
 
@@ -942,12 +841,242 @@ const { initialTab = 'hub' } = Astro.props;
             <!-- ========================================== PANEL 3: RIGHT PROPERTIES & PRINT PREVIEW -->
             <aside class="th-panel th-panel--right nid-sheet-panel" id="nidPrintPanel" aria-label="পেজ সেটআপ ও ডাউনলোড">
               <div class="th-right-scroll">
-                <!-- Collapsible Print Settings Accordions -->
-                <div class="nid-layout-controls">
-                  <details class="th-prop-acc" open>
+                <section class="nid-images-section" id="nidImagesPanel" aria-label="রঙ ও আলো">
+                  <div class="nid-adjust-title">
+                    <div class="nid-adjust-title__main">
+                      <strong>রঙ ও ফিল্টার স্টুডিও</strong>
+                      <span id="nidColorTargetStatus">উভয় পাতায় একসাথে কার্যকর</span>
+                    </div>
+                    <button type="button" class="nid-reset-link" id="imgCombineColorResetBtn" title="কালার ও ফিল্টার রিসেট করুন">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+                      <span>রিসেট</span>
+                    </button>
+                  </div>
+
+                  <!-- Per-Page / Both-Pages Target Selector (Default: Both Pages) -->
+                  <div class="nid-target-bar" id="nidColorTargetBar">
+                    <div class="nid-target-bar__head">
+                      <span class="nid-target-bar__lbl">কোন পাতায় কাজ করবে:</span>
+                      <span class="nid-target-bar__hint" id="nidTargetSyncHint">ডিফল্ট: উভয় পাতা</span>
+                    </div>
+                    <div class="nid-target-seg" id="nidColorTargetGroup" role="group" aria-label="কালার ও ফিল্টারের পাতা নির্বাচন করুন">
+                      <button type="button" class="nid-target-btn active" data-color-target="all" aria-pressed="true" title="সামনের ও পেছনের উভয় পাতায় একসাথে কাজ করবে">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="13" height="10" rx="1.5"/><path d="M8 18h11a2 2 0 0 0 2-2V9"/></svg>
+                        <span class="nid-target-btn__txt">উভয় পাতা</span>
+                      </button>
+                      <button type="button" class="nid-target-btn" data-color-target="0" aria-pressed="false" title="শুধুমাত্র ১ম পাতায় (সামনের অংশ) কালার ও ফিল্টার প্রয়োগ করুন">
+                        <span class="nid-target-btn__dot" id="nidTargetDot0" aria-hidden="true"></span>
+                        <span class="nid-target-btn__txt">১ম পাতা</span>
+                        <small class="nid-target-btn__tag" id="nidTargetTag0">অরিজিনাল</small>
+                      </button>
+                      <button type="button" class="nid-target-btn" data-color-target="1" aria-pressed="false" title="শুধুমাত্র ২য় পাতায় (পেছনের অংশ) কালার ও ফিল্টার প্রয়োগ করুন">
+                        <span class="nid-target-btn__dot" id="nidTargetDot1" aria-hidden="true"></span>
+                        <span class="nid-target-btn__txt">২য় পাতা</span>
+                        <small class="nid-target-btn__tag" id="nidTargetTag1">অরিজিনাল</small>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Collapsible Accordion 1: CamScanner-Grade Filter Presets (Open by default) -->
+                  <details class="th-prop-acc nid-studio-acc" id="nidAccFilter" open>
                     <summary class="th-prop-acc__head">
-                      <span>পেজ লেআউট</span>
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                      <span class="th-prop-acc__title-wrap">
+                        <span class="th-prop-acc__icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                        </span>
+                        <span>ডকুমেন্ট ফিল্টার প্রিসেট</span>
+                      </span>
+                      <span class="th-prop-acc__meta">
+                        <span class="th-prop-acc__badge" id="nidFilterSummaryBadge">অরিজিনাল</span>
+                        <svg class="th-prop-acc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                      </span>
+                    </summary>
+                    <div class="th-prop-acc__body" id="nidLeftScanSection">
+                      <fieldset class="pdf-fieldset nid-fieldset-clean">
+                        <legend class="visually-hidden">কালার ও ডকুমেন্ট ফিল্টার নির্বাচন করুন</legend>
+                        <div class="nid-filter-pills nid-cs-filter-grid">
+                          <label class="nid-pill-option nid-cs-card">
+                            <input type="radio" name="imgCombineScanMode" value="original" checked>
+                            <span class="nid-cs-swatch nid-cs-swatch--orig" aria-hidden="true">
+                              <span class="nid-cs-swatch__doc">Aa</span>
+                            </span>
+                            <span class="nid-cs-card__info">
+                              <span class="nid-pill-option__label">অরিজিনাল</span>
+                              <small class="nid-cs-card__sub">আসল ছবি</small>
+                            </span>
+                          </label>
+                          <label class="nid-pill-option nid-cs-card">
+                            <input type="radio" name="imgCombineScanMode" value="vivid">
+                            <span class="nid-cs-swatch nid-cs-swatch--vivid" aria-hidden="true">
+                              <span class="nid-cs-swatch__doc">ID</span>
+                            </span>
+                            <span class="nid-cs-card__info">
+                              <span class="nid-pill-option__label">আসল রঙ <em class="nid-cs-badge nid-cs-badge--vivid">NID</em></span>
+                              <small class="nid-cs-card__sub">কার্ডের মতো কালারফুল প্রিন্ট</small>
+                            </span>
+                          </label>
+                          <label class="nid-pill-option nid-cs-card">
+                            <input type="radio" name="imgCombineScanMode" value="magic">
+                            <span class="nid-cs-swatch nid-cs-swatch--magic" aria-hidden="true">
+                              <span class="nid-cs-swatch__doc">✦</span>
+                            </span>
+                            <span class="nid-cs-card__info">
+                              <span class="nid-pill-option__label">Magic <em class="nid-cs-badge">AUTO</em></span>
+                              <small class="nid-cs-card__sub">ক্যামস্কানার কালার</small>
+                            </span>
+                          </label>
+                          <label class="nid-pill-option nid-cs-card">
+                            <input type="radio" name="imgCombineScanMode" value="magic_plus">
+                            <span class="nid-cs-swatch nid-cs-swatch--magic-plus" aria-hidden="true">
+                              <span class="nid-cs-swatch__doc">✦+</span>
+                            </span>
+                            <span class="nid-cs-card__info">
+                              <span class="nid-pill-option__label">Magic+ <em class="nid-cs-badge nid-cs-badge--pro">PRO</em></span>
+                              <small class="nid-cs-card__sub">সুপার ফিল্টার HD</small>
+                            </span>
+                          </label>
+                          <label class="nid-pill-option nid-cs-card">
+                            <input type="radio" name="imgCombineScanMode" value="no_shadow">
+                            <span class="nid-cs-swatch nid-cs-swatch--shadow" aria-hidden="true">
+                              <span class="nid-cs-swatch__doc">☀</span>
+                            </span>
+                            <span class="nid-cs-card__info">
+                              <span class="nid-pill-option__label">No Shadow <em class="nid-cs-badge nid-cs-badge--amber">CS</em></span>
+                              <small class="nid-cs-card__sub">ছায়া ও ফ্ল্যাশ মুক্ত</small>
+                            </span>
+                          </label>
+                          <label class="nid-pill-option nid-cs-card">
+                            <input type="radio" name="imgCombineScanMode" value="clean">
+                            <span class="nid-cs-swatch nid-cs-swatch--clean" aria-hidden="true">
+                              <span class="nid-cs-swatch__doc">Aa</span>
+                            </span>
+                            <span class="nid-cs-card__info">
+                              <span class="nid-pill-option__label">পরিষ্কার সাদা</span>
+                              <small class="nid-cs-card__sub">হালকা ও উজ্জ্বল</small>
+                            </span>
+                          </label>
+                          <label class="nid-pill-option nid-cs-card">
+                            <input type="radio" name="imgCombineScanMode" value="eco">
+                            <span class="nid-cs-swatch nid-cs-swatch--eco" aria-hidden="true">
+                              <span class="nid-cs-swatch__doc">Eco</span>
+                            </span>
+                            <span class="nid-cs-card__info">
+                              <span class="nid-pill-option__label">কালি সাশ্রয়ী</span>
+                              <small class="nid-cs-card__sub">প্রিন্টার টোনার সেভার</small>
+                            </span>
+                          </label>
+                          <label class="nid-pill-option nid-cs-card">
+                            <input type="radio" name="imgCombineScanMode" value="bw">
+                            <span class="nid-cs-swatch nid-cs-swatch--bw" aria-hidden="true">
+                              <span class="nid-cs-swatch__doc">B/W</span>
+                            </span>
+                            <span class="nid-cs-card__info">
+                              <span class="nid-pill-option__label">ফটোকপি (B/W)</span>
+                              <small class="nid-cs-card__sub">শার্প সাদাকালো</small>
+                            </span>
+                          </label>
+                          <label class="nid-pill-option nid-cs-card">
+                            <input type="radio" name="imgCombineScanMode" value="grayscale">
+                            <span class="nid-cs-swatch nid-cs-swatch--gray" aria-hidden="true">
+                              <span class="nid-cs-swatch__doc">G</span>
+                            </span>
+                            <span class="nid-cs-card__info">
+                              <span class="nid-pill-option__label">গ্রেস্কেল</span>
+                              <small class="nid-cs-card__sub">স্মুথ মনোক্রোম</small>
+                            </span>
+                          </label>
+                        </div>
+
+                        <!-- Smart Pro Enhancers (Independent Toggles for Glare/Shadow & Bangla Text/Barcode) -->
+                        <div class="nid-smart-enhancers" id="nidSmartEnhancers" role="group" aria-label="স্মার্ট প্রো এনহ্যান্সার">
+                          <button type="button" class="nid-enhancer-pill" id="nidDeglareBtn" aria-pressed="false" title="লেমিনেশন ফ্ল্যাশের সাদা ঝলকানি এবং মোবাইলের কালো ছায়া নিখুঁতভাবে দূর করুন">
+                            <span class="nid-enhancer-pill__ico" aria-hidden="true">
+                              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                            </span>
+                            <span class="nid-enhancer-pill__txt">
+                              <strong>ঝলকানি ও ছায়া রিমুভ</strong>
+                              <small>ফ্ল্যাশ গ্লেয়ার ও শ্যাডো ফিক্স</small>
+                            </span>
+                            <span class="nid-enhancer-pill__state" id="nidDeglareState">বন্ধ</span>
+                          </button>
+                          <button type="button" class="nid-enhancer-pill" id="nidTextBoostBtn" aria-pressed="false" title="ক্যামস্ক্যানার ন্যাটিভ অ্যাপের মতো ঘোলা নাম, এনআইডি নাম্বার, স্বাক্ষর ও ঠিকানার অক্ষরগুলোকে টাইপ করা প্রিন্টের মতো গাঢ় ও পরিষ্কার করুন">
+                            <span class="nid-enhancer-pill__ico" aria-hidden="true">
+                              <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                            </span>
+                            <span class="nid-enhancer-pill__txt">
+                              <strong>টাইপড টেক্সট ও নাম্বার HD</strong>
+                              <small>ঘোলা নাম, নাম্বার ও অক্ষর ক্লিয়ার</small>
+                            </span>
+                            <span class="nid-enhancer-pill__state" id="nidTextBoostState">বন্ধ</span>
+                          </button>
+                        </div>
+                      </fieldset>
+                    </div>
+                  </details>
+
+                  <!-- Collapsible Accordion 2: Manual Color & Light Tuning (Collapsed by default) -->
+                  <details class="th-prop-acc nid-studio-acc" id="nidAccTune">
+                    <summary class="th-prop-acc__head">
+                      <span class="th-prop-acc__title-wrap">
+                        <span class="th-prop-acc__icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="2" y1="14" x2="6" y2="14"/><line x1="10" y1="8" x2="14" y2="8"/><line x1="18" y1="16" x2="22" y2="16"/></svg>
+                        </span>
+                        <span>ম্যানুয়াল কালার টিউনিং</span>
+                      </span>
+                      <span class="th-prop-acc__meta">
+                        <span class="th-prop-acc__badge" id="nidTuneSummaryBadge">ডিফল্ট</span>
+                        <svg class="th-prop-acc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                      </span>
+                    </summary>
+                    <div class="th-prop-acc__body" id="nidLeftAdjustSection">
+                      <div class="th-slider-stack">
+                        <div class="th-slider-row">
+                          <div class="th-slider-lbl">
+                            <label for="imgCombineBright">উজ্জ্বলতা (Brightness)</label>
+                            <strong id="imgCombineBrightVal">১০০%</strong>
+                          </div>
+                          <input type="range" id="imgCombineBright" name="imgCombineBright" min="50" max="180" value="100">
+                        </div>
+                        <div class="th-slider-row">
+                          <div class="th-slider-lbl">
+                            <label for="imgCombineContrast">কনট্রাস্ট (Contrast)</label>
+                            <strong id="imgCombineContrastVal">১০০%</strong>
+                          </div>
+                          <input type="range" id="imgCombineContrast" name="imgCombineContrast" min="50" max="220" value="100">
+                        </div>
+                        <div class="th-slider-row">
+                          <div class="th-slider-lbl">
+                            <label for="imgCombineSat">রঙের গভীরতা (Saturation)</label>
+                            <strong id="imgCombineSatVal">১০০%</strong>
+                          </div>
+                          <input type="range" id="imgCombineSat" name="imgCombineSat" min="0" max="200" value="100">
+                        </div>
+                        <div class="th-slider-row">
+                          <div class="th-slider-lbl">
+                            <label for="imgCombineSharp">লেখার স্পষ্টতা (Sharpness)</label>
+                            <strong id="imgCombineSharpVal">২০%</strong>
+                          </div>
+                          <input type="range" id="imgCombineSharp" name="imgCombineSharp" min="0" max="100" value="20">
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                </section>
+
+                <!-- Collapsible Print Settings Accordions (Collapsed by default for clean studio hierarchy) -->
+                <div class="nid-layout-controls">
+                  <details class="th-prop-acc nid-studio-acc" id="nidAccLayout">
+                    <summary class="th-prop-acc__head">
+                      <span class="th-prop-acc__title-wrap">
+                        <span class="th-prop-acc__icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+                        </span>
+                        <span>পেজ লেআউট</span>
+                      </span>
+                      <span class="th-prop-acc__meta">
+                        <span class="th-prop-acc__badge" id="nidLayoutSummaryBadge">A4 উপরে-নিচে</span>
+                        <svg class="th-prop-acc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                      </span>
                     </summary>
                     <div class="th-prop-acc__body">
                       <fieldset class="pdf-fieldset nid-fieldset-clean">
@@ -971,14 +1100,21 @@ const { initialTab = 'hub' } = Astro.props;
                           </label>
                         </div>
                       </fieldset>
-
                     </div>
                   </details>
 
-                  <details class="th-prop-acc" open>
+                  <details class="th-prop-acc nid-studio-acc" id="nidAccPrintOpt">
                     <summary class="th-prop-acc__head">
-                      <span>কপি সংখ্যা ও প্রিন্ট অপশন</span>
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                      <span class="th-prop-acc__title-wrap">
+                        <span class="th-prop-acc__icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        </span>
+                        <span>কপি সংখ্যা ও প্রিন্ট অপশন</span>
+                      </span>
+                      <span class="th-prop-acc__meta">
+                        <span class="th-prop-acc__badge" id="nidPrintOptSummaryBadge">১ সেট</span>
+                        <svg class="th-prop-acc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                      </span>
                     </summary>
                     <div class="th-prop-acc__body">
                       <div class="pdf-img-settings nid-settings-grid">
@@ -1019,14 +1155,22 @@ const { initialTab = 'hub' } = Astro.props;
                     </div>
                   </details>
 
-                  <details class="th-prop-acc">
+                  <details class="th-prop-acc nid-studio-acc" id="nidAccGap">
                     <summary class="th-prop-acc__head">
-                      <span>গ্যাপ ও পেজ কালার</span>
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                      <span class="th-prop-acc__title-wrap">
+                        <span class="th-prop-acc__icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24"><path d="M21 6H3M21 18H3M12 9v6m-3-3h6"/></svg>
+                        </span>
+                        <span>গ্যাপ ও পেজ কালার</span>
+                      </span>
+                      <span class="th-prop-acc__meta">
+                        <span class="th-prop-acc__badge" id="nidGapSummaryBadge">৩৬px</span>
+                        <svg class="th-prop-acc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                      </span>
                     </summary>
                     <div class="th-prop-acc__body">
                       <div class="pdf-img-settings nid-settings-grid">
-<div class="pdf-field-group">
+                        <div class="pdf-field-group">
                           <label for="imgCombineGap">মাঝের ফাঁকা (Gap)</label>
                           <input type="number" id="imgCombineGap" name="imgCombineGap" value="36" min="0" max="240">
                         </div>

@@ -1,0 +1,67 @@
+---
+import { Icon } from 'astro-icon/components';
+import { MENU_TREE } from '../data/menu';
+const { scope = 'top' } = Astro.props;
+---
+<details class="tm">
+  <summary class="tm__btn" title="সকল টুলস" aria-label="সকল টুলস">
+    <Icon name="lucide:layout-grid" class="tm__btn-ic" aria-hidden="true" />
+    <span class="tm__btn-label">টুলস</span>
+    <Icon name="lucide:chevron-down" class="tm__btn-caret" aria-hidden="true" />
+  </summary>
+
+  <div class="tm__panel" role="dialog" aria-label="সকল টুলস">
+    <label class="tm__search">
+      <Icon name="lucide:search" aria-hidden="true" />
+      <input type="search" class="tm__input" placeholder="টুল খুঁজুন…" autocomplete="off" aria-label="টুল খুঁজুন">
+    </label>
+
+    <nav class="tm__tree" aria-label="টুল তালিকা">
+      {MENU_TREE.map((node) =>
+        node.children ? (
+          <div class="tm__group" data-color={node.color} data-tool-id={node.id} data-search={`${node.title} ${node.desc} ${node.keywords}`.toLowerCase()}>
+            <button type="button" class="tm__row tm__group-btn" aria-expanded="false" aria-controls={`tm-${scope}-sub-${node.id}`}>
+              <span class="tm__ic"><Icon name={node.icon} aria-hidden="true" /></span>
+              <span class="tm__txt">
+                <span class="tm__title">{node.title}</span>
+                <span class="tm__desc">{node.desc}</span>
+              </span>
+              <span class="tm__count">{node.children.length}</span>
+              <Icon name="lucide:chevron-right" class="tm__chev" aria-hidden="true" />
+            </button>
+            <div class="tm__sub" id={`tm-${scope}-sub-${node.id}`} hidden>
+              {node.children.map((c) => (
+                <a
+                  class="tm__leaf"
+                  href={c.href}
+                  data-sub-tab={c.subTab}
+                  data-studio={node.id}
+                  data-search={`${c.title} ${c.keywords} ${node.title}`.toLowerCase()}
+                >
+                  <span class="tm__leaf-ic"><Icon name={c.icon} aria-hidden="true" /></span>
+                  <span class="tm__leaf-title">{c.title}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <a
+            class="tm__row tm__single"
+            href={node.href}
+            data-color={node.color}
+            data-tool-id={node.id}
+            data-search={`${node.title} ${node.desc} ${node.keywords}`.toLowerCase()}
+          >
+            <span class="tm__ic"><Icon name={node.icon} aria-hidden="true" /></span>
+            <span class="tm__txt">
+              <span class="tm__title">{node.title}</span>
+              <span class="tm__desc">{node.desc}</span>
+            </span>
+            <Icon name="lucide:arrow-up-right" class="tm__go" aria-hidden="true" />
+          </a>
+        )
+      )}
+      <p class="tm__empty" hidden>কোনো টুল পাওয়া যায়নি</p>
+    </nav>
+  </div>
+</details>

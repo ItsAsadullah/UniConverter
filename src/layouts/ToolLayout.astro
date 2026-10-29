@@ -1,5 +1,6 @@
 ---
-import { TOOLS, getToolMeta, type ToolMeta } from '../data/tools';
+import { getToolMeta, type ToolMeta } from '../data/tools';
+import ToolsMenu from '../components/ToolsMenu.astro';
 
 interface Props {
   toolId: ToolMeta['id'];
@@ -12,10 +13,8 @@ const { toolId, title, description, activeBadgeText } = Astro.props;
 const currentTool = getToolMeta(toolId);
 const pageTitle = title || currentTool.seoTitle;
 const pageDesc = description || currentTool.seoDesc;
-const otherTools = TOOLS.filter((t) => t.id !== toolId);
 const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 const toBn = (n: number | string) => String(n).replace(/\d/g, (d) => bnDigits[Number(d)]);
-const otherCountBn = `${toBn(otherTools.length)}টি`;
 const currentYearBn = toBn(new Date().getFullYear());
 ---
 <!doctype html>
@@ -32,8 +31,8 @@ const currentYearBn = toBn(new Date().getFullYear());
         document.documentElement.setAttribute('data-theme', theme);
         var meta = document.querySelector('meta[name="color-scheme"]');
         if (meta) meta.content = theme;
-        if (localStorage.getItem('thbc-cache-ver') !== 'v22') {
-          localStorage.setItem('thbc-cache-ver', 'v22');
+        if (localStorage.getItem('thbc-cache-ver') !== 'v36') {
+          localStorage.setItem('thbc-cache-ver', 'v36');
           var hadStale = false;
           var p = [];
           if (window.caches) {
@@ -67,7 +66,7 @@ const currentYearBn = toBn(new Date().getFullYear());
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700&family=Tiro+Bangla&display=swap">
-  <link rel="stylesheet" href="/css/app.css?v=26">
+  <link rel="stylesheet" href="/css/app.css?v=35">
 </head>
 <body data-astro-mpa="1" data-active-tool={toolId}>
   <a class="skip-link" href="#workbench">মূল অংশে যান</a>
@@ -111,6 +110,7 @@ const currentYearBn = toBn(new Date().getFullYear());
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
           <span class="icon-btn__label">ইনস্টল</span>
         </button>
+        <ToolsMenu />
       </div>
     </div>
   </header>
@@ -121,41 +121,6 @@ const currentYearBn = toBn(new Date().getFullYear());
         <slot />
       </div>
 
-      <aside class="tools-sidebar" id="toolsSidebar" aria-label="অন্যান্য টুলস">
-        <div class="tools-sidebar__card">
-          <div class="tools-sidebar__head">
-            <div class="tools-sidebar__title">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-              <span>অন্যান্য টুলস</span>
-            </div>
-            <span class="tools-sidebar__count" id="toolsCountBadge">{otherCountBn}</span>
-          </div>
-          <div class="tools-sidebar__search">
-            <input type="search" id="toolSearch" placeholder="টুল খুঁজুন…" autocomplete="off" aria-label="টুল খুঁজুন">
-          </div>
-          <div class="tools-sidebar__list" id="toolsSidebarList" role="navigation" aria-label="টুল তালিকা">
-            {otherTools.map((t) => (
-              <a
-                href={t.href}
-                class="tool-nav-card"
-                data-color={t.color}
-                data-tool-id={t.id}
-                data-keywords={t.keywords}
-                data-badge={t.badge}
-              >
-                <span class="tool-nav-card__icon" set:html={t.icon} />
-                <span class="tool-nav-card__body">
-                  <span class="tool-nav-card__title">{t.title}</span>
-                  <span class="tool-nav-card__desc">{t.desc}</span>
-                </span>
-                <span class="tool-nav-card__arrow" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </aside>
     </div>
   </main>
 
@@ -167,7 +132,7 @@ const currentYearBn = toBn(new Date().getFullYear());
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script is:inline src="/js/shell.js?v=16" defer></script>
+  <script is:inline src="/js/shell.js?v=35" defer></script>
   <slot name="scripts" />
 </body>
 </html>
