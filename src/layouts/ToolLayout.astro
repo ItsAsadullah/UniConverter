@@ -31,8 +31,8 @@ const currentYearBn = toBn(new Date().getFullYear());
         document.documentElement.setAttribute('data-theme', theme);
         var meta = document.querySelector('meta[name="color-scheme"]');
         if (meta) meta.content = theme;
-        if (localStorage.getItem('thbc-cache-ver') !== 'v36') {
-          localStorage.setItem('thbc-cache-ver', 'v36');
+        if (localStorage.getItem('thbc-cache-ver') !== 'v37') {
+          localStorage.setItem('thbc-cache-ver', 'v37');
           var hadStale = false;
           var p = [];
           if (window.caches) {
@@ -132,7 +132,7 @@ const currentYearBn = toBn(new Date().getFullYear());
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script is:inline src="/js/shell.js?v=35" defer></script>
+  <script is:inline src="/js/shell.js?v=36" defer></script>
   <slot name="scripts" />
 </body>
 </html>

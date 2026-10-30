@@ -336,6 +336,10 @@
         };
       }
 
+      // A document paste appends pages and keeps existing page edits.
+      var scanner = $('#img-pane-scan');
+      if (scanner && !scanner.hidden) return { input: $('#dsFiles') };
+
       var logo = $('#invLogoInput');
       if (logo) return { input: logo };
 

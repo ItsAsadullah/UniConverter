@@ -54,6 +54,7 @@ const IMAGE_ICONS: Record<string, string> = {
   crop: 'lucide:crop',
   convert: 'lucide:refresh-cw',
   combine: 'lucide:id-card',
+  scan: 'lucide:scan-line',
   colors: 'lucide:palette',
 };
 

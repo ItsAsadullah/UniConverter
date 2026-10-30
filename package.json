@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "node tests/engine.test.js && node tests/office.test.js"
+    "test": "node tests/engine.test.js && node tests/office.test.js && node tests/document-scan.test.cjs"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.147",

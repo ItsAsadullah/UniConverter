@@ -1,7 +1,7 @@
 /* TechHat Bangla Converter — service worker (offline app shell) */
 'use strict';
 
-var VERSION = 'thbc-v15';
+var VERSION = 'thbc-v34';
 var SHELL = 'shell-' + VERSION;
 var RUNTIME = 'runtime-' + VERSION;
 
@@ -19,6 +19,9 @@ var ASSETS = [
   'js/pdf-convert.js',
   'js/pdf-tools.js',
   'js/image-tools.js',
+  'js/document-scan-core.js',
+  'js/document-scan-worker.js',
+  'js/document-scanner.js',
   'js/tools.js',
   'vendor/jszip.min.js',
   'vendor/pdf-lib.min.js',

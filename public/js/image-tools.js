@@ -141,6 +141,7 @@
     crop: '/image/crop',
     convert: '/image/convert',
     combine: '/image/combine',
+    scan: '/image/scan',
     colors: '/image/colors'
   };
 
@@ -2721,7 +2722,7 @@
    * Maps any tilted/skewed quadrilateral `pts = [TL, TR, BR, BL]` on `sourceCanvas`
    * into a flat, straight high-DPI rectangular canvas using bilinear pixel interpolation.
    */
-  function warpPerspectiveCard(sourceCanvas, normPts, customMinW, customMaxW) {
+  function warpPerspectiveCard(sourceCanvas, normPts, customMinW, customMaxW, preserveLongEdge) {
     var sw = sourceCanvas.width;
     var sh = sourceCanvas.height;
     var p = normPts.map(function (pt) {
@@ -2741,10 +2742,16 @@
     var upScale = natW < minTargetW ? (minTargetW / natW) : (natW > maxTargetW ? (maxTargetW / natW) : 1);
     var outW = Math.max(120, Math.min(maxTargetW, Math.round(natW * upScale)));
     var outH = Math.max(80, Math.min(maxTargetW, Math.round(natH * upScale)));
+    // Documents may be portrait or panoramic: constrain both dimensions together.
+    if (preserveLongEdge) {
+      var docScale = Math.min(1, maxTargetW / Math.max(natW, natH));
+      outW = Math.max(16, Math.round(natW * docScale));
+      outH = Math.max(16, Math.round(natH * docScale));
+    }
 
     // Fast hardware-resampled path when the quad is already an axis-aligned rectangle (within 1.5px)
     var isAxisAligned =
-      Math.abs(p[0].y - p[1].y) < 1.5 &&
+      p[0].x >= 0 && p[3].x >= 0 && p[1].x <= sw && p[2].x <= sw && p[0].y >= 0 && p[1].y >= 0 && p[2].y <= sh && p[3].y <= sh && Math.abs(p[0].y - p[1].y) < 1.5 &&
       Math.abs(p[3].y - p[2].y) < 1.5 &&
       Math.abs(p[0].x - p[3].x) < 1.5 &&
       Math.abs(p[1].x - p[2].x) < 1.5;
@@ -2819,10 +2826,10 @@
         var srcX = (a * u + bvX) / w;
         var srcY = (d * u + evY) / w;
 
-        if (srcX < 0) srcX = 0;
-        else if (srcX > maxSx) srcX = maxSx;
-        if (srcY < 0) srcY = 0;
-        else if (srcY > maxSy) srcY = maxSy;
+        if (srcX < 0 || srcX > maxSx || srcY < 0 || srcY > maxSy) { dst[dstIdx] = dst[dstIdx + 1] = dst[dstIdx + 2] = dst[dstIdx + 3] = 255; dstIdx += 4; continue; }
+
+
+
 
         var ix = srcX | 0;
         var iy = srcY | 0;
@@ -6622,6 +6629,11 @@
   }
 
   window.TechHatImage = { init: init, switchTab: switchImgTab };
+  window.TechHatScanGeometry = {
+    load: loadImageFile,
+    rotate: buildRotatedCanvas,
+    warp: warpPerspectiveCard
+  };
 
   var imgRoot = $('#tool-image');
   if (imgRoot && !imgRoot.hidden) {

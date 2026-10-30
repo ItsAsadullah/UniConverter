@@ -2,5 +2,6 @@ node_modules/
 tests/node_modules/
 .astro/
 dist/
+local-data/crop-dataset/
 .DS_Store
 Thumbs.db

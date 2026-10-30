@@ -1,0 +1,219 @@
+---
+import { Icon } from 'astro-icon/components';
+import ToolsMenu from './ToolsMenu.astro';
+import '../styles/document-scanner.css';
+const { active = false } = Astro.props;
+const presets = [
+  ['magic_plus', 'wand-sparkles', 'ম্যাজিক+', 'সাদা পেজ · স্পষ্ট লেখা'],
+  ['auto', 'sparkles', 'অটো এনহ্যান্স', 'পরিষ্কার ও স্বাভাবিক'],
+  ['original', 'image', 'অরিজিনাল', 'মূল রঙ ও ছবি'],
+  ['color', 'palette', 'কালার স্ক্যান', 'রঙিন ডকুমেন্ট'],
+  ['shadow', 'sun', 'শ্যাডো ফিক্স', 'অসম আলো সংশোধন'],
+  ['gray', 'contrast', 'গ্রেস্কেল', 'নরম সাদাকালো'],
+  ['bw', 'scan-text', 'সাদা-কালো', 'লেখা ও ফটোকপি'],
+];
+---
+<section class="img-pane th-nid-studio ds" id="img-pane-scan" hidden={!active} aria-label="ডকুমেন্ট স্ক্যানার" data-view="split">
+  <header class="ds-header">
+    <a class="ds-brand" href="/image"><span class="ds-brand-icon"><Icon name="lucide:scan-line" /></span><span><b>TechHat Studio</b><small>ডকুমেন্ট স্ক্যানার</small></span></a>
+    <ToolsMenu scope="document-scanner" />
+    <span class="ds-local"><Icon name="lucide:shield-check" /> আপনার ডিভাইসেই প্রসেস হয়</span>
+    <div class="ds-header-actions">
+      <button type="button" data-ds="camera"><Icon name="lucide:camera" /><span>ক্যামেরা</span></button>
+      <button type="button" data-ds="add"><Icon name="lucide:plus" /><span>পেজ যোগ</span></button>
+      <button type="button" data-ds="reset" title="সব পেজ সরিয়ে নতুন স্ক্যান শুরু করুন"><Icon name="lucide:file-plus-2" /><span>নতুন</span></button>
+      <button type="button" class="ds-theme" data-ds="theme" aria-label="থিম পরিবর্তন"><Icon name="lucide:sun-moon" /></button>
+    </div>
+  </header>
+  <input id="dsFiles" type="file" accept="image/jpeg,image/png,image/webp,image/bmp,image/avif" multiple hidden />
+  <input id="dsCameraFallback" type="file" accept="image/*" capture="environment" hidden />
+  <nav class="ds-mobile-nav" aria-label="স্ক্যানারের অংশে যান">
+    <button type="button" data-ds-jump=".ds-pages">পেজগুলো</button>
+    <button type="button" data-ds-jump=".ds-main">ক্রপ ও প্রিভিউ</button>
+    <button type="button" data-ds-jump=".ds-settings">ফিল্টার ও সেভ</button>
+  </nav>
+  <div class="ds-body">
+    <aside class="ds-pages" aria-label="ডকুমেন্টের পেজ">
+      <div class="ds-panel-head"><strong>পেজগুলো <span id="dsCount">০</span></strong><span class="ds-muted">টেনে সাজান</span></div>
+      <div class="ds-page-list" id="dsPageList" aria-label="পেজ তালিকা"></div>
+      <div class="ds-page-footer"><button type="button" class="ds-add-more" data-ds="add"><Icon name="lucide:plus" /> Add More <span>পেজ যোগ করুন</span></button><small>JPG, PNG, WebP · একাধিক ছবি</small></div>
+    </aside>
+    <div class="ds-main">
+      <div class="ds-toolbar" role="toolbar" aria-label="ডকুমেন্ট ক্রপ ও পেজ টুলস">
+        <button type="button" data-ds="detect" class="ds-accent" disabled><Icon name="lucide:scan-line" /> অটো ডিটেক্ট</button>
+        <button type="button" data-ds="full" disabled><Icon name="lucide:expand" /> পুরো ছবি</button>
+        <button type="button" data-ds="toggle-eraser" id="dsToolbarEraser" class="ds-eraser-btn" disabled title="ডকুমেন্টের দাগ বা বাইরের ব্যাকগ্রাউন্ড মুছুন"><Icon name="lucide:eraser" /> দাগ মুছুন</button>
+        <span class="ds-separator"></span>
+        <button type="button" data-ds="left" disabled><Icon name="lucide:rotate-ccw" /> বামে</button>
+        <button type="button" data-ds="right" disabled><Icon name="lucide:rotate-cw" /> ডানে</button>
+        <button type="button" data-ds="clear-learning" class="ds-learning-button" title="ব্রাউজারের ব্যক্তিগত crop preference মুছুন; training/testing ডেটাসেট থাকবে">আমার শেখা (০)</button>
+        <label class="ds-dataset-control" title="সংশোধিত ছবি স্থানীয় training/testing ডেটাসেটে রাখুন"><span>ডেটা</span><select id="dsDatasetSplit" aria-label="ক্রপ ডেটাসেটের ধরন"><option value="training">Training</option><option value="testing">Testing</option></select></label>
+        <button type="button" data-ds="undo" disabled title="আগের পরিবর্তন (Ctrl+Z)"><Icon name="lucide:undo-2" /> পূর্বাবস্থা</button>
+        <button type="button" data-ds="redo" disabled title="পুনরায় (Ctrl+Shift+Z)"><Icon name="lucide:redo-2" /> পুনরায়</button>
+        <div class="ds-view-switch" role="group" aria-label="ক্যানভাস ভিউ">
+          <button type="button" data-ds-view="crop" aria-pressed="false">ক্রপ</button><button type="button" data-ds-view="split" aria-pressed="true">পাশাপাশি</button><button type="button" data-ds-view="preview" aria-pressed="false">প্রিভিউ</button>
+        </div>
+      </div>
+      <div class="ds-empty" id="dsEmpty">
+        <span class="ds-empty-symbol"><Icon name="lucide:scan-line" /></span>
+        <span class="ds-eyebrow">DOCUMENT SCANNER</span>
+        <h2>ছবি থেকে পরিষ্কার ডকুমেন্ট</h2>
+        <p>পেজের ছবি যোগ করুন। চার কোণা শনাক্ত করে সোজা করুন,<br />শ্যাডো কমান, তারপর সব পেজ এক PDF-এ রাখুন।</p>
+        <button type="button" class="ds-primary" data-ds="add"><Icon name="lucide:upload" /> ছবি বেছে নিন</button>
+        <span class="ds-muted">এখানেও ছবি টেনে ছেড়ে দিতে পারেন</span>
+        <div class="ds-empty-features"><span><Icon name="lucide:crop" /> অটো ক্রপ</span><span><Icon name="lucide:sun" /> শ্যাডো ফিক্স</span><span><Icon name="lucide:files" /> মাল্টিপেজ PDF</span></div>
+      </div>
+      <div class="ds-workspace" id="dsWorkspace" hidden>
+        <section class="ds-crop-panel" aria-label="ক্রপ ক্যানভাস">
+          <div class="ds-canvas-caption"><span><i></i> মূল ছবি ও ক্রপ</span><small>চার কোণা বা চার পাশ টেনে সীমানা ঠিক করুন</small></div>
+          <div class="ds-viewport" id="dsViewport" tabindex="0" aria-label="ক্রপ ক্যানভাস। Space ধরে টেনে সরান, Ctrl প্লাস বা মাইনাসে জুম করুন।">
+            <div class="ds-image-plane" id="dsPlane"><canvas id="dsSource"></canvas><svg id="dsQuad" aria-hidden="true"><defs><mask id="dsMask"><rect width="100%" height="100%" fill="white" /><polygon id="dsHole" fill="black" /></mask></defs><rect width="100%" height="100%" fill="rgba(0,0,0,.52)" mask="url(#dsMask)" /><polygon id="dsOutline" />{[0,1,2,3].map((i)=><line class="ds-gridline" data-ds-line={i} />)}</svg><div id="dsHandles">{['উপরের বাম কোণা','উপরের ডান কোণা','নিচের ডান কোণা','নিচের বাম কোণা'].map((label,i)=><button type="button" data-ds-corner={i} aria-label={label} title={`${label} · Arrow দিয়ে সরান`} />)}{['উপরের ধার','ডান ধার','নিচের ধার','বাম ধার'].map((label,i)=><button type="button" data-ds-edge={i} aria-label={label} title={`${label} · টেনে বা Arrow দিয়ে সরান`} />)}</div></div>
+          </div>
+        </section>
+        <section class="ds-preview-panel" aria-label="স্ক্যান করা পেজের প্রিভিউ">
+          <div class="ds-canvas-caption">
+            <span><i></i> স্ক্যান প্রিভিউ</span>
+            <div class="ds-preview-caption-actions">
+              <button type="button" id="dsEraserToggle" class="ds-caption-btn" data-ds="toggle-eraser" aria-pressed="false" title="ডকুমেন্টের দাগ, স্পট বা বাইরের ব্যাকগ্রাউন্ড মুছুন">
+                <Icon name="lucide:eraser" /> <span>দাগ ও ব্যাকগ্রাউন্ড মুছুন</span>
+              </button>
+            </div>
+            <small id="dsPreviewMeta">—</small>
+          </div>
+          <div class="ds-eraser-bar" id="dsEraserBar" hidden>
+            <div class="ds-eraser-tools">
+              <span class="ds-eraser-title" id="dsPsActiveToolLabel"><Icon name="lucide:paintbrush" /> <b>ব্রাশ টুল</b></span>
+              <div class="ds-ps-color-group" role="group" aria-label="ব্যাকগ্রাউন্ড কালার ও পিকার">
+                <label class="ds-ps-color-swatch-wrap" title="ব্যাকগ্রাউন্ড কালার পরিবর্তন করুন">
+                  <input type="color" id="dsEraserColor" value="#ffffff" aria-label="ব্যাকগ্রাউন্ড কালার" />
+                  <span class="ds-ps-color-chip" id="dsEraserColorChip" style="background:#ffffff"></span>
+                  <code id="dsEraserHex">#FFFFFF</code>
+                </label>
+                <button type="button" data-ds-tool="picker" class="ds-eraser-action ds-ps-picker-btn" title="ডকুমেন্টের যেকোনো জায়গায় ক্লিক করে ব্যাকগ্রাউন্ড কালার পিক করুন (I অথবা Alt+Click)">
+                  <Icon name="lucide:pipette" /> কালার পিকার
+                </button>
+                <button type="button" data-ds="auto-paper-color" class="ds-eraser-action" title="ডকুমেন্টের কাগজের গড় ব্যাকগ্রাউন্ড কালার অটো শনাক্ত করুন">
+                  <Icon name="lucide:sparkles" /> অটো পেপার
+                </button>
+                <div class="ds-ps-swatches" role="group" aria-label="কুইক কালার সোয়াচ">
+                  <button type="button" data-ds-swatch="#ffffff" class="ds-ps-swatch is-active" style="--sw:#ffffff" title="সাদা (#FFFFFF)" aria-label="সাদা"></button>
+                  <button type="button" data-ds-swatch="#faf6ed" class="ds-ps-swatch" style="--sw:#faf6ed" title="ক্রিম / অফ-হোয়াইট (#FAF6ED)" aria-label="ক্রিম"></button>
+                  <button type="button" data-ds-swatch="#f1f5f9" class="ds-ps-swatch" style="--sw:#f1f5f9" title="হালকা ধূসর (#F1F5F9)" aria-label="হালকা ধূসর"></button>
+                </div>
+              </div>
+              <div class="ds-ps-sliders" id="dsPsBrushOpts">
+                <label class="ds-ps-slider" title="ব্রাশের সাইজ ([ ও ] দিয়ে কমান/বাড়ান)">
+                  <span>সাইজ</span>
+                  <input type="range" id="dsBrushSize" min="2" max="120" value="24" />
+                  <output id="dsBrushSizeVal">24px</output>
+                </label>
+                <label class="ds-ps-slider" title="ব্রাশের প্রান্ত কতটা সফট বা শার্প হবে (ফটোশপ Feather/Hardness)">
+                  <span>হার্ডনেস</span>
+                  <input type="range" id="dsBrushHardness" min="0" max="100" value="80" />
+                  <output id="dsBrushHardnessVal">80%</output>
+                </label>
+              </div>
+              <div class="ds-ps-sliders" id="dsPsWandOpts" hidden>
+                <label class="ds-ps-slider" title="ম্যাজিক ইরেজার কতটা কাছাকাছি রঙ একসাথে মুছবে">
+                  <span>টলারেন্স</span>
+                  <input type="range" id="dsWandTolerance" min="5" max="85" value="28" />
+                  <output id="dsWandToleranceVal">28</output>
+                </label>
+              </div>
+              <div class="ds-ps-sliders">
+                <label class="ds-ps-slider" title="রঙের ঘনত্ব বা অপাসিটি">
+                  <span>অপাসিটি</span>
+                  <input type="range" id="dsBrushOpacity" min="10" max="100" value="100" />
+                  <output id="dsBrushOpacityVal">100%</output>
+                </label>
+              </div>
+              <button type="button" data-ds="erase-borders" class="ds-eraser-action" title="চারপাশের বর্ডারের বাড়তি ব্যাকগ্রাউন্ড নির্বাচিত কালার দিয়ে পরিষ্কার করুন"><Icon name="lucide:scan" /> বর্ডার ট্রিম</button>
+              <button type="button" data-ds="undo-erase" class="ds-eraser-action" title="সর্বশেষ মোছা বাতিল (Ctrl+Z)"><Icon name="lucide:undo-2" /> পূর্বাবস্থা</button>
+              <button type="button" data-ds="clear-erases" class="ds-eraser-action" title="এই পেজের সব রিটাচ রিসেট করুন"><Icon name="lucide:rotate-ccw" /> সব রিসেট</button>
+              <button type="button" data-ds="close-eraser" class="ds-eraser-close" aria-label="ইরেজার বন্ধ করুন">✕ সম্পন্ন</button>
+            </div>
+            <small class="ds-eraser-hint" id="dsEraserHint">💡 <b>B</b> ব্রাশ · <b>J</b> স্পট হিলিং · <b>W</b> ম্যাজিক ইরেজার · <b>M</b> রেকট্যাঙ্গেল ফিল · <b>I</b> কালার পিকার (অথবা <b>Alt+Click</b> করে কাগজের রঙ পিক করুন) · <b>Shift</b> ধরে সোজা লাইন · <b>Ctrl+Wheel</b> প্রিভিউ জুম</small>
+          </div>
+          <div class="ds-preview-stage" id="dsPreviewStage">
+            <aside class="ds-ps-dock" id="dsPsDock" hidden aria-label="ফটোশপ রিটাচ টুলবার">
+              <button type="button" data-ds-tool="brush" class="ds-ps-tool is-active" aria-pressed="true" title="ব্রাশ / ব্যাকগ্রাউন্ড ইরেজার (B) — নির্বাচিত ব্যাকগ্রাউন্ড কালার দিয়ে দাগ মুছুন">
+                <Icon name="lucide:paintbrush" />
+                <span>ব্রাশ</span>
+              </button>
+              <button type="button" data-ds-tool="heal" class="ds-ps-tool" aria-pressed="false" title="স্পট হিলিং ব্রাশ (J) — চারপাশের কাগজের রঙ নিজে মিলিয়ে দাগ রিমুভ করুন">
+                <Icon name="lucide:bandage" />
+                <span>হিলিং</span>
+              </button>
+              <button type="button" data-ds-tool="wand" class="ds-ps-tool" aria-pressed="false" title="ম্যাজিক ব্যাকগ্রাউন্ড ইরেজার (W) — এক ক্লিকে একই রঙের ব্যাকগ্রাউন্ড বা স্পট মুছুন">
+                <Icon name="lucide:wand" />
+                <span>ম্যাজিক</span>
+              </button>
+              <button type="button" data-ds-tool="rect" class="ds-ps-tool" aria-pressed="false" title="রেকট্যাঙ্গেল মার্কি ফিল (M) — বক্স টেনে বর্ডার বা বড় দাগ পরিষ্কার করুন">
+                <Icon name="lucide:square-dashed" />
+                <span>বক্স ফিল</span>
+              </button>
+              <button type="button" data-ds-tool="picker" class="ds-ps-tool" aria-pressed="false" title="ব্যাকগ্রাউন্ড কালার পিকার / আইড্রপার (I অথবা Alt+Click) — ডকুমেন্ট থেকে কাগজের রঙ নিন">
+                <Icon name="lucide:pipette" />
+                <span>পিকার</span>
+              </button>
+              <button type="button" data-ds-tool="hand" class="ds-ps-tool" aria-pressed="false" title="হ্যান্ড ও প্যান টুল (H অথবা Space ধরে টানুন)">
+                <Icon name="lucide:hand" />
+                <span>প্যান</span>
+              </button>
+              <span class="ds-ps-dock-sep"></span>
+              <div class="ds-ps-dock-swatch-box" title="বর্তমান ব্যাকগ্রাউন্ড কালার (ক্লিক করে বদলান)">
+                <button type="button" class="ds-ps-dock-swatch" id="dsDockSwatch" style="background:#ffffff" data-ds="open-color-picker" aria-label="ব্যাকগ্রাউন্ড কালার প্যালেট খুলুন"></button>
+                <button type="button" class="ds-ps-dock-reset-white" data-ds-swatch="#ffffff" title="ডিফল্ট সাদা (#FFFFFF) রিসেট করুন" aria-label="ডিফল্ট সাদা"></button>
+              </div>
+              <div class="ds-ps-dock-zoom" role="group" aria-label="প্রিভিউ জুম">
+                <button type="button" data-ds="pzoom-in" title="প্রিভিউ জুম ইন">+</button>
+                <button type="button" data-ds="pzoom-fit" id="dsPreviewZoomLabel" title="প্রিভিউ ফিট রিসেট">100%</button>
+                <button type="button" data-ds="pzoom-out" title="প্রিভিউ জুম আউট">−</button>
+              </div>
+            </aside>
+            <div class="ds-preview-wrap" id="dsPreviewWrap">
+              <canvas id="dsPreview" aria-label="পরিষ্কার করা ডকুমেন্টের প্রিভিউ"></canvas>
+              <div id="dsRectSelection" class="ds-rect-selection" hidden></div>
+              <div id="dsEraserCursor" class="ds-eraser-cursor" hidden></div>
+              <div id="dsPickerLoupe" class="ds-picker-loupe" hidden>
+                <span class="ds-picker-loupe-ring" id="dsPickerLoupeSwatch"></span>
+                <code id="dsPickerLoupeHex">#FFFFFF</code>
+              </div>
+            </div>
+          </div>
+          <div class="ds-preview-footer"><span id="dsPageName">পেজ ১</span><button type="button" id="dsCompare" aria-pressed="false"><Icon name="lucide:split-square-horizontal" /> মূল ছবি দেখুন</button></div>
+        </section>
+      </div>
+      <footer class="ds-status"><div class="ds-zoom"><button type="button" data-ds="zoom-out" aria-label="জুম আউট">−</button><span id="dsZoom">100%</span><button type="button" data-ds="zoom-in" aria-label="জুম ইন">+</button><button type="button" data-ds="fit">Fit</button><button type="button" data-ds="actual">100%</button></div><span id="dsStatus" role="status">শুরু করতে ডকুমেন্টের ছবি যোগ করুন</span><small class="ds-shortcuts">Ctrl + / − জুম · Space + Drag প্যান</small></footer>
+    </div>
+    <aside class="ds-settings" aria-label="স্ক্যান ও এক্সপোর্ট সেটিংস">
+      <div class="ds-settings-scroll">
+        <div class="ds-panel-head"><strong>স্ক্যান ও এনহ্যান্স</strong><button type="button" data-ds="reset-color" class="ds-text-btn">রিসেট</button></div>
+        <fieldset class="ds-presets"><legend>স্ক্যান ফিল্টার</legend>{presets.map(([value,icon,title,desc])=><label><input type="radio" name="dsFilter" value={value} checked={value==='magic_plus'} /><span><Icon name={`lucide:${icon}`} /><b>{title}</b><small>{desc}</small></span></label>)}</fieldset>
+        <div class="ds-section">
+          <label class="ds-toggle"><span><Icon name="lucide:sun" /> শ্যাডো কমান</span><input id="dsShadow" type="checkbox" checked /></label>
+          <label class="ds-toggle"><span><Icon name="lucide:scan-text" /> লেখা স্পষ্ট করুন</span><input id="dsText" type="checkbox" checked /></label>
+        </div>
+        <div class="ds-section ds-smart-options">
+          <label class="ds-toggle"><span><Icon name="lucide:align-horizontal-justify-center" /> অটো লাইন সোজা করুন</span><input id="dsStraighten" type="checkbox" checked /></label>
+          <label class="ds-toggle"><span><Icon name="lucide:eraser" /> ছিটেফোঁটা দাগ কমান</span><input id="dsCleanSpots" type="checkbox" checked /></label>
+          <label class="ds-toggle"><span><Icon name="lucide:scan" /> ফ্রেমের বাইরে পরিষ্কার</span><input id="dsCleanMargins" type="checkbox" checked /></label>
+          <small>চার পাশের বাইরের বর্ডার নিশ্চিত হলে তার বাইরের অংশ সাদা করে। সেখানে লেখা থাকলে বন্ধ রাখুন। আঙুলে ঢাকা লেখা উদ্ধার হয় না।</small>
+        </div>
+        <div class="ds-section ds-sliders">
+          <label>উজ্জ্বলতা <output id="dsBrightnessValue">100%</output><input id="dsBrightness" aria-label="উজ্জ্বলতা" type="range" min="60" max="150" value="100" /></label>
+          <label>কনট্রাস্ট <output id="dsContrastValue">100%</output><input id="dsContrast" aria-label="কনট্রাস্ট" type="range" min="60" max="170" value="100" /></label>
+          <label>শার্পনেস <output id="dsSharpnessValue">25%</output><input id="dsSharpness" aria-label="শার্পনেস" type="range" min="0" max="100" value="25" /></label>
+          <label>সোজা করুন <output id="dsAngleValue">0°</output><input id="dsAngle" aria-label="সোজা করুন" type="range" min="-10" max="10" step="0.1" value="0" /></label>
+          <label>বইয়ের বাঁক সংশোধন <output id="dsCurveValue">0</output><input id="dsCurve" aria-label="বইয়ের বাঁক সংশোধন" type="range" min="-50" max="50" value="0" /><small>বাঁকানো লাইনের জন্য হাতে সমন্বয় করুন</small></label>
+          <label>মার্জিন ট্রিম <output id="dsTrimValue">0%</output><input id="dsTrim" aria-label="বাইরের মার্জিন ট্রিম" type="range" min="0" max="4" step="0.5" value="0" /><small>বাইরের বাড়তি ব্যাকগ্রাউন্ড স্লিম ট্রিম করে সাদা করুন</small></label>
+          <button type="button" data-ds="apply-all" class="ds-wide"><Icon name="lucide:copy-check" /> সব পেজে এই ফিল্টার দিন</button>
+        </div>
+        <div class="ds-section ds-export-settings"><strong>এক্সপোর্ট সেটআপ</strong><label>ফাইলের নাম<input type="text" id="dsFilename" value="TechHat-document" maxlength="100" /></label><div class="ds-setting-row"><label>পেজ সাইজ<select id="dsPaper"><option value="a4">A4</option><option value="letter">Letter</option><option value="original">স্ক্যানের অনুপাত</option></select></label><label>কোয়ালিটি<select id="dsQuality"><option value="high">হাই · 3000px</option><option value="balanced" selected>ব্যালান্সড · 2200px</option><option value="small">ছোট · 1400px</option></select></label></div><label class="ds-toggle"><span>পেজের মার্জিন</span><input type="checkbox" id="dsMargin" checked /></label></div>
+      </div>
+      <div class="ds-export"><button type="button" class="ds-primary" data-ds="pdf" disabled><Icon name="lucide:file-down" /> PDF ডাউনলোড <span id="dsExportCount">০ পেজ</span></button><div><button type="button" data-ds="jpg" disabled><Icon name="lucide:image-down" /> এই পেজ JPG</button><button type="button" data-ds="zip" disabled><Icon name="lucide:archive" /> সব পেজ ZIP</button></div></div>
+    </aside>
+  </div>
+  <dialog id="dsCameraDialog" class="ds-camera-dialog" aria-labelledby="dsCameraTitle"><div class="ds-camera-head"><h2 id="dsCameraTitle">ডকুমেন্ট ক্যামেরা</h2><button type="button" data-ds="camera-close" aria-label="ক্যামেরা বন্ধ করুন">✕</button></div><div class="ds-camera-stage"><video id="dsVideo" autoplay playsinline muted></video><div class="ds-camera-guide"></div></div><p>পুরো পেজ ফ্রেমের মধ্যে রেখে ছবি তুলুন। পরে চার কোণা ঠিক করতে পারবেন।</p><div class="ds-camera-actions"><button type="button" data-ds="camera-switch">ক্যামেরা বদলান</button><button type="button" class="ds-primary" data-ds="capture"><Icon name="lucide:camera" /> ছবি তুলুন ও যোগ করুন</button></div></dialog>
+  <dialog id="dsResetDialog" class="ds-confirm"><h2>নতুন ডকুমেন্ট শুরু করবেন?</h2><p>বর্তমান পেজগুলো সরিয়ে দেওয়া হবে। প্রয়োজন হলে আগে PDF ডাউনলোড করুন।</p><form method="dialog"><button value="cancel">ফিরে যান</button><button value="reset" class="ds-primary">নতুন শুরু করুন</button></form></dialog>
+</section>

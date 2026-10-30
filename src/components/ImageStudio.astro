@@ -1,8 +1,10 @@
 ---
 import '../styles/nid-editor.css';
 import ToolsMenu from './ToolsMenu.astro';
+import DocumentScanner from './DocumentScanner.astro';
+
 interface Props {
-  initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'colors';
+  initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'colors';
 }
 
 const { initialTab = 'hub' } = Astro.props;
@@ -11,6 +13,10 @@ const { initialTab = 'hub' } = Astro.props;
   <section class="card util-card pdf-studio-card img-studio-card" aria-label="ইমেজ স্টুডিও">
     <!-- Top Sub-Tool Navigation -->
     <div class="pdf-nav-bar" role="tablist" aria-label="ইমেজ টুলস মেনু">
+      <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'scan' }]} data-img-tab="scan" role="tab" aria-selected={initialTab === 'scan' ? 'true' : 'false'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M7 8h10M7 12h10M7 16h7"/></svg>
+        <span>ডকুমেন্ট স্ক্যানার</span>
+      </button>
       <button type="button" class:list={['pdf-nav-btn', { active: initialTab === 'hub' }]} data-img-tab="hub" role="tab" aria-selected={initialTab === 'hub' ? 'true' : 'false'}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span>সব ইমেজ টুলস</span>
@@ -42,6 +48,7 @@ const { initialTab = 'hub' } = Astro.props;
     </div>
 
     <div class="util-body pdf-studio-body">
+      <DocumentScanner active={initialTab === 'scan'} />
       <!-- ========================================== 0. HUB OVERVIEW -->
       <div class="img-pane" id="img-pane-hub" hidden={initialTab !== 'hub'}>
         <div class="pdf-hub-hero">
@@ -49,6 +56,11 @@ const { initialTab = 'hub' } = Astro.props;
         </div>
 
         <div class="pdf-hub-grid">
+          <button type="button" class="pdf-hub-card" data-open-img="scan" data-accent="teal">
+            <span class="pdf-hub-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M7 8h10M7 12h10M7 16h7"/></svg></span>
+            <span class="pdf-hub-card__title">ডকুমেন্ট স্ক্যানার</span>
+            <span class="pdf-hub-card__desc">অটো পেজ ডিটেক্ট, বাঁকা পেজ সোজা, শ্যাডো সংশোধন ও পরিষ্কার লেখা। একাধিক পেজ থেকে PDF তৈরি করুন।</span>
+          </button>
           <button type="button" class="pdf-hub-card" data-open-img="resize" data-preset="job-photo" data-accent="teal">
             <span class="pdf-hub-card__icon">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>

@@ -21,7 +21,7 @@ export interface PdfSubToolMeta {
 
 export interface ImageSubToolMeta {
   slug: string;
-  tabId: 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'colors';
+  tabId: 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'colors';
   title: string;
   seoTitle: string;
   seoDesc: string;
@@ -56,10 +56,10 @@ export const TOOLS: ToolMeta[] = [
     id: 'image',
     href: '/image',
     title: 'ইমেজ স্টুডিও',
-    desc: 'রিসাইজ, কমপ্রেস, ক্রপ ও আইডি স্ক্যানার',
+    desc: 'রিসাইজ, ক্রপ ও ডকুমেন্ট স্ক্যানার',
     badge: 'Image টুলস',
     color: 'teal',
-    keywords: 'image resize compress crop convert jpg png webp passport photo signature 300x300 250x250 ansar vdp 300x80 300x100 nid scanner perspective crop combine color picker ছবি রিসাইজ কমপ্রেস ক্রপ স্বাক্ষর পাসপোর্ট সাইজ আনসার',
+    keywords: 'image resize compress crop convert jpg png webp passport photo signature 300x300 250x250 ansar vdp 300x80 300x100 document scanner scan shadow multipage pdf nid scanner perspective crop combine color picker ডকুমেন্ট স্ক্যানার ছবি রিসাইজ কমপ্রেস ক্রপ স্বাক্ষর পাসপোর্ট সাইজ আনসার',
     icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>',
     seoTitle: 'ইমেজ স্টুডিও — রিসাইজ, কমপ্রেস, ক্রপ ও আইডি কার্ড স্ক্যানার | TechHat',
     seoDesc: 'সরকারি চাকরির ছবি (300×300), আনসার ভিডিপি (250×250) ও স্বাক্ষর (300×80, 300×100) রিসাইজার, ইমেজ কমপ্রেসর, কাস্টম ক্রপ, আইডি কার্ড পাসপেক্টিভ স্ক্যানার ও কালার পিকার।'
@@ -160,6 +160,13 @@ export const PDF_SUBTOOLS: PdfSubToolMeta[] = [
 ];
 
 export const IMAGE_SUBTOOLS: ImageSubToolMeta[] = [
+  {
+    slug: 'scan',
+    tabId: 'scan',
+    title: 'ডকুমেন্ট স্ক্যানার',
+    seoTitle: 'ডকুমেন্ট স্ক্যানার — অটো ক্রপ, শ্যাডো সংশোধন ও মাল্টিপেজ PDF | TechHat',
+    seoDesc: 'ডকুমেন্টের ছবি অটো পেজ ডিটেকশন ও পার্সপেক্টিভ ক্রপ করে সোজা করুন, শ্যাডো কমান, লেখা স্পষ্ট করুন এবং একাধিক পেজ সাজিয়ে PDF বা JPG ডাউনলোড করুন। আপনার ডিভাইসেই প্রসেস হয়।'
+  },
   {
     slug: 'resize',
     tabId: 'resize',
