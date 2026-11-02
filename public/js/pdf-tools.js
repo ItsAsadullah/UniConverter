@@ -134,12 +134,112 @@
    * ================================================================== */
   var docSeq = 1, pageSeq = 1;
 
-  function openPdfDoc(bytes, name) {
+  function promptPdfPassword(fileName, isRetry) {
+    return new Promise(function (resolve) {
+      var dlg = $('#pdfPasswordDialog');
+      if (!dlg) {
+        dlg = document.createElement('dialog');
+        dlg.id = 'pdfPasswordDialog';
+        dlg.className = 'pdf-dialog m-auto w-[min(420px,calc(100vw-24px))] rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border p-5 text-slate-900 dark:text-studio-text shadow-2xl backdrop:bg-slate-950/60 backdrop:backdrop-blur-xs';
+        dlg.innerHTML =
+          '<form id="pdfPwdForm" class="space-y-4">' +
+            '<div class="flex items-start gap-3">' +
+              '<div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">' +
+                '<svg class="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
+              '</div>' +
+              '<div class="min-w-0 flex-1">' +
+                '<h3 class="text-base font-bold m-0 leading-snug" id="pdfPwdTitle"></h3>' +
+                '<p class="text-xs text-slate-500 dark:text-studio-muted mt-0.5 mb-0 truncate font-medium" id="pdfPwdFile"></p>' +
+              '</div>' +
+            '</div>' +
+            '<p class="text-xs text-slate-600 dark:text-studio-muted m-0 leading-relaxed" id="pdfPwdDesc"></p>' +
+            '<div id="pdfPwdError" class="px-3 py-2 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-600 dark:text-rose-400 text-xs font-semibold" hidden></div>' +
+            '<div class="relative">' +
+              '<input type="password" id="pdfPwdInput" class="w-full h-10 pl-3.5 pr-10 rounded-xl bg-slate-50 dark:bg-studio-panel border border-slate-300 dark:border-studio-border text-sm text-slate-900 dark:text-studio-text focus:border-emerald-500 outline-none transition-colors" autocomplete="off" />' +
+              '<button type="button" id="pdfPwdToggle" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-studio-text flex items-center justify-center cursor-pointer bg-transparent border-0" aria-label="Toggle password visibility">' +
+                '<svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>' +
+              '</button>' +
+            '</div>' +
+            '<div class="flex items-center justify-end gap-2 pt-1">' +
+              '<button type="button" id="pdfPwdCancel" class="chip-btn h-9 px-4 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:bg-slate-200/70 transition-colors"></button>' +
+              '<button type="submit" id="pdfPwdSubmit" class="btn btn--primary h-9 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border-0 cursor-pointer transition-colors"></button>' +
+            '</div>' +
+          '</form>';
+        document.body.appendChild(dlg);
+        var toggleBtn = $('#pdfPwdToggle', dlg);
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', function () {
+            var inp = $('#pdfPwdInput', dlg);
+            if (!inp) return;
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            inp.focus();
+          });
+        }
+      }
+
+      var titleEl = $('#pdfPwdTitle', dlg);
+      var fileEl = $('#pdfPwdFile', dlg);
+      var descEl = $('#pdfPwdDesc', dlg);
+      var errEl = $('#pdfPwdError', dlg);
+      var inputEl = $('#pdfPwdInput', dlg);
+      var cancelBtn = $('#pdfPwdCancel', dlg);
+      var submitBtn = $('#pdfPwdSubmit', dlg);
+      var formEl = $('#pdfPwdForm', dlg);
+
+      titleEl.textContent = tr('পাসওয়ার্ড সংরক্ষিত PDF', 'Password Protected PDF');
+      fileEl.textContent = fileName || '';
+      descEl.textContent = tr('এই PDF ফাইলটি খুলতে পাসওয়ার্ড প্রয়োজন। আনলক করার পর ডাউনলোড করা ফাইলে আর পাসওয়ার্ড থাকবে না।', 'This PDF requires a password to open. The output file will be unlocked.');
+      errEl.textContent = tr('পাসওয়ার্ড সঠিক নয়, অনুগ্রহ করে আবার চেষ্টা করুন।', 'Incorrect password, please try again.');
+      errEl.hidden = !isRetry;
+      inputEl.placeholder = tr('পাসওয়ার্ড লিখুন…', 'Enter PDF password…');
+      inputEl.type = 'password';
+      inputEl.value = '';
+      cancelBtn.textContent = tr('বাতিল', 'Cancel');
+      submitBtn.textContent = tr('আনলক করুন', 'Unlock PDF');
+
+      var settled = false;
+      function finish(val) {
+        if (settled) return;
+        settled = true;
+        formEl.removeEventListener('submit', onSubmit);
+        cancelBtn.removeEventListener('click', onCancel);
+        dlg.removeEventListener('cancel', onCancel);
+        closeDialog(dlg);
+        resolve(val);
+      }
+      function onSubmit(e) {
+        e.preventDefault();
+        var v = inputEl.value;
+        if (!v) { inputEl.focus(); return; }
+        finish(v);
+      }
+      function onCancel(e) {
+        if (e) e.preventDefault();
+        finish(null);
+      }
+
+      formEl.addEventListener('submit', onSubmit);
+      cancelBtn.addEventListener('click', onCancel);
+      dlg.addEventListener('cancel', onCancel);
+      openDialog(dlg);
+      setTimeout(function () { inputEl.focus(); }, 40);
+    });
+  }
+
+  function openPdfDoc(bytes, name, password) {
     var buffer = bytes instanceof ArrayBuffer ? bytes : bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
-    return window.pdfjsLib.getDocument({ data: new Uint8Array(buffer.slice(0)) }).promise.then(function (pdfjs) {
-      return { id: docSeq++, name: name, buffer: buffer, pdfjs: pdfjs, numPages: pdfjs.numPages, thumbs: {}, thumbUrls: {} };
+    var params = { data: new Uint8Array(buffer.slice(0)) };
+    if (password) params.password = password;
+    return window.pdfjsLib.getDocument(params).promise.then(function (pdfjs) {
+      return { id: docSeq++, name: name, buffer: buffer, password: password || '', pdfjs: pdfjs, numPages: pdfjs.numPages, thumbs: {}, thumbUrls: {} };
     }).catch(function (err) {
-      if (err && err.name === 'PasswordException') throw new Error(name + ' — পাসওয়ার্ড দেওয়া PDF খোলা যায়নি');
+      if (err && (err.name === 'PasswordException' || /password/i.test(err.message || ''))) {
+        var isWrong = err.code === 2 || Boolean(password);
+        return promptPdfPassword(name, isWrong).then(function (pw) {
+          if (pw === null) throw new Error(tr(name + ' — পাসওয়ার্ড না দেওয়ায় ফাইলটি বাদ দেওয়া হয়েছে', name + ' — Skipped (password required)'));
+          return openPdfDoc(buffer, name, pw);
+        });
+      }
       throw new Error(name + ' — ফাইলটি পড়া যায়নি (ত্রুটিযুক্ত PDF)');
     });
   }
@@ -805,11 +905,25 @@
     }
   }
 
+  function padPdfPassword(pw) {
+    var out = new Uint8Array(32);
+    var pwBytes = [];
+    if (pw) {
+      for (var i = 0; i < pw.length && pwBytes.length < 32; i++) {
+        pwBytes.push(pw.charCodeAt(i) & 0xff);
+      }
+    }
+    var n = pwBytes.length;
+    for (var j = 0; j < n; j++) out[j] = pwBytes[j];
+    for (var k = 0; n + k < 32; k++) out[n + k] = PDF_ENC_PAD[k];
+    return out;
+  }
+
   /**
-   * Decrypts owner-password / permissions-protected PDFs in-place inside pdf-lib.
+   * Decrypts owner-password / user-password protected PDFs in-place inside pdf-lib.
    * Returns true if all streams are verified decrypted; false if raster fallback is needed.
    */
-  function tryDecryptPdfLibDoc(sdoc, expectedPages) {
+  function tryDecryptPdfLibDoc(sdoc, expectedPages, password) {
     try {
       var PDFLib = window.PDFLib;
       var ctx = sdoc.context;
@@ -861,7 +975,8 @@
       var encMetaObj = ctx.lookup(enc.get(PDFLib.PDFName.of('EncryptMetadata')));
       var encryptMetadata = !(encMetaObj && encMetaObj.toString() === 'false');
 
-      var hashInputs = [PDF_ENC_PAD, O.slice(0, 32), pBuf, id0];
+      var paddedPw = padPdfPassword(password || '');
+      var hashInputs = [paddedPw, O.slice(0, 32), pBuf, id0];
       if (R >= 4 && !encryptMetadata) {
         hashInputs.push(new Uint8Array([0xff, 0xff, 0xff, 0xff]));
       }
@@ -984,7 +1099,7 @@
         srcCache[doc.id] = PDFLib.PDFDocument.load(doc.buffer, { ignoreEncryption: true }).then(function (sdoc) {
           if (sdoc.isEncrypted) {
             sdoc._wasEncrypted = true;
-            var ok = tryDecryptPdfLibDoc(sdoc, doc.numPages);
+            var ok = tryDecryptPdfLibDoc(sdoc, doc.numPages, doc.password);
             sdoc._needsRasterFallback = !ok;
           }
           return sdoc;
@@ -1253,7 +1368,8 @@
     if (!mergeItems.length) { showToast('অন্তত ১টি ফাইল যোগ করুন।'); return; }
     var pages = [];
     mergeItems.forEach(function (it) { pages = pages.concat(it.pages); });
-    if (mergeItems.length < 2 && !pages.some(function (p) { return p.rotation; }) && mergeItems[0].kind === 'pdf') {
+    var singleModified = mergeItems[0].doc && (mergeItems[0].doc.password || mergeItems[0].pages.length !== mergeItems[0].doc.numPages);
+    if (mergeItems.length < 2 && !pages.some(function (p) { return p.rotation; }) && mergeItems[0].kind === 'pdf' && !singleModified) {
       showToast('মার্জ করার জন্য অন্তত ২টি ফাইল যোগ করুন।');
       return;
     }
