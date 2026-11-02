@@ -52,7 +52,7 @@ export interface ToolMeta {
 
 export interface PdfSubToolMeta {
   slug: string;
-  tabId: 'merge' | 'split' | 'compress' | 'organize' | 'pdf2other' | 'other2pdf';
+  tabId: 'merge' | 'split' | 'compress' | 'organize' | 'pdf2other' | 'other2pdf' | 'decrypt' | 'encrypt';
   title: string;
   titleEn: string;
   desc: string;
@@ -232,6 +232,32 @@ export const PDF_SUBTOOLS: PdfSubToolMeta[] = [
     keywords: 'jpg to pdf image to pdf word to pdf excel to pdf pptx to pdf ছবি থেকে পিডিএফ',
     seoTitle: 'JPG, PNG, Word, PowerPoint, Excel ও টেক্সট থেকে PDF তৈরি করুন | TechHat',
     seoDesc: 'একাধিক ছবি (JPG, PNG, WebP), অফিস ডকুমেন্ট (.docx, .pptx, .xlsx) কিংবা বাংলা লেখা থেকে সরাসরি A4 PDF তৈরি করুন।'
+  },
+  {
+    slug: 'decrypt',
+    tabId: 'decrypt',
+    title: 'ডিক্রিপ্ট PDF',
+    titleEn: 'Decrypt PDF',
+    desc: 'পাসওয়ার্ড ও লক ছাড়া PDF আনলক ও নতুন পাসওয়ার্ড সেট',
+    descEn: 'Unlock PDF without password & set new user password',
+    lucideIcon: 'lucide:lock-open',
+    keywords: 'decrypt pdf unlock pdf remove password pdf permission lock ডিক্রিপ্ট পিডিএফ আনলক পাসওয়ার্ড রিমুভ',
+    popular: true,
+    seoTitle: 'ডিক্রিপ্ট PDF (Decrypt & Unlock PDF) — পাসওয়ার্ড ছাড়া PDF আনলক ও নতুন পাসওয়ার্ড সেট | TechHat',
+    seoDesc: 'যেকোনো পাসওয়ার্ড বা পারমিশন লক দেওয়া PDF ফাইল পাসওয়ার্ড ছাড়াই আনলক করুন এবং চাইলে নতুন ইউজার পাসওয়ার্ড সেট করুন।'
+  },
+  {
+    slug: 'encrypt',
+    tabId: 'encrypt',
+    title: 'এনক্রিপ্ট PDF',
+    titleEn: 'Encrypt PDF',
+    desc: 'PDF ফাইলে ইউজার পাসওয়ার্ড ও পারমিশন লক দিন',
+    descEn: 'Protect PDF with user password & permission locks',
+    lucideIcon: 'lucide:lock',
+    keywords: 'encrypt pdf protect pdf add password lock pdf security এনক্রিপ্ট পিডিএফ পাসওয়ার্ড লক সিকিউরিটি',
+    popular: true,
+    seoTitle: 'এনক্রিপ্ট PDF (Encrypt & Protect PDF) — PDF ফাইলে পাসওয়ার্ড ও সিকিউরিটি লক দিন | TechHat',
+    seoDesc: 'আপনার গুরুত্বপূর্ণ PDF ডকুমেন্টে ১২৮-বিট ইউজার পাসওয়ার্ড এবং প্রিন্ট, কপি ও এডিট পারমিশন লক যুক্ত করুন।'
   }
 ];
 

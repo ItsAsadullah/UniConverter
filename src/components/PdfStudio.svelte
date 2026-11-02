@@ -1,6 +1,6 @@
 <script lang="ts">
   interface Props {
-    initialTab?: 'hub' | 'merge' | 'split' | 'compress' | 'organize' | 'pdf2other' | 'other2pdf';
+    initialTab?: 'hub' | 'merge' | 'split' | 'compress' | 'organize' | 'pdf2other' | 'other2pdf' | 'decrypt' | 'encrypt';
   }
 
   let { initialTab = 'merge' }: Props = $props();
@@ -542,6 +542,195 @@
               <button type="button" class="btn btn--primary pdf-main-action inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border-0 cursor-pointer transition-colors" id="doc2pdfRunBtn">
                 <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
                 <span data-i18n-bn="লেখা থেকে PDF তৈরি করুন" data-i18n-en="Create PDF from Text">লেখা থেকে PDF তৈরি করুন</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      <!-- ========================================== 7. DECRYPT PDF WORKSPACE -->
+        <div class="pdf-pane space-y-3.5" id="pdf-pane-decrypt" hidden={initialTab !== 'decrypt'}>
+          <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-2.5">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-studio-primary flex items-center justify-center shrink-0">
+                <svg class="w-4.5 h-4.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+              </div>
+              <h1 class="pdf-ws-title text-base sm:text-lg font-bold text-slate-900 dark:text-studio-text m-0 leading-tight" data-i18n-bn="ডিক্রিপ্ট ও আনলক PDF (Decrypt PDF)" data-i18n-en="Decrypt & Unlock PDF">ডিক্রিপ্ট ও আনলক PDF (Decrypt PDF)</h1>
+            </div>
+            <div class="pdf-ws-actions flex items-center flex-wrap gap-1.5" id="pdfDecryptTopActions" hidden>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfDecryptRotLeftAll" title="সব পৃষ্ঠা বামে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfDecryptRotRightAll" title="সব পৃষ্ঠা ডানে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                <span data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
+              </button>
+              <button type="button" class="chip-btn chip-btn--danger h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer" id="pdfDecryptResetBtn" data-i18n-bn="অন্য ফাইল নিন" data-i18n-en="Choose Another File">অন্য ফাইল নিন</button>
+            </div>
+          </div>
+
+          <label class="pdf-dropzone group flex flex-col items-center justify-center text-center py-10 px-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-gradient-to-b from-slate-50/60 to-slate-100/40 dark:from-studio-panel/40 dark:to-studio-panel/70 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-all" id="pdfDecryptDropzone" for="pdfDecryptInput">
+            <input type="file" id="pdfDecryptInput" accept=".pdf,application/pdf" class="visually-hidden sr-only" />
+            <div class="pdf-dropzone__icon w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-3.5 shadow-2xs group-hover:scale-105 transition-transform">
+              <svg class="w-7 h-7 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+            </div>
+            <div class="pdf-dropzone__title text-base font-bold text-slate-900 dark:text-studio-text mb-1.5" data-i18n-bn="লক বা পাসওয়ার্ড দেওয়া PDF ফাইল এখানে ছাড়ুন অথবা সিলেক্ট করুন" data-i18n-en="Drop a password or permission-locked PDF here or click to browse">লক বা পাসওয়ার্ড দেওয়া PDF ফাইল এখানে ছাড়ুন অথবা <span class="link-ish text-emerald-600 dark:text-studio-primary underline">সিলেক্ট করুন</span></div>
+            <p class="text-xs text-slate-500 dark:text-studio-muted m-0 max-w-xl" data-i18n-bn="প্রিন্ট/কপি/এডিট পারমিশন লক ও স্ট্যান্ডার্ড পাসওয়ার্ড ছাড়াই অটো-আনলক হবে এবং চাইলে নতুন ইউজার পাসওয়ার্ড সেট করতে পারবেন" data-i18n-en="Automatically removes permission/owner locks & standard passwords without requiring a password, and lets you set a new user password">প্রিন্ট/কপি/এডিট পারমিশন লক ও স্ট্যান্ডার্ড পাসওয়ার্ড ছাড়াই অটো-আনলক হবে এবং চাইলে নতুন ইউজার পাসওয়ার্ড সেট করতে পারবেন</p>
+          </label>
+
+          <div class="pdf-workspace-stage space-y-4" id="pdfDecryptStage" hidden>
+            <div class="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/25 space-y-2.5" id="pdfDecryptStatusCard"></div>
+
+            <div class="pdf-options-box p-4 rounded-xl bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border space-y-3.5">
+              <fieldset class="pdf-fieldset border-0 p-0 m-0">
+                <legend class="pdf-legend text-xs font-bold text-slate-700 dark:text-studio-text mb-2" data-i18n-bn="আউটপুট মোড নির্বাচন করুন" data-i18n-en="Select Output Action">আউটপুট মোড নির্বাচন করুন</legend>
+                <div class="pdf-radio-cards grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <label class="pdf-radio-card flex items-start gap-2.5 p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
+                    <input type="radio" name="pdfDecryptAction" value="unlock" checked class="mt-1 accent-emerald-600" />
+                    <span class="pdf-radio-card__body flex flex-col">
+                      <strong class="text-xs font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="সম্পূর্ণ পাসওয়ার্ডমুক্ত করুন (Unlocked PDF)" data-i18n-en="Remove All Passwords & Restrictions (Unlocked PDF)">সম্পূর্ণ পাসওয়ার্ডমুক্ত করুন (Unlocked PDF)</strong>
+                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="সব ধরনের পাসওয়ার্ড ও প্রিন্ট/কপি/এডিট লক স্থায়ীভাবে সরিয়ে ডাউনলোড করুন" data-i18n-en="Permanently strip all open passwords and print/copy/edit restrictions">সব ধরনের পাসওয়ার্ড ও প্রিন্ট/কপি/এডিট লক স্থায়ীভাবে সরিয়ে ডাউনলোড করুন</small>
+                    </span>
+                  </label>
+                  <label class="pdf-radio-card flex items-start gap-2.5 p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
+                    <input type="radio" name="pdfDecryptAction" value="reencrypt" class="mt-1 accent-emerald-600" />
+                    <span class="pdf-radio-card__body flex flex-col">
+                      <strong class="text-xs font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="আনলক করে নতুন ইউজার পাসওয়ার্ড সেট করুন" data-i18n-en="Unlock & Set New User Password">আনলক করে নতুন ইউজার পাসওয়ার্ড সেট করুন</strong>
+                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="আগের লক সরিয়ে আপনার নিজের নতুন পাসওয়ার্ড দিয়ে ফাইলটি সুরক্ষিত করুন" data-i18n-en="Strip existing lock and protect the PDF with your own new user password">আগের লক সরিয়ে আপনার নিজের নতুন পাসওয়ার্ড দিয়ে ফাইলটি সুরক্ষিত করুন</small>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <div class="pt-3 border-t border-slate-200 dark:border-studio-border space-y-3" id="pdfDecryptNewPwdBox" hidden>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div class="flex flex-col gap-1">
+                    <label for="pdfDecryptNewUserPwd" class="text-xs font-bold text-slate-700 dark:text-studio-text" data-i18n-bn="নতুন ইউজার পাসওয়ার্ড (ফাইল খুলতে লাগবে):" data-i18n-en="New User Password (required to open PDF):">নতুন ইউজার পাসওয়ার্ড (ফাইল খুলতে লাগবে):</label>
+                    <div class="relative">
+                      <input type="password" id="pdfDecryptNewUserPwd" class="w-full h-9 pl-3 pr-9 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs text-slate-900 dark:text-studio-text outline-none focus:border-emerald-500" placeholder="নতুন পাসওয়ার্ড লিখুন…" data-i18n-placeholder-bn="নতুন পাসওয়ার্ড লিখুন…" data-i18n-placeholder-en="Enter new user password…" autocomplete="new-password" />
+                      <button type="button" id="pdfDecryptNewPwdToggle" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded text-slate-400 hover:text-slate-700 dark:hover:text-studio-text flex items-center justify-center cursor-pointer bg-transparent border-0" aria-label="Show/Hide Password">
+                        <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="flex flex-col justify-end gap-1.5">
+                    <span class="text-xs font-bold text-slate-700 dark:text-studio-text" data-i18n-bn="পারমিশন সেটিংস:" data-i18n-en="Permissions:">পারমিশন সেটিংস:</span>
+                    <div class="flex items-center flex-wrap gap-3 text-xs text-slate-700 dark:text-studio-text">
+                      <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" id="pdfDecryptAllowPrint" checked class="accent-emerald-600" /> <span data-i18n-bn="প্রিন্ট অনুমতি" data-i18n-en="Allow Print">প্রিন্ট অনুমতি</span></label>
+                      <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" id="pdfDecryptAllowCopy" checked class="accent-emerald-600" /> <span data-i18n-bn="কপি অনুমতি" data-i18n-en="Allow Copy">কপি অনুমতি</span></label>
+                      <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" id="pdfDecryptAllowModify" checked class="accent-emerald-600" /> <span data-i18n-bn="এডিট অনুমতি" data-i18n-en="Allow Edit">এডিট অনুমতি</span></label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-pages-grid grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3" id="pdfDecryptPagesGrid"></div>
+
+            <div class="pdf-action-bar sticky bottom-3 z-20 flex items-center justify-between flex-wrap gap-3 p-3.5 px-4 rounded-2xl bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-md border border-emerald-500/35 shadow-lg">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                <div class="pdf-summary-pill text-xs sm:text-sm font-bold text-slate-800 dark:text-studio-text" id="pdfDecryptSummary">মোট ০ পৃষ্ঠা</div>
+              </div>
+              <button type="button" class="btn btn--primary pdf-main-action inline-flex items-center justify-center gap-2 h-10 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold border-0 shadow-sm shadow-emerald-600/20 cursor-pointer transition-all" id="pdfDecryptRunBtn">
+                <svg class="w-4 h-4 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                <span id="pdfDecryptRunBtnLabel" data-i18n-bn="আনলক ও ডাউনলোড করুন" data-i18n-en="Decrypt & Download PDF">আনলক ও ডাউনলোড করুন</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      <!-- ========================================== 8. ENCRYPT PDF WORKSPACE -->
+        <div class="pdf-pane space-y-3.5" id="pdf-pane-encrypt" hidden={initialTab !== 'encrypt'}>
+          <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-2.5">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-studio-primary flex items-center justify-center shrink-0">
+                <svg class="w-4.5 h-4.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <h1 class="pdf-ws-title text-base sm:text-lg font-bold text-slate-900 dark:text-studio-text m-0 leading-tight" data-i18n-bn="এনক্রিপ্ট ও পাসওয়ার্ড লক PDF (Encrypt PDF)" data-i18n-en="Encrypt & Password Protect PDF">এনক্রিপ্ট ও পাসওয়ার্ড লক PDF (Encrypt PDF)</h1>
+            </div>
+            <div class="pdf-ws-actions flex items-center flex-wrap gap-1.5" id="pdfEncryptTopActions" hidden>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfEncryptRotLeftAll" title="সব পৃষ্ঠা বামে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfEncryptRotRightAll" title="সব পৃষ্ঠা ডানে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                <span data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
+              </button>
+              <button type="button" class="chip-btn chip-btn--danger h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer" id="pdfEncryptResetBtn" data-i18n-bn="অন্য ফাইল নিন" data-i18n-en="Choose Another File">অন্য ফাইল নিন</button>
+            </div>
+          </div>
+
+          <label class="pdf-dropzone group flex flex-col items-center justify-center text-center py-10 px-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-gradient-to-b from-slate-50/60 to-slate-100/40 dark:from-studio-panel/40 dark:to-studio-panel/70 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-all" id="pdfEncryptDropzone" for="pdfEncryptInput">
+            <input type="file" id="pdfEncryptInput" accept=".pdf,application/pdf" class="visually-hidden sr-only" />
+            <div class="pdf-dropzone__icon w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-3.5 shadow-2xs group-hover:scale-105 transition-transform">
+              <svg class="w-7 h-7 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div class="pdf-dropzone__title text-base font-bold text-slate-900 dark:text-studio-text mb-1.5" data-i18n-bn="পাসওয়ার্ড লক দেওয়ার জন্য একটি PDF ফাইল ছাড়ুন অথবা সিলেক্ট করুন" data-i18n-en="Drop a PDF file here or click to protect with a password">পাসওয়ার্ড লক দেওয়ার জন্য একটি PDF ফাইল ছাড়ুন অথবা <span class="link-ish text-emerald-600 dark:text-studio-primary underline">সিলেক্ট করুন</span></div>
+            <p class="text-xs text-slate-500 dark:text-studio-muted m-0 max-w-xl" data-i18n-bn="১২৮-বিট স্ট্যান্ডার্ড এনক্রিপশনে ইউজার পাসওয়ার্ড ও প্রিন্ট/কপি/এডিট পারমিশন লক সেট করুন (আগের লক থাকলে তা স্বয়ংক্রিয়ভাবে খুলে নতুন পাসওয়ার্ড বসবে)" data-i18n-en="Set 128-bit Standard User Password and print/copy/edit permission locks (any existing lock is automatically removed first)">১২৮-বিট স্ট্যান্ডার্ড এনক্রিপশনে ইউজার পাসওয়ার্ড ও প্রিন্ট/কপি/এডিট পারমিশন লক সেট করুন (আগের লক থাকলে তা স্বয়ংক্রিয়ভাবে খুলে নতুন পাসওয়ার্ড বসবে)</p>
+          </label>
+
+          <div class="pdf-workspace-stage space-y-4" id="pdfEncryptStage" hidden>
+            <div class="pdf-file-banner p-3 rounded-xl bg-slate-100 dark:bg-studio-panel text-xs font-semibold text-slate-700 dark:text-studio-text flex items-center gap-3" id="pdfEncryptFileInfo"></div>
+
+            <div class="pdf-options-box p-4 rounded-xl bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div class="flex flex-col gap-1.5">
+                  <div class="flex items-center justify-between gap-2">
+                    <label for="pdfEncryptUserPwd" class="text-xs font-bold text-slate-800 dark:text-studio-text" data-i18n-bn="ইউজার পাসওয়ার্ড (ফাইল ওপেন করতে লাগবে):" data-i18n-en="User Password (required to open PDF):">ইউজার পাসওয়ার্ড (ফাইল ওপেন করতে লাগবে):</label>
+                    <span id="pdfEncryptStrength" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-studio-sidebar text-slate-600 dark:text-studio-muted" data-i18n-bn="পাসওয়ার্ড দিন" data-i18n-en="Enter password">পাসওয়ার্ড দিন</span>
+                  </div>
+                  <div class="relative">
+                    <input type="password" id="pdfEncryptUserPwd" class="w-full h-10 pl-3.5 pr-10 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs sm:text-sm text-slate-900 dark:text-studio-text outline-none focus:border-emerald-500 transition-colors" placeholder="ইউজার পাসওয়ার্ড লিখুন…" data-i18n-placeholder-bn="ইউজার পাসওয়ার্ড লিখুন…" data-i18n-placeholder-en="Enter user password to lock PDF…" autocomplete="new-password" />
+                    <button type="button" id="pdfEncryptUserPwdToggle" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-studio-text flex items-center justify-center cursor-pointer bg-transparent border-0" aria-label="Show/Hide Password">
+                      <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                  <small class="text-[11px] text-slate-500 dark:text-studio-muted" data-i18n-bn="এই পাসওয়ার্ড ছাড়া কেউ PDF ফাইলটি ওপেন করতে পারবে না (শুধু পারমিশন লক দিতে চাইলে ফাঁকা রাখতে পারেন)" data-i18n-en="Anyone opening the PDF will be asked for this password (leave empty for permission-only lock)">এই পাসওয়ার্ড ছাড়া কেউ PDF ফাইলটি ওপেন করতে পারবে না (শুধু পারমিশন লক দিতে চাইলে ফাঁকা রাখতে পারেন)</small>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <label for="pdfEncryptOwnerPwd" class="text-xs font-bold text-slate-800 dark:text-studio-text" data-i18n-bn="মাস্টার / ওনার পাসওয়ার্ড (ঐচ্ছিক):" data-i18n-en="Master / Owner Password (optional):">মাস্টার / ওনার পাসওয়ার্ড (ঐচ্ছিক):</label>
+                  <div class="relative">
+                    <input type="password" id="pdfEncryptOwnerPwd" class="w-full h-10 pl-3.5 pr-10 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs sm:text-sm text-slate-900 dark:text-studio-text outline-none focus:border-emerald-500 transition-colors" placeholder="ফাঁকা রাখলে স্বয়ংক্রিয় মাস্টার কী ব্যবহৃত হবে…" data-i18n-placeholder-bn="ফাঁকা রাখলে স্বয়ংক্রিয় মাস্টার কী ব্যবহৃত হবে…" data-i18n-placeholder-en="Leave blank for automatic master security key…" autocomplete="new-password" />
+                    <button type="button" id="pdfEncryptOwnerPwdToggle" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-studio-text flex items-center justify-center cursor-pointer bg-transparent border-0" aria-label="Show/Hide Owner Password">
+                      <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                  <small class="text-[11px] text-slate-500 dark:text-studio-muted" data-i18n-bn="ফাঁকা রাখলে আমাদের Decrypt PDF টুলে পরে পাসওয়ার্ড ছাড়াই আবার আনলক করতে পারবেন" data-i18n-en="If left blank, you can unlock it anytime in our Decrypt PDF tool without needing the password">ফাঁকা রাখলে আমাদের Decrypt PDF টুলে পরে পাসওয়ার্ড ছাড়াই আবার আনলক করতে পারবেন</small>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-slate-200 dark:border-studio-border">
+                <div class="text-xs font-bold text-slate-700 dark:text-studio-text mb-2" data-i18n-bn="ডকুমেন্ট পারমিশন (ফাইল খোলার পর ইউজার কী কী করতে পারবে):" data-i18n-en="Document Permissions (what users can do after opening):">ডকুমেন্ট পারমিশন (ফাইল খোলার পর ইউজার কী কী করতে পারবে):</div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer text-xs font-semibold text-slate-800 dark:text-studio-text has-[:checked]:border-emerald-500">
+                    <input type="checkbox" id="pdfEncryptAllowPrint" checked class="accent-emerald-600" />
+                    <span data-i18n-bn="প্রিন্ট করার অনুমতি (Allow Print)" data-i18n-en="Allow Printing">প্রিন্ট করার অনুমতি (Allow Print)</span>
+                  </label>
+                  <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer text-xs font-semibold text-slate-800 dark:text-studio-text has-[:checked]:border-emerald-500">
+                    <input type="checkbox" id="pdfEncryptAllowCopy" class="accent-emerald-600" />
+                    <span data-i18n-bn="টেক্সট ও ছবি কপি (Allow Copy)" data-i18n-en="Allow Copying Text & Images">টেক্সট ও ছবি কপি (Allow Copy)</span>
+                  </label>
+                  <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer text-xs font-semibold text-slate-800 dark:text-studio-text has-[:checked]:border-emerald-500">
+                    <input type="checkbox" id="pdfEncryptAllowModify" class="accent-emerald-600" />
+                    <span data-i18n-bn="এডিট ও পেজ পরিবর্তন (Allow Edit)" data-i18n-en="Allow Modifying & Assembly">এডিট ও পেজ পরিবর্তন (Allow Edit)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-pages-grid grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3" id="pdfEncryptPagesGrid"></div>
+
+            <div class="pdf-action-bar sticky bottom-3 z-20 flex items-center justify-between flex-wrap gap-3 p-3.5 px-4 rounded-2xl bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-md border border-emerald-500/35 shadow-lg">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                <div class="pdf-summary-pill text-xs sm:text-sm font-bold text-slate-800 dark:text-studio-text" id="pdfEncryptSummary">মোট ০ পৃষ্ঠা</div>
+              </div>
+              <button type="button" class="btn btn--primary pdf-main-action inline-flex items-center justify-center gap-2 h-10 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold border-0 shadow-sm shadow-emerald-600/20 cursor-pointer transition-all" id="pdfEncryptRunBtn">
+                <svg class="w-4 h-4 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span data-i18n-bn="পাসওয়ার্ড দিয়ে লক ও ডাউনলোড করুন" data-i18n-en="Encrypt & Download PDF">পাসওয়ার্ড দিয়ে লক ও ডাউনলোড করুন</span>
               </button>
             </div>
           </div>

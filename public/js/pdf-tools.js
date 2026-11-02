@@ -226,22 +226,41 @@
     });
   }
 
-  function openPdfDoc(bytes, name, password) {
+  function openPdfDoc(bytes, name, password, isRetryPrompt) {
     var buffer = bytes instanceof ArrayBuffer ? bytes : bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
     var params = { data: new Uint8Array(buffer.slice(0)) };
     if (password) params.password = password;
     return window.pdfjsLib.getDocument(params).promise.then(function (pdfjs) {
-      return { id: docSeq++, name: name, buffer: buffer, password: password || '', pdfjs: pdfjs, numPages: pdfjs.numPages, thumbs: {}, thumbUrls: {} };
+      return inspectPdfEncryptionMeta(buffer, password || '').then(function (sec) {
+        return { id: docSeq++, name: name, buffer: buffer, password: password || '', security: sec, pdfjs: pdfjs, numPages: pdfjs.numPages, thumbs: {}, thumbUrls: {} };
+      });
     }).catch(function (err) {
       if (err && (err.name === 'PasswordException' || /password/i.test(err.message || ''))) {
-        var isWrong = err.code === 2 || Boolean(password);
-        return promptPdfPassword(name, isWrong).then(function (pw) {
-          if (pw === null) throw new Error(tr(name + ' — পাসওয়ার্ড না দেওয়ায় ফাইলটি বাদ দেওয়া হয়েছে', name + ' — Skipped (password required)'));
-          return openPdfDoc(buffer, name, pw);
-        });
+        if (!password && !isRetryPrompt) {
+          return autoRecoverPdfPassword(buffer, name).then(function (recoveredPw) {
+            if (recoveredPw !== null) {
+              return openPdfDoc(buffer, name, recoveredPw, true).then(function (doc) {
+                if (doc.security) {
+                  doc.security.autoRecovered = true;
+                  doc.security.recoveredPassword = recoveredPw;
+                }
+                return doc;
+              });
+            }
+            return promptAndRetry(false);
+          });
+        }
+        return promptAndRetry(true);
       }
       throw new Error(name + ' — ফাইলটি পড়া যায়নি (ত্রুটিযুক্ত PDF)');
     });
+
+    function promptAndRetry(isWrong) {
+      return promptPdfPassword(name, isWrong).then(function (pw) {
+        if (pw === null) throw new Error(tr(name + ' — পাসওয়ার্ড না দেওয়ায় ফাইলটি বাদ দেওয়া হয়েছে', name + ' — Skipped (password required)'));
+        return openPdfDoc(buffer, name, pw, true);
+      });
+    }
   }
 
   function makePages(doc) {
@@ -905,6 +924,31 @@
     }
   }
 
+  var TECHHAT_MASTER_OWNER_KEY = 'TechHat#MasterKey!2026';
+
+  function savePdfVaultPassword(idHex, pw) {
+    if (!idHex || !pw) return;
+    try {
+      var raw = localStorage.getItem('thbc-pdf-vault');
+      var map = raw ? JSON.parse(raw) : {};
+      map[idHex] = pw;
+      var keys = Object.keys(map);
+      if (keys.length > 60) delete map[keys[0]];
+      localStorage.setItem('thbc-pdf-vault', JSON.stringify(map));
+    } catch (e) {}
+  }
+
+  function getPdfVaultPassword(idHex) {
+    if (!idHex) return null;
+    try {
+      var raw = localStorage.getItem('thbc-pdf-vault');
+      var map = raw ? JSON.parse(raw) : {};
+      return map[idHex] || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   function padPdfPassword(pw) {
     var out = new Uint8Array(32);
     var pwBytes = [];
@@ -919,6 +963,234 @@
     return out;
   }
 
+  function extractPwFromUserPad(userPad) {
+    for (var len = 0; len <= 32; len++) {
+      var match = true;
+      for (var k = 0; len + k < 32; k++) {
+        if (userPad[len + k] !== PDF_ENC_PAD[k]) { match = false; break; }
+      }
+      if (match) {
+        var s = '';
+        for (var i = 0; i < len; i++) s += String.fromCharCode(userPad[i]);
+        return s;
+      }
+    }
+    return null;
+  }
+
+  function computePdfFileKeyFromUserPad(userPad, O, pBuf, id0, R, keyLen, encryptMetadata) {
+    var hashInputs = [userPad, O.slice(0, 32), pBuf, id0];
+    if (R >= 4 && !encryptMetadata) {
+      hashInputs.push(new Uint8Array([0xff, 0xff, 0xff, 0xff]));
+    }
+    var hash = md5Bytes(concatUint8(hashInputs));
+    if (R >= 3) {
+      for (var r = 0; r < 50; r++) {
+        hash = md5Bytes(hash.slice(0, keyLen));
+      }
+    }
+    return hash.slice(0, keyLen);
+  }
+
+  function verifyPdfFileKeyAgainstU(fileKey, U, id0, R) {
+    if (R === 2) {
+      var uCheck2 = rc4Bytes(fileKey, PDF_ENC_PAD);
+      for (var c2 = 0; c2 < 32; c2++) {
+        if (uCheck2[c2] !== U[c2]) return false;
+      }
+      return true;
+    }
+    var uHash = md5Bytes(concatUint8([PDF_ENC_PAD, id0]));
+    for (var step = 0; step < 20; step++) {
+      var stepKey = new Uint8Array(fileKey.length);
+      for (var kb = 0; kb < fileKey.length; kb++) stepKey[kb] = fileKey[kb] ^ step;
+      uHash = rc4Bytes(stepKey, uHash);
+    }
+    for (var c3 = 0; c3 < 16; c3++) {
+      if (uHash[c3] !== U[c3]) return false;
+    }
+    return true;
+  }
+
+  function recoverUserPadFromOwnerPw(ownerPw, O, R, keyLen) {
+    var oKey = md5Bytes(padPdfPassword(ownerPw || ''));
+    if (R >= 3) {
+      for (var i = 0; i < 50; i++) oKey = md5Bytes(oKey.slice(0, keyLen));
+    }
+    oKey = oKey.slice(0, keyLen);
+    if (R === 2) {
+      return rc4Bytes(oKey, O.slice(0, 32));
+    }
+    var acc = O.slice(0, 32);
+    for (var step = 19; step >= 0; step--) {
+      var sk = new Uint8Array(keyLen);
+      for (var kb = 0; kb < keyLen; kb++) sk[kb] = oKey[kb] ^ step;
+      acc = rc4Bytes(sk, acc);
+    }
+    return acc;
+  }
+
+  function extractEncryptParams(sdoc) {
+    try {
+      var PDFLib = window.PDFLib;
+      var ctx = sdoc.context;
+      var encRef = ctx.trailerInfo && ctx.trailerInfo.Encrypt;
+      if (!encRef) return { encrypted: false };
+      var enc = ctx.lookup(encRef);
+      if (!enc || typeof enc.get !== 'function') return { encrypted: true, supported: false };
+
+      var filterObj = ctx.lookup(enc.get(PDFLib.PDFName.of('Filter')));
+      if (filterObj && filterObj.toString() !== '/Standard') return { encrypted: true, supported: false };
+
+      var vObj = ctx.lookup(enc.get(PDFLib.PDFName.of('V')));
+      var rObj = ctx.lookup(enc.get(PDFLib.PDFName.of('R')));
+      var pObj = ctx.lookup(enc.get(PDFLib.PDFName.of('P')));
+      var V = vObj && typeof vObj.asNumber === 'function' ? vObj.asNumber() : 0;
+      var R = rObj && typeof rObj.asNumber === 'function' ? rObj.asNumber() : 0;
+      var P = pObj && typeof pObj.asNumber === 'function' ? pObj.asNumber() : -4;
+      var lenObj = ctx.lookup(enc.get(PDFLib.PDFName.of('Length')));
+      var bitLen = (V === 1) ? 40 : (lenObj && typeof lenObj.asNumber === 'function' ? lenObj.asNumber() : (V >= 4 ? 128 : 40));
+      var keyLen = bitLen / 8;
+
+      var isRc4 = (V === 1 || V === 2 || V === 4) && (R === 2 || R === 3 || R === 4) && keyLen >= 5 && keyLen <= 16;
+      if (V === 4 && isRc4) {
+        var cf = ctx.lookup(enc.get(PDFLib.PDFName.of('CF')));
+        var stmF = ctx.lookup(enc.get(PDFLib.PDFName.of('StmF')));
+        var cfName = stmF ? stmF.toString().replace(/^\//, '') : 'StdCF';
+        if (cf && typeof cf.get === 'function') {
+          var stdCf = ctx.lookup(cf.get(PDFLib.PDFName.of(cfName)));
+          if (stdCf && typeof stdCf.get === 'function') {
+            var cfm = ctx.lookup(stdCf.get(PDFLib.PDFName.of('CFM')));
+            if (cfm && cfm.toString() !== '/V2') isRc4 = false;
+          }
+        }
+      }
+
+      var oObj = ctx.lookup(enc.get(PDFLib.PDFName.of('O')));
+      var uObj = ctx.lookup(enc.get(PDFLib.PDFName.of('U')));
+      var O = oObj && typeof oObj.asBytes === 'function' ? oObj.asBytes() : null;
+      var U = uObj && typeof uObj.asBytes === 'function' ? uObj.asBytes() : null;
+
+      var idArr = ctx.lookup(ctx.trailerInfo.ID);
+      var id0Obj = idArr && typeof idArr.get === 'function' ? ctx.lookup(idArr.get(0)) : null;
+      var id0 = id0Obj && typeof id0Obj.asBytes === 'function' ? id0Obj.asBytes() : new Uint8Array(0);
+      var pBuf = new Uint8Array([P & 0xff, (P >> 8) & 0xff, (P >> 16) & 0xff, (P >> 24) & 0xff]);
+
+      var encMetaObj = ctx.lookup(enc.get(PDFLib.PDFName.of('EncryptMetadata')));
+      var encryptMetadata = !(encMetaObj && encMetaObj.toString() === 'false');
+
+      var algoLabel = V === 5 ? '256-bit AES' : (V === 4 && !isRc4 ? '128-bit AES' : (bitLen + '-bit RC4'));
+      return {
+        encrypted: true,
+        supported: Boolean(isRc4 && O && U),
+        encRef: encRef,
+        V: V,
+        R: R,
+        P: P,
+        pBuf: pBuf,
+        keyLen: keyLen,
+        O: O,
+        U: U,
+        id0: id0,
+        idHex: bytesToHex(id0),
+        encryptMetadata: encryptMetadata,
+        algoLabel: algoLabel,
+        canPrint: (P & 4) !== 0,
+        canModify: (P & 8) !== 0,
+        canCopy: (P & 16) !== 0,
+        canAssemble: (P & 1024) !== 0
+      };
+    } catch (e) {
+      return { encrypted: false };
+    }
+  }
+
+  function inspectPdfEncryptionMeta(buffer, unlockedPassword) {
+    return window.PDFLib.PDFDocument.load(buffer, { ignoreEncryption: true }).then(function (sdoc) {
+      var info = extractEncryptParams(sdoc);
+      if (!info.encrypted) {
+        return { encrypted: false, lockType: 'none', algoLabel: 'None', canPrint: true, canCopy: true, canModify: true };
+      }
+      return {
+        encrypted: true,
+        lockType: unlockedPassword ? 'user' : 'owner',
+        algoLabel: info.algoLabel || '128-bit Standard',
+        canPrint: info.canPrint,
+        canCopy: info.canCopy,
+        canModify: info.canModify,
+        canAssemble: info.canAssemble
+      };
+    }).catch(function () {
+      return { encrypted: Boolean(unlockedPassword), lockType: unlockedPassword ? 'user' : 'none', algoLabel: 'Standard' };
+    });
+  }
+
+  function autoRecoverPdfPassword(buffer, fileName) {
+    return window.PDFLib.PDFDocument.load(buffer, { ignoreEncryption: true }).then(function (sdoc) {
+      var ep = extractEncryptParams(sdoc);
+      if (!ep.encrypted || !ep.supported) return null;
+
+      // 1. Check local vault by file ID[0]
+      var vaulted = getPdfVaultPassword(ep.idHex);
+      if (vaulted !== null) {
+        var vFk = computePdfFileKeyFromUserPad(padPdfPassword(vaulted), ep.O, ep.pBuf, ep.id0, ep.R, ep.keyLen, ep.encryptMetadata);
+        if (verifyPdfFileKeyAgainstU(vFk, ep.U, ep.id0, ep.R)) return vaulted;
+      }
+
+      var base = baseName(fileName || '');
+      // 2. Algorithm 3.7: Recover exact User Password from Owner Password candidates (empty, TechHat master key, common owner keys)
+      var ownerCands = ['', TECHHAT_MASTER_OWNER_KEY, 'owner', 'admin', 'password', 'master', '1234', '123456', base];
+      for (var oi = 0; oi < ownerCands.length; oi++) {
+        var recPad = recoverUserPadFromOwnerPw(ownerCands[oi], ep.O, ep.R, ep.keyLen);
+        var oFk = computePdfFileKeyFromUserPad(recPad, ep.O, ep.pBuf, ep.id0, ep.R, ep.keyLen, ep.encryptMetadata);
+        if (verifyPdfFileKeyAgainstU(oFk, ep.U, ep.id0, ep.R)) {
+          var extracted = extractPwFromUserPad(recPad);
+          if (extracted !== null) return extracted;
+        }
+      }
+
+      // 3. Fast User Password dictionary + filename tokens + 1-4 digit PINs
+      var userCands = [
+        '', ' ', '1234', '12345', '123456', '1234567', '12345678', '123456789', '1234567890',
+        '0000', '000000', '1111', '111111', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999',
+        '4321', '654321', '123123', '112233', 'password', 'Password', 'PASSWORD', 'admin', 'Admin',
+        'root', 'user', 'test', 'pdf', 'PDF', 'secret', '123', 'abc123', 'qwerty', 'bangladesh', 'dhaka', 'techhat'
+      ];
+      if (base) {
+        userCands.push(base, base.toLowerCase(), base.toUpperCase());
+        var tokens = base.split(/[\s_\-.]+/).filter(Boolean);
+        for (var ti = 0; ti < tokens.length; ti++) {
+          userCands.push(tokens[ti], tokens[ti].toLowerCase());
+        }
+      }
+      for (var ui = 0; ui < userCands.length; ui++) {
+        var cand = userCands[ui];
+        var uFk = computePdfFileKeyFromUserPad(padPdfPassword(cand), ep.O, ep.pBuf, ep.id0, ep.R, ep.keyLen, ep.encryptMetadata);
+        if (verifyPdfFileKeyAgainstU(uFk, ep.U, ep.id0, ep.R)) return cand;
+      }
+
+      // 4. Scan 1-to-4 digit numeric PINs (0..9, 00..99, 000..999, 0000..9999)
+      for (var d1 = 0; d1 < 10; d1++) {
+        var s1 = String(d1);
+        var fk1 = computePdfFileKeyFromUserPad(padPdfPassword(s1), ep.O, ep.pBuf, ep.id0, ep.R, ep.keyLen, ep.encryptMetadata);
+        if (verifyPdfFileKeyAgainstU(fk1, ep.U, ep.id0, ep.R)) return s1;
+      }
+      for (var d3 = 0; d3 < 1000; d3++) {
+        var s3 = (d3 < 10 ? '00' : (d3 < 100 ? '0' : '')) + d3;
+        var fk3 = computePdfFileKeyFromUserPad(padPdfPassword(s3), ep.O, ep.pBuf, ep.id0, ep.R, ep.keyLen, ep.encryptMetadata);
+        if (verifyPdfFileKeyAgainstU(fk3, ep.U, ep.id0, ep.R)) return s3;
+      }
+      for (var d4 = 0; d4 < 10000; d4++) {
+        var s4 = (d4 < 10 ? '000' : (d4 < 100 ? '00' : (d4 < 1000 ? '0' : ''))) + d4;
+        var fk4 = computePdfFileKeyFromUserPad(padPdfPassword(s4), ep.O, ep.pBuf, ep.id0, ep.R, ep.keyLen, ep.encryptMetadata);
+        if (verifyPdfFileKeyAgainstU(fk4, ep.U, ep.id0, ep.R)) return s4;
+      }
+      return null;
+    }).catch(function () {
+      return null;
+    });
+  }
+
   /**
    * Decrypts owner-password / user-password protected PDFs in-place inside pdf-lib.
    * Returns true if all streams are verified decrypted; false if raster fallback is needed.
@@ -927,84 +1199,29 @@
     try {
       var PDFLib = window.PDFLib;
       var ctx = sdoc.context;
-      var encRef = ctx.trailerInfo && ctx.trailerInfo.Encrypt;
-      if (!encRef) return true;
-      var enc = ctx.lookup(encRef);
-      if (!enc || typeof enc.get !== 'function') return false;
+      var ep = extractEncryptParams(sdoc);
+      if (!ep.encrypted) return true;
+      if (!ep.supported) return false;
 
-      var filterObj = ctx.lookup(enc.get(PDFLib.PDFName.of('Filter')));
-      if (filterObj && filterObj.toString() !== '/Standard') return false;
-
-      var vObj = ctx.lookup(enc.get(PDFLib.PDFName.of('V')));
-      var rObj = ctx.lookup(enc.get(PDFLib.PDFName.of('R')));
-      var pObj = ctx.lookup(enc.get(PDFLib.PDFName.of('P')));
-      var V = vObj && typeof vObj.asNumber === 'function' ? vObj.asNumber() : 0;
-      var R = rObj && typeof rObj.asNumber === 'function' ? rObj.asNumber() : 0;
-      if ((V !== 1 && V !== 2 && V !== 4) || (R !== 2 && R !== 3 && R !== 4) || !pObj) return false;
-
-      if (V === 4) {
-        var cf = ctx.lookup(enc.get(PDFLib.PDFName.of('CF')));
-        var stmF = ctx.lookup(enc.get(PDFLib.PDFName.of('StmF')));
-        var cfName = stmF ? stmF.toString().replace(/^\//, '') : 'StdCF';
-        if (cf && typeof cf.get === 'function') {
-          var stdCf = ctx.lookup(cf.get(PDFLib.PDFName.of(cfName)));
-          if (stdCf && typeof stdCf.get === 'function') {
-            var cfm = ctx.lookup(stdCf.get(PDFLib.PDFName.of('CFM')));
-            if (cfm && cfm.toString() !== '/V2') return false;
-          }
+      var fileKey = null;
+      var pwCands = [password || '', ''];
+      for (var pi = 0; pi < pwCands.length && !fileKey; pi++) {
+        var candFk = computePdfFileKeyFromUserPad(padPdfPassword(pwCands[pi]), ep.O, ep.pBuf, ep.id0, ep.R, ep.keyLen, ep.encryptMetadata);
+        if (verifyPdfFileKeyAgainstU(candFk, ep.U, ep.id0, ep.R)) fileKey = candFk;
+      }
+      if (!fileKey) {
+        var ownCands = [password || '', '', TECHHAT_MASTER_OWNER_KEY];
+        for (var oi = 0; oi < ownCands.length && !fileKey; oi++) {
+          var recPad = recoverUserPadFromOwnerPw(ownCands[oi], ep.O, ep.R, ep.keyLen);
+          var ownFk = computePdfFileKeyFromUserPad(recPad, ep.O, ep.pBuf, ep.id0, ep.R, ep.keyLen, ep.encryptMetadata);
+          if (verifyPdfFileKeyAgainstU(ownFk, ep.U, ep.id0, ep.R)) fileKey = ownFk;
         }
       }
+      if (!fileKey) return false;
 
-      var lenObj = ctx.lookup(enc.get(PDFLib.PDFName.of('Length')));
-      var keyLen = (V === 1) ? 5 : ((lenObj && typeof lenObj.asNumber === 'function' ? lenObj.asNumber() : 40) / 8);
-      if (keyLen < 5 || keyLen > 16) return false;
-
-      var oObj = ctx.lookup(enc.get(PDFLib.PDFName.of('O')));
-      var uObj = ctx.lookup(enc.get(PDFLib.PDFName.of('U')));
-      if (!oObj || !uObj || typeof oObj.asBytes !== 'function' || typeof uObj.asBytes !== 'function') return false;
-      var O = oObj.asBytes();
-      var U = uObj.asBytes();
-
-      var idArr = ctx.lookup(ctx.trailerInfo.ID);
-      var id0Obj = idArr && typeof idArr.get === 'function' ? ctx.lookup(idArr.get(0)) : null;
-      var id0 = id0Obj && typeof id0Obj.asBytes === 'function' ? id0Obj.asBytes() : new Uint8Array(0);
-
-      var P = pObj.asNumber();
-      var pBuf = new Uint8Array([P & 0xff, (P >> 8) & 0xff, (P >> 16) & 0xff, (P >> 24) & 0xff]);
-
-      var encMetaObj = ctx.lookup(enc.get(PDFLib.PDFName.of('EncryptMetadata')));
-      var encryptMetadata = !(encMetaObj && encMetaObj.toString() === 'false');
-
-      var paddedPw = padPdfPassword(password || '');
-      var hashInputs = [paddedPw, O.slice(0, 32), pBuf, id0];
-      if (R >= 4 && !encryptMetadata) {
-        hashInputs.push(new Uint8Array([0xff, 0xff, 0xff, 0xff]));
-      }
-      var hash = md5Bytes(concatUint8(hashInputs));
-      if (R >= 3) {
-        for (var r = 0; r < 50; r++) {
-          hash = md5Bytes(hash.slice(0, keyLen));
-        }
-      }
-      var fileKey = hash.slice(0, keyLen);
-
-      if (R === 2) {
-        var uCheck2 = rc4Bytes(fileKey, PDF_ENC_PAD);
-        for (var c2 = 0; c2 < 32; c2++) {
-          if (uCheck2[c2] !== U[c2]) return false;
-        }
-      } else {
-        var uHash = md5Bytes(concatUint8([PDF_ENC_PAD, id0]));
-        for (var step = 0; step < 20; step++) {
-          var stepKey = new Uint8Array(fileKey.length);
-          for (var kb = 0; kb < fileKey.length; kb++) stepKey[kb] = fileKey[kb] ^ step;
-          uHash = rc4Bytes(stepKey, uHash);
-        }
-        for (var c3 = 0; c3 < 16; c3++) {
-          if (uHash[c3] !== U[c3]) return false;
-        }
-      }
-
+      var encRef = ep.encRef;
+      var keyLen = ep.keyLen;
+      var encryptMetadata = ep.encryptMetadata;
       var seen = typeof WeakSet !== 'undefined' ? new WeakSet() : null;
       ctx.indirectObjects.forEach(function (obj, ref) {
         if (encRef && ref.objectNumber === encRef.objectNumber && ref.generationNumber === encRef.generationNumber) return;
@@ -1030,6 +1247,86 @@
     } catch (e) {
       return false;
     }
+  }
+
+  /**
+   * Encrypts an unencrypted PDF Uint8Array with PDF 1.7 Standard 128-bit RC4 Security (V=2, R=3).
+   */
+  function encryptPdfBytes(unencryptedBytes, opts) {
+    opts = opts || {};
+    var PDFLib = window.PDFLib;
+    return PDFLib.PDFDocument.load(unencryptedBytes, { updateMetadata: false }).then(function (sdoc) {
+      sdoc.flush();
+      var ctx = sdoc.context;
+      delete ctx.trailerInfo.Encrypt;
+
+      var keyLen = 16; // 128-bit RC4
+      var P = 0xFFFFF0C0 | 0; // Base Revision 3 permission flags (-3904)
+      if (opts.allowPrint !== false) P |= (1 << 2) | (1 << 11);
+      if (opts.allowCopy) P |= (1 << 4) | (1 << 9);
+      if (opts.allowModify) P |= (1 << 3) | (1 << 5) | (1 << 8) | (1 << 10);
+      var pBuf = new Uint8Array([P & 0xff, (P >> 8) & 0xff, (P >> 16) & 0xff, (P >> 24) & 0xff]);
+
+      var seedStr = String(Date.now()) + ':' + unencryptedBytes.length + ':' + Math.random();
+      var seedBytes = new Uint8Array(seedStr.length);
+      for (var si = 0; si < seedStr.length; si++) seedBytes[si] = seedStr.charCodeAt(si) & 0xff;
+      var id0 = md5Bytes(seedBytes);
+      var idHex = bytesToHex(id0);
+
+      var userPw = opts.userPassword || '';
+      var ownerPw = opts.ownerPassword || TECHHAT_MASTER_OWNER_KEY;
+      var userPad = padPdfPassword(userPw);
+      var ownerPad = padPdfPassword(ownerPw);
+
+      // Save in local browser vault so Decrypt PDF on this device can always auto-unlock even with custom ownerPw
+      if (userPw) savePdfVaultPassword(idHex, userPw);
+
+      // Algorithm 3.3: Compute O
+      var oKey = md5Bytes(ownerPad);
+      for (var i = 0; i < 50; i++) oKey = md5Bytes(oKey.slice(0, keyLen));
+      var O = rc4Bytes(oKey.slice(0, keyLen), userPad);
+      for (var stepO = 1; stepO <= 19; stepO++) {
+        var stepKeyO = new Uint8Array(keyLen);
+        for (var kbO = 0; kbO < keyLen; kbO++) stepKeyO[kbO] = oKey[kbO] ^ stepO;
+        O = rc4Bytes(stepKeyO, O);
+      }
+
+      // Algorithm 3.2: Compute file encryption key
+      var fileKey = computePdfFileKeyFromUserPad(userPad, O, pBuf, id0, 3, keyLen, true);
+
+      // Algorithm 3.5: Compute U
+      var uHash = md5Bytes(concatUint8([PDF_ENC_PAD, id0]));
+      for (var stepU = 0; stepU <= 19; stepU++) {
+        var stepKeyU = new Uint8Array(keyLen);
+        for (var kbU = 0; kbU < keyLen; kbU++) stepKeyU[kbU] = fileKey[kbU] ^ stepU;
+        uHash = rc4Bytes(stepKeyU, uHash);
+      }
+      var U = concatUint8([uHash, new Uint8Array(16)]);
+
+      var seen = typeof WeakSet !== 'undefined' ? new WeakSet() : null;
+      ctx.indirectObjects.forEach(function (obj, ref) {
+        var n = ref.objectNumber, g = ref.generationNumber;
+        var suffix = new Uint8Array([n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, g & 0xff, (g >> 8) & 0xff]);
+        var objKey = md5Bytes(concatUint8([fileKey, suffix])).slice(0, Math.min(keyLen + 5, 16));
+        decryptPdfObject(obj, objKey, PDFLib, false, seen);
+      });
+
+      var encDict = ctx.obj({
+        Filter: 'Standard',
+        V: 2,
+        R: 3,
+        Length: 128,
+        P: P,
+        O: PDFLib.PDFHexString.of(bytesToHex(O)),
+        U: PDFLib.PDFHexString.of(bytesToHex(U))
+      });
+      var encRef = ctx.register(encDict);
+      ctx.trailerInfo.Encrypt = encRef;
+      var pdfIdHex = PDFLib.PDFHexString.of(idHex);
+      ctx.trailerInfo.ID = ctx.obj([pdfIdHex, pdfIdHex]);
+
+      return sdoc.save({ useObjectStreams: false });
+    });
   }
 
   function canCopyPageLosslessly(sdoc, pageIdx) {
@@ -1179,7 +1476,9 @@
     compress: '/pdf/compress',
     organize: '/pdf/organize',
     pdf2other: '/pdf/pdf-to-other',
-    other2pdf: '/pdf/other-to-pdf'
+    other2pdf: '/pdf/other-to-pdf',
+    decrypt: '/pdf/decrypt',
+    encrypt: '/pdf/encrypt'
   };
   var PDF_SUB_TITLES = {
     merge: { bn: 'মার্জ PDF', en: 'Merge PDF' },
@@ -1187,7 +1486,9 @@
     compress: { bn: 'কম্প্রেস PDF', en: 'Compress PDF' },
     organize: { bn: 'অর্গানাইজ ও এডিট PDF', en: 'Organize & Edit PDF' },
     pdf2other: { bn: 'PDF → অন্য ফরম্যাট', en: 'PDF Converter' },
-    other2pdf: { bn: 'অন্য ফাইল → PDF', en: 'Convert to PDF' }
+    other2pdf: { bn: 'অন্য ফাইল → PDF', en: 'Convert to PDF' },
+    decrypt: { bn: 'ডিক্রিপ্ট PDF', en: 'Decrypt PDF' },
+    encrypt: { bn: 'এনক্রিপ্ট PDF', en: 'Encrypt PDF' }
   };
 
   function switchPdfTab(tabId, subOpt, skipUrl) {
@@ -2046,6 +2347,243 @@
   }
 
   /* ==================================================================
+   * 7. DECRYPT PDF (Auto-unlock without password + optional new password)
+   * ================================================================== */
+  var decryptState = null;
+
+  function loadDecryptFile(files) {
+    loadSinglePdf(files, tr('PDF লক পরীক্ষা ও আনলক হচ্ছে…', 'Inspecting & unlocking PDF…')).then(function (st) {
+      decryptState = st;
+      renderDecryptUI();
+      var sec = st.doc && st.doc.security;
+      if (sec && sec.encrypted) {
+        showToast(tr('সফলভাবে আনলক হয়েছে! ডাউনলোড বা নতুন পাসওয়ার্ড সেট করতে পারেন।', 'PDF unlocked! Ready to download or set a new password.'));
+      } else {
+        showToast(tr('ফাইল লোড হয়েছে (কোনো পাসওয়ার্ড লক পাওয়া যায়নি)।', 'PDF loaded (no password lock detected).'));
+      }
+    }).catch(function () {});
+  }
+
+  function renderDecryptUI() {
+    showStage('pdfDecrypt', !!decryptState);
+    if (!decryptState) return;
+    var st = decryptState;
+    var sec = (st.doc && st.doc.security) || { encrypted: false };
+    var card = $('#pdfDecryptStatusCard');
+    if (card) {
+      var badgeHtml = '';
+      var detailHtml = '';
+      if (sec.encrypted) {
+        if (sec.lockType === 'owner') {
+          badgeHtml = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">' +
+            '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.4]" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' +
+            tr('পাসওয়ার্ড ছাড়াই আনলক হয়েছে (Owner / Permission Lock)', 'Unlocked Without Password (Owner / Permission Lock)') +
+          '</span>';
+        } else if (sec.autoRecovered) {
+          badgeHtml = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">' +
+            '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.4]" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' +
+            tr('পাসওয়ার্ড ছাড়াই স্বয়ংক্রিয়ভাবে আনলক হয়েছে!', 'Automatically Unlocked Without Password!') +
+          '</span>';
+        } else {
+          badgeHtml = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">' +
+            '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.4]" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' +
+            tr('পাসওয়ার্ড আনলক সম্পন্ন', 'Unlocked & Ready') +
+          '</span>';
+        }
+        var locks = [];
+        if (!sec.canPrint) locks.push(tr('প্রিন্ট লক', 'Print Locked'));
+        if (!sec.canCopy) locks.push(tr('কপি লক', 'Copy Locked'));
+        if (!sec.canModify) locks.push(tr('এডিট/মার্জ লক', 'Edit/Merge Locked'));
+        var lockDesc = locks.length ? locks.join(' • ') : tr('ওপেন/সিকিউরিটি লক', 'Security Lock');
+        detailHtml = '<div class="text-xs text-slate-600 dark:text-studio-muted mt-1">' +
+          tr('শনাক্তকৃত সিকিউরিটি: ', 'Detected Security: ') + '<b>' + esc(sec.algoLabel || '128-bit Standard') + '</b> (' + lockDesc + ') — ' +
+          '<span class="text-emerald-600 dark:text-emerald-400 font-semibold">' + tr('সব রেস্ট্রিকশন সরিয়ে ফেলা হয়েছে', 'All restrictions removed') + '</span></div>';
+      } else {
+        badgeHtml = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-200/80 dark:bg-studio-panel text-slate-700 dark:text-studio-text text-xs font-bold">' +
+          tr('কোনো পাসওয়ার্ড লক নেই (Already Unlocked)', 'No Password Lock Detected (Already Unlocked)') +
+        '</span>';
+        detailHtml = '<div class="text-xs text-slate-500 dark:text-studio-muted mt-1">' +
+          tr('ফাইলটি ইতিমধ্যে আনলকড। আপনি ক্লিন কপি ডাউনলোড করতে পারেন অথবা নিচে নতুন ইউজার পাসওয়ার্ড সেট করতে পারেন।', 'This PDF is already unlocked. You can download a clean copy or set a new user password below.') + '</div>';
+      }
+
+      card.innerHTML =
+        '<div class="flex items-start justify-between flex-wrap gap-2">' +
+          '<div class="flex items-center gap-2.5 min-w-0">' +
+            '<div class="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-studio-primary flex items-center justify-center shrink-0">' +
+              '<svg class="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>' +
+            '</div>' +
+            '<div class="min-w-0">' +
+              '<div class="text-xs sm:text-sm font-bold text-slate-900 dark:text-studio-text truncate">' + esc(st.name) + '</div>' +
+              '<div class="text-[11px] text-slate-500 dark:text-studio-muted">' + tr('মোট ', 'Total ') + fmtN(st.pages.length) + tr(' পৃষ্ঠা • সাইজ: ', ' pages • Size: ') + '<b>' + fmtSize(st.size) + '</b></div>' +
+            '</div>' +
+          '</div>' +
+          badgeHtml +
+        '</div>' +
+        detailHtml;
+    }
+
+    var isReencrypt = $('input[name="pdfDecryptAction"]:checked') && $('input[name="pdfDecryptAction"]:checked').value === 'reencrypt';
+    var newPwdBox = $('#pdfDecryptNewPwdBox');
+    if (newPwdBox) newPwdBox.hidden = !isReencrypt;
+    var btnLbl = $('#pdfDecryptRunBtnLabel');
+    if (btnLbl) {
+      btnLbl.textContent = isReencrypt
+        ? tr('নতুন পাসওয়ার্ডসহ ডাউনলোড করুন', 'Encrypt with New Password & Download')
+        : tr('আনলক ও ডাউনলোড করুন', 'Decrypt & Download PDF');
+    }
+
+    renderGrid($('#pdfDecryptPagesGrid'), {
+      items: st.pages,
+      label: function (p, i) { return tr('পৃষ্ঠা ', 'Page ') + fmtN(i + 1); },
+      actions: function () { return ['rotL', 'rotR', 'zoom']; },
+      onAction: function (act, i) {
+        if (act === 'rotL') rotatePage(st.pages[i], -90);
+        else if (act === 'rotR') rotatePage(st.pages[i], 90);
+        else if (act === 'zoom') { previewPages(st.pages, st.name, i); return; }
+        renderDecryptUI();
+      }
+    });
+
+    $('#pdfDecryptSummary').textContent = isEn()
+      ? fmtN(st.pages.length) + (st.pages.length === 1 ? ' page' : ' pages') + ' • ' + (isReencrypt ? 'Ready to set new password' : 'Ready to download unlocked')
+      : 'মোট ' + fmtN(st.pages.length) + ' পৃষ্ঠা • ' + (isReencrypt ? 'নতুন পাসওয়ার্ড সেট করতে প্রস্তুত' : 'পাসওয়ার্ডমুক্ত ডাউনলোডের জন্য প্রস্তুত');
+  }
+
+  function runDecryptPdf() {
+    if (!decryptState) { showToast(tr('অনুগ্রহ করে একটি PDF ফাইল নির্বাচন করুন।', 'Please select a PDF file first.')); return; }
+    var isReencrypt = $('input[name="pdfDecryptAction"]:checked') && $('input[name="pdfDecryptAction"]:checked').value === 'reencrypt';
+    var newPw = ($('#pdfDecryptNewUserPwd') && $('#pdfDecryptNewUserPwd').value) || '';
+    if (isReencrypt && !newPw) {
+      showToast(tr('অনুগ্রহ করে নতুন ইউজার পাসওয়ার্ড লিখুন।', 'Please enter a new user password.'));
+      if ($('#pdfDecryptNewUserPwd')) $('#pdfDecryptNewUserPwd').focus();
+      return;
+    }
+    var btn = $('#pdfDecryptRunBtn');
+    btn.disabled = true;
+    buildPdfFromPages(decryptState.pages, {
+      onProgress: function (n, t) { setProgress(5 + (n / t) * 75, tr('পৃষ্ঠা ', 'Page ') + fmtN(n) + '/' + fmtN(t) + tr(' আনলক হচ্ছে…', ' unlocking…')); }
+    }).then(function (unlockedBytes) {
+      if (!isReencrypt) return unlockedBytes;
+      setProgress(88, tr('নতুন পাসওয়ার্ড দিয়ে এনক্রিপ্ট হচ্ছে…', 'Applying new password…'));
+      return encryptPdfBytes(unlockedBytes, {
+        userPassword: newPw,
+        allowPrint: $('#pdfDecryptAllowPrint') ? $('#pdfDecryptAllowPrint').checked : true,
+        allowCopy: $('#pdfDecryptAllowCopy') ? $('#pdfDecryptAllowCopy').checked : true,
+        allowModify: $('#pdfDecryptAllowModify') ? $('#pdfDecryptAllowModify').checked : true
+      });
+    }).then(function (finalBytes) {
+      setProgress(null);
+      btn.disabled = false;
+      var suffix = isReencrypt ? '-protected.pdf' : '-unlocked.pdf';
+      downloadBlob(new Blob([finalBytes], { type: 'application/pdf' }), baseName(decryptState.name) + suffix);
+      showToast(isReencrypt
+        ? tr('নতুন পাসওয়ার্ডসহ PDF সফলভাবে ডাউনলোড হয়েছে!', 'PDF protected with new password and downloaded!')
+        : tr('পাসওয়ার্ডমুক্ত আনলকড PDF সফলভাবে ডাউনলোড হয়েছে!', 'Unlocked PDF downloaded successfully!'));
+    }).catch(function (err) {
+      setProgress(null);
+      btn.disabled = false;
+      showToast(tr('ডিক্রিপ্ট করতে সমস্যা হয়েছে: ', 'Decryption failed: ') + ((err && err.message) || ''));
+    });
+  }
+
+  /* ==================================================================
+   * 8. ENCRYPT PDF (Protect PDF with User Password & Permissions)
+   * ================================================================== */
+  var encryptState = null;
+
+  function loadEncryptFile(files) {
+    loadSinglePdf(files, tr('PDF লোড হচ্ছে…', 'Loading PDF…')).then(function (st) {
+      encryptState = st;
+      renderEncryptUI();
+      setTimeout(function () {
+        var inp = $('#pdfEncryptUserPwd');
+        if (inp) inp.focus();
+      }, 60);
+    }).catch(function () {});
+  }
+
+  function updateEncryptStrengthPill() {
+    var pill = $('#pdfEncryptStrength');
+    var inp = $('#pdfEncryptUserPwd');
+    if (!pill || !inp) return;
+    var v = inp.value || '';
+    if (!v.length) {
+      pill.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-studio-sidebar text-slate-600 dark:text-studio-muted';
+      pill.textContent = tr('শুধু পারমিশন লক', 'Permission-only lock');
+    } else if (v.length < 4) {
+      pill.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400';
+      pill.textContent = tr('দুর্বল পাসওয়ার্ড', 'Weak password');
+    } else if (v.length < 8) {
+      pill.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400';
+      pill.textContent = tr('মাঝারি পাসওয়ার্ড', 'Medium strength');
+    } else {
+      pill.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
+      pill.textContent = tr('শক্তিশালী পাসওয়ার্ড', 'Strong password');
+    }
+  }
+
+  function renderEncryptUI() {
+    showStage('pdfEncrypt', !!encryptState);
+    if (!encryptState) return;
+    var st = encryptState;
+    fileBanner($('#pdfEncryptFileInfo'), st);
+    updateEncryptStrengthPill();
+    renderGrid($('#pdfEncryptPagesGrid'), {
+      items: st.pages,
+      label: function (p, i) { return tr('পৃষ্ঠা ', 'Page ') + fmtN(i + 1); },
+      actions: function () { return ['rotL', 'rotR', 'zoom']; },
+      onAction: function (act, i) {
+        if (act === 'rotL') rotatePage(st.pages[i], -90);
+        else if (act === 'rotR') rotatePage(st.pages[i], 90);
+        else if (act === 'zoom') { previewPages(st.pages, st.name, i); return; }
+        renderEncryptUI();
+      }
+    });
+    $('#pdfEncryptSummary').textContent = isEn()
+      ? fmtN(st.pages.length) + (st.pages.length === 1 ? ' page' : ' pages') + ' • 128-bit Standard Security'
+      : 'মোট ' + fmtN(st.pages.length) + ' পৃষ্ঠা • ১২৮-বিট স্ট্যান্ডার্ড সিকিউরিটি';
+  }
+
+  function runEncryptPdf() {
+    if (!encryptState) { showToast(tr('অনুগ্রহ করে একটি PDF ফাইল নির্বাচন করুন।', 'Please select a PDF file first.')); return; }
+    var userPw = ($('#pdfEncryptUserPwd') && $('#pdfEncryptUserPwd').value) || '';
+    var ownerPw = ($('#pdfEncryptOwnerPwd') && $('#pdfEncryptOwnerPwd').value) || '';
+    var allowPrint = $('#pdfEncryptAllowPrint') ? $('#pdfEncryptAllowPrint').checked : true;
+    var allowCopy = $('#pdfEncryptAllowCopy') ? $('#pdfEncryptAllowCopy').checked : false;
+    var allowModify = $('#pdfEncryptAllowModify') ? $('#pdfEncryptAllowModify').checked : false;
+
+    if (!userPw && !ownerPw && allowPrint && allowCopy && allowModify) {
+      showToast(tr('অনুগ্রহ করে একটি ইউজার পাসওয়ার্ড দিন অথবা অন্তত একটি পারমিশন আনচেক করুন।', 'Please enter a user password or restrict at least one permission.'));
+      if ($('#pdfEncryptUserPwd')) $('#pdfEncryptUserPwd').focus();
+      return;
+    }
+
+    var btn = $('#pdfEncryptRunBtn');
+    btn.disabled = true;
+    buildPdfFromPages(encryptState.pages, {
+      onProgress: function (n, t) { setProgress(5 + (n / t) * 70, tr('পৃষ্ঠা ', 'Page ') + fmtN(n) + '/' + fmtN(t) + tr(' প্রস্তুত হচ্ছে…', ' preparing…')); }
+    }).then(function (plainBytes) {
+      setProgress(85, tr('১২৮-বিট পাসওয়ার্ড এনক্রিপশন যুক্ত হচ্ছে…', 'Applying 128-bit password encryption…'));
+      return encryptPdfBytes(plainBytes, {
+        userPassword: userPw,
+        ownerPassword: ownerPw,
+        allowPrint: allowPrint,
+        allowCopy: allowCopy,
+        allowModify: allowModify
+      });
+    }).then(function (encBytes) {
+      setProgress(null);
+      btn.disabled = false;
+      downloadBlob(new Blob([encBytes], { type: 'application/pdf' }), baseName(encryptState.name) + '-protected.pdf');
+      showToast(tr('সফলভাবে পাসওয়ার্ড লক করা হয়েছে! (' + fmtSize(encBytes.byteLength) + ')', 'PDF encrypted and downloaded! (' + fmtSize(encBytes.byteLength) + ')'));
+    }).catch(function (err) {
+      setProgress(null);
+      btn.disabled = false;
+      showToast(tr('এনক্রিপ্ট করতে সমস্যা হয়েছে: ', 'Encryption failed: ') + ((err && err.message) || ''));
+    });
+  }
+
+  /* ==================================================================
    * DRAG & DROP ROUTING (never leaves the PDF tool)
    * ================================================================== */
   function wireDropzone(zone, input, onFiles) {
@@ -2081,6 +2619,8 @@
       case 'other2pdf':
         if (!$('#other2pdfImgBox').hidden) addImg2PdfFiles(files); else loadDoc2PdfFile(files);
         break;
+      case 'decrypt': loadDecryptFile(files); break;
+      case 'encrypt': loadEncryptFile(files); break;
     }
   }
 
@@ -2272,6 +2812,47 @@
     wireInput($('#doc2pdfInput'), loadDoc2PdfFile);
     on('doc2pdfRunBtn', 'click', runDoc2Pdf);
 
+    // 7. Decrypt PDF
+    wireDropzone($('#pdfDecryptDropzone'), $('#pdfDecryptInput'), loadDecryptFile);
+    $$('input[name="pdfDecryptAction"]').forEach(function (r) {
+      r.addEventListener('change', function () {
+        renderDecryptUI();
+        if (r.value === 'reencrypt' && r.checked && $('#pdfDecryptNewUserPwd')) {
+          setTimeout(function () { $('#pdfDecryptNewUserPwd').focus(); }, 40);
+        }
+      });
+    });
+    on('pdfDecryptNewPwdToggle', 'click', function () {
+      var inp = $('#pdfDecryptNewUserPwd');
+      if (!inp) return;
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      inp.focus();
+    });
+    on('pdfDecryptRotLeftAll', 'click', function () { if (decryptState) { rotateAll(decryptState.pages, -90); renderDecryptUI(); } });
+    on('pdfDecryptRotRightAll', 'click', function () { if (decryptState) { rotateAll(decryptState.pages, 90); renderDecryptUI(); } });
+    on('pdfDecryptResetBtn', 'click', function () { decryptState = null; renderDecryptUI(); });
+    on('pdfDecryptRunBtn', 'click', runDecryptPdf);
+
+    // 8. Encrypt PDF
+    wireDropzone($('#pdfEncryptDropzone'), $('#pdfEncryptInput'), loadEncryptFile);
+    on('pdfEncryptUserPwd', 'input', updateEncryptStrengthPill);
+    on('pdfEncryptUserPwdToggle', 'click', function () {
+      var inp = $('#pdfEncryptUserPwd');
+      if (!inp) return;
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      inp.focus();
+    });
+    on('pdfEncryptOwnerPwdToggle', 'click', function () {
+      var inp = $('#pdfEncryptOwnerPwd');
+      if (!inp) return;
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      inp.focus();
+    });
+    on('pdfEncryptRotLeftAll', 'click', function () { if (encryptState) { rotateAll(encryptState.pages, -90); renderEncryptUI(); } });
+    on('pdfEncryptRotRightAll', 'click', function () { if (encryptState) { rotateAll(encryptState.pages, 90); renderEncryptUI(); } });
+    on('pdfEncryptResetBtn', 'click', function () { encryptState = null; renderEncryptUI(); });
+    on('pdfEncryptRunBtn', 'click', runEncryptPdf);
+
     window.addEventListener('th:langchange', function () {
       if (mergeItems.length) renderMergeUI();
       if (splitState) renderSplitUI();
@@ -2279,6 +2860,8 @@
       if (orgState) renderOrgUI();
       if (p2oState) renderPdf2OtherUI();
       if (imgItems.length) renderImg2PdfUI();
+      if (decryptState) renderDecryptUI();
+      if (encryptState) renderEncryptUI();
       if (pagesDlgItem) renderPagesDialog();
     });
 
