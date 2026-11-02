@@ -644,6 +644,322 @@
   }
 
   /* ==================================================================
+   * PDF STANDARD SECURITY DECRYPTOR (RC4 40..128-bit V1/V2/V4) + FALLBACK
+   * ================================================================== */
+  var PDF_ENC_PAD = new Uint8Array([
+    0x28, 0xBF, 0x4E, 0x5E, 0x4E, 0x75, 0x8A, 0x41,
+    0x64, 0x00, 0x4E, 0x56, 0xFF, 0xFA, 0x01, 0x08,
+    0x2E, 0x2E, 0x00, 0xB6, 0xD0, 0x68, 0x3E, 0x80,
+    0x2F, 0x0C, 0xA9, 0xFE, 0x64, 0x53, 0x69, 0x7A
+  ]);
+
+  function md5Bytes(input) {
+    var data = input instanceof Uint8Array ? input : new Uint8Array(input);
+    var len = data.length;
+    var bitLenLo = (len << 3) >>> 0;
+    var bitLenHi = (len >>> 29) >>> 0;
+    var padLen = (((len + 8) >>> 6) << 4) + 16;
+    var words = new Int32Array(padLen);
+    for (var i = 0; i < len; i++) {
+      words[i >> 2] |= data[i] << ((i & 3) << 3);
+    }
+    words[len >> 2] |= 0x80 << ((len & 3) << 3);
+    words[padLen - 2] = bitLenLo;
+    words[padLen - 1] = bitLenHi;
+
+    var K = md5Bytes._K, S = md5Bytes._S;
+    if (!K) {
+      K = md5Bytes._K = new Int32Array(64);
+      for (var j = 0; j < 64; j++) K[j] = (Math.floor(Math.abs(Math.sin(j + 1)) * 4294967296)) | 0;
+      S = md5Bytes._S = [
+        7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,
+        5, 9,14,20,5, 9,14,20,5, 9,14,20,5, 9,14,20,
+        4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,
+        6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21
+      ];
+    }
+
+    var a0 = 0x67452301 | 0, b0 = 0xefcdab89 | 0, c0 = 0x98badcfe | 0, d0 = 0x10325476 | 0;
+    for (var off = 0; off < padLen; off += 16) {
+      var A = a0, B = b0, C = c0, D = d0;
+      for (var k = 0; k < 64; k++) {
+        var F, g;
+        if (k < 16) { F = (B & C) | (~B & D); g = k; }
+        else if (k < 32) { F = (D & B) | (~D & C); g = (5 * k + 1) & 15; }
+        else if (k < 48) { F = B ^ C ^ D; g = (3 * k + 5) & 15; }
+        else { F = C ^ (B | ~D); g = (7 * k) & 15; }
+        var tmp = D;
+        D = C;
+        C = B;
+        var x = (A + F + K[k] + words[off + g]) | 0;
+        var s = S[k];
+        B = (B + ((x << s) | (x >>> (32 - s)))) | 0;
+        A = tmp;
+      }
+      a0 = (a0 + A) | 0;
+      b0 = (b0 + B) | 0;
+      c0 = (c0 + C) | 0;
+      d0 = (d0 + D) | 0;
+    }
+    var out = new Uint8Array(16);
+    var st = [a0, b0, c0, d0];
+    for (var m = 0; m < 4; m++) {
+      var v = st[m];
+      out[m * 4]     = v & 0xff;
+      out[m * 4 + 1] = (v >>> 8) & 0xff;
+      out[m * 4 + 2] = (v >>> 16) & 0xff;
+      out[m * 4 + 3] = (v >>> 24) & 0xff;
+    }
+    return out;
+  }
+
+  function rc4Bytes(key, data) {
+    var S = new Uint8Array(256);
+    for (var i = 0; i < 256; i++) S[i] = i;
+    var j = 0, kLen = key.length;
+    for (var m = 0; m < 256; m++) {
+      j = (j + S[m] + key[m % kLen]) & 0xff;
+      var t = S[m]; S[m] = S[j]; S[j] = t;
+    }
+    var out = new Uint8Array(data.length);
+    var x = 0, y = 0;
+    for (var k = 0; k < data.length; k++) {
+      x = (x + 1) & 0xff;
+      y = (y + S[x]) & 0xff;
+      var tmp = S[x]; S[x] = S[y]; S[y] = tmp;
+      out[k] = data[k] ^ S[(S[x] + S[y]) & 0xff];
+    }
+    return out;
+  }
+
+  function concatUint8(arrays) {
+    var total = 0;
+    for (var i = 0; i < arrays.length; i++) total += arrays[i].length;
+    var out = new Uint8Array(total);
+    var off = 0;
+    for (var j = 0; j < arrays.length; j++) {
+      out.set(arrays[j], off);
+      off += arrays[j].length;
+    }
+    return out;
+  }
+
+  function bytesToHex(b) {
+    var s = '';
+    for (var i = 0; i < b.length; i++) {
+      var v = b[i];
+      s += (v < 16 ? '0' : '') + v.toString(16);
+    }
+    return s;
+  }
+
+  function isZlibHeaderValid(b) {
+    if (!b || b.length < 2) return false;
+    var cmf = b[0], flg = b[1];
+    return (cmf & 0x0f) === 8 && (cmf >> 4) <= 7 && (((cmf << 8) | flg) % 31 === 0);
+  }
+
+  function hasFlateFilter(dict, PDFLib) {
+    if (!dict || typeof dict.get !== 'function') return false;
+    var f = dict.get(PDFLib.PDFName.of('Filter'));
+    if (!f) return false;
+    var s = f.toString();
+    return s === '/FlateDecode' || s === '[ /FlateDecode ]' || s === '[/FlateDecode]';
+  }
+
+  function decryptPdfObject(obj, objKey, PDFLib, skipMetadata, seen) {
+    if (!obj || typeof obj !== 'object') return;
+    if (seen) {
+      if (seen.has(obj)) return;
+      seen.add(obj);
+    }
+    if (obj instanceof PDFLib.PDFRawStream) {
+      var type = obj.dict && typeof obj.dict.get === 'function' ? obj.dict.get(PDFLib.PDFName.of('Type')) : null;
+      var typeStr = type ? type.toString() : '';
+      if (typeStr === '/XRef') return;
+      if (skipMetadata && typeStr === '/Metadata') return;
+      var filter = obj.dict && typeof obj.dict.get === 'function' ? obj.dict.get(PDFLib.PDFName.of('Filter')) : null;
+      if (filter && filter.toString().indexOf('/Crypt') !== -1) return;
+      obj.contents = rc4Bytes(objKey, obj.contents);
+      decryptPdfObject(obj.dict, objKey, PDFLib, skipMetadata, seen);
+    } else if (obj instanceof PDFLib.PDFDict) {
+      obj.dict.forEach(function (v, k) {
+        if (v instanceof PDFLib.PDFString || v instanceof PDFLib.PDFHexString) {
+          var dec = rc4Bytes(objKey, v.asBytes());
+          obj.dict.set(k, PDFLib.PDFHexString.of(bytesToHex(dec)));
+        } else {
+          decryptPdfObject(v, objKey, PDFLib, skipMetadata, seen);
+        }
+      });
+    } else if (obj instanceof PDFLib.PDFArray) {
+      var arr = obj.array;
+      for (var i = 0; i < arr.length; i++) {
+        var v = arr[i];
+        if (v instanceof PDFLib.PDFString || v instanceof PDFLib.PDFHexString) {
+          var decArr = rc4Bytes(objKey, v.asBytes());
+          arr[i] = PDFLib.PDFHexString.of(bytesToHex(decArr));
+        } else {
+          decryptPdfObject(v, objKey, PDFLib, skipMetadata, seen);
+        }
+      }
+    }
+  }
+
+  /**
+   * Decrypts owner-password / permissions-protected PDFs in-place inside pdf-lib.
+   * Returns true if all streams are verified decrypted; false if raster fallback is needed.
+   */
+  function tryDecryptPdfLibDoc(sdoc, expectedPages) {
+    try {
+      var PDFLib = window.PDFLib;
+      var ctx = sdoc.context;
+      var encRef = ctx.trailerInfo && ctx.trailerInfo.Encrypt;
+      if (!encRef) return true;
+      var enc = ctx.lookup(encRef);
+      if (!enc || typeof enc.get !== 'function') return false;
+
+      var filterObj = ctx.lookup(enc.get(PDFLib.PDFName.of('Filter')));
+      if (filterObj && filterObj.toString() !== '/Standard') return false;
+
+      var vObj = ctx.lookup(enc.get(PDFLib.PDFName.of('V')));
+      var rObj = ctx.lookup(enc.get(PDFLib.PDFName.of('R')));
+      var pObj = ctx.lookup(enc.get(PDFLib.PDFName.of('P')));
+      var V = vObj && typeof vObj.asNumber === 'function' ? vObj.asNumber() : 0;
+      var R = rObj && typeof rObj.asNumber === 'function' ? rObj.asNumber() : 0;
+      if ((V !== 1 && V !== 2 && V !== 4) || (R !== 2 && R !== 3 && R !== 4) || !pObj) return false;
+
+      if (V === 4) {
+        var cf = ctx.lookup(enc.get(PDFLib.PDFName.of('CF')));
+        var stmF = ctx.lookup(enc.get(PDFLib.PDFName.of('StmF')));
+        var cfName = stmF ? stmF.toString().replace(/^\//, '') : 'StdCF';
+        if (cf && typeof cf.get === 'function') {
+          var stdCf = ctx.lookup(cf.get(PDFLib.PDFName.of(cfName)));
+          if (stdCf && typeof stdCf.get === 'function') {
+            var cfm = ctx.lookup(stdCf.get(PDFLib.PDFName.of('CFM')));
+            if (cfm && cfm.toString() !== '/V2') return false;
+          }
+        }
+      }
+
+      var lenObj = ctx.lookup(enc.get(PDFLib.PDFName.of('Length')));
+      var keyLen = (V === 1) ? 5 : ((lenObj && typeof lenObj.asNumber === 'function' ? lenObj.asNumber() : 40) / 8);
+      if (keyLen < 5 || keyLen > 16) return false;
+
+      var oObj = ctx.lookup(enc.get(PDFLib.PDFName.of('O')));
+      var uObj = ctx.lookup(enc.get(PDFLib.PDFName.of('U')));
+      if (!oObj || !uObj || typeof oObj.asBytes !== 'function' || typeof uObj.asBytes !== 'function') return false;
+      var O = oObj.asBytes();
+      var U = uObj.asBytes();
+
+      var idArr = ctx.lookup(ctx.trailerInfo.ID);
+      var id0Obj = idArr && typeof idArr.get === 'function' ? ctx.lookup(idArr.get(0)) : null;
+      var id0 = id0Obj && typeof id0Obj.asBytes === 'function' ? id0Obj.asBytes() : new Uint8Array(0);
+
+      var P = pObj.asNumber();
+      var pBuf = new Uint8Array([P & 0xff, (P >> 8) & 0xff, (P >> 16) & 0xff, (P >> 24) & 0xff]);
+
+      var encMetaObj = ctx.lookup(enc.get(PDFLib.PDFName.of('EncryptMetadata')));
+      var encryptMetadata = !(encMetaObj && encMetaObj.toString() === 'false');
+
+      var hashInputs = [PDF_ENC_PAD, O.slice(0, 32), pBuf, id0];
+      if (R >= 4 && !encryptMetadata) {
+        hashInputs.push(new Uint8Array([0xff, 0xff, 0xff, 0xff]));
+      }
+      var hash = md5Bytes(concatUint8(hashInputs));
+      if (R >= 3) {
+        for (var r = 0; r < 50; r++) {
+          hash = md5Bytes(hash.slice(0, keyLen));
+        }
+      }
+      var fileKey = hash.slice(0, keyLen);
+
+      if (R === 2) {
+        var uCheck2 = rc4Bytes(fileKey, PDF_ENC_PAD);
+        for (var c2 = 0; c2 < 32; c2++) {
+          if (uCheck2[c2] !== U[c2]) return false;
+        }
+      } else {
+        var uHash = md5Bytes(concatUint8([PDF_ENC_PAD, id0]));
+        for (var step = 0; step < 20; step++) {
+          var stepKey = new Uint8Array(fileKey.length);
+          for (var kb = 0; kb < fileKey.length; kb++) stepKey[kb] = fileKey[kb] ^ step;
+          uHash = rc4Bytes(stepKey, uHash);
+        }
+        for (var c3 = 0; c3 < 16; c3++) {
+          if (uHash[c3] !== U[c3]) return false;
+        }
+      }
+
+      var seen = typeof WeakSet !== 'undefined' ? new WeakSet() : null;
+      ctx.indirectObjects.forEach(function (obj, ref) {
+        if (encRef && ref.objectNumber === encRef.objectNumber && ref.generationNumber === encRef.generationNumber) return;
+        var n = ref.objectNumber, g = ref.generationNumber;
+        var suffix = new Uint8Array([n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, g & 0xff, (g >> 8) & 0xff]);
+        var objKey = md5Bytes(concatUint8([fileKey, suffix])).slice(0, Math.min(keyLen + 5, 16));
+        decryptPdfObject(obj, objKey, PDFLib, !encryptMetadata, seen);
+      });
+
+      delete ctx.trailerInfo.Encrypt;
+      sdoc.isEncrypted = false;
+
+      if (expectedPages && sdoc.getPageCount() !== expectedPages) return false;
+
+      var allStreamsValid = true;
+      ctx.indirectObjects.forEach(function (obj) {
+        if (!allStreamsValid) return;
+        if (obj instanceof PDFLib.PDFRawStream && hasFlateFilter(obj.dict, PDFLib)) {
+          if (!isZlibHeaderValid(obj.contents)) allStreamsValid = false;
+        }
+      });
+      return allStreamsValid;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function canCopyPageLosslessly(sdoc, pageIdx) {
+    try {
+      if (!sdoc || sdoc._needsRasterFallback || sdoc.isEncrypted) return false;
+      var PDFLib = window.PDFLib;
+      var pages = sdoc.getPages();
+      if (pageIdx < 0 || pageIdx >= pages.length) return false;
+      var page = pages[pageIdx];
+      var contents = page.node.Contents();
+      if (!contents) return !sdoc._wasEncrypted;
+      var ctx = sdoc.context;
+      var checkStream = function (refOrObj) {
+        var st = ctx.lookup(refOrObj);
+        if (!st) return false;
+        if (st instanceof PDFLib.PDFRawStream && hasFlateFilter(st.dict, PDFLib)) {
+          return isZlibHeaderValid(st.contents);
+        }
+        return true;
+      };
+      if (contents instanceof PDFLib.PDFArray) {
+        for (var i = 0; i < contents.size(); i++) {
+          if (!checkStream(contents.get(i))) return false;
+        }
+      } else if (!checkStream(contents)) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function renderPageAsPdfPage(out, doc, pageIdx) {
+    return renderPageCanvas(doc, pageIdx + 1, { scale: 2.25, rotation: 0 }).then(function (r) {
+      var bytes = dataUrlToUint8(r.canvas.toDataURL('image/jpeg', 0.92));
+      return out.embedJpg(bytes).then(function (jpg) {
+        var page = out.addPage([r.ptW, r.ptH]);
+        page.drawImage(jpg, { x: 0, y: 0, width: r.ptW, height: r.ptH });
+        return page;
+      });
+    });
+  }
+
+  /* ==================================================================
    * OUTPUT BUILDER (copy pages with rotation, optional page numbers / watermark)
    * ================================================================== */
   function createStampPng(text, isWatermark) {
@@ -664,7 +980,18 @@
     var PDFLib = window.PDFLib;
     var srcCache = {};
     function src(doc) {
-      if (!srcCache[doc.id]) srcCache[doc.id] = PDFLib.PDFDocument.load(doc.buffer, { ignoreEncryption: true });
+      if (!srcCache[doc.id]) {
+        srcCache[doc.id] = PDFLib.PDFDocument.load(doc.buffer, { ignoreEncryption: true }).then(function (sdoc) {
+          if (sdoc.isEncrypted) {
+            sdoc._wasEncrypted = true;
+            var ok = tryDecryptPdfLibDoc(sdoc, doc.numPages);
+            sdoc._needsRasterFallback = !ok;
+          }
+          return sdoc;
+        }).catch(function () {
+          return { _needsRasterFallback: true };
+        });
+      }
       return srcCache[doc.id];
     }
     return PDFLib.PDFDocument.create().then(function (out) {
@@ -680,7 +1007,15 @@
           if (p.isBlank) pp = Promise.resolve(out.addPage([p.w || 595.28, p.h || 841.89]));
           else {
             pp = src(p.doc).then(function (sdoc) {
-              return out.copyPages(sdoc, [p.idx]).then(function (cp) { out.addPage(cp[0]); return cp[0]; });
+              if (!canCopyPageLosslessly(sdoc, p.idx)) {
+                return renderPageAsPdfPage(out, p.doc, p.idx);
+              }
+              return out.copyPages(sdoc, [p.idx]).then(function (cp) {
+                out.addPage(cp[0]);
+                return cp[0];
+              }).catch(function () {
+                return renderPageAsPdfPage(out, p.doc, p.idx);
+              });
             });
           }
           return pp.then(function (page) {
