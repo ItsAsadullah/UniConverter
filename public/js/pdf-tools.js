@@ -192,8 +192,9 @@
   function docThumb(doc, idx) {
     if (!doc.thumbs[idx]) {
       doc.thumbs[idx] = enqueue(function () {
-        return renderPageCanvas(doc, idx + 1, { width: 220 }).then(function (r) {
-          var url = r.canvas.toDataURL('image/jpeg', 0.8);
+        var targetW = Math.min(600, Math.max(420, Math.round(280 * (window.devicePixelRatio || 1.5))));
+        return renderPageCanvas(doc, idx + 1, { width: targetW }).then(function (r) {
+          var url = r.canvas.toDataURL('image/jpeg', 0.88);
           doc.thumbUrls[idx] = url;
           return url;
         });
@@ -226,6 +227,7 @@
 
   function rotStyle(deg) {
     deg = ((deg % 360) + 360) % 360;
+    if (deg === 0) return '';
     return 'transform:rotate(' + deg + 'deg)' + (deg % 180 ? ' scale(.72)' : '') + ';';
   }
 
@@ -233,13 +235,42 @@
    * GENERIC PAGE / FILE CARD GRID (rotate, delete, zoom, select, drag-sort)
    * ================================================================== */
   var ACTIONS = {
-    left: { label: '←', title: 'বামে সরান', titleEn: 'Move Left' },
-    right: { label: '→', title: 'ডানে সরান', titleEn: 'Move Right' },
-    rotL: { label: '↺', title: 'বামে ঘোরান', titleEn: 'Rotate Left' },
-    rotR: { label: '↻', title: 'ডানে ঘোরান', titleEn: 'Rotate Right' },
-    zoom: { label: '🔍', title: 'বড় করে দেখুন', titleEn: 'Preview' },
-    dup: { label: '⧉', title: 'ডুপ্লিকেট', titleEn: 'Duplicate' },
-    del: { label: '✕', title: 'মুছুন', titleEn: 'Remove', cls: 'pdf-mini-btn--del hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10' }
+    left: {
+      label: '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
+      title: 'বামে সরান',
+      titleEn: 'Move Left'
+    },
+    right: {
+      label: '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>',
+      title: 'ডানে সরান',
+      titleEn: 'Move Right'
+    },
+    rotL: {
+      label: '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
+      title: 'বামে ঘোরান',
+      titleEn: 'Rotate Left'
+    },
+    rotR: {
+      label: '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>',
+      title: 'ডানে ঘোরান',
+      titleEn: 'Rotate Right'
+    },
+    zoom: {
+      label: '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+      title: 'বড় করে দেখুন',
+      titleEn: 'Preview'
+    },
+    dup: {
+      label: '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><rect width="13" height="13" x="9" y="9" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+      title: 'ডুপ্লিকেট',
+      titleEn: 'Duplicate'
+    },
+    del: {
+      label: '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+      title: 'মুছুন',
+      titleEn: 'Remove',
+      cls: 'pdf-mini-btn--del hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10'
+    }
   };
 
   /**
@@ -269,20 +300,28 @@
       var cached = page ? cachedThumb(page) : null;
       var topOverlays = '';
       if (opts.sortable) {
-        topOverlays += '<span class="pdf-drag-handle absolute top-2 right-2 z-10 w-7 h-7 rounded-md bg-slate-900/70 backdrop-blur-xs text-white text-xs inline-flex items-center justify-center cursor-grab active:cursor-grabbing shadow-xs hover:bg-slate-900 transition-colors" tabindex="0" role="button" aria-label="' + tr('ক্রম পরিবর্তন করতে টেনে আনুন', 'Drag to reorder') + '" title="' + tr('ড্র্যাগ করে সরান', 'Drag to reorder') + '">⠿</span>';
+        topOverlays += '<span class="pdf-drag-handle absolute top-2 right-2 z-10 w-7 h-7 rounded-md bg-slate-900/75 backdrop-blur-xs text-white inline-flex items-center justify-center cursor-grab active:cursor-grabbing shadow-xs hover:bg-slate-900 transition-colors" tabindex="0" role="button" aria-label="' + tr('ক্রম পরিবর্তন করতে টেনে আনুন', 'Drag to reorder') + '" title="' + tr('ড্র্যাগ করে সরান', 'Drag to reorder') + '"><svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span>';
       }
       topOverlays += '<div class="pdf-page-card__badge absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-xs text-white text-xs font-bold inline-flex items-center gap-1 shadow-xs">' + (opts.badge ? opts.badge(item, i) : '#' + fmtN(i + 1)) +
         (page && page.rotation ? ' <span class="pdf-rot-pill px-1.5 py-0.25 rounded bg-emerald-500 text-slate-950 text-[11px] font-extrabold">' + fmtN(((page.rotation % 360) + 360) % 360) + '°</span>' : '') + '</div>';
       if (opts.selectable) {
-        topOverlays += '<div class="pdf-page-card__check absolute top-2 right-2 z-10 w-6 h-6 rounded-full border-2 text-xs font-extrabold inline-flex items-center justify-center shadow-xs transition-colors ' + (sel ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600 bg-white/95 dark:bg-studio-sidebar/95 text-transparent') + '" aria-hidden="true">' + (sel ? '✓' : '') + '</div>';
+        topOverlays += '<div class="pdf-page-card__check absolute top-2 right-2 z-10 w-6 h-6 rounded-full border-2 inline-flex items-center justify-center shadow-xs transition-colors ' + (sel ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600 bg-white/95 dark:bg-studio-sidebar/95 text-transparent') + '" aria-hidden="true">' + (sel ? '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.8]" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' : '') + '</div>';
+      }
+
+      var quickOverlay = '';
+      if (!opts.selectable) {
+        quickOverlay = '<div class="pdf-page-card__quick-zoom absolute inset-0 z-10 flex items-center justify-center bg-slate-900/20 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-lg">' +
+          '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/85 backdrop-blur-md text-white text-[11px] font-bold shadow-md transform translate-y-1 group-hover:translate-y-0 transition-transform">' +
+          '<svg class="w-3 h-3 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
+          '<span>' + tr('প্রিভিউ', 'Preview') + '</span></span></div>';
       }
 
       var html = '';
       var thumbCursor = opts.selectable ? ' cursor-pointer' : ' cursor-zoom-in';
       if (page && page.isBlank) {
-        html += '<div class="pdf-page-card__thumb-wrap relative aspect-[3/4] rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/70 dark:border-studio-border/60 overflow-hidden flex items-center justify-center p-3 mb-2.5' + thumbCursor + '">' + topOverlays + '<div class="pdf-blank-thumb w-3/4 h-4/5 rounded border border-dashed border-slate-300 dark:border-slate-600 bg-white flex items-center justify-center text-xs text-slate-400 font-semibold shadow-xs" style="' + rotStyle(page.rotation || 0) + '">' + tr('সাদা পৃষ্ঠা', 'Blank Page') + '</div></div>';
+        html += '<div class="pdf-page-card__thumb-wrap relative aspect-[3/4] rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/70 dark:border-studio-border/60 overflow-hidden flex items-center justify-center p-3 mb-2.5' + thumbCursor + '">' + topOverlays + quickOverlay + '<div class="pdf-blank-thumb w-3/4 h-4/5 rounded border border-dashed border-slate-300 dark:border-slate-600 bg-white flex items-center justify-center text-xs text-slate-400 font-semibold shadow-xs" style="' + rotStyle(page.rotation || 0) + '">' + tr('সাদা পৃষ্ঠা', 'Blank Page') + '</div></div>';
       } else {
-        html += '<div class="pdf-page-card__thumb-wrap relative aspect-[3/4] rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/70 dark:border-studio-border/60 overflow-hidden flex items-center justify-center p-2.5 mb-2.5' + thumbCursor + (cached ? '' : ' is-loading') + '">' + topOverlays + '<img class="pdf-page-card__thumb max-w-full max-h-full object-contain rounded-xs bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-200" alt="" draggable="false" decoding="async" style="' +
+        html += '<div class="pdf-page-card__thumb-wrap relative aspect-[3/4] rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/70 dark:border-studio-border/60 overflow-hidden flex items-center justify-center p-2.5 mb-2.5' + thumbCursor + (cached ? '' : ' is-loading') + '">' + topOverlays + quickOverlay + '<img class="pdf-page-card__thumb max-w-full max-h-full object-contain rounded-xs bg-white shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10 transition-transform duration-200" alt="" draggable="false" decoding="async" style="' +
           rotStyle(page ? page.rotation || 0 : 0) + '"' + (cached ? ' src="' + cached + '"' : '') + '></div>';
       }
       html += '<div class="pdf-page-card__title text-xs font-bold text-slate-800 dark:text-studio-text truncate leading-snug" title="' + esc(opts.label(item, i)) + '">' + esc(opts.label(item, i)) + '</div>';
@@ -293,7 +332,7 @@
           var act = typeof a === 'string' ? a : a.act;
           var disabled = (act === 'left' && i === 0) || (act === 'right' && i === opts.items.length - 1);
           var tip = isEn() && def.titleEn ? def.titleEn : def.title;
-          return '<button type="button" class="pdf-mini-btn flex-1 min-w-7 h-8 px-1.5 rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/80 dark:border-studio-border text-xs font-bold text-slate-700 dark:text-studio-text hover:bg-white dark:hover:bg-studio-surface hover:border-emerald-500 inline-flex items-center justify-center gap-0.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors ' + (def.cls || '') + '" data-act="' + act + '" title="' + tip + '" aria-label="' + tip + '"' + (disabled ? ' disabled' : '') + '>' + def.label + '</button>';
+          return '<button type="button" class="pdf-mini-btn flex-1 min-w-7 h-8 px-1.5 rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/80 dark:border-studio-border text-xs font-bold text-slate-700 dark:text-studio-text hover:bg-white dark:hover:bg-studio-surface hover:border-emerald-500 inline-flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all ' + (def.cls || '') + '" data-act="' + act + '" title="' + tip + '" aria-label="' + tip + '"' + (disabled ? ' disabled' : '') + '>' + def.label + '</button>';
         }).join('') + '</div>';
       }
       card.innerHTML = html;
@@ -369,7 +408,7 @@
     enableSortable(grid);
   }
 
-  /** Pointer-events based drag-to-reorder (mouse anywhere on the card, touch via the ⠿ handle). */
+  /** Pointer-events based drag-to-reorder (mouse anywhere on the card, touch via the drag handle). */
   function enableSortable(grid) {
     var drag = null;
     grid.addEventListener('pointerdown', function (e) {
@@ -519,14 +558,16 @@
     $('#pdfPreviewPrev').disabled = preview.cur <= 1;
     $('#pdfPreviewNext').disabled = preview.cur >= preview.total;
     applyPreviewZoom(preview.zoom || 100);
-    stage.innerHTML = '<div class="pdf-preview-loading py-12 text-center text-xs font-semibold text-slate-500 dark:text-studio-muted">' + tr('প্রিভিউ তৈরি হচ্ছে…', 'Rendering preview…') + '</div>';
+    stage.innerHTML = '<div class="pdf-preview-loading py-16 flex flex-col items-center justify-center gap-3 text-xs font-semibold text-slate-500 dark:text-studio-muted">' +
+      '<svg class="w-8 h-8 text-emerald-600 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>' +
+      '<span>' + tr('প্রিভিউ তৈরি হচ্ছে…', 'Rendering preview…') + '</span></div>';
     var token = ++preview.token;
     preview.render(preview.cur).then(function (list) {
       if (token !== preview.token) return;
       stage.classList.toggle('is-compare', list.length > 1);
       stage.innerHTML = list.map(function (it) {
-        return '<figure class="pdf-preview-fig m-0 flex flex-col items-center gap-2"><figcaption class="text-xs font-bold text-slate-600 dark:text-studio-muted">' + it.label + '</figcaption>' +
-          '<img class="pdf-preview-img block h-auto object-contain rounded shadow-md bg-white cursor-zoom-in transition-[width] duration-150" src="' + it.url + '" alt="' + esc(it.label.replace(/<[^>]+>/g, '')) + '" title="' + tr('ক্লিক করে জুম ইন/আউট করুন', 'Click to zoom in/out') + '"></figure>';
+        return '<figure class="pdf-preview-fig m-0 flex flex-col items-center gap-2.5"><figcaption class="text-xs font-bold text-slate-700 dark:text-studio-text">' + it.label + '</figcaption>' +
+          '<img class="pdf-preview-img block h-auto object-contain rounded-md shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10 bg-white cursor-zoom-in transition-[width] duration-150" src="' + it.url + '" alt="' + esc(it.label.replace(/<[^>]+>/g, '')) + '" title="' + tr('ক্লিক করে জুম ইন/আউট করুন', 'Click to zoom in/out') + '"></figure>';
       }).join('');
       $$('img.pdf-preview-img', stage).forEach(function (img) {
         var onReady = function () {
@@ -594,7 +635,7 @@
         else if (act === 'rotR') rotatePage(p, 90);
         else if (act === 'zoom') { previewPages(item.pages, item.name, i); return; }
         else if (act === 'del') {
-          if (item.pages.length <= 1) { showToast(tr('শেষ পৃষ্ঠা মোছা যাবে না — পুরো ফাইল সরাতে মূল কার্ডের ✕ ব্যবহার করুন।', 'Cannot delete the last page — use ✕ on the main card to remove the file.')); return; }
+          if (item.pages.length <= 1) { showToast(tr('শেষ পৃষ্ঠা মোছা যাবে না — পুরো ফাইল সরাতে কার্ডের ডিলিট বাটন ব্যবহার করুন।', 'Cannot delete the last page — use the remove button on the main card to delete the file.')); return; }
           item.pages.splice(i, 1);
         }
         renderPagesDialog();
@@ -763,7 +804,7 @@
 
   function fileBanner(el, st) {
     if (!el) return;
-    el.innerHTML = '<div class="pdf-file-banner__icon text-xl shrink-0">📄</div><div class="pdf-file-banner__body flex flex-col gap-0.5 min-w-0"><strong class="text-xs font-bold text-slate-900 dark:text-studio-text truncate">' + esc(st.name) +
+    el.innerHTML = '<div class="pdf-file-banner__icon shrink-0 w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center"><svg class="w-4.5 h-4.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="pdf-file-banner__body flex flex-col gap-0.5 min-w-0"><strong class="text-xs font-bold text-slate-900 dark:text-studio-text truncate">' + esc(st.name) +
       '</strong><span class="text-[11px] text-slate-500 dark:text-studio-muted">মোট ' + toBn(st.pages.length) + ' পৃষ্ঠা • সাইজ: <b>' + fmtSize(st.size) + '</b></span></div>';
   }
 
@@ -846,7 +887,7 @@
           'zoom',
           {
             act: 'pages',
-            label: '📄 ' + fmtN(it.pages.length),
+            label: '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>' + fmtN(it.pages.length) + '</span>',
             title: 'সব পৃষ্ঠা দেখুন ও সম্পাদনা করুন',
             titleEn: 'View & edit pages',
             cls: 'pdf-mini-btn--wide'
@@ -1079,7 +1120,7 @@
     var levelName = { extreme: 'এক্সট্রিম', recommended: 'রেকমেন্ডেড', light: 'হালকা' }[r.level] || '';
     $('#pdfCompressStat').innerHTML =
       '<div class="pdf-size-card inline-flex flex-col px-3 py-1.5 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs"><span class="text-[10px] text-slate-500 dark:text-studio-muted font-medium">আগের সাইজ</span><b class="text-sm font-extrabold text-slate-900 dark:text-studio-text">' + fmtSize(st.size) + '</b></div>' +
-      '<span class="pdf-compress-arrow text-base font-bold text-slate-400 mx-1" aria-hidden="true">→</span>' +
+      '<span class="pdf-compress-arrow text-slate-400 mx-1 inline-flex items-center" aria-hidden="true"><svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg></span>' +
       '<div class="pdf-size-card pdf-size-card--new inline-flex flex-col px-3 py-1.5 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs"><span class="text-[10px] text-slate-500 dark:text-studio-muted font-medium">নতুন সাইজ</span><b class="text-sm font-extrabold text-emerald-600 dark:text-studio-primary">' + fmtSize(newSize) + '</b></div>' +
       '<span class="pdf-compress-badge inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ' + (pct > 0 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : 'is-neutral bg-slate-200 dark:bg-studio-surface text-slate-600 dark:text-studio-muted') + '">' +
       (pct > 0 ? toBn(pct) + '% ছোট হয়েছে' : 'সাইজ কমেনি — ফাইলটি আগেই অপটিমাইজড') + '</span>' +
@@ -1087,7 +1128,7 @@
     renderGrid($('#pdfCompressPreviewGrid'), {
       items: makePages(r.doc).map(function (p, i) { p.label = 'পৃষ্ঠা ' + toBn(i + 1); return p; }),
       label: function (p) { return p.label; },
-      actions: function () { return [{ act: 'compare', label: '🔍 তুলনা', title: 'আগে ও পরে তুলনা করুন', cls: 'pdf-mini-btn--wide' }]; },
+      actions: function () { return [{ act: 'compare', label: '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>' + tr('তুলনা', 'Compare') + '</span>', title: 'আগে ও পরে তুলনা করুন', cls: 'pdf-mini-btn--wide' }]; },
       onAction: function (act, i) { openCompare(i + 1); }
     });
   }

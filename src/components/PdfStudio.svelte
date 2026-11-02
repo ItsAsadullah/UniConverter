@@ -35,8 +35,14 @@
                 <span data-i18n-bn="আরও ফাইল যোগ করুন" data-i18n-en="Add More Files">আরও ফাইল যোগ করুন</span>
                 <input type="file" id="pdfMergeAddMore" accept=".pdf,application/pdf,image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.doc,.docx,.pptx,.xlsx,.txt,.md,.csv,.rtf" multiple class="visually-hidden sr-only" />
               </label>
-              <button type="button" class="chip-btn inline-flex items-center gap-1 h-8.5 px-3 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 hover:bg-white dark:hover:bg-studio-surface transition-colors" id="pdfMergeRotLeftAll" title="সব ফাইল বামে ঘোরান" data-i18n-bn="↺ সব বামে" data-i18n-en="↺ Rotate Left">↺ সব বামে</button>
-              <button type="button" class="chip-btn inline-flex items-center gap-1 h-8.5 px-3 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 hover:bg-white dark:hover:bg-studio-surface transition-colors" id="pdfMergeRotRightAll" title="সব ফাইল ডানে ঘোরান" data-i18n-bn="↻ সব ডানে" data-i18n-en="↻ Rotate Right">↻ সব ডানে</button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8.5 px-3 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 hover:bg-white dark:hover:bg-studio-surface transition-colors" id="pdfMergeRotLeftAll" title="সব ফাইল বামে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8.5 px-3 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 hover:bg-white dark:hover:bg-studio-surface transition-colors" id="pdfMergeRotRightAll" title="সব ফাইল ডানে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                <span data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
+              </button>
               <button type="button" class="chip-btn inline-flex items-center gap-1 h-8.5 px-3 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 hover:bg-white dark:hover:bg-studio-surface transition-colors" id="pdfMergeSortBtn" data-i18n-bn="নাম অনুসারে (A-Z)" data-i18n-en="Sort (A-Z)">নাম অনুসারে (A-Z)</button>
               <button type="button" class="chip-btn chip-btn--danger inline-flex items-center gap-1 h-8.5 px-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors" id="pdfMergeClearBtn" data-i18n-bn="সব মুছুন" data-i18n-en="Clear All">সব মুছুন</button>
             </div>
@@ -81,8 +87,14 @@
           <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-2.5">
             <h1 class="pdf-ws-title text-base sm:text-lg font-bold text-slate-900 dark:text-studio-text m-0" data-i18n-bn="স্প্লিট PDF" data-i18n-en="Split PDF">স্প্লিট PDF</h1>
             <div class="pdf-ws-actions flex items-center flex-wrap gap-1.5" id="pdfSplitTopActions" hidden>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfSplitRotLeftAll" data-i18n-bn="↺ সব" data-i18n-en="↺ All">↺ সব</button>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfSplitRotRightAll" data-i18n-bn="↻ সব" data-i18n-en="↻ All">↻ সব</button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfSplitRotLeftAll" title="সব পৃষ্ঠা বামে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfSplitRotRightAll" title="সব পৃষ্ঠা ডানে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                <span data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
+              </button>
               <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfSplitSelectAllBtn" data-i18n-bn="সব পেজ সিলেক্ট" data-i18n-en="Select All Pages">সব পেজ সিলেক্ট</button>
               <button type="button" class="chip-btn chip-btn--danger h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer" id="pdfSplitResetBtn" data-i18n-bn="অন্য ফাইল নিন" data-i18n-en="Choose Another File">অন্য ফাইল নিন</button>
             </div>
@@ -154,8 +166,14 @@
           <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-2.5">
             <h1 class="pdf-ws-title text-base sm:text-lg font-bold text-slate-900 dark:text-studio-text m-0" data-i18n-bn="কমপ্রেস PDF" data-i18n-en="Compress PDF">কমপ্রেস PDF</h1>
             <div class="pdf-ws-actions flex items-center flex-wrap gap-1.5" id="pdfCompressTopActions" hidden>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfCompressRotLeftAll" data-i18n-bn="↺ সব" data-i18n-en="↺ All">↺ সব</button>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfCompressRotRightAll" data-i18n-bn="↻ সব" data-i18n-en="↻ All">↻ সব</button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfCompressRotLeftAll" title="সব পৃষ্ঠা বামে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfCompressRotRightAll" title="সব পৃষ্ঠা ডানে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                <span data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
+              </button>
               <button type="button" class="chip-btn chip-btn--danger h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer" id="pdfCompressResetBtn" data-i18n-bn="অন্য ফাইল নিন" data-i18n-en="Choose Another File">অন্য ফাইল নিন</button>
             </div>
           </div>
@@ -218,8 +236,14 @@
               </div>
               <div class="pdf-pages-grid pdf-pages-grid--compact grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5" id="pdfCompressPreviewGrid"></div>
               <div class="pdf-compress-result-actions flex items-center justify-end flex-wrap gap-2">
-                <button type="button" class="chip-btn h-9 px-3 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfCompressCompareBtn" data-i18n-bn="🔍 আগে / পরে তুলনা করুন" data-i18n-en="🔍 Compare Before / After">🔍 আগে / পরে তুলনা করুন</button>
-                <button type="button" class="chip-btn h-9 px-3 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfCompressRetryBtn" data-i18n-bn="↻ অন্য লেভেলে আবার কমপ্রেস করুন" data-i18n-en="↻ Try Another Level">↻ অন্য লেভেলে আবার কমপ্রেস করুন</button>
+                <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfCompressCompareBtn">
+                  <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                  <span data-i18n-bn="আগে / পরে তুলনা করুন" data-i18n-en="Compare Before / After">আগে / পরে তুলনা করুন</span>
+                </button>
+                <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfCompressRetryBtn">
+                  <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                  <span data-i18n-bn="অন্য লেভেলে আবার কমপ্রেস করুন" data-i18n-en="Try Another Level">অন্য লেভেলে আবার কমপ্রেস করুন</span>
+                </button>
                 <button type="button" class="btn btn--primary inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border-0 cursor-pointer" id="pdfCompressDownloadBtn">
                   <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
                   <span data-i18n-bn="কমপ্রেসড PDF ডাউনলোড করুন" data-i18n-en="Download Compressed PDF">কমপ্রেসড PDF ডাউনলোড করুন</span>
@@ -242,10 +266,22 @@
           <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-2.5">
             <h1 class="pdf-ws-title text-base sm:text-lg font-bold text-slate-900 dark:text-studio-text m-0" data-i18n-bn="অর্গানাইজ ও রোটেট PDF" data-i18n-en="Organize & Rotate PDF">অর্গানাইজ ও রোটেট PDF</h1>
             <div class="pdf-ws-actions flex items-center flex-wrap gap-1.5" id="pdfOrgTopActions" hidden>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfOrgRotLeftAll" data-i18n-bn="↺ সব" data-i18n-en="↺ All">↺ সব</button>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfOrgRotRightAll" data-i18n-bn="↻ সব" data-i18n-en="↻ All">↻ সব</button>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfOrgAddBlank" data-i18n-bn="+ সাদা পেজ" data-i18n-en="+ Blank Page">+ সাদা পেজ</button>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfOrgReverseBtn" data-i18n-bn="⇅ উল্টো ক্রম" data-i18n-en="⇅ Reverse Order">⇅ উল্টো ক্রম</button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfOrgRotLeftAll" title="সব পৃষ্ঠা বামে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfOrgRotRightAll" title="সব পৃষ্ঠা ডানে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                <span data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfOrgAddBlank">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                <span data-i18n-bn="সাদা পেজ" data-i18n-en="Blank Page">সাদা পেজ</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfOrgReverseBtn">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+                <span data-i18n-bn="উল্টো ক্রম" data-i18n-en="Reverse Order">উল্টো ক্রম</span>
+              </button>
               <button type="button" class="chip-btn chip-btn--danger h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer" id="pdfOrgResetBtn" data-i18n-bn="অন্য ফাইল নিন" data-i18n-en="Choose Another File">অন্য ফাইল নিন</button>
             </div>
           </div>
@@ -287,8 +323,14 @@
           <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-2.5">
             <h1 class="pdf-ws-title text-base sm:text-lg font-bold text-slate-900 dark:text-studio-text m-0" data-i18n-bn="PDF কনভার্টার (JPG / PNG / Word / Text)" data-i18n-en="Convert PDF to JPG / PNG / Word / Text">PDF কনভার্টার (JPG / PNG / Word / Text)</h1>
             <div class="pdf-ws-actions flex items-center flex-wrap gap-1.5" id="pdfToOtherTopActions" hidden>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfToOtherRotLeftAll" data-i18n-bn="↺ সব" data-i18n-en="↺ All">↺ সব</button>
-              <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="pdfToOtherRotRightAll" data-i18n-bn="↻ সব" data-i18n-en="↻ All">↻ সব</button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfToOtherRotLeftAll" title="সব পৃষ্ঠা বামে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfToOtherRotRightAll" title="সব পৃষ্ঠা ডানে ঘোরান">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                <span data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
+              </button>
               <button type="button" class="chip-btn chip-btn--danger h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer" id="pdfToOtherResetBtn" data-i18n-bn="অন্য ফাইল নিন" data-i18n-en="Choose Another File">অন্য ফাইল নিন</button>
             </div>
           </div>
@@ -410,7 +452,10 @@
                   <span data-i18n-bn="আরও ছবি যোগ করুন" data-i18n-en="Add More Images">আরও ছবি যোগ করুন</span>
                   <input type="file" id="img2pdfAddMore" accept="image/jpeg,image/png,image/webp,image/bmp,image/gif,.jpg,.jpeg,.png,.webp,.gif,.bmp" multiple class="visually-hidden sr-only" />
                 </label>
-                <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer" id="img2pdfRotAll" data-i18n-bn="↻ সব ঘোরান" data-i18n-en="↻ Rotate All">↻ সব ঘোরান</button>
+                <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="img2pdfRotAll" title="সব ছবি ডানে ঘোরান">
+                  <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                  <span data-i18n-bn="সব ঘোরান" data-i18n-en="Rotate All">সব ঘোরান</span>
+                </button>
                 <button type="button" class="chip-btn chip-btn--danger h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer" id="img2pdfClearBtn" data-i18n-bn="সব ছবি মুছুন" data-i18n-en="Clear All Images">সব ছবি মুছুন</button>
               </div>
 
@@ -512,9 +557,17 @@
         <p class="pdf-dialog__sub text-xs text-slate-500 dark:text-studio-muted mt-0.5 mb-0" id="pdfPagesDialogSub"></p>
       </div>
       <div class="pdf-ws-actions flex items-center gap-1.5 shrink-0">
-        <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold hover:border-emerald-500 cursor-pointer transition-colors" id="pdfPagesDlgRotL" data-i18n-bn="↺ সব বামে" data-i18n-en="↺ Rotate Left">↺ সব বামে</button>
-        <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold hover:border-emerald-500 cursor-pointer transition-colors" id="pdfPagesDlgRotR" data-i18n-bn="↻ সব ডানে" data-i18n-en="↻ Rotate Right">↻ সব ডানে</button>
-        <button type="button" class="ai-close pdf-dialog__close w-8 h-8 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel hover:bg-rose-50 hover:text-rose-600 hover:border-rose-300 flex items-center justify-center cursor-pointer transition-colors" id="pdfPagesDlgClose" aria-label="Close">✕</button>
+        <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold hover:border-emerald-500 cursor-pointer transition-colors" id="pdfPagesDlgRotL" title="সব পৃষ্ঠা বামে ঘোরান">
+          <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
+        </button>
+        <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold hover:border-emerald-500 cursor-pointer transition-colors" id="pdfPagesDlgRotR" title="সব পৃষ্ঠা ডানে ঘোরান">
+          <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+          <span data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
+        </button>
+        <button type="button" class="ai-close pdf-dialog__close w-8 h-8 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel hover:bg-rose-50 hover:text-rose-600 hover:border-rose-300 flex items-center justify-center cursor-pointer transition-colors" id="pdfPagesDlgClose" aria-label="Close">
+          <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
     </div>
     <div class="pdf-dialog__body max-h-[65vh] overflow-y-auto p-1">
@@ -534,14 +587,26 @@
       </div>
       <div class="pdf-ws-actions flex flex-wrap items-center gap-1.5 shrink-0">
         <div class="inline-flex items-center rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border p-0.5 mr-1">
-          <button type="button" class="w-7 h-7 rounded-md text-sm font-bold text-slate-700 dark:text-studio-text hover:bg-white dark:hover:bg-studio-surface hover:text-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer transition-colors" id="pdfPreviewZoomOut" title="Zoom Out (−)" aria-label="Zoom Out">−</button>
+          <button type="button" class="w-7 h-7 rounded-md text-slate-700 dark:text-studio-text hover:bg-white dark:hover:bg-studio-surface hover:text-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer transition-colors" id="pdfPreviewZoomOut" title="Zoom Out (−)" aria-label="Zoom Out">
+            <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+          </button>
           <button type="button" class="px-2 h-7 rounded-md text-[11px] font-extrabold text-slate-700 dark:text-studio-text hover:bg-white dark:hover:bg-studio-surface hover:text-emerald-600 flex items-center justify-center cursor-pointer transition-colors min-w-[46px]" id="pdfPreviewZoomReset" title="Reset Zoom (100%)" aria-label="Reset Zoom">100%</button>
-          <button type="button" class="w-7 h-7 rounded-md text-sm font-bold text-slate-700 dark:text-studio-text hover:bg-white dark:hover:bg-studio-surface hover:text-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer transition-colors" id="pdfPreviewZoomIn" title="Zoom In (+)" aria-label="Zoom In">+</button>
+          <button type="button" class="w-7 h-7 rounded-md text-slate-700 dark:text-studio-text hover:bg-white dark:hover:bg-studio-surface hover:text-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer transition-colors" id="pdfPreviewZoomIn" title="Zoom In (+)" aria-label="Zoom In">
+            <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+          </button>
         </div>
-        <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold hover:border-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors" id="pdfPreviewPrev" aria-label="Previous page" data-i18n-bn="← আগের" data-i18n-en="← Prev">← আগের</button>
+        <button type="button" class="chip-btn inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold hover:border-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors" id="pdfPreviewPrev" aria-label="Previous page">
+          <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          <span data-i18n-bn="আগের" data-i18n-en="Prev">আগের</span>
+        </button>
         <span class="pdf-summary-pill text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-studio-panel" id="pdfPreviewCounter">১ / ১</span>
-        <button type="button" class="chip-btn h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold hover:border-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors" id="pdfPreviewNext" aria-label="Next page" data-i18n-bn="পরের →" data-i18n-en="Next →">পরের →</button>
-        <button type="button" class="ai-close pdf-dialog__close w-8 h-8 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel hover:bg-rose-50 hover:text-rose-600 hover:border-rose-300 flex items-center justify-center cursor-pointer transition-colors" id="pdfPreviewClose" aria-label="Close">✕</button>
+        <button type="button" class="chip-btn inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold hover:border-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors" id="pdfPreviewNext" aria-label="Next page">
+          <span data-i18n-bn="পরের" data-i18n-en="Next">পরের</span>
+          <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button type="button" class="ai-close pdf-dialog__close w-8 h-8 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel hover:bg-rose-50 hover:text-rose-600 hover:border-rose-300 flex items-center justify-center cursor-pointer transition-colors" id="pdfPreviewClose" aria-label="Close">
+          <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
     </div>
     <div class="pdf-dialog__body h-[70vh] w-full rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border overflow-auto p-4 flex">

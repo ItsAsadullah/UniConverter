@@ -465,8 +465,8 @@
             '<span class="img-comp-card__badge">' + badgeTxt + '</span>' +
           '</div>' +
           '<div class="img-comp-card__actions">' +
-            '<button type="button" class="chip-btn" data-cmp-idx="' + idx + '">' + tr('🔍 আগে/পরে দেখুন', '🔍 Compare') + '</button>' +
-            '<button type="button" class="chip-btn chip-btn--accent" data-dl-idx="' + idx + '">' + tr('⬇ ডাউনলোড', '⬇ Download') + '</button>' +
+            '<button type="button" class="chip-btn inline-flex items-center gap-1.5" data-cmp-idx="' + idx + '"><svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>' + tr('আগে/পরে দেখুন', 'Compare') + '</span></button>' +
+            '<button type="button" class="chip-btn chip-btn--accent inline-flex items-center gap-1.5" data-dl-idx="' + idx + '"><svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span>' + tr('ডাউনলোড', 'Download') + '</span></button>' +
           '</div>' +
         '</div>';
       list.appendChild(card);

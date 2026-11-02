@@ -178,7 +178,7 @@
   /* Dynamic PDF Page & File Cards */
   .pdf-page-card,
   .img-comp-card {
-    @apply relative flex flex-col rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border p-2.5 shadow-2xs transition-colors hover:border-emerald-500/70;
+    @apply relative flex flex-col rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border p-2.5 shadow-2xs hover:shadow-md transition-all duration-150 hover:border-emerald-500/70;
   }
   .pdf-page-card--selectable {
     @apply cursor-pointer;
@@ -187,12 +187,51 @@
     @apply border-emerald-500 bg-emerald-500/5 ring-2 ring-emerald-500/20;
   }
   .pdf-page-card__thumb-wrap {
-    @apply relative aspect-[3/4] rounded-lg bg-slate-100 dark:bg-studio-panel overflow-hidden flex items-center justify-center mb-2;
+    @apply relative aspect-[3/4] rounded-lg bg-slate-100/80 dark:bg-studio-panel border border-slate-200/70 dark:border-studio-border/60 overflow-hidden flex items-center justify-center mb-2.5 select-none;
+  }
+  .pdf-page-card:hover .pdf-page-card__thumb-wrap {
+    @apply border-emerald-500/40;
   }
   .pdf-page-card__thumb,
   .img-comp-card__thumb {
-    @apply max-w-full max-h-full object-contain rounded transition-transform duration-200;
+    @apply max-w-full max-h-full object-contain rounded-xs bg-white ring-1 ring-slate-900/10 dark:ring-white/10 transition-shadow duration-200;
+    box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.08), 0 1px 3px -1px rgba(0, 0, 0, 0.05);
   }
+  .dark .pdf-page-card__thumb,
+  .dark .img-comp-card__thumb {
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  }
+  .pdf-page-card:hover .pdf-page-card__thumb,
+  .img-comp-card:hover .img-comp-card__thumb {
+    box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.14), 0 3px 6px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Multi-page document booklet stack illusion */
+  .pdf-page-card.is-multi .pdf-page-card__thumb {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      3px 3px 0 0 #f8fafc,
+      3px 3px 0 1px rgba(148, 163, 184, 0.45),
+      6px 6px 0 0 #f1f5f9,
+      6px 6px 0 1px rgba(148, 163, 184, 0.35);
+  }
+  .dark .pdf-page-card.is-multi .pdf-page-card__thumb {
+    box-shadow:
+      0 2px 5px rgba(0, 0, 0, 0.4),
+      3px 3px 0 0 #1e293b,
+      3px 3px 0 1px rgba(71, 85, 105, 0.6),
+      6px 6px 0 0 #0f172a,
+      6px 6px 0 1px rgba(71, 85, 105, 0.5);
+  }
+  .pdf-page-card.is-multi:hover .pdf-page-card__thumb {
+    box-shadow:
+      0 6px 16px -2px rgba(0, 0, 0, 0.14),
+      4px 4px 0 0 #f8fafc,
+      4px 4px 0 1px rgba(16, 185, 129, 0.4),
+      7px 7px 0 0 #f1f5f9,
+      7px 7px 0 1px rgba(148, 163, 184, 0.4);
+  }
+
   .pdf-blank-thumb {
     @apply w-3/4 h-4/5 rounded border border-dashed border-slate-300 dark:border-slate-600 bg-white flex items-center justify-center text-xs text-slate-400 font-semibold;
   }
@@ -224,7 +263,10 @@
     @apply flex items-center justify-end gap-1 mt-2 pt-2 border-t border-slate-100 dark:border-studio-border flex-wrap;
   }
   .pdf-mini-btn {
-    @apply min-w-7 h-7 px-1.5 rounded-md bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-bold text-slate-700 dark:text-studio-text hover:border-emerald-500 inline-flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors;
+    @apply min-w-7 h-8 px-1.5 rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/80 dark:border-studio-border text-xs font-bold text-slate-700 dark:text-studio-text hover:bg-white dark:hover:bg-studio-surface hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-studio-primary inline-flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all;
+  }
+  .pdf-mini-btn--wide {
+    @apply flex-[1.4] gap-1 px-2;
   }
   .pdf-mini-btn--del {
     @apply hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10;
