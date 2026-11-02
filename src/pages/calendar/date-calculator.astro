@@ -1,0 +1,14 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import DateCalcTool from '../../components/DateCalcTool.svelte';
+import DateModals from '../../components/DateModals.svelte';
+---
+<ToolLayout toolId="datecalc">
+  <DateCalcTool />
+
+  <DateModals slot="after-workbench" />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/js/tools.js?v=61" defer></script>
+  </Fragment>
+</ToolLayout>

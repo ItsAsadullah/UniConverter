@@ -86,11 +86,28 @@ const texts = (xml, tag) => [...xml.matchAll(new RegExp(`<${tag}(?: [^>]*)?>([^<
   r = await Office.convertOffice(await makeZip({ 'word/document.xml': docSplit }), 'split.docx', opts('u2b'));
   x = await readPart(r.data, 'word/document.xml');
   const tSplit = texts(x, 'w:t');
-  ok('docx u2b split শ+ৃ merged and /, (), =, × converted', JSON.stringify(tSplit) === JSON.stringify(['k\u201E', ' (', 'K', '/', 'L', ') ', '5', '\u00B4', '8', ' = ', '40']), JSON.stringify(tSplit));
+  ok('docx u2b split শ+ৃ merged and /, (), =, × converted', JSON.stringify(tSplit) === JSON.stringify(['k\u201E', ' (', 'K', '/', 'L', ') ', '5', '\uF0B4', '8', ' = ', '40']), JSON.stringify(tSplit));
   ok('docx u2b × uses Symbol font', /w:ascii="Symbol" w:hAnsi="Symbol" w:cs="Symbol" w:eastAsia="Symbol"/.test(x), x);
   const rBack = await Office.convertOffice(r.data, 'split-bijoy.docx', opts('b2u'));
   const xBack = await readPart(rBack.data, 'word/document.xml');
   ok('docx b2u Symbol × round-trips to Unicode ×', texts(xBack, 'w:t').join('') === 'শৃ (ক/খ) ৫×৮ = ৪০', JSON.stringify(texts(xBack, 'w:t')));
+
+  // duplicate <w:rFonts> inside <w:rPr> (e.g. python-docx output) + explicit <w:sz> vs docDefaults <w:szCs>
+  const stylesDup = `<?xml version="1.0" encoding="UTF-8"?><w:styles ${W}><w:docDefaults><w:rPrDefault><w:rPr><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
+  const fontTblDup = `<?xml version="1.0" encoding="UTF-8"?><w:fonts ${W}><w:font w:name="Times New Roman"/></w:fonts>`;
+  const docDup = `<?xml version="1.0" encoding="UTF-8"?><w:document ${W}><w:body><w:p>
+    <w:r><w:rPr><w:rFonts w:ascii="Nirmala UI" w:hAnsi="Nirmala UI"/><w:b/><w:sz w:val="32"/><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Nirmala UI" w:eastAsia="Nirmala UI"/></w:rPr><w:t>রহিমা জান্নাত মহিলা মাদ্রাসা</w:t></w:r>
+  </w:p><w:p>
+    <w:r><w:rPr><w:rFonts w:ascii="Nirmala UI" w:hAnsi="Nirmala UI"/></w:rPr><w:t>5×2=10</w:t></w:r>
+  </w:p></w:body></w:document>`;
+  const rDup = await Office.convertOffice(await makeZip({ 'word/document.xml': docDup, 'word/styles.xml': stylesDup, 'word/fontTable.xml': fontTblDup }), 'dup.docx', opts('u2b'));
+  const xDup = await readPart(rDup.data, 'word/document.xml');
+  const ftDup = await readPart(rDup.data, 'word/fontTable.xml');
+  const firstParaDup = (xDup.match(/<w:p>[\s\S]*?<\/w:p>/g) || [])[0] || '';
+  ok('docx u2b removes duplicate rFonts so SutonnyMJ is not overridden', (firstParaDup.match(/<w:rFonts\b/g) || []).length === 1 && /w:ascii="SutonnyMJ"/.test(firstParaDup) && !/Times New Roman/.test(firstParaDup), firstParaDup);
+  ok('docx u2b preserves explicit run w:sz="32" over docDefaults szCs="22"', /<w:sz w:val="32"\/>/.test(firstParaDup) && /<w:szCs w:val="32"\/>/.test(firstParaDup), firstParaDup);
+  ok('docx u2b adds SutonnyMJ to word/fontTable.xml with sig', /w:name="SutonnyMJ"/.test(ftDup) && /w:usb0="00000003"/.test(ftDup), ftDup);
+  ok('docx u2b 5×2=10 keeps 5 and 2=10 in Times New Roman and × in Symbol PUA \\uF0B4', JSON.stringify(texts(xDup, 'w:t')) === JSON.stringify(['iwngv Rvb\u0153vZ gwnjv gv`\u00AAvmv', '5', '\uF0B4', '2=10']), JSON.stringify(texts(xDup, 'w:t')));
 
   // ---------------------------------------------------------------- XLSX B→U and U→B
   const S = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"';

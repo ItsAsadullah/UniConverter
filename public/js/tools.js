@@ -16,17 +16,26 @@
   var bDig = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
   var enM = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var enMFull = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+  var enMFullEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   var bnM = ['বৈশাখ', 'জ্যৈষ্ঠ', 'আষাঢ়', 'শ্রাবণ', 'ভাদ্র', 'আশ্বিন', 'কার্তিক', 'অগ্রহায়ণ', 'পৌষ', 'মাঘ', 'ফাল্গুন', 'চৈত্র'];
+  var bnMEn = ['Boishakh', 'Jyoishtho', 'Asharh', 'Shrabon', 'Bhadro', 'Ashwin', 'Kartik', 'Ogrohayon', 'Poush', 'Magh', 'Falgun', 'Choitro'];
   var hjM = ['মহররম', 'সফর', 'রবিউল আউয়াল', 'রবিউল সানি', 'জমাদিউল আউয়াল', 'জমাদিউল সানি', 'রজব', 'শাবান', 'রমজান', 'শাওয়াল', 'জিলক্বদ', 'জিলহজ'];
+  var hjMEn = ['Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani', 'Jumada al-Ula', 'Jumada al-Akhirah', 'Rajab', 'Shaban', 'Ramadan', 'Shawwal', 'Dhu al-Qadah', 'Dhu al-Hijjah'];
   var days = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
+  var daysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var sea = ['গ্রীষ্ম', 'বর্ষা', 'শরৎ', 'হেমন্ত', 'শীত', 'বসন্ত'];
+  var seaEn = ['Summer (Grishmo)', 'Monsoon (Borsha)', 'Autumn (Shorot)', 'Late Autumn (Hemonto)', 'Winter (Sheet)', 'Spring (Bosonto)'];
   var zod = [
-    { n: 'মকর', i: '♑' }, { n: 'কুম্ভ', i: '♒' }, { n: 'মীন', i: '♓' }, { n: 'মেষ', i: '♈' },
-    { n: 'বৃষ', i: '♉' }, { n: 'মিথুন', i: '♊' }, { n: 'কর্কট', i: '♋' }, { n: 'সিংহ', i: '♌' },
-    { n: 'কন্যা', i: '♍' }, { n: 'তুলা', i: '♎' }, { n: 'বৃশ্চিক', i: '♏' }, { n: 'ধনু', i: '♐' }
+    { n: 'মকর', en: 'Capricorn', i: '♑' }, { n: 'কুম্ভ', en: 'Aquarius', i: '♒' }, { n: 'মীন', en: 'Pisces', i: '♓' }, { n: 'মেষ', en: 'Aries', i: '♈' },
+    { n: 'বৃষ', en: 'Taurus', i: '♉' }, { n: 'মিথুন', en: 'Gemini', i: '♊' }, { n: 'কর্কট', en: 'Cancer', i: '♋' }, { n: 'সিংহ', en: 'Leo', i: '♌' },
+    { n: 'কন্যা', en: 'Virgo', i: '♍' }, { n: 'তুলা', en: 'Libra', i: '♎' }, { n: 'বৃশ্চিক', en: 'Scorpio', i: '♏' }, { n: 'ধনু', en: 'Sagittarius', i: '♐' }
   ];
 
+  function isEn() {
+    return document.documentElement.getAttribute('data-lang') === 'en';
+  }
   function toBn(n) {
+    if (isEn()) return String(n);
     return String(n).replace(/\d/g, function (d) { return bDig[d]; });
   }
   function isLeap(y) {
@@ -447,26 +456,52 @@
 
   function renderConv() {
     if (!$('#txtD')) return;
+    var en = isEn();
+    var mFull = en ? enMFullEn : enMFull;
+    var bNames = en ? bnMEn : bnM;
+    var hNames = en ? hjMEn : hjM;
+    var dNames = en ? daysEn : days;
+    var sNames = en ? seaEn : sea;
+
     var d = base.getDate(), m = base.getMonth(), y = base.getFullYear();
     var dispD = d, dispM = enM[m], dispY = y;
     if (mode === 'BN') {
       var b = getBn(base);
-      dispD = b.d; dispM = bnM[b.m]; dispY = b.y;
+      dispD = b.d; dispM = bNames[b.m]; dispY = b.y;
     } else if (mode === 'HJ') {
       var h = getHjWithAdj(base);
-      dispD = h.d; dispM = hjM[h.m]; dispY = h.y;
+      dispD = h.d; dispM = hNames[h.m]; dispY = h.y;
     }
     $('#txtD').textContent = toBn(dispD < 10 ? '0' + dispD : dispD);
     $('#txtM').textContent = dispM;
     $('#txtY').textContent = toBn(dispY);
 
-    var bn = getBn(base), hj = getHjWithAdj(base), dn = days[base.getDay()], s = sea[Math.floor(bn.m / 2)];
+    var bn = getBn(base), hj = getHjWithAdj(base), dn = dNames[base.getDay()], s = sNames[Math.floor(bn.m / 2)];
+    var sSuffix = en ? '' : ' কাল';
     if (mode === 'EN') {
-      updR('বাংলা তারিখ', toBn(bn.d) + ' ' + bnM[bn.m] + ', ' + toBn(bn.y), dn + ' • ' + s + ' কাল', 'হিজরি তারিখ', toBn(hj.d) + ' ' + hjM[hj.m] + ', ' + toBn(hj.y));
+      updR(
+        en ? 'Bangla Date' : 'বাংলা তারিখ',
+        toBn(bn.d) + ' ' + bNames[bn.m] + ', ' + toBn(bn.y),
+        dn + ' • ' + s + sSuffix,
+        en ? 'Hijri Date' : 'হিজরি তারিখ',
+        toBn(hj.d) + ' ' + hNames[hj.m] + ', ' + toBn(hj.y)
+      );
     } else if (mode === 'BN') {
-      updR('ইংরেজি তারিখ', toBn(d) + ' ' + enMFull[m] + ', ' + toBn(y), dn + ' • ' + s + ' কাল', 'হিজরি তারিখ', toBn(hj.d) + ' ' + hjM[hj.m] + ', ' + toBn(hj.y));
+      updR(
+        en ? 'Gregorian Date' : 'ইংরেজি তারিখ',
+        toBn(d) + ' ' + mFull[m] + ', ' + toBn(y),
+        dn + ' • ' + s + sSuffix,
+        en ? 'Hijri Date' : 'হিজরি তারিখ',
+        toBn(hj.d) + ' ' + hNames[hj.m] + ', ' + toBn(hj.y)
+      );
     } else {
-      updR('ইংরেজি তারিখ', toBn(d) + ' ' + enMFull[m] + ', ' + toBn(y), dn, 'বাংলা তারিখ', toBn(bn.d) + ' ' + bnM[bn.m] + ', ' + toBn(bn.y) + ' (' + s + ' কাল)');
+      updR(
+        en ? 'Gregorian Date' : 'ইংরেজি তারিখ',
+        toBn(d) + ' ' + mFull[m] + ', ' + toBn(y),
+        dn,
+        en ? 'Bangla Date' : 'বাংলা তারিখ',
+        toBn(bn.d) + ' ' + bNames[bn.m] + ', ' + toBn(bn.y) + ' (' + s + sSuffix + ')'
+      );
     }
   }
 
@@ -670,6 +705,7 @@
 
   function calcStats() {
     if (!$('#age-main')) return;
+    var en = isEn();
     var d = new Date(dob), r = new Date(ref);
     if (d > r) { var tmp = d; d = r; r = tmp; }
     var y = r.getFullYear() - d.getFullYear();
@@ -683,7 +719,9 @@
       y--;
       m += 12;
     }
-    $('#age-main').textContent = toBn(y) + ' বছর, ' + toBn(m) + ' মাস, ' + toBn(dt) + ' দিন';
+    $('#age-main').textContent = en
+      ? toBn(y) + ' Years, ' + toBn(m) + ' Months, ' + toBn(dt) + ' Days'
+      : toBn(y) + ' বছর, ' + toBn(m) + ' মাস, ' + toBn(dt) + ' দিন';
     var diff = r - d;
     $('#st-sec').textContent = toBn(Math.floor(diff / 1000));
     $('#st-min').textContent = toBn(Math.floor(diff / 60000));
@@ -696,15 +734,22 @@
 
   function calcDob() {
     if (!$('#dob-main')) return;
+    var en = isEn();
+    var mFull = en ? enMFullEn : enMFull;
+    var bNames = en ? bnMEn : bnM;
+    var hNames = en ? hjMEn : hjM;
+    var dNames = en ? daysEn : days;
+    var sNames = en ? seaEn : sea;
+
     var t = new Date(fref);
     t.setFullYear(t.getFullYear() - rev.y);
     t.setMonth(t.getMonth() - rev.m);
     t.setDate(t.getDate() - rev.d);
-    var dn = days[t.getDay()], bn = getBn(t), s = sea[Math.floor(bn.m / 2)], hj = getHjWithAdj(t);
-    $('#dob-main').textContent = toBn(t.getDate()) + ' ' + enMFull[t.getMonth()] + ', ' + toBn(t.getFullYear()) + ' (' + dn + ')';
-    $('#dob-season').textContent = s + ' কাল';
-    $('#dob-bn').textContent = 'বাংলা: ' + toBn(bn.d) + ' ' + bnM[bn.m] + ', ' + toBn(bn.y);
-    $('#dob-hj').textContent = 'হিজরি: ' + toBn(hj.d) + ' ' + hjM[hj.m] + ', ' + toBn(hj.y);
+    var dn = dNames[t.getDay()], bn = getBn(t), s = sNames[Math.floor(bn.m / 2)], hj = getHjWithAdj(t);
+    $('#dob-main').textContent = toBn(t.getDate()) + ' ' + mFull[t.getMonth()] + ', ' + toBn(t.getFullYear()) + ' (' + dn + ')';
+    $('#dob-season').textContent = en ? s : (s + ' কাল');
+    $('#dob-bn').textContent = (en ? 'Bangla: ' : 'বাংলা: ') + toBn(bn.d) + ' ' + bNames[bn.m] + ', ' + toBn(bn.y);
+    $('#dob-hj').textContent = (en ? 'Hijri: ' : 'হিজরি: ') + toBn(hj.d) + ' ' + hNames[hj.m] + ', ' + toBn(hj.y);
   }
 
   /* ==================================================================
@@ -800,15 +845,21 @@
 
   function compCalc() {
     if (!$('#dcResEn')) return;
+    var en = isEn();
+    var mFull = en ? enMFullEn : enMFull;
+    var bNames = en ? bnMEn : bnM;
+    var hNames = en ? hjMEn : hjM;
+    var dNames = en ? daysEn : days;
+
     var checked = $('input[name="dcDir"]:checked');
     var isAfter = !checked || checked.value === 'after';
     var t = new Date(start), fac = isAfter ? 1 : -1;
     t.setFullYear(t.getFullYear() + (dur.y * fac));
     t.setMonth(t.getMonth() + (dur.m * fac));
     t.setDate(t.getDate() + (dur.d * fac));
-    var b = getBn(t), dn = days[t.getDay()], hj = getHjWithAdj(t);
-    $('#dcResEn').textContent = toBn(t.getDate()) + ' ' + enMFull[t.getMonth()] + ', ' + toBn(t.getFullYear());
-    $('#dcResBn').textContent = 'বাংলা: ' + toBn(b.d) + ' ' + bnM[b.m] + ', ' + toBn(b.y) + ' (' + dn + ') • হিজরি: ' + toBn(hj.d) + ' ' + hjM[hj.m] + ', ' + toBn(hj.y);
+    var b = getBn(t), dn = dNames[t.getDay()], hj = getHjWithAdj(t);
+    $('#dcResEn').textContent = toBn(t.getDate()) + ' ' + mFull[t.getMonth()] + ', ' + toBn(t.getFullYear());
+    $('#dcResBn').textContent = (en ? 'Bangla: ' : 'বাংলা: ') + toBn(b.d) + ' ' + bNames[b.m] + ', ' + toBn(b.y) + ' (' + dn + ') • ' + (en ? 'Hijri: ' : 'হিজরি: ') + toBn(hj.d) + ' ' + hNames[hj.m] + ', ' + toBn(hj.y);
   }
 
   /* ==================================================================
@@ -911,7 +962,9 @@
   }
 
   function initInv() {
-    if (!invInitialized) {
+    var invRoot = $('#tool-invoice');
+    if (invRoot && invRoot.dataset.invBound !== '1') {
+      invRoot.dataset.invBound = '1';
       var dateInp = $('#invDate');
       if (dateInp) {
         try { dateInp.valueAsDate = getBDDate(); } catch (e) {}
@@ -945,18 +998,21 @@
   function renderInvItems() {
     var list = $('#invList');
     if (!list) return;
+    var en = isEn();
     var curr = getInvCurr();
     list.innerHTML = '';
     invItems.forEach(function (item, index) {
       var row = document.createElement('tr');
       var lineTotal = ((parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0)).toFixed(2);
+      var ph = en ? 'Enter item name or description...' : 'পণ্যের নাম বা বিবরণ লিখুন...';
+      var delTip = en ? 'Remove row' : 'সারি মুছুন';
       row.innerHTML =
-        '<td class="inv-sl-cell" style="text-align:center;">' + toBn(index + 1) + '</td>' +
-        '<td><input type="text" class="inv-inp-trans" placeholder="পণ্যের নাম বা বিবরণ লিখুন..." value="' + String(item.desc).replace(/"/g, '&quot;') + '" data-idx="' + index + '" data-field="desc"></td>' +
-        '<td style="text-align:right;"><input type="number" class="inv-inp-trans" style="text-align:right;" placeholder="0" min="0" step="any" value="' + item.price + '" data-idx="' + index + '" data-field="price"></td>' +
-        '<td style="text-align:center;"><input type="number" class="inv-inp-trans" style="text-align:center;" placeholder="1" min="0" step="any" value="' + item.qty + '" data-idx="' + index + '" data-field="qty"></td>' +
-        '<td class="inv-line-total" style="text-align:right;">' + curr + ' ' + lineTotal + '</td>' +
-        '<td class="no-print inv-del-col" style="text-align:center;"><button type="button" class="btn-del no-print" data-del="' + index + '" title="সারি মুছুন" aria-label="সারি মুছুন">✕</button></td>';
+        '<td class="inv-sl-cell p-2 text-center font-semibold text-slate-600" style="text-align:center;">' + toBn(index + 1) + '</td>' +
+        '<td class="p-1.5"><input type="text" class="inv-inp-trans w-full h-8 px-2 rounded bg-transparent border border-transparent focus:border-emerald-500 focus:bg-slate-50 text-xs text-slate-900 outline-none" placeholder="' + ph + '" value="' + String(item.desc).replace(/"/g, '&quot;') + '" data-idx="' + index + '" data-field="desc"></td>' +
+        '<td class="p-1.5" style="text-align:right;"><input type="number" class="inv-inp-trans w-full h-8 px-2 rounded bg-transparent border border-transparent focus:border-emerald-500 focus:bg-slate-50 text-xs text-slate-900 text-right outline-none" style="text-align:right;" placeholder="0" min="0" step="any" value="' + item.price + '" data-idx="' + index + '" data-field="price"></td>' +
+        '<td class="p-1.5" style="text-align:center;"><input type="number" class="inv-inp-trans w-full h-8 px-2 rounded bg-transparent border border-transparent focus:border-emerald-500 focus:bg-slate-50 text-xs text-slate-900 text-center outline-none" style="text-align:center;" placeholder="1" min="0" step="any" value="' + item.qty + '" data-idx="' + index + '" data-field="qty"></td>' +
+        '<td class="inv-line-total p-2 text-right font-bold text-slate-900" style="text-align:right;">' + curr + ' ' + lineTotal + '</td>' +
+        '<td class="no-print inv-del-col p-1.5 text-center" style="text-align:center;"><button type="button" class="btn-del no-print w-6 h-6 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 border-0 cursor-pointer text-xs font-bold inline-flex items-center justify-center" data-del="' + index + '" title="' + delTip + '" aria-label="' + delTip + '">✕</button></td>';
       list.appendChild(row);
     });
 
@@ -1030,18 +1086,19 @@
 
     var badge = $('#invStatusBadge');
     if (badge) {
+      var en = isEn();
       if (total <= 0) {
         badge.setAttribute('data-status', 'draft');
-        badge.textContent = 'খসড়া (DRAFT)';
+        badge.textContent = en ? 'DRAFT' : 'খসড়া (DRAFT)';
       } else if (due <= 0.005) {
         badge.setAttribute('data-status', 'paid');
-        badge.textContent = 'পরিশোধিত (PAID)';
+        badge.textContent = en ? 'PAID' : 'পরিশোধিত (PAID)';
       } else if (paid > 0) {
         badge.setAttribute('data-status', 'partial');
-        badge.textContent = 'আংশিক বাকি (PARTIAL)';
+        badge.textContent = en ? 'PARTIAL DUE' : 'আংশিক বাকি (PARTIAL)';
       } else {
         badge.setAttribute('data-status', 'due');
-        badge.textContent = 'বাকি (DUE)';
+        badge.textContent = en ? 'DUE' : 'বাকি (DUE)';
       }
     }
   }
@@ -1113,7 +1170,7 @@
     if (type === 'd') {
       gridTitle.textContent = 'দিন নির্বাচন';
       calHeader.style.display = 'grid';
-      gridContent.className = 'grid-grid g-day-grid';
+      gridContent.className = 'grid-grid g-day-grid grid grid-cols-7 gap-1.5';
 
       var startDayIdx = 0;
       if (ctxMode === 'EN' || id.indexOf('ad') === 0 || id.indexOf('ar') === 0 || id.indexOf('af') === 0 || id.indexOf('dc') === 0) {
@@ -1140,7 +1197,7 @@
 
       for (var s = 0; s < startDayIdx; s++) {
         var emptySlot = document.createElement('div');
-        emptySlot.className = 'grid-item empty';
+        emptySlot.className = 'grid-item empty h-9';
         gridContent.appendChild(emptySlot);
       }
 
@@ -1150,7 +1207,7 @@
       for (var i = 1; i <= maxD; i++) {
         var btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'grid-item' + (i === curD ? ' active' : '');
+        btn.className = 'grid-item h-9 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel text-xs font-bold text-slate-800 dark:text-studio-text hover:border-emerald-500 cursor-pointer transition-colors' + (i === curD ? ' active !bg-emerald-600 !text-white !border-emerald-600' : '');
         btn.textContent = toBn(i);
         btn.addEventListener('click', makeDayClick(i));
         gridContent.appendChild(btn);
@@ -1158,7 +1215,7 @@
     } else if (type === 'm') {
       gridTitle.textContent = 'মাস নির্বাচন';
       calHeader.style.display = 'none';
-      gridContent.className = 'grid-grid g-month-grid';
+      gridContent.className = 'grid-grid g-month-grid grid grid-cols-3 gap-2';
       gridSub.textContent = toBn(ctxDate.y);
 
       var arr = (ctxMode === 'EN' || id.indexOf('ad') === 0 || id.indexOf('ar') === 0 || id.indexOf('af') === 0 || id.indexOf('dc') === 0)
@@ -1168,7 +1225,7 @@
       arr.forEach(function (n, idx) {
         var btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'grid-item' + (idx === ctxDate.m ? ' active' : '');
+        btn.className = 'grid-item h-10 px-2 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel text-xs font-bold text-slate-800 dark:text-studio-text hover:border-emerald-500 cursor-pointer transition-colors' + (idx === ctxDate.m ? ' active !bg-emerald-600 !text-white !border-emerald-600' : '');
         btn.textContent = n;
         btn.addEventListener('click', function () { selectGrid(idx, 'm'); });
         gridContent.appendChild(btn);
@@ -1289,44 +1346,223 @@
   }
 
   /* ==================================================================
-   * EVENT BINDINGS & INITIALIZATION
+   * EVENT BINDINGS & INITIALIZATION (SPA-SAFE DELEGATION)
    * ================================================================== */
   document.addEventListener('click', function (e) {
-    var gridTarget = e.target.closest && e.target.closest('[data-grid]');
-    if (gridTarget && !e.target.closest('.arr-btn') && !/^INPUT$/i.test(e.target.tagName)) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+
+    // 1. Grid picker modal open
+    var gridTarget = t.closest('[data-grid]');
+    if (gridTarget && !t.closest('.arr-btn') && !/^INPUT$/i.test(t.tagName)) {
       openGrid(gridTarget.getAttribute('data-grid'), gridTarget.getAttribute('data-ref'));
+      return;
+    }
+
+    // 2. Calendar Converter actions
+    var calModeBtn = t.closest('[data-cal-set-mode]');
+    if (calModeBtn) {
+      setMode(calModeBtn.getAttribute('data-cal-set-mode'));
+      return;
+    }
+    var calUpdBtn = t.closest('[data-cal-upd]');
+    if (calUpdBtn) {
+      var p = calUpdBtn.getAttribute('data-cal-upd').split(':');
+      upd(parseInt(p[1], 10), p[0]);
+      return;
+    }
+    if (t.closest('[data-cal-edit-y]') && !/^INPUT$/i.test(t.tagName)) {
+      editY();
+      return;
+    }
+    if (t.closest('[data-cal-horoscope]')) {
+      showAIHoroscope();
+      return;
+    }
+
+    // 3. Age Calculator & DOB Finder actions
+    var ageTabBtn = t.closest('[data-age-tab]');
+    if (ageTabBtn) {
+      switchAgeTab(ageTabBtn.getAttribute('data-age-tab'));
+      return;
+    }
+    var ageUpdBtn = t.closest('[data-age-upd]');
+    if (ageUpdBtn) {
+      var ap = ageUpdBtn.getAttribute('data-age-upd').split(':');
+      updAge(ap[0], ap[1], parseInt(ap[2], 10));
+      return;
+    }
+    var ageEditY = t.closest('[data-age-edit-y]');
+    if (ageEditY && !/^INPUT$/i.test(t.tagName)) {
+      edAgeY(ageEditY.getAttribute('data-age-edit-y'));
+      return;
+    }
+    var revUpdBtn = t.closest('[data-rev-upd]');
+    if (revUpdBtn) {
+      var rp = revUpdBtn.getAttribute('data-rev-upd').split(':');
+      updRev(rp[0], parseInt(rp[1], 10));
+      return;
+    }
+    var revEdit = t.closest('[data-rev-edit]');
+    if (revEdit && !/^INPUT$/i.test(t.tagName)) {
+      edRev(revEdit.getAttribute('data-rev-edit'));
+      return;
+    }
+    if (t.closest('[data-age-insights]')) {
+      showAILifeInsights();
+      return;
+    }
+
+    // 4. Date Duration Calculator actions
+    var dcUpdBtn = t.closest('[data-dc-upd]');
+    if (dcUpdBtn) {
+      var dp = dcUpdBtn.getAttribute('data-dc-upd').split(':');
+      updCalc(dp[0], dp[1], parseInt(dp[2], 10));
+      return;
+    }
+    if (t.closest('[data-dc-edit-y]') && !/^INPUT$/i.test(t.tagName)) {
+      edCalcY();
+      return;
+    }
+    var durEdit = t.closest('[data-dur-edit]');
+    if (durEdit && !/^INPUT$/i.test(t.tagName)) {
+      edDur(durEdit.getAttribute('data-dur-edit'));
+      return;
+    }
+    if (t.closest('[data-dc-analysis]')) {
+      showAICalcAnalysis();
+      return;
+    }
+
+    // 5. Invoice Maker actions
+    if (t.closest('[data-inv-add]')) {
+      addInvItem();
+      return;
+    }
+    if (t.closest('[data-inv-reset]')) {
+      resetInv();
+      return;
+    }
+    if (t.closest('[data-inv-print]')) {
+      printInv();
+      return;
+    }
+
+    // 6. Modals close
+    var gridOverlayEl = $('#gridModalOverlay');
+    if (gridOverlayEl && !gridOverlayEl.hidden && (t === gridOverlayEl || t.closest('#gridCloseBtn'))) {
+      closeGrid();
+      return;
+    }
+    var aiModalEl = $('#aiModal');
+    if (aiModalEl && !aiModalEl.hidden && (t === aiModalEl || t.closest('#aiCloseBtn') || t.closest('.ai-close'))) {
+      closeAIModal(e);
+      return;
     }
   });
 
-  var gridOverlayEl = $('#gridModalOverlay');
-  if (gridOverlayEl) {
-    gridOverlayEl.addEventListener('click', function (e) {
-      if (e.target === gridOverlayEl || (e.target.closest && e.target.closest('#gridCloseBtn'))) closeGrid();
-    });
-  }
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t) return;
+    if (t.id === 'hjAdj') {
+      setAdj(t.value);
+    } else if (t.name === 'dcDir') {
+      compCalc();
+    } else if (t.id === 'invCurrency') {
+      calcInv();
+    }
+  });
 
-  var searchInput = $('#toolSearch');
-  if (searchInput) {
-    searchInput.addEventListener('input', function () {
-      searchQuery = searchInput.value;
-      renderSidebar();
-    });
-  }
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t && t.hasAttribute && t.hasAttribute('data-inv-calc')) {
+      calcInv();
+    }
+  });
 
-  var backToBijoyBtn = $('#backToBijoyBtn');
-  if (backToBijoyBtn) {
-    backToBijoyBtn.addEventListener('click', function () {
-      openTool('bijoy', true);
-    });
-  }
+  document.addEventListener('focusout', function (e) {
+    var t = e.target;
+    if (!t) return;
+    if (t.id === 'yearInp') closeY();
+    else if (t.hasAttribute && t.hasAttribute('data-age-inp-y')) clAgeY(t.getAttribute('data-age-inp-y'));
+    else if (t.hasAttribute && t.hasAttribute('data-rev-inp')) clRev(t.getAttribute('data-rev-inp'));
+    else if (t.id === 'dcY-inp') clCalcY();
+    else if (t.hasAttribute && t.hasAttribute('data-dur-inp')) clDur(t.getAttribute('data-dur-inp'));
+  });
 
-  var btnCalResetEl = $('#btnCalReset');
-  if (btnCalResetEl) {
-    btnCalResetEl.addEventListener('click', resetConverter);
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var t = e.target;
+    if (!t) return;
+    if (t.id === 'yearInp' || (t.hasAttribute && (t.hasAttribute('data-age-inp-y') || t.hasAttribute('data-rev-inp') || t.hasAttribute('data-dur-inp'))) || t.id === 'dcY-inp') {
+      t.blur();
+    }
+  });
+
+  window.addEventListener('th:langchange', function () {
+    if ($('#tool-calendar')) renderConv();
+    if ($('#tool-age')) {
+      renAge('dob', dob);
+      renAge('ref', ref);
+      renAge('fref', fref);
+      calcStats();
+      calcDob();
+    }
+    if ($('#tool-datecalc')) {
+      renCalc();
+      compCalc();
+    }
+    if ($('#tool-invoice')) {
+      renderInvItems();
+      calcInv();
+    }
+  });
+
+  function initPage() {
+    var gridOverlayEl = $('#gridModalOverlay');
+    if (gridOverlayEl && gridOverlayEl.dataset.bound !== '1') {
+      gridOverlayEl.dataset.bound = '1';
+      gridOverlayEl.addEventListener('click', function (e) {
+        if (e.target === gridOverlayEl || (e.target.closest && e.target.closest('#gridCloseBtn'))) closeGrid();
+      });
+    }
+
+    var searchInput = $('#toolSearch');
+    if (searchInput && searchInput.dataset.bound !== '1') {
+      searchInput.dataset.bound = '1';
+      searchInput.addEventListener('input', function () {
+        searchQuery = searchInput.value;
+        renderSidebar();
+      });
+    }
+
+    var backToBijoyBtn = $('#backToBijoyBtn');
+    if (backToBijoyBtn && backToBijoyBtn.dataset.bound !== '1') {
+      backToBijoyBtn.dataset.bound = '1';
+      backToBijoyBtn.addEventListener('click', function () {
+        openTool('bijoy', true);
+      });
+    }
+
+    var btnCalResetEl = $('#btnCalReset');
+    if (btnCalResetEl && btnCalResetEl.dataset.bound !== '1') {
+      btnCalResetEl.dataset.bound = '1';
+      btnCalResetEl.addEventListener('click', resetConverter);
+    }
+
+    var initialTool = (document.body && document.body.getAttribute('data-active-tool')) || 'bijoy';
+    var hashMatch = /^#tool-([a-z]+)$/i.exec(location.hash || '');
+    if (hashMatch) {
+      initialTool = hashMatch[1].toLowerCase();
+    }
+    if ($('#tool-' + initialTool)) {
+      openTool(initialTool, false);
+    }
   }
 
   // Expose handlers used by inline attributes in tool templates
   window.TechHatTools = {
+    initPage: initPage,
     openTool: openTool,
     setMode: setMode,
     upd: upd,
@@ -1357,11 +1593,5 @@
     closeAIModal: closeAIModal
   };
 
-  // Initialize from page's data-active-tool (Astro multi-page) or URL hash (defaulting to 'bijoy')
-  var initialTool = (document.body && document.body.getAttribute('data-active-tool')) || 'bijoy';
-  var hashMatch = /^#tool-([a-z]+)$/i.exec(location.hash || '');
-  if (hashMatch) {
-    initialTool = hashMatch[1].toLowerCase();
-  }
-  openTool(initialTool, false);
+  initPage();
 })();

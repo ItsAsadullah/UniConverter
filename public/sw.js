@@ -1,7 +1,7 @@
 /* TechHat Bangla Converter — service worker (offline app shell) */
 'use strict';
 
-var VERSION = 'thbc-v34';
+var VERSION = 'thbc-v47';
 var SHELL = 'shell-' + VERSION;
 var RUNTIME = 'runtime-' + VERSION;
 

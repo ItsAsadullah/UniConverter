@@ -1,8 +1,10 @@
 /* TechHat multipage document scanner. Files and pixels stay on this device. */
 (function () {
   'use strict';
+  function initDocumentScanner() {
   var root=document.querySelector('#img-pane-scan');
-  if(!root||!window.TechHatScanGeometry||!window.TechHatDocumentCore)return;
+  if(!root||root.dataset.dsBound==='1'||!window.TechHatScanGeometry||!window.TechHatDocumentCore)return;
+  root.dataset.dsBound='1';
   var G=window.TechHatScanGeometry,C=window.TechHatDocumentCore;
   var $=function(s){return root.querySelector(s);},$$=function(s){return Array.from(root.querySelectorAll(s));};
   var pages=[],activeId=null,nextId=1,renderToken=0,busy=false,compare=false;
@@ -12,7 +14,9 @@
   var learningKey='techhat-scan-crop-learning-v1',learningTimer=0;
   var controls={brightness:'dsBrightness',contrast:'dsContrast',sharpness:'dsSharpness',angle:'dsAngle',curve:'dsCurve',trim:'dsTrim'};
   var settingsDefault=function(){return {filter:'magic_plus',shadow:true,text:true,straighten:true,cleanSpots:true,cleanMargins:true,brightness:100,contrast:100,sharpness:25,angle:0,curve:0,trim:0};};
-  function bn(n){return String(n).replace(/\d/g,function(v){return '০১২৩৪৫৬৭৮৯'[v];});}
+  function en(){return root.dataset.lang==='en';}
+  function tr(bnText,enText){return en()?enText:bnText;}
+  function bn(n){return en()?String(n):String(n).replace(/\d/g,function(v){return '০১২৩৪৫৬৭৮৯'[v];});}
   function status(text){$('#dsStatus').textContent=text;}
   function toast(text){status(text);if(window.TechHatToast)window.TechHatToast(text);}
   function current(){return pages.find(function(p){return p.id===activeId;});}
@@ -40,48 +44,62 @@
   function canvasBlob(c,q){return new Promise(function(resolve,reject){c.toBlob(function(b){if(b)resolve(b);else reject(new Error('ছবি তৈরি করা যায়নি'));},'image/jpeg',q||.92);});}
   function download(blob,name){var url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},30000);}
   function filename(){return ($('#dsFilename').value.trim()||'TechHat-document').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'-');}
-  function icon(name){var ns='http://www.w3.org/2000/svg',s=document.createElementNS(ns,'svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');var p=document.createElementNS(ns,'path');p.setAttribute('d',name==='up'?'m6 14 6-6 6 6':name==='down'?'m6 10 6 6 6-6':'M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7');s.appendChild(p);return s;}
+  function icon(name){var ns='http://www.w3.org/2000/svg',s=document.createElementNS(ns,'svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');s.setAttribute('class','w-3 h-3 stroke-[2] fill-none stroke-current shrink-0');var p=document.createElementNS(ns,'path');p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');p.setAttribute('d',name==='up'?'m6 14 6-6 6 6':name==='down'?'m6 10 6 6 6-6':'M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7');s.appendChild(p);return s;}
   function renderList(){
-    var list=$('#dsPageList');list.replaceChildren();$('#dsCount').textContent=bn(pages.length);$('#dsExportCount').textContent=bn(pages.length)+' পেজ';
+    var list=$('#dsPageList');list.replaceChildren();$('#dsCount').textContent=bn(pages.length);$('#dsExportCount').textContent=bn(pages.length)+(en()?(pages.length===1?' page':' pages'):' পেজ');
     pages.forEach(function(p,index){
-      var card=document.createElement('div');card.className='ds-page'+(p.id===activeId?' is-active':'');card.draggable=!busy;card.dataset.pageId=p.id;
-      var select=document.createElement('button');select.type='button';select.className='ds-page-select';select.setAttribute('aria-label','পেজ '+bn(index+1)+' নির্বাচন করুন');select.setAttribute('aria-pressed',String(p.id===activeId));
-      var thumb=document.createElement('span');thumb.className='ds-thumb';var image=document.createElement('img');image.src=p.thumb||p.item.url;image.alt='পেজ '+bn(index+1);image.draggable=false;thumb.appendChild(image);
-      var label=document.createElement('span');label.className='ds-page-label';var b=document.createElement('b');b.textContent='পেজ '+bn(index+1);var small=document.createElement('small');small.textContent=p.item.name;label.append(b,small);select.append(thumb,label);select.addEventListener('click',function(){if(!busy)selectPage(p.id);});card.appendChild(select);
-      var actions=document.createElement('div');actions.className='ds-page-actions';
-      ['up','down','delete'].forEach(function(action){var btn=document.createElement('button');btn.type='button';btn.title=action==='up'?'আগে নিন':action==='down'?'পরে নিন':'এই পেজ সরান';btn.setAttribute('aria-label','পেজ '+bn(index+1)+' '+btn.title);btn.appendChild(icon(action));btn.disabled=busy||(action==='up'&&index===0)||(action==='down'&&index===pages.length-1);btn.addEventListener('click',function(){if(busy)return;if(action==='delete'){renderToken++;pages=pages.filter(function(v){return v!==p;});release(p);if(activeId===p.id){activeId=pages[Math.min(index,pages.length-1)]?.id||null;sourcePage=null;}renderList();showState();drawSource();schedulePreview();}else movePage(index,index+(action==='up'?-1:1));});actions.appendChild(btn);});card.appendChild(actions);
+      var isAct=p.id===activeId;
+      var card=document.createElement('div');
+      card.className='ds-page grid grid-cols-[1fr_auto] items-center gap-1.5 p-1.5 rounded-lg border transition-colors '+(isAct?'is-active border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 ring-2 ring-emerald-500/15':'border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-100/80 dark:hover:bg-studio-surface');
+      card.draggable=!busy;card.dataset.pageId=p.id;
+      var select=document.createElement('button');select.type='button';
+      select.className='ds-page-select min-w-0 grid grid-cols-[44px_minmax(0,1fr)] items-center gap-2 p-0 border-0 bg-transparent text-left cursor-pointer';
+      select.setAttribute('aria-label',tr('পেজ '+bn(index+1)+' নির্বাচন করুন','Select page '+bn(index+1)));select.setAttribute('aria-pressed',String(isAct));
+      var thumb=document.createElement('span');thumb.className='ds-thumb w-11 h-14 rounded-md overflow-hidden bg-slate-200 dark:bg-slate-900 border border-slate-200 dark:border-studio-border grid place-items-center shrink-0';
+      var image=document.createElement('img');image.src=p.thumb||p.item.url;image.alt=tr('পেজ ','Page ')+bn(index+1);image.draggable=false;image.className='w-full h-full object-cover block';thumb.appendChild(image);
+      var label=document.createElement('span');label.className='ds-page-label min-w-0 grid gap-0.5';
+      var b=document.createElement('b');b.className='text-xs font-bold text-slate-800 dark:text-studio-text truncate';b.textContent=tr('পেজ ','Page ')+bn(index+1);
+      var small=document.createElement('small');small.className='text-[10px] text-slate-500 dark:text-studio-muted truncate';small.textContent=p.item.name;
+      label.append(b,small);select.append(thumb,label);select.addEventListener('click',function(){if(!busy)selectPage(p.id);});card.appendChild(select);
+      var actions=document.createElement('div');actions.className='ds-page-actions grid gap-1';
+      ['up','down','delete'].forEach(function(action){
+        var btn=document.createElement('button');btn.type='button';
+        btn.className='inline-flex items-center justify-center w-5.5 h-5.5 p-0 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-500 dark:text-studio-muted cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed '+(action==='delete'?'hover:text-red-600 dark:hover:text-red-400 hover:border-red-500/40 hover:bg-red-500/10':'hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-studio-surface');
+        btn.title=action==='up'?tr('আগে নিন','Move up'):action==='down'?tr('পরে নিন','Move down'):tr('এই পেজ সরান','Remove page');btn.setAttribute('aria-label',tr('পেজ ','Page ')+bn(index+1)+' '+btn.title);btn.appendChild(icon(action));btn.disabled=busy||(action==='up'&&index===0)||(action==='down'&&index===pages.length-1);btn.addEventListener('click',function(){if(busy)return;if(action==='delete'){renderToken++;pages=pages.filter(function(v){return v!==p;});release(p);if(activeId===p.id){activeId=pages[Math.min(index,pages.length-1)]?.id||null;sourcePage=null;}renderList();showState();drawSource();schedulePreview();}else movePage(index,index+(action==='up'?-1:1));});actions.appendChild(btn);
+      });card.appendChild(actions);
       card.addEventListener('dragstart',function(e){if(busy){e.preventDefault();return;}e.dataTransfer.setData('application/x-techhat-scan-page',String(p.id));e.dataTransfer.effectAllowed='move';card.classList.add('is-dragging');});card.addEventListener('dragend',function(){card.classList.remove('is-dragging');});card.addEventListener('dragover',function(e){if(Array.from(e.dataTransfer.types).includes('application/x-techhat-scan-page')){e.preventDefault();e.dataTransfer.dropEffect='move';}});card.addEventListener('drop',function(e){var id=Number(e.dataTransfer.getData('application/x-techhat-scan-page'));if(!id||busy)return;e.preventDefault();e.stopPropagation();movePage(pages.findIndex(function(v){return v.id===id;}),index);});list.appendChild(card);
     });
   }
-  function movePage(from,to){if(from<0||to<0||to>=pages.length||from===to)return;pages.splice(to,0,pages.splice(from,1)[0]);renderList();updateControls();status('পেজের ক্রম আপডেট হয়েছে');}
+  function movePage(from,to){if(from<0||to<0||to>=pages.length||from===to)return;pages.splice(to,0,pages.splice(from,1)[0]);renderList();updateControls();status(tr('পেজের ক্রম আপডেট হয়েছে','Page order updated'));}
   function showState(){var has=pages.length>0;root.dataset.hasPages=String(has);$('#dsEmpty').hidden=has;$('#dsWorkspace').hidden=!has;updateControls();}
-  function selectPage(id){if(id===activeId)return;activeId=id;compare=false;sourcePage=null;fitMode=true;pan={x:0,y:0};$('#dsCompare').setAttribute('aria-pressed','false');renderList();updateControls();drawSource();schedulePreview();}
+  function closeDrawers(){delete root.dataset.drawer;var bd=$('#dsDrawerBackdrop');if(bd)bd.hidden=true;}
+  function selectPage(id){closeDrawers();if(id===activeId)return;activeId=id;compare=false;sourcePage=null;fitMode=true;pan={x:0,y:0};$('#dsCompare').setAttribute('aria-pressed','false');renderList();updateControls();drawSource();schedulePreview();}
   async function addFiles(files){
     if(busy)return;files=Array.from(files||[]);if(!files.length)return;
-    if(pages.length+files.length>60){toast('এক ডকুমেন্টে সর্বোচ্চ ৬০টি পেজ যোগ করুন।');return;}
-    setBusy(true,'পেজ যোগ হচ্ছে…');var added=[],errors=[];
+    if(pages.length+files.length>60){toast(tr('এক ডকুমেন্টে সর্বোচ্চ ৬০টি পেজ যোগ করুন।','Add up to 60 pages per document.'));return;}
+    setBusy(true,tr('পেজ যোগ হচ্ছে…','Adding pages…'));var added=[],errors=[];
     try{for(var i=0;i<files.length;i++){
-      status('পেজ '+bn(i+1)+' / '+bn(files.length)+' · সীমানা শনাক্ত হচ্ছে…');await tick();var item;
-      try{if(files[i].size>40*1024*1024)throw new Error('ছবির সাইজ ৪০ MB-এর মধ্যে রাখুন');item=await G.load(files[i]);if(item.width*item.height>60000000)throw new Error('ছবিটি ৬০ মেগাপিক্সেলের মধ্যে রাখুন');
+      status(tr('পেজ ','Page ')+bn(i+1)+' / '+bn(files.length)+tr(' · সীমানা শনাক্ত হচ্ছে…',' · Detecting borders…'));await tick();var item;
+      try{if(files[i].size>40*1024*1024)throw new Error(tr('ছবির সাইজ ৪০ MB-এর মধ্যে রাখুন','Keep image size under 40 MB'));item=await G.load(files[i]);if(item.width*item.height>60000000)throw new Error(tr('ছবিটি ৬০ মেগাপিক্সেলের মধ্যে রাখুন','Keep image under 60 megapixels'));
         var p={id:nextId++,item:item,rot:0,pts:C.fullQuad(),settings:settingsDefault(),erases:[],revision:0,undo:[],redo:[],thumb:null};var detected;try{detected=await detectPage(p);}catch(detErr){console.warn('Auto detect fallback:',detErr);detected={pts:C.fullQuad(),auto:false,confidence:0,rotation:0};}if(detected.rotation){p.rot=(p.rot+detected.rotation)%360;detected.pts=rotateQuad(detected.pts,detected.rotation);}p.autoPts=copy(detected.pts);if(!detected.flatbed)detected=applyLearnedCrop(p,detected);p.detectedPts=copy(detected.pts);p.pts=detected.pts;p.detected=detected.auto;p.confidence=detected.confidence;p.learnedApplied=!!detected.learned;pages.push(p);added.push(p);
         try{var thumb=await processPage(p,360,false);p.thumb=URL.createObjectURL(await canvasBlob(thumb,.75));}catch(thumbErr){console.warn('Thumbnail fallback:',thumbErr);}
       }catch(error){if(item&&!pages.some(function(v){return v.item===item;}))URL.revokeObjectURL(item.url);errors.push(files[i].name+': '+error.message);}
     }
     if(added.length){activeId=added[0].id;sourcePage=null;fitMode=true;pan={x:0,y:0};}renderList();showState();drawSource();schedulePreview();
     }finally{setBusy(false);}
-    if(errors.length)toast(errors.join(' · '));else status(bn(added.length)+'টি পেজ যোগ হয়েছে। '+(added.some(function(p){return p.learnedApplied;})?'আগের ক্রপ পছন্দ প্রয়োগ হয়েছে। ':added.some(function(p){return !p.detected;})?'কিছু পেজের সীমানা হাতে ঠিক করুন।':'চার কোণা দেখে প্রয়োজন হলে ঠিক করুন।'));
+    if(errors.length)toast(errors.join(' · '));else status(en()?bn(added.length)+(added.length===1?' page added. ':' pages added. ')+(added.some(function(p){return p.learnedApplied;})?'Applied learned crop preferences.':added.some(function(p){return !p.detected;})?'Adjust borders manually on some pages.':'Review the 4 corners if needed.'):bn(added.length)+'টি পেজ যোগ হয়েছে। '+(added.some(function(p){return p.learnedApplied;})?'আগের ক্রপ পছন্দ প্রয়োগ হয়েছে। ':added.some(function(p){return !p.detected;})?'কিছু পেজের সীমানা হাতে ঠিক করুন।':'চার কোণা দেখে প্রয়োজন হলে ঠিক করুন।'));
   }
   function updateControls(){
     var p=current(),has=!!p;
     $$('.ds-presets input,.ds-section:not(.ds-export-settings) input').forEach(function(el){el.disabled=busy||!has;});
-    $$('[data-ds]').forEach(function(b){var action=b.dataset.ds;if(['detect','full','left','right','pdf','jpg','zip','apply-all','reset-color','compare','toggle-eraser','erase-borders'].includes(action))b.disabled=busy||!has;});
-    var learningButton=$('[data-ds="clear-learning"]');if(learningButton)learningButton.textContent='শেখা উদাহরণ: '+bn(cropExamples().length);
+    $$('[data-ds]').forEach(function(b){var action=b.dataset.ds;if(['detect','full','left','right','pdf','jpg','zip','apply-all','reset-color','compare','toggle-eraser','erase-borders'].includes(action))b.disabled=busy||!has;});if($('#dsCompare'))$('#dsCompare').disabled=busy||!has;
+    var learningButton=$('[data-ds="clear-learning"]');if(learningButton)learningButton.textContent=tr('শেখা উদাহরণ: ','Learned: ')+bn(cropExamples().length);
     $('[data-ds="undo"]').disabled=busy||!has||!p.undo.length;$('[data-ds="redo"]').disabled=busy||!has||!p.redo.length;
     var eraseUndo=$('[data-ds="undo-erase"]'),eraseClear=$('[data-ds="clear-erases"]');if(eraseUndo)eraseUndo.disabled=busy||!has||!(p&&p.erases&&p.erases.length);if(eraseClear)eraseClear.disabled=busy||!has||!(p&&p.erases&&p.erases.length);
     if(!p)return;
     $$('input[name=dsFilter]').forEach(function(el){el.checked=el.value===p.settings.filter;});$('#dsShadow').checked=p.settings.shadow;$('#dsText').checked=p.settings.text;$('#dsStraighten').checked=!!p.settings.straighten;$('#dsCleanSpots').checked=!!p.settings.cleanSpots;$('#dsCleanMargins').checked=!!p.settings.cleanMargins;$('#dsCleanMargins').disabled=busy||!p.settings.straighten;
     Object.keys(controls).forEach(function(key){var el=$('#'+controls[key]);el.value=p.settings[key];$('#'+controls[key]+'Value').textContent=p.settings[key]+(key==='angle'?'°':key==='curve'?'':'%');});
-    $('#dsPageName').textContent='পেজ '+bn(pages.indexOf(p)+1)+' / '+bn(pages.length);
+    $('#dsPageName').textContent=tr('পেজ ','Page ')+bn(pages.indexOf(p)+1)+' / '+bn(pages.length);
   }
   function drawSource(){
     var p=current();if(!p)return;
@@ -104,9 +122,9 @@
   function schedulePreview(){clearTimeout(previewTimer);var token=++renderToken;previewTimer=setTimeout(function(){renderPreview(token);},70);}
   async function renderPreview(token){
     var p=current();if(!p)return;var version=p.revision,id=p.id,isCompare=compare;
-    try{status('প্রিভিউ তৈরি হচ্ছে…');var out=await processPage(p,1100,isCompare);if(token!==renderToken||activeId!==id||p.revision!==version)return;var canvas=$('#dsPreview');canvas.width=out.width;canvas.height=out.height;canvas.getContext('2d').drawImage(out,0,0);root.style.setProperty('--ds-ratio',out.width/out.height);$('#dsPreviewMeta').textContent=isCompare?'মূল ছবি · ক্রপ করা':out.width+' × '+out.height+' px'+(out._scanInfo?.straightened?' · লাইন সোজা করা হয়েছে':' · প্রিভিউ');status('পেজ '+bn(pages.indexOf(p)+1)+' প্রস্তুত · পরিবর্তন স্বয়ংক্রিয়ভাবে প্রিভিউতে দেখা যায়');
+    try{status(tr('প্রিভিউ তৈরি হচ্ছে…','Rendering preview…'));var out=await processPage(p,1100,isCompare);if(token!==renderToken||activeId!==id||p.revision!==version)return;var canvas=$('#dsPreview');canvas.width=out.width;canvas.height=out.height;canvas.getContext('2d').drawImage(out,0,0);root.style.setProperty('--ds-ratio',out.width/out.height);$('#dsPreviewMeta').textContent=isCompare?tr('মূল ছবি · ক্রপ করা','Original · Cropped'):out.width+' × '+out.height+' px'+(out._scanInfo?.straightened?tr(' · লাইন সোজা করা হয়েছে',' · Auto deskewed'):tr(' · প্রিভিউ',' · Preview'));status(tr('পেজ '+bn(pages.indexOf(p)+1)+' প্রস্তুত · পরিবর্তন স্বয়ংক্রিয়ভাবে প্রিভিউতে দেখা যায়','Page '+bn(pages.indexOf(p)+1)+' ready · Changes update automatically in preview'));
       if(!isCompare){var thumb=document.createElement('canvas');var sc=Math.min(1,180/Math.max(out.width,out.height));thumb.width=Math.round(out.width*sc);thumb.height=Math.round(out.height*sc);thumb.getContext('2d').drawImage(out,0,0,thumb.width,thumb.height);var blob=await canvasBlob(thumb,.75);if(token!==renderToken||!pages.includes(p))return;var previous=p.thumb;p.thumb=URL.createObjectURL(blob);var image=$('.ds-page[data-page-id="'+p.id+'"] .ds-thumb img');if(image)image.src=p.thumb;if(previous)URL.revokeObjectURL(previous);}
-    }catch(error){if(token===renderToken)toast(error.message||'প্রিভিউ তৈরি করা যায়নি');}
+    }catch(error){if(token===renderToken)toast(error.message||tr('প্রিভিউ তৈরি করা যায়নি','Could not render preview'));}
   }
   function applySetting(key,value,checkpoint){var p=current();if(!p||busy)return;if(checkpoint)remember(p);p.settings[key]=value;changed(p);}
   function view(value){root.dataset.view=value;$$('[data-ds-view]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.dsView===value));});requestAnimationFrame(function(){if(fitMode)fit();});}
@@ -119,9 +137,9 @@
   function loadPdf(){if(window.PDFLib)return Promise.resolve(window.PDFLib);if(loadPdf.promise)return loadPdf.promise;loadPdf.promise=new Promise(function(resolve,reject){var script=document.createElement('script');script.src='/vendor/pdf-lib.min.js';script.onload=function(){resolve(window.PDFLib);};script.onerror=function(){loadPdf.promise=null;script.remove();reject(new Error('PDF লাইব্রেরি লোড করা যায়নি'));};document.head.appendChild(script);});return loadPdf.promise;}
   async function exportPages(kind){
     if(busy||!pages.length)return;renderToken++;clearTimeout(previewTimer);var list=kind==='jpg'?[current()]:pages.slice();var name=filename(),paper=$('#dsPaper').value,margin=$('#dsMargin').checked;var quality=$('#dsQuality').value,maxDim=quality==='high'?3000:quality==='small'?1400:2200;
-    setBusy(true,'এক্সপোর্ট প্রস্তুত হচ্ছে…');
-    try{var pdf,zip;if(kind==='pdf'){var lib=await loadPdf();pdf=await lib.PDFDocument.create();pdf.setProducer('TechHat Document Scanner');pdf.setTitle(name);}if(kind==='zip'){if(!window.JSZip)throw new Error('ZIP লাইব্রেরি লোড হয়নি');zip=new window.JSZip();}
-      for(var i=0;i<list.length;i++){status('এক্সপোর্ট · পেজ '+bn(i+1)+' / '+bn(list.length));await tick();var canvas=await processPage(list[i],maxDim,false),blob=await canvasBlob(canvas,quality==='small'?.8:.94);
+    setBusy(true,tr('এক্সপোর্ট প্রস্তুত হচ্ছে…','Preparing export…'));
+    try{var pdf,zip;if(kind==='pdf'){var lib=await loadPdf();pdf=await lib.PDFDocument.create();pdf.setProducer('TechHat Document Scanner');pdf.setTitle(name);}if(kind==='zip'){if(!window.JSZip)throw new Error(tr('ZIP লাইব্রেরি লোড হয়নি','ZIP library not loaded'));zip=new window.JSZip();}
+      for(var i=0;i<list.length;i++){status(tr('এক্সপোর্ট · পেজ ','Exporting · Page ')+bn(i+1)+' / '+bn(list.length));await tick();var canvas=await processPage(list[i],maxDim,false),blob=await canvasBlob(canvas,quality==='small'?.8:.94);
         if(kind==='jpg'){download(blob,name+'-page-'+(pages.indexOf(list[i])+1)+'.jpg');}
         else if(kind==='zip'){zip.file(name+'-page-'+String(i+1).padStart(3,'0')+'.jpg',blob);}
         else{var image=await pdf.embedJpg(await blob.arrayBuffer()),ratio=canvas.width/canvas.height;var pw,ph;
@@ -131,31 +149,34 @@
         // Do not retain full-resolution canvases across a multipage export.
         canvas.width=canvas.height=1;
       }
-      if(pdf)download(new Blob([await pdf.save()],{type:'application/pdf'}),name+'.pdf');if(zip)download(await zip.generateAsync({type:'blob',compression:'STORE'}),name+'.zip');status(bn(list.length)+'টি পেজ এক্সপোর্ট হয়েছে');
-    }catch(error){toast(error.message||'এক্সপোর্ট করা যায়নি');}finally{setBusy(false);schedulePreview();}
+      if(pdf)download(new Blob([await pdf.save()],{type:'application/pdf'}),name+'.pdf');if(zip)download(await zip.generateAsync({type:'blob',compression:'STORE'}),name+'.zip');status(en()?bn(list.length)+(list.length===1?' page exported':' pages exported'):bn(list.length)+'টি পেজ এক্সপোর্ট হয়েছে');
+    }catch(error){toast(error.message||tr('এক্সপোর্ট করা যায়নি','Export failed'));}finally{setBusy(false);schedulePreview();}
   }
   // Actions use the same per-page geometry and settings for preview and export.
   root.addEventListener('click',async function(e){var toolBtn=e.target.closest('[data-ds-tool]');if(toolBtn&&!busy){setEraserTool(toolBtn.dataset.dsTool);return;}var swatchBtn=e.target.closest('[data-ds-swatch]');if(swatchBtn&&!busy){setEraserColor(swatchBtn.dataset.dsSwatch,true);return;}var btn=e.target.closest('[data-ds]');if(!btn||btn.disabled)return;var action=btn.dataset.ds,p=current();
     if(action==='add'){$('#dsFiles').click();return;}if(action==='theme'){document.querySelector('#themeToggle')?.click();return;}if(action==='camera'){openCamera();return;}if(action==='camera-close'){$('#dsCameraDialog').close();return;}if(action==='camera-switch'){cameraFacing=cameraFacing==='environment'?'user':'environment';openCamera();return;}
     if(action==='capture'){var video=$('#dsVideo');if(!video.videoWidth)return;var capture=document.createElement('canvas');capture.width=video.videoWidth;capture.height=video.videoHeight;capture.getContext('2d').drawImage(video,0,0);var photo=await canvasBlob(capture,.97);$('#dsCameraDialog').close();await addFiles([new File([photo],'camera-'+Date.now()+'.jpg',{type:'image/jpeg'})]);return;}
-    if(action==='clear-learning'){try{localStorage.removeItem(learningKey);}catch(e){}updateControls();toast('আপনার ব্যক্তিগত ক্রপ শেখার তথ্য মুছে ফেলা হয়েছে।');return;}
+    if(action==='clear-learning'){try{localStorage.removeItem(learningKey);}catch(e){}updateControls();toast(tr('আপনার ব্যক্তিগত ক্রপ শেখার তথ্য মুছে ফেলা হয়েছে।','Your learned crop preferences have been cleared.'));return;}
     if(action==='reset'){if(pages.length)$('#dsResetDialog').showModal();return;}if(action==='pdf'||action==='jpg'||action==='zip'){exportPages(action);return;}
     if(action==='zoom-in'){setZoom(zoom*1.2);return;}if(action==='zoom-out'){setZoom(zoom/1.2);return;}if(action==='fit'){fit();return;}if(action==='actual'){setZoom(1);return;}
     if(action==='pzoom-in'){setPreviewZoom(pZoom*1.25);return;}if(action==='pzoom-out'){setPreviewZoom(pZoom/1.25);return;}if(action==='pzoom-fit'){setPreviewZoom(1);return;}
+    if(action==='close-drawers'){closeDrawers();return;}
+    if(action==='toggle-inspector'){var isInsp=root.dataset.drawer==='inspector';if(isInsp)closeDrawers();else{root.dataset.drawer='inspector';var bd1=$('#dsDrawerBackdrop');if(bd1)bd1.hidden=false;}return;}
+    if(action==='toggle-sidebar'){if(window.matchMedia('(max-width: 1024px)').matches){var isPg=root.dataset.drawer==='pages';if(isPg)closeDrawers();else{root.dataset.drawer='pages';var bd2=$('#dsDrawerBackdrop');if(bd2)bd2.hidden=false;}}else{var col=root.dataset.sidebarCollapsed==='true';root.dataset.sidebarCollapsed=String(!col);var sbBtn=$('#dsSidebarToggleBtn');if(sbBtn)sbBtn.setAttribute('aria-pressed',String(col));setTimeout(function(){if(fitMode)fit();},200);}return;}
     if(action==='open-color-picker'){$('#dsEraserColor')?.click();return;}
     if(action==='auto-paper-color'){autoDetectPaperColor();return;}
     if(action==='toggle-eraser'){setEraserMode(!eraserActive);return;}
     if(action==='close-eraser'){setEraserMode(false);return;}
     if(!p||busy)return;if(action==='undo'){historyAction(false);return;}if(action==='redo'){historyAction(true);return;}
-    if(action==='erase-borders'){remember(p);p.erases=p.erases||[];var bc=eraserColor||'#ffffff';p.erases.push({type:'rect',x0:0,y0:0,x1:1,y1:.022,color:bc},{type:'rect',x0:0,y0:.978,x1:1,y1:1,color:bc},{type:'rect',x0:0,y0:0,x1:.022,y1:1,color:bc},{type:'rect',x0:.978,y0:0,x1:1,y1:1,color:bc});changed(p);toast('চারপাশের বর্ডারের বাড়তি ব্যাকগ্রাউন্ড পরিষ্কার করা হয়েছে');return;}
+    if(action==='erase-borders'){remember(p);p.erases=p.erases||[];var bc=eraserColor||'#ffffff';p.erases.push({type:'rect',x0:0,y0:0,x1:1,y1:.022,color:bc},{type:'rect',x0:0,y0:.978,x1:1,y1:1,color:bc},{type:'rect',x0:0,y0:0,x1:.022,y1:1,color:bc},{type:'rect',x0:.978,y0:0,x1:1,y1:1,color:bc});changed(p);toast(tr('চারপাশের বর্ডারের বাড়তি ব্যাকগ্রাউন্ড পরিষ্কার করা হয়েছে','Outer border background cleaned'));return;}
     if(action==='undo-erase'){if(p.erases&&p.erases.length){remember(p);p.erases.pop();changed(p);}return;}
-    if(action==='clear-erases'){if(p.erases&&p.erases.length){remember(p);p.erases=[];changed(p);toast('এই পেজের সব দাগ মোছা রিসেট করা হয়েছে');}return;}
-    if(action==='detect'){setBusy(true,'পেজের সীমানা শনাক্ত হচ্ছে…');try{remember(p);var det=await detectPage(p);if(det.rotation){p.rot=(p.rot+det.rotation)%360;det.pts=rotateQuad(det.pts,det.rotation);sourcePage=null;fitMode=true;}p.autoPts=copy(det.pts);if(!det.flatbed)det=applyLearnedCrop(p,det);p.detectedPts=copy(det.pts);p.pts=det.pts;p.learnedApplied=!!det.learned;p.detected=det.auto;p.confidence=det.confidence;p.revision++;drawSource();schedulePreview();toast(det.learned?'আপনার আগের ক্রপ পছন্দ মিলিয়ে সীমানা ঠিক করা হয়েছে।':det.auto?'পেজের সীমানা শনাক্ত হয়েছে। চার কোণা দেখে নিন।':'স্পষ্ট সীমানা পাওয়া যায়নি। পুরো ছবি রাখা হয়েছে; চার কোণা টেনে ঠিক করুন।');}catch(error){toast(error.message);}finally{setBusy(false);}return;}
+    if(action==='clear-erases'){if(p.erases&&p.erases.length){remember(p);p.erases=[];changed(p);toast(tr('এই পেজের সব দাগ মোছা রিসেট করা হয়েছে','All retouch edits on this page have been reset'));}return;}
+    if(action==='detect'){setBusy(true,tr('পেজের সীমানা শনাক্ত হচ্ছে…','Detecting page borders…'));try{remember(p);var det=await detectPage(p);if(det.rotation){p.rot=(p.rot+det.rotation)%360;det.pts=rotateQuad(det.pts,det.rotation);sourcePage=null;fitMode=true;}p.autoPts=copy(det.pts);if(!det.flatbed)det=applyLearnedCrop(p,det);p.detectedPts=copy(det.pts);p.pts=det.pts;p.learnedApplied=!!det.learned;p.detected=det.auto;p.confidence=det.confidence;p.revision++;drawSource();schedulePreview();toast(det.learned?tr('আপনার আগের ক্রপ পছন্দ মিলিয়ে সীমানা ঠিক করা হয়েছে।','Borders adjusted using your learned crop preferences.'):det.auto?tr('পেজের সীমানা শনাক্ত হয়েছে। চার কোণা দেখে নিন।','Page borders detected. Check the 4 corners.'):tr('স্পষ্ট সীমানা পাওয়া যায়নি। পুরো ছবি রাখা হয়েছে; চার কোণা টেনে ঠিক করুন।','Clear borders not found. Full image kept; drag corners to adjust.'));}catch(error){toast(error.message);}finally{setBusy(false);}return;}
     if(action==='apply-all'){
-      setBusy(true,'সব পেজের ফিল্টার আপডেট হচ্ছে…');
+      setBusy(true,tr('সব পেজের ফিল্টার আপডেট হচ্ছে…','Applying filter to all pages…'));
       try { for(var ai=0;ai<pages.length;ai++) { var page=pages[ai];if(page===p)continue;remember(page);var savedAngle=page.settings.angle,savedCurve=page.settings.curve;page.settings=copy(p.settings);page.settings.angle=savedAngle;page.settings.curve=savedCurve;page.revision++;
         var thumbCanvas=await processPage(page,360,false),thumbBlob=await canvasBlob(thumbCanvas,.75);if(page.thumb)URL.revokeObjectURL(page.thumb);page.thumb=URL.createObjectURL(thumbBlob);await tick();
-      } toast('সব পেজে ফিল্টার ও আলো সেটিংস প্রয়োগ হয়েছে'); } catch(error){toast(error.message);}finally{setBusy(false);}return;
+      } toast(tr('সব পেজে ফিল্টার ও আলো সেটিংস প্রয়োগ হয়েছে','Filter and lighting settings applied to all pages')); } catch(error){toast(error.message);}finally{setBusy(false);}return;
     }
     remember(p);
     if(action==='full'){p.pts=C.fullQuad();saveCropLearning(p);}
@@ -172,7 +193,7 @@
   ['Straighten','CleanSpots','CleanMargins'].forEach(function(key){$('#ds'+key).addEventListener('change',function(e){var p=current();if(!p||busy)return;remember(p);var prop=key[0].toLowerCase()+key.slice(1);p.settings[prop]=e.target.checked;if(prop==='straighten'&&!e.target.checked)p.settings.cleanMargins=false;changed(p);});});
   ['Shadow','Text'].forEach(function(key){$('#ds'+key).addEventListener('change',function(e){applySetting(key.toLowerCase(),e.target.checked,true);});});
   Object.keys(controls).forEach(function(key){var el=$('#'+controls[key]);var checkpoint=false;function start(){if(current()&&!checkpoint){remember(current());checkpoint=true;}}el.addEventListener('pointerdown',start);el.addEventListener('keydown',start);el.addEventListener('input',function(){start();applySetting(key,Number(el.value),false);});el.addEventListener('change',function(){checkpoint=false;});el.addEventListener('blur',function(){checkpoint=false;});});
-  $('#dsResetDialog').addEventListener('close',function(){if(this.returnValue!=='reset')return;renderToken++;clearTimeout(previewTimer);pages.forEach(release);pages=[];activeId=null;source=null;sourcePage=null;$('#dsPreview').width=$('#dsPreview').height=1;renderList();showState();status('নতুন ডকুমেন্টের ছবি যোগ করুন');});
+  $('#dsResetDialog').addEventListener('close',function(){if(this.returnValue!=='reset')return;renderToken++;clearTimeout(previewTimer);pages.forEach(release);pages=[];activeId=null;source=null;sourcePage=null;$('#dsPreview').width=$('#dsPreview').height=1;renderList();showState();status(tr('নতুন ডকুমেন্টের ছবি যোগ করুন','Add new document images'));});
   $('#dsCameraDialog').addEventListener('close',stopCamera);
   root.addEventListener('dragover',function(e){if(e.dataTransfer?.types.includes('Files')){e.preventDefault();root.classList.add('is-over');}});root.addEventListener('dragleave',function(e){if(!root.contains(e.relatedTarget))root.classList.remove('is-over');});root.addEventListener('drop',function(e){root.classList.remove('is-over');if(e.dataTransfer?.files.length){e.preventDefault();addFiles(e.dataTransfer.files);}});
   var vp=$('#dsViewport');
@@ -214,7 +235,7 @@
     if(dockSw)dockSw.style.background=eraserColor;
     $$('[data-ds-swatch]').forEach(function(b){b.classList.toggle('is-active',b.dataset.dsSwatch?.toLowerCase()===eraserColor);});
     updateEraserCursor();
-    if(announce)status('ব্যাকগ্রাউন্ড কালার নির্বাচিত: '+eraserColor.toUpperCase());
+    if(announce)status(tr('ব্যাকগ্রাউন্ড কালার নির্বাচিত: ','Background color selected: ')+eraserColor.toUpperCase());
   }
   function autoDetectPaperColor(){
     var canvas=$('#dsPreview');
@@ -230,13 +251,13 @@
     var mid=Math.floor(rs.length*.65);
     var hex=rgbToHex(rs[mid],gs[mid],bs[mid]);
     setEraserColor(hex,true);
-    toast('ডকুমেন্টের পেপার কালার শনাক্ত হয়েছে: '+hex.toUpperCase());
+    toast(tr('ডকুমেন্টের পেপার কালার শনাক্ত হয়েছে: ','Detected document paper color: ')+hex.toUpperCase());
   }
   function setEraserTool(tool){
     eraserTool=tool||'brush';
     if(['brush','heal','wand','rect'].includes(eraserTool))prevDrawTool=eraserTool;
-    var names={brush:'ব্রাশ টুল',heal:'স্পট হিলিং',wand:'ম্যাজিক ইরেজার',rect:'রেকট্যাঙ্গেল ফিল',picker:'কালার পিকার',hand:'হ্যান্ড প্যান'};
-    var label=$('#dsPsActiveToolLabel b');if(label)label.textContent=names[eraserTool]||'ব্রাশ টুল';
+    var names=en()?{brush:'Brush Tool',heal:'Spot Healing',wand:'Magic Eraser',rect:'Rectangle Fill',picker:'Eyedropper',hand:'Hand Pan'}:{brush:'ব্রাশ টুল',heal:'স্পট হিলিং',wand:'ম্যাজিক ইরেজার',rect:'রেকট্যাঙ্গেল ফিল',picker:'কালার পিকার',hand:'হ্যান্ড প্যান'};
+    var label=$('#dsPsActiveToolLabel b');if(label)label.textContent=names[eraserTool]||names.brush;
     $$('[data-ds-tool]').forEach(function(b){
       var on=b.dataset.dsTool===eraserTool;
       b.classList.toggle('is-active',on);
@@ -247,10 +268,10 @@
     if(wOpts)wOpts.hidden=eraserTool!=='wand';
     if(wrap)wrap.dataset.tool=eraserTool;
     updateEraserCursor();
-    if(eraserTool==='picker')status('কালার পিকার চালু: ডকুমেন্টের যেকোনো জায়গার ব্যাকগ্রাউন্ডে ক্লিক করে রঙ নিন');
-    else if(eraserTool==='heal')status('স্পট হিলিং চালু: দাগের ওপর ঘষলে চারপাশের কাগজের রঙ মিলিয়ে দাগ মুছে যাবে');
-    else if(eraserTool==='wand')status('ম্যাজিক ইরেজার চালু: যেকোনো ব্যাকগ্রাউন্ড বা দাগের ওপর ক্লিক করুন');
-    else if(eraserTool==='rect')status('রেকট্যাঙ্গেল ফিল চালু: মাউস টেনে বক্স সিলেক্ট করে ব্যাকগ্রাউন্ড পরিষ্কার করুন');
+    if(eraserTool==='picker')status(tr('কালার পিকার চালু: ডকুমেন্টের যেকোনো জায়গার ব্যাকগ্রাউন্ডে ক্লিক করে রঙ নিন','Eyedropper active: Click anywhere on the document background to sample color'));
+    else if(eraserTool==='heal')status(tr('স্পট হিলিং চালু: দাগের ওপর ঘষলে চারপাশের কাগজের রঙ মিলিয়ে দাগ মুছে যাবে','Spot Healing active: Paint over spots to blend with surrounding paper color'));
+    else if(eraserTool==='wand')status(tr('ম্যাজিক ইরেজার চালু: যেকোনো ব্যাকগ্রাউন্ড বা দাগের ওপর ক্লিক করুন','Magic Eraser active: Click any background area or spot to flood-erase'));
+    else if(eraserTool==='rect')status(tr('রেকট্যাঙ্গেল ফিল চালু: মাউস টেনে বক্স সিলেক্ট করে ব্যাকগ্রাউন্ড পরিষ্কার করুন','Rectangle Fill active: Drag a box to clean background areas'));
   }
   function syncPreviewPlane(){
     var wrap=$('#dsPreviewWrap'),lbl=$('#dsPreviewZoomLabel');
@@ -275,6 +296,7 @@
       b.classList.toggle('is-active',eraserActive);
     });
     if(eraserActive){
+      closeDrawers();
       setEraserTool(eraserTool||'brush');
       if(root.dataset.view==='crop')view('split');
     }
@@ -382,7 +404,7 @@
       if(eraserTool==='picker'||e.altKey){
         var picked=sampleCanvasColor(canvas,pos.x,pos.y,2);
         setEraserColor(picked.hex,true);
-        toast('ব্যাকগ্রাউন্ড কালার পিক করা হয়েছে: '+picked.hex.toUpperCase());
+        toast(tr('ব্যাকগ্রাউন্ড কালার পিক করা হয়েছে: ','Sampled background color: ')+picked.hex.toUpperCase());
         if(eraserTool==='picker')setEraserTool(prevDrawTool||'brush');
         return;
       }
@@ -465,6 +487,17 @@
       }
     });
   }
+  root.addEventListener('ds:langchange',function(){
+    renderList();updateControls();
+    var names=en()?{brush:'Brush Tool',heal:'Spot Healing',wand:'Magic Eraser',rect:'Rectangle Fill',picker:'Eyedropper',hand:'Hand Pan'}:{brush:'ব্রাশ টুল',heal:'স্পট হিলিং',wand:'ম্যাজিক ইরেজার',rect:'রেকট্যাঙ্গেল ফিল',picker:'কালার পিকার',hand:'হ্যান্ড প্যান'};
+    var label=$('#dsPsActiveToolLabel b');if(label)label.textContent=names[eraserTool]||names.brush;
+    var p=current();
+    if(p)schedulePreview();
+    else status(tr('শুরু করতে ডকুমেন্টের ছবি যোগ করুন','Add document images to begin scanning'));
+  });
   installEraser();
   renderList();showState();
+  }
+  window.TechHatScannerInit = initDocumentScanner;
+  initDocumentScanner();
 })();

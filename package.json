@@ -2,7 +2,7 @@
   "name": "techhat-utility-hub",
   "version": "2.0.0",
   "private": true,
-  "description": "TechHat ইউটিলিটি হাব — বিজয় ⇄ ইউনিকোড কনভার্টার, PDF স্টুডিও, ক্যালেন্ডার, বয়স ক্যালকুলেটর ও ইনভয়েস মেকার (Astro, offline-first PWA)",
+  "description": "TechHat Studio — বিজয় ⇄ ইউনিকোড কনভার্টার, PDF স্টুডিও, ইমেজ ও ডকুমেন্ট স্ক্যানার, ক্যালেন্ডার, বয়স ক্যালকুলেটর ও ইনভয়েস মেকার (Astro, Tailwind CSS v4, offline-first PWA)",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -10,9 +10,13 @@
     "test": "node tests/engine.test.js && node tests/office.test.js && node tests/document-scan.test.cjs"
   },
   "dependencies": {
+    "@astrojs/svelte": "^9.1.2",
     "@iconify-json/lucide": "^1.2.147",
+    "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.4.2",
-    "astro-icon": "^1.2.0"
+    "astro-icon": "^1.2.0",
+    "svelte": "^5.57.3",
+    "tailwindcss": "^4.3.3"
   },
   "engines": {
     "node": ">=22.x"

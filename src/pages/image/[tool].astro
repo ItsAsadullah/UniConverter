@@ -1,13 +1,21 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
-import ImageStudio from '../../components/ImageStudio.astro';
+import ImageStudio from '../../components/ImageStudio.svelte';
 import { IMAGE_SUBTOOLS, type ImageSubToolMeta } from '../../data/tools';
 
 export function getStaticPaths() {
-  return IMAGE_SUBTOOLS.map((sub) => ({
+  const basePaths = IMAGE_SUBTOOLS.map((sub) => ({
     params: { tool: sub.slug },
     props: { sub }
   }));
+  const scanSub = IMAGE_SUBTOOLS.find((s) => s.slug === 'scan')!;
+  return [
+    ...basePaths,
+    {
+      params: { tool: 'scanner' },
+      props: { sub: scanSub }
+    }
+  ];
 }
 
 interface Props {
@@ -18,6 +26,7 @@ const { sub } = Astro.props;
 ---
 <ToolLayout
   toolId="image"
+  activeCategory="image"
   title={sub.seoTitle}
   description={sub.seoDesc}
   activeBadgeText={`ইমেজ স্টুডিও • ${sub.title}`}
@@ -26,8 +35,12 @@ const { sub } = Astro.props;
 
   <Fragment slot="scripts">
     <script is:inline src="/vendor/jszip.min.js" defer></script>
-    <script is:inline src="/js/image-tools.js?v=59" defer></script>
-    <script is:inline src="/js/document-scan-core.js?v=23" defer></script>
-    <script is:inline src="/js/document-scanner.js?v=26" defer></script>
+    <script is:inline src="/js/image-tools.js?v=61" defer></script>
+    {sub.tabId === 'scan' && (
+      <>
+        <script is:inline src="/js/document-scan-core.js?v=23" defer></script>
+        <script is:inline src="/js/document-scanner.js?v=28" defer></script>
+      </>
+    )}
   </Fragment>
 </ToolLayout>

@@ -1,0 +1,366 @@
+@import "tailwindcss";
+@source "../../public/js";
+
+/* ============================================================================
+ * TECHHAT STUDIO — UNIFIED TAILWIND CSS v4 ARCHITECTURE
+ * Single CSS Entrypoint • Zero Vanilla CSS Files • Native SPA Stability
+ * ============================================================================ */
+
+@custom-variant dark (&:is([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --font-sans: 'Inter', 'Noto Sans Bengali', system-ui, -apple-system, sans-serif;
+
+  /* Normal, Comfortable Typography Scale (Upgraded from tiny 12px defaults) */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.96875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.55;
+  --text-lg: 1.21875rem;
+  --text-lg--line-height: 1.45;
+  --text-xl: 1.40625rem;
+  --text-xl--line-height: 1.35;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 1.3;
+
+  /* Dark SaaS Studio Tokens */
+  --color-studio-bg: #0B1120;
+  --color-studio-sidebar: #111827;
+  --color-studio-panel: #151F2E;
+  --color-studio-surface: #1B2839;
+  --color-studio-border: #283548;
+  --color-studio-primary: #10B981;
+  --color-studio-text: #F1F5F9;
+  --color-studio-muted: #94A3B8;
+}
+
+@font-face {
+  font-family: "SutonnyMJ";
+  src: url("/SutonnyMJ-Regular.ttf") format("truetype"),
+       local("SutonnyMJ"),
+       local("SutonnyMJ Regular");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SutonnyMJ";
+  src: url("/SutonnyMJ-Italic.ttf") format("truetype"),
+       local("SutonnyMJ Italic"),
+       local("SutonnyMJ-Italic");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --th-font-sans: var(--font-sans);
+    --th-bg: #f8fafc;
+    --th-bg-elevated: #ffffff;
+    --th-panel: #f1f5f9;
+    --th-surface: #e2e8f0;
+    --th-border: #e2e8f0;
+    --th-border-strong: #cbd5e1;
+    --th-text: #0f172a;
+    --th-text-primary: #0f172a;
+    --th-text-secondary: #475569;
+    --th-text-muted: #64748b;
+    --th-primary: #059669;
+    --th-primary-hover: #047857;
+    --th-primary-soft: rgba(5, 150, 105, 0.08);
+  }
+
+  html[data-theme="dark"] {
+    --th-bg: #0B1120;
+    --th-bg-elevated: #111827;
+    --th-panel: #151F2E;
+    --th-surface: #1B2839;
+    --th-border: #283548;
+    --th-border-strong: #334155;
+    --th-text: #F1F5F9;
+    --th-text-primary: #F1F5F9;
+    --th-text-secondary: #94A3B8;
+    --th-text-muted: #64748b;
+    --th-primary: #10B981;
+    --th-primary-hover: #34d399;
+    --th-primary-soft: rgba(16, 185, 129, 0.12);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  dialog:not(#mobileNavDrawer) {
+    margin: auto;
+  }
+
+  html {
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+    scroll-behavior: auto !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--th-bg) !important;
+    background-image: none !important;
+    color: var(--th-text);
+    -webkit-font-smoothing: antialiased;
+    transition: none !important;
+  }
+
+  header,
+  nav,
+  button,
+  summary,
+  label.chip-btn,
+  .tab,
+  .seg label,
+  .pdf-nav-btn,
+  .cal-mode-tab {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  html[data-lang="en"] [data-lang-bn] {
+    display: none !important;
+  }
+  html:not([data-lang="en"]) [data-lang-en] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  /* ==========================================================================
+     1. FULL-VIEWPORT SCANNER / NID STUDIO SHELL
+     ========================================================================== */
+  .workbench:has(#img-pane-scan:not([hidden])),
+  .workbench-grid:has(#img-pane-scan:not([hidden])) {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  body:has(#img-pane-scan:not([hidden])) {
+    @apply overflow-hidden max-lg:overflow-auto bg-slate-50 dark:bg-studio-bg;
+  }
+
+  body:has(#img-pane-scan:not([hidden])) > :is(.topbar, .footer),
+  body:has(#img-pane-scan:not([hidden])) .tools-sidebar,
+  body:has(#img-pane-scan:not([hidden])) #globalBreadcrumbBar,
+  .img-studio-card:has(#img-pane-scan:not([hidden])) > .pdf-nav-bar {
+    display: none !important;
+  }
+
+  .img-studio-card:has(#img-pane-scan:not([hidden])) {
+    @apply p-0 m-0 border-0 rounded-none bg-transparent shadow-none max-w-none;
+  }
+
+  /* ==========================================================================
+     2. DYNAMIC JS-CREATED ELEMENTS (Office Queue, PDF Cards, Image Cards, Crop)
+     ========================================================================== */
+  .queue:empty::before {
+    content: "কোনো ফাইল যোগ করা হয়নি";
+    @apply block text-center text-xs text-slate-400 dark:text-studio-muted py-4;
+  }
+  html[data-lang="en"] .queue:empty::before {
+    content: "No files added yet";
+  }
+
+  /* Dynamic PDF Page & File Cards */
+  .pdf-page-card,
+  .img-comp-card {
+    @apply relative flex flex-col rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border p-2.5 shadow-2xs transition-colors hover:border-emerald-500/70;
+  }
+  .pdf-page-card--selectable {
+    @apply cursor-pointer;
+  }
+  .pdf-page-card.is-selected {
+    @apply border-emerald-500 bg-emerald-500/5 ring-2 ring-emerald-500/20;
+  }
+  .pdf-page-card__thumb-wrap {
+    @apply relative aspect-[3/4] rounded-lg bg-slate-100 dark:bg-studio-panel overflow-hidden flex items-center justify-center mb-2;
+  }
+  .pdf-page-card__thumb,
+  .img-comp-card__thumb {
+    @apply max-w-full max-h-full object-contain rounded transition-transform duration-200;
+  }
+  .pdf-blank-thumb {
+    @apply w-3/4 h-4/5 rounded border border-dashed border-slate-300 dark:border-slate-600 bg-white flex items-center justify-center text-xs text-slate-400 font-semibold;
+  }
+  .pdf-page-card__badge {
+    @apply absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded bg-slate-900/75 text-white text-xs font-bold inline-flex items-center gap-1;
+  }
+  .pdf-drag-handle {
+    @apply absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded bg-slate-900/65 text-white text-xs inline-flex items-center justify-center cursor-grab active:cursor-grabbing;
+  }
+  .pdf-page-card__check {
+    @apply absolute top-1.5 right-1.5 z-10 w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white/90 dark:bg-studio-sidebar/90 text-xs font-extrabold text-transparent inline-flex items-center justify-center transition-colors;
+  }
+  .pdf-page-card.is-selected .pdf-page-card__check {
+    @apply bg-emerald-500 border-emerald-500 text-white;
+  }
+  .pdf-rot-pill {
+    @apply px-1.5 py-0.25 rounded bg-emerald-600 text-white text-[11px] font-bold;
+  }
+  .pdf-page-card__title,
+  .img-comp-card__name {
+    @apply text-xs font-bold text-slate-900 dark:text-studio-text truncate;
+  }
+  .pdf-page-card__meta,
+  .img-comp-card__meta {
+    @apply text-xs text-slate-500 dark:text-studio-muted truncate;
+  }
+  .pdf-page-card__tools,
+  .img-comp-card__actions {
+    @apply flex items-center justify-end gap-1 mt-2 pt-2 border-t border-slate-100 dark:border-studio-border flex-wrap;
+  }
+  .pdf-mini-btn {
+    @apply min-w-7 h-7 px-1.5 rounded-md bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-bold text-slate-700 dark:text-studio-text hover:border-emerald-500 inline-flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors;
+  }
+  .pdf-mini-btn--del {
+    @apply hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10;
+  }
+  .pdf-file-banner {
+    @apply flex items-center gap-3;
+  }
+  .pdf-file-banner__icon {
+    @apply text-xl shrink-0;
+  }
+  .pdf-file-banner__body {
+    @apply flex flex-col gap-0.5 min-w-0;
+  }
+  .pdf-file-banner__body strong {
+    @apply text-xs font-bold text-slate-900 dark:text-studio-text truncate;
+  }
+  .pdf-file-banner__body span {
+    @apply text-xs text-slate-500 dark:text-studio-muted;
+  }
+  .pdf-preview-stage.is-compare {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4 items-start w-full;
+  }
+  .pdf-preview-fig {
+    @apply m-0 flex flex-col items-center gap-2;
+  }
+  .pdf-preview-fig figcaption {
+    @apply text-xs font-bold text-slate-700 dark:text-studio-text;
+  }
+  .pdf-stat-item {
+    @apply inline-flex flex-col px-3 py-1.5 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs;
+  }
+  .pdf-stat-item span {
+    @apply text-xs text-slate-500 dark:text-studio-muted font-medium;
+  }
+  .pdf-stat-item strong {
+    @apply text-sm font-extrabold text-slate-900 dark:text-studio-text;
+  }
+  .pdf-stat-item--new strong {
+    @apply text-emerald-600 dark:text-studio-primary;
+  }
+  .pdf-stat-arrow {
+    @apply text-base font-bold text-slate-400 mx-1;
+  }
+  .pdf-stat-badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-bold;
+  }
+  .pdf-compare-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4 items-start w-full;
+  }
+  .img-comp-card__badge {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-studio-primary text-xs font-bold ml-1;
+  }
+
+  /* Dynamic Crop Box Handles & Color Swatches */
+  .img-crop-handle {
+    @apply absolute w-3.5 h-3.5 rounded-full bg-white border-2 border-emerald-500 shadow-md -translate-x-1/2 -translate-y-1/2;
+  }
+  .img-crop-handle[data-h="nw"] { @apply top-0 left-0 cursor-nwse-resize; }
+  .img-crop-handle[data-h="n"]  { @apply top-0 left-1/2 cursor-ns-resize; }
+  .img-crop-handle[data-h="ne"] { @apply top-0 left-full cursor-nesw-resize; }
+  .img-crop-handle[data-h="e"]  { @apply top-1/2 left-full cursor-ew-resize; }
+  .img-crop-handle[data-h="se"] { @apply top-full left-full cursor-nwse-resize; }
+  .img-crop-handle[data-h="s"]  { @apply top-full left-1/2 cursor-ns-resize; }
+  .img-crop-handle[data-h="sw"] { @apply top-full left-0 cursor-nesw-resize; }
+  .img-crop-handle[data-h="w"]  { @apply top-1/2 left-0 cursor-ew-resize; }
+
+  .img-palette-swatch {
+    @apply flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer hover:border-emerald-500 transition-colors;
+  }
+  .img-palette-swatch__color {
+    @apply w-7 h-7 rounded-lg border border-slate-200 shrink-0;
+  }
+  .img-palette-swatch__hex {
+    @apply text-xs font-mono font-bold text-slate-800 dark:text-studio-text;
+  }
+
+  /* Dynamic NID Card Editor Tabs, SVG Overlay & Sheet Stage */
+  .nid-card-tab {
+    @apply inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap bg-transparent text-slate-600 dark:text-studio-muted border-0 cursor-pointer transition-colors;
+  }
+  .nid-card-tab.active {
+    @apply bg-white dark:bg-studio-sidebar text-emerald-600 dark:text-studio-primary shadow-2xs;
+  }
+  .nid-card-tab__dot {
+    @apply w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600;
+  }
+  .nid-card-tab.is-ready .nid-card-tab__dot {
+    @apply bg-emerald-500;
+  }
+  .nid-quad-poly {
+    fill: rgba(16, 185, 129, 0.08);
+    stroke: #10b981;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+  .nid-quad-poly.is-invalid {
+    stroke: #f43f5e !important;
+    stroke-dasharray: 4 3;
+  }
+  .nid-quad-grid {
+    stroke: rgba(255, 255, 255, 0.45);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+    vector-effect: non-scaling-stroke;
+  }
+  .nid-snap-guide {
+    stroke: #38bdf8;
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+  #img-pane-combine .nid-sheet-stage :is(img, canvas) {
+    width: min(100cqw, calc(100cqh * var(--nid-output-ratio, 0.707)));
+    aspect-ratio: var(--nid-output-ratio, 0.707);
+    @apply h-auto max-w-full max-h-full object-contain bg-white shadow-lg;
+  }
+  .nid-cs-swatch {
+    @apply w-7 h-7 rounded-md grid place-items-center shrink-0 text-xs font-extrabold font-mono border border-slate-300/60 bg-white text-slate-800;
+  }
+}
+
+@media print {
+  .no-print,
+  header,
+  footer,
+  #globalBreadcrumbBar {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  #invoiceSheet {
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+}

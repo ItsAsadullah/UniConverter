@@ -4,11 +4,22 @@
 (function () {
   'use strict';
 
+  function initBijoyApp() {
+  var bijoyRootEl = document.getElementById('tool-bijoy');
+  if (!bijoyRootEl) return;
+  if (bijoyRootEl.dataset.bijoyBound === '1') {
+    if (bijoyRootEl._syncRoute) bijoyRootEl._syncRoute();
+    return;
+  }
+  bijoyRootEl.dataset.bijoyBound = '1';
+
   var E = window.BijoyEngine;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var BN = '০১২৩৪৫৬৭৮৯';
   function bn(n) { return String(n).replace(/\d/g, function (d) { return BN[d]; }); }
+  function isEnLang() { return document.documentElement.getAttribute('data-lang') === 'en'; }
+  function fmtNum(n) { return isEnLang() ? String(n) : bn(n); }
   function esc(s) { return s.replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
   /* ------------------------------------------------------------------ storage */
@@ -17,7 +28,7 @@
     set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } }
   };
   var settings = Object.assign({
-    textDir: 'b2u', fileDir: 'b2u', live: true, previewFont: 'Noto Sans Bengali', fontSize: 18,
+    textDir: 'u2b', fileDir: 'u2b', live: true, previewFont: 'Noto Sans Bengali', fontSize: 18,
     unicodeFont: 'Nirmala UI', bijoyFont: 'SutonnyMJ', customFont: '', detect: 'auto', englishTnr: true, tab: 'text',
     voiceLang: 'bn-BD'
   }, store.get('thbc-settings', {}));
@@ -132,7 +143,8 @@
   function setTab(name, focus) {
     if (name !== 'text' && typeof stopVoice === 'function') stopVoice();
     settings.tab = name; saveSettings();
-    $('.tabs').dataset.active = name;
+    var tabsEl = $('.tabs');
+    if (tabsEl) tabsEl.dataset.active = name;
     $$('.tab').forEach(function (t) {
       var on = t.id === 'tab-' + name;
       t.setAttribute('aria-selected', on);
@@ -141,6 +153,14 @@
     });
     $('#panel-text').hidden = name !== 'text';
     $('#panel-file').hidden = name !== 'file';
+    var textDirSeg = $('#textDirSeg');
+    var fileDirSeg = $('#fileDirSeg');
+    var textActions = $('#textToolbarActions');
+    var fileMeta = $('#fileToolbarMeta');
+    if (textDirSeg) textDirSeg.hidden = name !== 'text';
+    if (fileDirSeg) fileDirSeg.hidden = name !== 'file';
+    if (textActions) textActions.hidden = name !== 'text';
+    if (fileMeta) fileMeta.hidden = name !== 'file';
   }
   $$('.tab').forEach(function (t) {
     t.addEventListener('click', function () { setTab(t.id.replace('tab-', '')); });
@@ -153,32 +173,84 @@
   });
 
   /* ================================================================== TEXT CONVERTER */
-  var input = $('#inputText'), output = $('#outputText');
+  var input = $('#inputText'), output = $('#outputText'), outputRich = $('#outputRich');
   var smart = null;      // smart-paste result {input, output}
   var lastSegs = null;   // last U→B segments (for rich copy)
   var pending = 0;
 
   function textDir() { return $('input[name="textDir"]:checked').value; }
 
+  function renderRichOutput() {
+    if (!outputRich) return;
+    var b2u = textDir() === 'b2u';
+    output.hidden = !b2u;
+    outputRich.hidden = b2u;
+    if (b2u || !output.value) {
+      outputRich.innerHTML = '';
+      return;
+    }
+    var segs = lastSegs && lastSegs.length ? lastSegs : E.unicodeToBijoySegments(input.value);
+    var keepEn = settings.englishTnr !== false;
+    outputRich.innerHTML = segs.map(function (s) {
+      var txt = esc(s.text);
+      if (s.symbol) {
+        var symTxt = esc(s.text.replace(/\u00B4/g, '\uF0B4').replace(/\u00B8/g, '\uF0B8'));
+        return '<span style="font-family:\'Symbol\';mso-ascii-font-family:\'Symbol\';mso-hansi-font-family:\'Symbol\'">' + symTxt + '</span>';
+      }
+      if (s.bijoy || !keepEn) {
+        return '<span style="font-family:\'SutonnyMJ\',var(--font-sans);mso-ascii-font-family:\'SutonnyMJ\';mso-hansi-font-family:\'SutonnyMJ\';mso-bidi-font-family:\'SutonnyMJ\'">' + txt + '</span>';
+      }
+      return '<span style="font-family:\'Times New Roman\',var(--font-sans);mso-ascii-font-family:\'Times New Roman\';mso-hansi-font-family:\'Times New Roman\';mso-bidi-font-family:\'Times New Roman\'">' + txt + '</span>';
+    }).join('');
+  }
+
   function countText(s) {
     var words = (s.match(/\S+/g) || []).length;
+    if (isEnLang()) {
+      return s.length + ' chars • ' + words + ' words';
+    }
     return bn(s.length) + ' অক্ষর • ' + bn(words) + ' শব্দ';
   }
 
   function applyDirUI() {
     var b2u = textDir() === 'b2u';
+    var en = isEnLang();
     var seg = $('#textDirB2U').closest('.seg');
     if (seg) seg.dataset.dir = b2u ? 'b2u' : 'u2b';
-    $('#inputLabel').innerHTML = b2u ? 'বিজয় টেক্সট <small>(SutonnyMJ)</small>' : 'ইউনিকোড টেক্সট';
-    $('#outputLabel').innerHTML = b2u ? 'ইউনিকোড আউটপুট' : 'বিজয় আউটপুট <small>(SutonnyMJ)</small>';
-    input.placeholder = b2u
-      ? 'বিজয় টেক্সট লিখুন বা পেস্ট করুন… (Word থেকে পেস্ট করলে ইংরেজি অংশ অক্ষত থাকবে)'
-      : 'ইউনিকোড বাংলা লিখুন বা পেস্ট করুন… (ইংরেজি অংশ আলাদা থাকবে)';
+    if (en) {
+      $('#inputLabel').innerHTML = b2u ? 'Bijoy Text <small>(SutonnyMJ)</small>' : 'Unicode Text';
+      $('#outputLabel').innerHTML = b2u ? 'Unicode Output' : 'Bijoy Output <small>(SutonnyMJ)</small>';
+      input.placeholder = b2u
+        ? 'Type or paste Bijoy text here… (English segments from Word stay intact)'
+        : 'Type or paste Unicode Bangla text here… (English letters stay separate)';
+      output.placeholder = 'Converted text will appear here…';
+    } else {
+      $('#inputLabel').innerHTML = b2u ? 'বিজয় টেক্সট <small>(SutonnyMJ)</small>' : 'ইউনিকোড টেক্সট';
+      $('#outputLabel').innerHTML = b2u ? 'ইউনিকোড আউটপুট' : 'বিজয় আউটপুট <small>(SutonnyMJ)</small>';
+      input.placeholder = b2u
+        ? 'বিজয় টেক্সট লিখুন বা পেস্ট করুন… (Word থেকে পেস্ট করলে ইংরেজি অংশ অক্ষত থাকবে)'
+        : 'ইউনিকোড বাংলা লিখুন বা পেস্ট করুন… (ইংরেজি অংশ আলাদা থাকবে)';
+      output.placeholder = 'রূপান্তরিত লেখা এখানে দেখাবে…';
+    }
+    if (outputRich) {
+      outputRich.setAttribute('placeholder', output.placeholder);
+      output.hidden = !b2u;
+      outputRich.hidden = b2u;
+    }
     input.classList.toggle('is-bijoy', b2u); input.classList.toggle('is-unicode', !b2u);
     output.classList.toggle('is-bijoy', !b2u); output.classList.toggle('is-unicode', b2u);
     var textEnField = $('#textEnglishFontField');
     if (textEnField) textEnField.hidden = b2u;
-    settings.textDir = textDir(); saveSettings();
+    settings.textDir = textDir();
+    var fRadio = b2u ? $('#fileDirB2U') : $('#fileDirU2B');
+    if (fRadio && !fRadio.checked) {
+      fRadio.checked = true;
+      var fSeg = fRadio.closest('.seg');
+      if (fSeg) fSeg.dataset.dir = b2u ? 'b2u' : 'u2b';
+      settings.fileDir = settings.textDir;
+      if (typeof applyFileDirUI === 'function') applyFileDirUI();
+    }
+    saveSettings();
   }
 
   function convertNow() {
@@ -195,10 +267,15 @@
     }
     var ms = performance.now() - t0;
     output.value = out;
+    renderRichOutput();
     $('#smartHint').hidden = !smart;
     $('#inputCount').textContent = countText(src);
     $('#outputCount').textContent = countText(out);
-    $('#timing').textContent = src ? (ms < 1 ? '১ মি.সে.-এর কম' : bn(Math.round(ms)) + ' মি.সে.') : '';
+    if (isEnLang()) {
+      $('#timing').textContent = src ? (ms < 1 ? '< 1 ms' : Math.round(ms) + ' ms') : '';
+    } else {
+      $('#timing').textContent = src ? (ms < 1 ? '১ মি.সে.-এর কম' : bn(Math.round(ms)) + ' মি.সে.') : '';
+    }
     store.set('thbc-draft', src.length <= 150000 ? src : '');
   }
   function scheduleConvert() {
@@ -209,6 +286,9 @@
   }
   function flashOutput() {
     output.classList.remove('flash'); void output.offsetWidth; output.classList.add('flash');
+    if (outputRich) {
+      outputRich.classList.remove('flash'); void outputRich.offsetWidth; outputRich.classList.add('flash');
+    }
   }
 
   input.addEventListener('input', function () { smart = null; scheduleConvert(); });
@@ -323,8 +403,17 @@
   function swap() {
     commitVoiceInterim();
     var out = output.value;
-    (textDir() === 'b2u' ? $('#textDirU2B') : $('#textDirB2U')).checked = true;
-    smart = null;
+    var wasU2B = textDir() === 'u2b';
+    var prevSegs = lastSegs;
+    (wasU2B ? $('#textDirB2U') : $('#textDirU2B')).checked = true;
+    if (wasU2B && prevSegs && prevSegs.length && settings.englishTnr !== false && prevSegs.some(function (s) { return !s.bijoy; })) {
+      var backOut = prevSegs.map(function (s) {
+        return s.bijoy ? E.bijoyToUnicode(s.text) : (s.symbol ? E.symbolToUnicode(s.text) : s.text);
+      }).join('');
+      smart = { input: out, output: backOut };
+    } else {
+      smart = null;
+    }
     applyDirUI(); applyPreviewFont();
     input.value = out;
     voiceAnchorStart = input.value.length;
@@ -414,10 +503,15 @@
 
   function setVoiceUI(active, statusMsg) {
     if (!voiceBtn) return;
+    var en = isEnLang();
     voiceBtn.classList.toggle('is-listening', active);
     voiceBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
     if (voiceGroup) voiceGroup.classList.toggle('is-listening', active);
-    if (voiceBtnLabel) voiceBtnLabel.textContent = active ? 'থামান' : 'ভয়েস টাইপ';
+    if (voiceBtnLabel) {
+      voiceBtnLabel.textContent = active
+        ? (en ? 'Stop' : 'থামান')
+        : (en ? 'Voice Type' : 'ভয়েস টাইপ');
+    }
     if (voiceBar) voiceBar.hidden = !active;
     if (voiceStatusText && statusMsg) voiceStatusText.textContent = statusMsg;
     input.classList.toggle('is-listening', active);
@@ -655,30 +749,64 @@
   });
   $('#convertBtn').addEventListener('click', function () { convertNow(); flashOutput(); });
 
-  $('#copyBtn').addEventListener('click', async function () {
-    if (!output.value) return toast('কপি করার মতো কিছু নেই');
-    if (await copyText(output.value)) flashBtn(this, 'কপি হয়েছে');
-  });
-
-  $('#copyRichBtn').addEventListener('click', async function () {
-    var out = output.value;
-    if (!out) return toast('কপি করার মতো কিছু নেই');
+  function buildRichOutputHtml(out) {
     var size = '14pt', html;
     var lines = function (s) { return esc(s).replace(/\t/g, '&#9;').replace(/\n/g, '<br>'); };
     if (textDir() === 'u2b') {
-      var segs = lastSegs && lastSegs.length ? lastSegs : [{ text: out, bijoy: true }];
-      var enFont = settings.englishTnr !== false ? 'Times New Roman' : settings.previewFont;
+      var segs = lastSegs && lastSegs.length ? lastSegs : E.unicodeToBijoySegments(input.value);
+      if (!segs || !segs.length) segs = [{ text: out, bijoy: true }];
+      var enFont = settings.englishTnr !== false ? 'Times New Roman' : 'SutonnyMJ';
       html = segs.map(function (s) {
         var ff = s.symbol ? 'Symbol' : (s.bijoy ? 'SutonnyMJ' : enFont);
-        return '<span style="font-family:\'' + ff + '\'">' + lines(s.text) + '</span>';
+        var txt = s.symbol ? s.text.replace(/\u00B4/g, '\uF0B4').replace(/\u00B8/g, '\uF0B8') : s.text;
+        return '<span style="font-family:\'' + ff + '\';mso-ascii-font-family:\'' + ff + '\';mso-hansi-font-family:\'' + ff + '\';mso-bidi-font-family:\'' + ff + '\'">' + lines(txt) + '</span>';
       }).join('');
     } else {
       html = '<span style="font-family:\'' + settings.previewFont + '\'">' + lines(out) + '</span>';
     }
-    html = '<div style="font-size:' + size + '">' + html + '</div>';
+    return '<div style="font-size:' + size + '">' + html + '</div>';
+  }
+
+  output.addEventListener('copy', function (e) {
+    if (textDir() !== 'u2b' || !output.value) return;
+    var selStart = typeof output.selectionStart === 'number' ? output.selectionStart : 0;
+    var selEnd = typeof output.selectionEnd === 'number' ? output.selectionEnd : output.value.length;
+    if (selStart === 0 && selEnd === output.value.length && e.clipboardData) {
+      e.clipboardData.setData('text/plain', output.value);
+      e.clipboardData.setData('text/html', buildRichOutputHtml(output.value));
+      e.preventDefault();
+    }
+  });
+
+  if (outputRich) {
+    outputRich.addEventListener('copy', function (e) {
+      if (textDir() !== 'u2b' || !output.value || !e.clipboardData) return;
+      var sel = window.getSelection ? window.getSelection() : null;
+      var selText = sel ? sel.toString() : '';
+      if (!selText || selText.length >= output.value.length) {
+        e.clipboardData.setData('text/plain', output.value);
+        e.clipboardData.setData('text/html', buildRichOutputHtml(output.value));
+        e.preventDefault();
+      }
+    });
+  }
+
+  $('#copyBtn').addEventListener('click', async function () {
+    var out = output.value;
+    if (!out) return toast(isEnLang() ? 'Nothing to copy' : 'কপি করার মতো কিছু নেই');
+    var ok = textDir() === 'u2b' ? await copyHtml(buildRichOutputHtml(out), out) : await copyText(out);
+    if (ok) flashBtn(this, isEnLang() ? 'Copied' : 'কপি হয়েছে');
+  });
+
+  $('#copyRichBtn').addEventListener('click', async function () {
+    var out = output.value;
+    if (!out) return toast(isEnLang() ? 'Nothing to copy' : 'কপি করার মতো কিছু নেই');
+    var html = buildRichOutputHtml(out);
     if (await copyHtml(html, out)) {
-      flashBtn(this, 'ফন্টসহ কপি হয়েছে');
-      toast(textDir() === 'u2b' ? 'Word-এ পেস্ট করুন — বাংলা অংশ SutonnyMJ ফন্টে বসবে' : 'Word-এ পেস্ট করুন — ' + settings.previewFont + ' ফন্টে বসবে');
+      flashBtn(this, isEnLang() ? 'Copied with Font' : 'ফন্টসহ কপি হয়েছে');
+      toast(textDir() === 'u2b'
+        ? (isEnLang() ? 'Paste in MS Word — Bangla renders in SutonnyMJ & English in Times New Roman' : 'Word-এ পেস্ট করুন — বাংলা অংশ SutonnyMJ ও ইংরেজি অংশ Times New Roman ফন্টে বসবে')
+        : (isEnLang() ? 'Paste in MS Word — renders in ' + settings.previewFont : 'Word-এ পেস্ট করুন — ' + settings.previewFont + ' ফন্টে বসবে'));
     }
   });
 
@@ -713,18 +841,23 @@
   function applySize() {
     settings.fontSize = +sizeIn.value; saveSettings();
     document.documentElement.style.setProperty('--text-size', settings.fontSize + 'px');
-    $('#fontSizeOut').textContent = bn(settings.fontSize);
+    $('#fontSizeOut').textContent = fmtNum(settings.fontSize);
   }
   sizeIn.addEventListener('input', applySize);
 
   function updateFontStatus() {
     var el = $('#fontStatus');
+    var en = isEnLang();
     if (fontAvailable('SutonnyMJ')) {
       el.className = 'font-status is-ok';
-      el.textContent = 'SutonnyMJ ফন্ট সক্রিয় আছে — মোবাইল ও পিসিতে বিজয় লেখা সঠিকভাবে দেখাবে।';
+      el.textContent = en
+        ? 'SutonnyMJ font active — Bijoy text renders accurately on PC & mobile.'
+        : 'SutonnyMJ ফন্ট সক্রিয় আছে — মোবাইল ও পিসিতে বিজয় লেখা সঠিকভাবে দেখাবে।';
     } else {
       el.className = 'font-status is-warn';
-      el.textContent = 'এই ডিভাইসে SutonnyMJ ফন্ট লোড হয়নি, তাই বিজয় লেখা ইংরেজি অক্ষরের মতো দেখাবে — রূপান্তর তবুও সঠিক। Word-এ বসাতে “Word-এর জন্য কপি” ব্যবহার করুন।';
+      el.textContent = en
+        ? 'SutonnyMJ font not installed locally — conversion is still 100% accurate. Use "Copy for Word" to paste into MS Word.'
+        : 'এই ডিভাইসে SutonnyMJ ফন্ট লোড হয়নি, তাই বিজয় লেখা ইংরেজি অক্ষরের মতো দেখাবে — রূপান্তর তবুও সঠিক। Word-এ বসাতে “Word-এর জন্য কপি” ব্যবহার করুন।';
     }
     el.title = el.textContent;
   }
@@ -754,9 +887,9 @@
   }
   function fileDir() { return $('input[name="fileDir"]:checked').value; }
   function fmtSize(b) {
-    if (b < 1024) return bn(b) + ' B';
-    if (b < 1048576) return bn((b / 1024).toFixed(1)) + ' KB';
-    return bn((b / 1048576).toFixed(1)) + ' MB';
+    if (b < 1024) return fmtNum(b) + ' B';
+    if (b < 1048576) return fmtNum((b / 1024).toFixed(1)) + ' KB';
+    return fmtNum((b / 1048576).toFixed(1)) + ' MB';
   }
 
   function chosenFont(sel) {
@@ -784,16 +917,34 @@
     if (enField) enField.hidden = b2u;
     var activeSel = b2u ? unicodeSel : bijoySel;
     $('#customFontField').hidden = activeSel.value !== '__custom__';
-    settings.fileDir = fileDir(); saveSettings();
+    settings.fileDir = fileDir();
+    var tRadio = b2u ? $('#textDirB2U') : $('#textDirU2B');
+    if (tRadio && !tRadio.checked) {
+      tRadio.checked = true;
+      var tSeg = tRadio.closest('.seg');
+      if (tSeg) tSeg.dataset.dir = b2u ? 'b2u' : 'u2b';
+      settings.textDir = settings.fileDir;
+      applyDirUI();
+      applyPreviewFont();
+      convertNow();
+    }
+    saveSettings();
   }
   function settingsChanged(e) {
     settings.unicodeFont = unicodeSel.value; settings.bijoyFont = bijoySel.value;
     settings.customFont = $('#customFont').value;
     settings.detect = $('input[name="detect"]:checked').value;
-    if (e && e.target === textEnTnrCheck && enTnrCheck) enTnrCheck.checked = textEnTnrCheck.checked;
-    else if (e && e.target === enTnrCheck && textEnTnrCheck) textEnTnrCheck.checked = enTnrCheck.checked;
-    if (enTnrCheck) settings.englishTnr = enTnrCheck.checked;
+    if (e && e.target === textEnTnrCheck) {
+      settings.englishTnr = textEnTnrCheck.checked;
+      if (enTnrCheck) enTnrCheck.checked = textEnTnrCheck.checked;
+    } else if (e && e.target === enTnrCheck) {
+      settings.englishTnr = enTnrCheck.checked;
+      if (textEnTnrCheck) textEnTnrCheck.checked = enTnrCheck.checked;
+    } else if (enTnrCheck) {
+      settings.englishTnr = enTnrCheck.checked;
+    }
     saveSettings();
+    renderRichOutput();
     applyFileDirUI();
     queue.forEach(function (it) {
       if (it.status === 'done') { it.status = 'ready'; it.msg = 'সেটিং বদলেছে — আবার রূপান্তর করুন'; it.blob = null; renderItem(it); }
@@ -820,40 +971,47 @@
     if (added && !legacy && !bad) toast(bn(added) + 'টি ফাইল যোগ হয়েছে');
   }
 
-  var ICON_X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
-  var ICON_DL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>';
+  var ICON_X = '<svg class="w-4 h-4 stroke-[2] fill-none stroke-current" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18"/></svg>';
+  var ICON_DL = '<svg class="w-3.5 h-3.5 stroke-[2] fill-none stroke-current" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>';
 
   function renderItem(it) {
     var li = document.getElementById('q' + it.id);
     if (!li) {
       li = document.createElement('li');
-      li.className = 'qitem'; li.id = 'q' + it.id;
+      li.className = 'qitem flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar';
+      li.id = 'q' + it.id;
       li.innerHTML =
-        '<span class="qitem__type" data-kind="' + it.kind + '">' + KIND_LABEL[it.kind] + '</span>' +
-        '<div class="qitem__main"><div class="qitem__name"></div><div class="qitem__meta"></div><div class="qitem__bar" hidden><i></i></div></div>' +
-        '<div class="qitem__actions"></div>';
+        '<span class="qitem__type inline-flex items-center justify-center min-w-[42px] h-8 px-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 text-[11px] font-bold shrink-0" data-kind="' + it.kind + '">' + KIND_LABEL[it.kind] + '</span>' +
+        '<div class="qitem__main flex-1 min-w-0"><div class="qitem__name text-xs font-bold text-slate-800 dark:text-studio-text truncate"></div><div class="qitem__meta text-[11px] text-slate-500 dark:text-studio-muted mt-0.5"></div><div class="qitem__bar w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden mt-1.5" hidden><i class="block h-full bg-emerald-500 transition-all"></i></div></div>' +
+        '<div class="qitem__actions flex items-center gap-1.5 shrink-0"></div>';
       li.querySelector('.qitem__name').textContent = it.file.name;
       li.querySelector('.qitem__name').title = it.file.name;
       $('#queue').appendChild(li);
     }
+    var en = isEnLang();
     var meta = li.querySelector('.qitem__meta'), bar = li.querySelector('.qitem__bar'), actions = li.querySelector('.qitem__actions');
-    meta.className = 'qitem__meta' + (it.status === 'done' ? ' is-ok' : it.status === 'error' ? ' is-err' : '');
+    meta.className = 'qitem__meta text-[11px] mt-0.5 ' + (it.status === 'done' ? 'is-ok text-emerald-600 dark:text-emerald-400 font-semibold' : it.status === 'error' ? 'is-err text-red-600 dark:text-red-400 font-semibold' : 'text-slate-500 dark:text-studio-muted');
     var base = fmtSize(it.file.size);
-    meta.textContent = it.status === 'working' ? base + ' • রূপান্তর হচ্ছে… ' + bn(Math.round(it.progress * 100)) + '%'
-      : base + (it.msg ? ' • ' + it.msg : ' • প্রস্তুত');
+    meta.textContent = it.status === 'working'
+      ? base + (en ? ' • Converting… ' : ' • রূপান্তর হচ্ছে… ') + fmtNum(Math.round(it.progress * 100)) + '%'
+      : base + (it.msg ? ' • ' + it.msg : (en ? ' • Ready' : ' • প্রস্তুত'));
     bar.hidden = it.status !== 'working';
     bar.firstChild.style.width = Math.round(it.progress * 100) + '%';
     actions.innerHTML = '';
     if (it.status === 'done' && it.blob) {
       var dl = document.createElement('button');
-      dl.type = 'button'; dl.className = 'chip-btn chip-btn--accent';
-      dl.innerHTML = ICON_DL + ' ডাউনলোড';
+      dl.type = 'button';
+      dl.className = 'chip-btn chip-btn--accent inline-flex items-center gap-1.5 min-h-[28px] px-2.5 py-1 rounded-lg border border-emerald-500/35 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-bold cursor-pointer hover:bg-emerald-500/20';
+      dl.innerHTML = ICON_DL + (en ? ' Download' : ' ডাউনলোড');
       dl.addEventListener('click', function () { downloadBlob(it.blob, it.outName); });
       actions.appendChild(dl);
     }
     if (it.status !== 'working') {
       var rm = document.createElement('button');
-      rm.type = 'button'; rm.className = 'qitem__remove'; rm.title = 'তালিকা থেকে সরান'; rm.setAttribute('aria-label', 'সরান');
+      rm.type = 'button';
+      rm.className = 'qitem__remove inline-flex items-center justify-center w-7 h-7 rounded-lg border border-slate-200 dark:border-studio-border bg-transparent text-slate-500 hover:text-red-500 hover:border-red-500/40 cursor-pointer';
+      rm.title = en ? 'Remove from queue' : 'তালিকা থেকে সরান';
+      rm.setAttribute('aria-label', rm.title);
       rm.innerHTML = ICON_X;
       rm.addEventListener('click', function () {
         queue = queue.filter(function (q) { return q !== it; });
@@ -1020,7 +1178,13 @@
 
   /* ================================================================== PWA */
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-    navigator.serviceWorker.register('sw.js').catch(function () { /* offline cache unavailable */ });
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.unregister(); });
+      }).catch(function () {});
+    } else {
+      navigator.serviceWorker.register('/sw.js').catch(function () { /* offline cache unavailable */ });
+    }
   }
 
   var installEvt = null;
@@ -1046,19 +1210,47 @@
 
   /* ================================================================== init */
   $('#year').textContent = bn(new Date().getFullYear());
-  (settings.textDir === 'u2b' ? $('#textDirU2B') : $('#textDirB2U')).checked = true;
-  (settings.fileDir === 'u2b' ? $('#fileDirU2B') : $('#fileDirB2U')).checked = true;
+  settings.textDir = 'u2b';
+  settings.fileDir = 'u2b';
+  $('#textDirU2B').checked = true;
+  $('#fileDirU2B').checked = true;
   $('#liveToggle').checked = settings.live;
   $('#convertBtn').hidden = settings.live;
   applyDirUI(); applyPreviewFont(); applySize(); applyFileDirUI();
-  setTab(settings.tab === 'file' ? 'file' : 'text');
+  var bijoyRoot = $('#tool-bijoy');
+  function syncBijoyRoute() {
+    var forcedTab = bijoyRoot && bijoyRoot.getAttribute('data-initial-tab');
+    setTab(forcedTab === 'file' ? 'file' : forcedTab === 'text' ? 'text' : (settings.tab === 'file' ? 'file' : 'text'));
+    if (bijoyRoot && bijoyRoot.getAttribute('data-voice-focus') === 'true' && $('#voiceBtn')) {
+      setTimeout(function () { $('#voiceBtn').focus(); }, 60);
+    }
+  }
+  bijoyRoot._syncRoute = syncBijoyRoute;
+  syncBijoyRoute();
   input.value = store.get('thbc-draft', '') || '';
   convertNow();
   updateFontStatus();
+  if (!window._thBijoyLangListenerBound) {
+    window._thBijoyLangListenerBound = true;
+    window.addEventListener('th:langchange', function () {
+      if (!document.getElementById('tool-bijoy')) return;
+      applyDirUI();
+      applySize();
+      convertNow();
+      updateFontStatus();
+      setVoiceUI(wantListening);
+      renderQueue();
+      var yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = fmtNum(new Date().getFullYear());
+    });
+  }
   if (document.fonts) {
     if (document.fonts.load) {
       document.fonts.load('18px "SutonnyMJ"', 'Avwg evsjv').then(updateFontStatus, updateFontStatus);
     }
     if (document.fonts.ready) document.fonts.ready.then(updateFontStatus);
   }
+  }
+  window.TechHatBijoyInit = initBijoyApp;
+  initBijoyApp();
 })();

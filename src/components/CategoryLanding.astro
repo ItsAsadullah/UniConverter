@@ -1,0 +1,21 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+import CategoryLandingView from './CategoryLandingView.svelte';
+import { getCategoryMeta, type CategoryId } from '../data/tools';
+
+interface Props {
+  categoryId: CategoryId;
+}
+
+const { categoryId } = Astro.props;
+const category = getCategoryMeta(categoryId);
+---
+
+<ToolLayout
+  toolId={categoryId}
+  activeCategory={categoryId}
+  title={`${category.titleEn} — ${category.title} | TechHat Studio`}
+  description={category.seoDesc}
+>
+  <CategoryLandingView categoryId={categoryId} />
+</ToolLayout>

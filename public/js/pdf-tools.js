@@ -18,6 +18,9 @@
 
   var bDig = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
   function toBn(n) { return String(n).replace(/\d/g, function (d) { return bDig[d]; }); }
+  function isEn() { return document.documentElement.getAttribute('data-lang') === 'en'; }
+  function tr(bn, en) { return isEn() ? en : bn; }
+  function fmtN(n) { return isEn() ? String(n) : toBn(n); }
   function fmtSize(bytes) {
     if (!bytes || bytes <= 0) return '0 KB';
     var kb = bytes / 1024;
@@ -230,18 +233,18 @@
    * GENERIC PAGE / FILE CARD GRID (rotate, delete, zoom, select, drag-sort)
    * ================================================================== */
   var ACTIONS = {
-    left: { label: '←', title: 'বামে সরান' },
-    right: { label: '→', title: 'ডানে সরান' },
-    rotL: { label: '↺', title: 'বামে ঘোরান' },
-    rotR: { label: '↻', title: 'ডানে ঘোরান' },
-    zoom: { label: '🔍', title: 'বড় করে দেখুন' },
-    dup: { label: '⧉', title: 'ডুপ্লিকেট' },
-    del: { label: '✕', title: 'মুছুন', cls: 'pdf-mini-btn--del' }
+    left: { label: '←', title: 'বামে সরান', titleEn: 'Move Left' },
+    right: { label: '→', title: 'ডানে সরান', titleEn: 'Move Right' },
+    rotL: { label: '↺', title: 'বামে ঘোরান', titleEn: 'Rotate Left' },
+    rotR: { label: '↻', title: 'ডানে ঘোরান', titleEn: 'Rotate Right' },
+    zoom: { label: '🔍', title: 'বড় করে দেখুন', titleEn: 'Preview' },
+    dup: { label: '⧉', title: 'ডুপ্লিকেট', titleEn: 'Duplicate' },
+    del: { label: '✕', title: 'মুছুন', titleEn: 'Remove', cls: 'pdf-mini-btn--del hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10' }
   };
 
   /**
    * opts: { items, thumbOf(item)->page, label(item,i), meta(item,i), badge(item,i), actions(item,i)->[...],
-   *         selectable, isSelected(item), onSelect(i), onAction(act,i), sortable, onReorder(order), multi(item) }
+   *         selectable, isSelected(item), onSelect(i), onAction(act,i), sortable, onReorder(order), multi(item), addMoreFor }
    */
   function renderGrid(grid, opts) {
     grid._opts = opts;
@@ -251,8 +254,11 @@
       var page = opts.thumbOf ? opts.thumbOf(item) : item;
       var sel = opts.selectable && opts.isSelected(item);
       var card = document.createElement('div');
-      card.className = 'pdf-page-card' + (opts.selectable ? ' pdf-page-card--selectable' : '') + (sel ? ' is-selected' : '') +
-        (opts.sortable ? ' pdf-page-card--sortable' : '') + (opts.multi && opts.multi(item) ? ' is-multi' : '');
+      card.className = 'pdf-page-card group relative flex flex-col rounded-xl bg-white dark:bg-studio-sidebar border p-2.5 shadow-2xs hover:shadow-md transition-all duration-150 hover:border-emerald-500/70' +
+        (opts.selectable ? ' pdf-page-card--selectable cursor-pointer' : '') +
+        (sel ? ' is-selected border-emerald-500 bg-emerald-500/5 ring-2 ring-emerald-500/20' : ' border-slate-200/90 dark:border-studio-border') +
+        (opts.sortable ? ' pdf-page-card--sortable' : '') +
+        (opts.multi && opts.multi(item) ? ' is-multi' : '');
       card.dataset.idx = i;
       if (opts.selectable) {
         card.setAttribute('role', 'checkbox');
@@ -260,26 +266,34 @@
         card.tabIndex = 0;
       }
       var acts = opts.actions ? opts.actions(item, i) : [];
-      var html = '';
-      if (opts.sortable) html += '<span class="pdf-drag-handle" tabindex="0" role="button" aria-label="ক্রম পরিবর্তন করতে টেনে আনুন অথবা বাম/ডান অ্যারো কী চাপুন">⠿</span>';
-      html += '<div class="pdf-page-card__badge">' + (opts.badge ? opts.badge(item, i) : '#' + toBn(i + 1)) +
-        (page && page.rotation ? ' <span class="pdf-rot-pill">' + toBn(((page.rotation % 360) + 360) % 360) + '°</span>' : '') + '</div>';
-      if (opts.selectable) html += '<div class="pdf-page-card__check" aria-hidden="true">' + (sel ? '✓' : '') + '</div>';
       var cached = page ? cachedThumb(page) : null;
+      var topOverlays = '';
+      if (opts.sortable) {
+        topOverlays += '<span class="pdf-drag-handle absolute top-2 right-2 z-10 w-7 h-7 rounded-md bg-slate-900/70 backdrop-blur-xs text-white text-xs inline-flex items-center justify-center cursor-grab active:cursor-grabbing shadow-xs hover:bg-slate-900 transition-colors" tabindex="0" role="button" aria-label="' + tr('ক্রম পরিবর্তন করতে টেনে আনুন', 'Drag to reorder') + '" title="' + tr('ড্র্যাগ করে সরান', 'Drag to reorder') + '">⠿</span>';
+      }
+      topOverlays += '<div class="pdf-page-card__badge absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-xs text-white text-xs font-bold inline-flex items-center gap-1 shadow-xs">' + (opts.badge ? opts.badge(item, i) : '#' + fmtN(i + 1)) +
+        (page && page.rotation ? ' <span class="pdf-rot-pill px-1.5 py-0.25 rounded bg-emerald-500 text-slate-950 text-[11px] font-extrabold">' + fmtN(((page.rotation % 360) + 360) % 360) + '°</span>' : '') + '</div>';
+      if (opts.selectable) {
+        topOverlays += '<div class="pdf-page-card__check absolute top-2 right-2 z-10 w-6 h-6 rounded-full border-2 text-xs font-extrabold inline-flex items-center justify-center shadow-xs transition-colors ' + (sel ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600 bg-white/95 dark:bg-studio-sidebar/95 text-transparent') + '" aria-hidden="true">' + (sel ? '✓' : '') + '</div>';
+      }
+
+      var html = '';
+      var thumbCursor = opts.selectable ? ' cursor-pointer' : ' cursor-zoom-in';
       if (page && page.isBlank) {
-        html += '<div class="pdf-page-card__thumb-wrap"><div class="pdf-blank-thumb" style="' + rotStyle(page.rotation || 0) + '">সাদা পৃষ্ঠা</div></div>';
+        html += '<div class="pdf-page-card__thumb-wrap relative aspect-[3/4] rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/70 dark:border-studio-border/60 overflow-hidden flex items-center justify-center p-3 mb-2.5' + thumbCursor + '">' + topOverlays + '<div class="pdf-blank-thumb w-3/4 h-4/5 rounded border border-dashed border-slate-300 dark:border-slate-600 bg-white flex items-center justify-center text-xs text-slate-400 font-semibold shadow-xs" style="' + rotStyle(page.rotation || 0) + '">' + tr('সাদা পৃষ্ঠা', 'Blank Page') + '</div></div>';
       } else {
-        html += '<div class="pdf-page-card__thumb-wrap' + (cached ? '' : ' is-loading') + '"><img class="pdf-page-card__thumb" alt="" draggable="false" decoding="async" style="' +
+        html += '<div class="pdf-page-card__thumb-wrap relative aspect-[3/4] rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/70 dark:border-studio-border/60 overflow-hidden flex items-center justify-center p-2.5 mb-2.5' + thumbCursor + (cached ? '' : ' is-loading') + '">' + topOverlays + '<img class="pdf-page-card__thumb max-w-full max-h-full object-contain rounded-xs bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-200" alt="" draggable="false" decoding="async" style="' +
           rotStyle(page ? page.rotation || 0 : 0) + '"' + (cached ? ' src="' + cached + '"' : '') + '></div>';
       }
-      html += '<div class="pdf-page-card__title" title="' + esc(opts.label(item, i)) + '">' + esc(opts.label(item, i)) + '</div>';
-      if (opts.meta) html += '<div class="pdf-page-card__meta">' + opts.meta(item, i) + '</div>';
+      html += '<div class="pdf-page-card__title text-xs font-bold text-slate-800 dark:text-studio-text truncate leading-snug" title="' + esc(opts.label(item, i)) + '">' + esc(opts.label(item, i)) + '</div>';
+      if (opts.meta) html += '<div class="pdf-page-card__meta text-xs font-medium text-slate-500 dark:text-studio-muted truncate mt-0.5">' + opts.meta(item, i) + '</div>';
       if (acts.length) {
-        html += '<div class="pdf-page-card__tools">' + acts.map(function (a) {
+        html += '<div class="pdf-page-card__tools flex items-center justify-between gap-1 mt-2.5 pt-2 border-t border-slate-100 dark:border-studio-border">' + acts.map(function (a) {
           var def = typeof a === 'string' ? ACTIONS[a] : a;
           var act = typeof a === 'string' ? a : a.act;
           var disabled = (act === 'left' && i === 0) || (act === 'right' && i === opts.items.length - 1);
-          return '<button type="button" class="pdf-mini-btn ' + (def.cls || '') + '" data-act="' + act + '" title="' + def.title + '" aria-label="' + def.title + '"' + (disabled ? ' disabled' : '') + '>' + def.label + '</button>';
+          var tip = isEn() && def.titleEn ? def.titleEn : def.title;
+          return '<button type="button" class="pdf-mini-btn flex-1 min-w-7 h-8 px-1.5 rounded-lg bg-slate-100/90 dark:bg-studio-panel border border-slate-200/80 dark:border-studio-border text-xs font-bold text-slate-700 dark:text-studio-text hover:bg-white dark:hover:bg-studio-surface hover:border-emerald-500 inline-flex items-center justify-center gap-0.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors ' + (def.cls || '') + '" data-act="' + act + '" title="' + tip + '" aria-label="' + tip + '"' + (disabled ? ' disabled' : '') + '>' + def.label + '</button>';
         }).join('') + '</div>';
       }
       card.innerHTML = html;
@@ -290,6 +304,20 @@
       }
       frag.appendChild(card);
     });
+
+    if (opts.addMoreFor) {
+      var addCard = document.createElement('label');
+      addCard.setAttribute('for', opts.addMoreFor);
+      addCard.className = 'group flex flex-col items-center justify-center text-center rounded-xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-white/50 dark:bg-studio-sidebar/40 hover:border-emerald-500 hover:bg-emerald-500/[0.04] p-4 min-h-[220px] cursor-pointer transition-all';
+      addCard.innerHTML =
+        '<div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">' +
+          '<svg class="w-5.5 h-5.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>' +
+        '</div>' +
+        '<span class="text-sm font-bold text-slate-800 dark:text-studio-text">' + tr('আরও ফাইল যোগ করুন', 'Add More Files') + '</span>' +
+        '<span class="text-xs text-slate-400 dark:text-studio-muted mt-0.5">' + tr('ক্লিক বা ড্রপ করুন', 'Click or drop here') + '</span>';
+      frag.appendChild(addCard);
+    }
+
     grid.innerHTML = '';
     grid.appendChild(frag);
   }
@@ -437,10 +465,48 @@
   }
 
   // ---- Large preview ----
-  var preview = { total: 0, cur: 1, render: null, token: 0 };
+  var preview = { total: 0, cur: 1, zoom: 100, render: null, token: 0 };
+  function computeBaseFitWidth(img, stage) {
+    var box = (stage && stage.parentElement) || stage;
+    var maxW = Math.max(240, (box ? box.clientWidth : 800) - 36);
+    var maxH = Math.max(240, (box ? box.clientHeight : 520) - 56);
+    if ( stage && stage.classList.contains('is-compare') && maxW > 640 ) {
+      maxW = Math.floor((maxW - 24) / 2);
+    }
+    var nw = img.naturalWidth || img.clientWidth || 595;
+    var nh = img.naturalHeight || img.clientHeight || 842;
+    var fitScale = Math.min(maxW / nw, maxH / nh);
+    return Math.max(120, Math.round(nw * fitScale));
+  }
+  function applyPreviewZoom(z) {
+    preview.zoom = Math.max(50, Math.min(300, Math.round(z || 100)));
+    var resetBtn = $('#pdfPreviewZoomReset');
+    var outBtn = $('#pdfPreviewZoomOut');
+    var inBtn = $('#pdfPreviewZoomIn');
+    if (resetBtn) resetBtn.textContent = fmtN(preview.zoom) + '%';
+    if (outBtn) outBtn.disabled = preview.zoom <= 50;
+    if (inBtn) inBtn.disabled = preview.zoom >= 300;
+    var stage = $('#pdfPreviewStage');
+    if (!stage) return;
+    $$('figure.pdf-preview-fig', stage).forEach(function (fig) {
+      fig.classList.toggle('is-zoomed', preview.zoom > 100);
+      var img = fig.querySelector('img.pdf-preview-img');
+      if (!img) return;
+      if (!img._baseW && img.naturalWidth > 0) {
+        img._baseW = computeBaseFitWidth(img, stage);
+      }
+      var baseW = img._baseW || 420;
+      img.style.width = Math.round(baseW * (preview.zoom / 100)) + 'px';
+      img.style.maxWidth = 'none';
+      img.style.maxHeight = 'none';
+      img.classList.toggle('cursor-zoom-in', preview.zoom <= 100);
+      img.classList.toggle('cursor-zoom-out', preview.zoom > 100);
+    });
+  }
   function openPreview(title, sub, total, start, renderFn) {
     preview.total = total;
     preview.cur = Math.max(1, Math.min(total, start || 1));
+    preview.zoom = 100;
     preview.render = renderFn;
     $('#pdfPreviewTitle').textContent = title;
     $('#pdfPreviewSub').textContent = sub || '';
@@ -449,20 +515,29 @@
   }
   function showPreviewPage() {
     var stage = $('#pdfPreviewStage');
-    $('#pdfPreviewCounter').textContent = toBn(preview.cur) + ' / ' + toBn(preview.total);
+    $('#pdfPreviewCounter').textContent = fmtN(preview.cur) + ' / ' + fmtN(preview.total);
     $('#pdfPreviewPrev').disabled = preview.cur <= 1;
     $('#pdfPreviewNext').disabled = preview.cur >= preview.total;
-    stage.innerHTML = '<div class="pdf-preview-loading">প্রিভিউ তৈরি হচ্ছে…</div>';
+    applyPreviewZoom(preview.zoom || 100);
+    stage.innerHTML = '<div class="pdf-preview-loading py-12 text-center text-xs font-semibold text-slate-500 dark:text-studio-muted">' + tr('প্রিভিউ তৈরি হচ্ছে…', 'Rendering preview…') + '</div>';
     var token = ++preview.token;
     preview.render(preview.cur).then(function (list) {
       if (token !== preview.token) return;
       stage.classList.toggle('is-compare', list.length > 1);
       stage.innerHTML = list.map(function (it) {
-        return '<figure class="pdf-preview-fig"><figcaption>' + it.label + '</figcaption>' +
-          '<img src="' + it.url + '" alt="' + esc(it.label.replace(/<[^>]+>/g, '')) + '" title="ক্লিক করে জুম ইন/আউট করুন"></figure>';
+        return '<figure class="pdf-preview-fig m-0 flex flex-col items-center gap-2"><figcaption class="text-xs font-bold text-slate-600 dark:text-studio-muted">' + it.label + '</figcaption>' +
+          '<img class="pdf-preview-img block h-auto object-contain rounded shadow-md bg-white cursor-zoom-in transition-[width] duration-150" src="' + it.url + '" alt="' + esc(it.label.replace(/<[^>]+>/g, '')) + '" title="' + tr('ক্লিক করে জুম ইন/আউট করুন', 'Click to zoom in/out') + '"></figure>';
       }).join('');
+      $$('img.pdf-preview-img', stage).forEach(function (img) {
+        var onReady = function () {
+          img._baseW = computeBaseFitWidth(img, stage);
+          applyPreviewZoom(preview.zoom || 100);
+        };
+        if (img.complete && img.naturalWidth > 0) onReady();
+        else img.addEventListener('load', onReady, { once: true });
+      });
     }).catch(function () {
-      if (token === preview.token) stage.innerHTML = '<div class="pdf-preview-loading">প্রিভিউ তৈরি করা যায়নি</div>';
+      if (token === preview.token) stage.innerHTML = '<div class="pdf-preview-loading py-12 text-center text-xs font-semibold text-slate-500 dark:text-studio-muted">' + tr('প্রিভিউ তৈরি করা যায়নি', 'Could not render preview') + '</div>';
     });
   }
 
@@ -487,9 +562,9 @@
   }
 
   function previewPages(pages, title, start) {
-    openPreview(title, 'ঘোরানো (Rotate) অবস্থাসহ প্রিভিউ', pages.length, start + 1, function (n) {
+    openPreview(title, tr('ঘোরানো (Rotate) অবস্থাসহ প্রিভিউ', 'Preview with current rotation'), pages.length, start + 1, function (n) {
       var p = pages[n - 1];
-      return pageImageUrl(p, 1100).then(function (url) { return [{ label: 'পৃষ্ঠা ' + toBn(n), url: url }]; });
+      return pageImageUrl(p, 1100).then(function (url) { return [{ label: tr('পৃষ্ঠা ', 'Page ') + fmtN(n), url: url }]; });
     });
   }
 
@@ -504,10 +579,12 @@
   function renderPagesDialog() {
     var item = pagesDlgItem;
     if (!item) return;
-    $('#pdfPagesDialogSub').textContent = 'মোট ' + toBn(item.pages.length) + ' পৃষ্ঠা • ড্র্যাগ করে সাজান, ঘোরান বা অপ্রয়োজনীয় পৃষ্ঠা মুছুন';
+    $('#pdfPagesDialogSub').textContent = isEn()
+      ? fmtN(item.pages.length) + (item.pages.length === 1 ? ' page' : ' pages') + ' • Drag to reorder, rotate, or remove pages'
+      : 'মোট ' + fmtN(item.pages.length) + ' পৃষ্ঠা • ড্র্যাগ করে সাজান, ঘোরান বা অপ্রয়োজনীয় পৃষ্ঠা মুছুন';
     renderGrid($('#pdfPagesDialogGrid'), {
       items: item.pages,
-      label: function (p) { return 'পৃষ্ঠা ' + toBn(p.idx + 1); },
+      label: function (p) { return tr('পৃষ্ঠা ', 'Page ') + fmtN(p.idx + 1); },
       actions: function () { return ['rotL', 'rotR', 'zoom', 'del']; },
       sortable: true,
       onReorder: function (order) { item.pages = reorderArray(item.pages, order); renderPagesDialog(); },
@@ -517,7 +594,7 @@
         else if (act === 'rotR') rotatePage(p, 90);
         else if (act === 'zoom') { previewPages(item.pages, item.name, i); return; }
         else if (act === 'del') {
-          if (item.pages.length <= 1) { showToast('শেষ পৃষ্ঠা মোছা যাবে না — পুরো ফাইল সরাতে মূল কার্ডের ✕ ব্যবহার করুন।'); return; }
+          if (item.pages.length <= 1) { showToast(tr('শেষ পৃষ্ঠা মোছা যাবে না — পুরো ফাইল সরাতে মূল কার্ডের ✕ ব্যবহার করুন।', 'Cannot delete the last page — use ✕ on the main card to remove the file.')); return; }
           item.pages.splice(i, 1);
         }
         renderPagesDialog();
@@ -613,24 +690,50 @@
     pdf2other: '/pdf/pdf-to-other',
     other2pdf: '/pdf/other-to-pdf'
   };
+  var PDF_SUB_TITLES = {
+    merge: { bn: 'মার্জ PDF', en: 'Merge PDF' },
+    split: { bn: 'স্প্লিট PDF', en: 'Split PDF' },
+    compress: { bn: 'কম্প্রেস PDF', en: 'Compress PDF' },
+    organize: { bn: 'অর্গানাইজ ও এডিট PDF', en: 'Organize & Edit PDF' },
+    pdf2other: { bn: 'PDF → অন্য ফরম্যাট', en: 'PDF Converter' },
+    other2pdf: { bn: 'অন্য ফাইল → PDF', en: 'Convert to PDF' }
+  };
 
   function switchPdfTab(tabId, subOpt, skipUrl) {
     currentSubTab = tabId || 'hub';
+    var targetPane = $('#pdf-pane-' + currentSubTab);
+    if (!targetPane && PDF_SUB_SLUGS[currentSubTab]) {
+      if (window.TechHatNavigate) window.TechHatNavigate(PDF_SUB_SLUGS[currentSubTab]);
+      else location.href = PDF_SUB_SLUGS[currentSubTab];
+      return;
+    }
     $$('#tool-pdf .pdf-nav-btn').forEach(function (btn) {
       var active = btn.getAttribute('data-pdf-tab') === currentSubTab;
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-selected', active ? 'true' : 'false');
     });
     $$('#tool-pdf .pdf-pane').forEach(function (pane) { pane.hidden = pane.id !== 'pdf-pane-' + currentSubTab; });
+    var bcTool = $('#globalBreadcrumbTool');
+    if (bcTool && PDF_SUB_TITLES[currentSubTab]) {
+      var tMeta = PDF_SUB_TITLES[currentSubTab];
+      var lang = document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'bn';
+      bcTool.setAttribute('data-i18n-bn', tMeta.bn);
+      bcTool.setAttribute('data-i18n-en', tMeta.en);
+      bcTool.textContent = tMeta[lang];
+    }
+    var targetSlug = PDF_SUB_SLUGS[currentSubTab] || '/pdf';
+    $$('#globalBreadcrumbDropdown [data-bc-item]').forEach(function (item) {
+      item.classList.toggle('is-active', item.getAttribute('data-bc-item') === targetSlug);
+    });
     if (subOpt) {
       var name = currentSubTab === 'pdf2other' ? 'pdfToOtherFmt' : (currentSubTab === 'other2pdf' ? 'otherToPdfMode' : '');
       var r = name && $('input[name="' + name + '"][value="' + subOpt + '"]');
       if (r) { r.checked = true; r.dispatchEvent(new Event('change')); }
     }
-    if (!skipUrl && history.replaceState && /^\/pdf(\/|$)/.test(location.pathname)) {
+    if (!skipUrl && history.pushState && /^\/pdf(\/|$)/.test(location.pathname)) {
       var targetUrl = PDF_SUB_SLUGS[currentSubTab] || '/pdf';
       if (location.pathname !== targetUrl) {
-        history.replaceState(null, '', targetUrl);
+        history.pushState(null, '', targetUrl);
       }
     }
     if (currentSubTab !== 'hub') ensurePdfLibs().catch(function () {});
@@ -660,8 +763,8 @@
 
   function fileBanner(el, st) {
     if (!el) return;
-    el.innerHTML = '<div class="pdf-file-banner__icon">📄</div><div class="pdf-file-banner__body"><strong>' + esc(st.name) +
-      '</strong><span>মোট ' + toBn(st.pages.length) + ' পৃষ্ঠা • সাইজ: <b>' + fmtSize(st.size) + '</b></span></div>';
+    el.innerHTML = '<div class="pdf-file-banner__icon text-xl shrink-0">📄</div><div class="pdf-file-banner__body flex flex-col gap-0.5 min-w-0"><strong class="text-xs font-bold text-slate-900 dark:text-studio-text truncate">' + esc(st.name) +
+      '</strong><span class="text-[11px] text-slate-500 dark:text-studio-muted">মোট ' + toBn(st.pages.length) + ' পৃষ্ঠা • সাইজ: <b>' + fmtSize(st.size) + '</b></span></div>';
   }
 
   function showStage(prefix, has) {
@@ -705,6 +808,15 @@
     }).then(function () { setProgress(null); renderMergeUI(); }, function () { setProgress(null); });
   }
 
+  var KIND_PILL_CLS = {
+    pdf: 'bg-rose-500 text-white',
+    img: 'bg-emerald-500 text-slate-950',
+    doc: 'bg-blue-500 text-white',
+    ppt: 'bg-amber-500 text-slate-950',
+    xls: 'bg-teal-500 text-slate-950',
+    txt: 'bg-slate-600 text-white'
+  };
+
   function renderMergeUI() {
     showStage('pdfMerge', mergeItems.length > 0);
     if (!mergeItems.length) return;
@@ -712,16 +824,38 @@
       items: mergeItems,
       thumbOf: function (it) { return it.pages[0]; },
       multi: function (it) { return it.pages.length > 1; },
-      badge: function (it, i) { return '#' + toBn(i + 1) + ' <span class="pdf-kind pdf-kind--' + it.kind + '">' + esc(it.badge) + '</span>'; },
+      badge: function (it, i) {
+        var pillCls = KIND_PILL_CLS[it.kind] || 'bg-emerald-500 text-slate-950';
+        return '#' + fmtN(i + 1) + ' <span class="pdf-kind px-1.5 py-0.25 rounded text-[9px] font-extrabold uppercase tracking-wide ' + pillCls + ' pdf-kind--' + it.kind + '">' + esc(it.badge) + '</span>';
+      },
       label: function (it) { return it.name; },
       meta: function (it) {
         var rot = it.pages.some(function (p) { return p.rotation; });
-        return toBn(it.pages.length) + ' পৃষ্ঠা' + (it.pages.length !== it.doc.numPages ? ' (মূল ' + toBn(it.doc.numPages) + ')' : '') + ' • ' + fmtSize(it.size) + (rot ? ' • ঘোরানো' : '');
+        var pgLbl = isEn()
+          ? fmtN(it.pages.length) + (it.pages.length === 1 ? ' page' : ' pages')
+          : fmtN(it.pages.length) + ' পৃষ্ঠা';
+        var origLbl = it.pages.length !== it.doc.numPages
+          ? (isEn() ? ' (orig ' + fmtN(it.doc.numPages) + ')' : ' (মূল ' + fmtN(it.doc.numPages) + ')')
+          : '';
+        return pgLbl + origLbl + ' • ' + fmtSize(it.size) + (rot ? tr(' • ঘোরানো', ' • Rotated') : '');
       },
       actions: function (it) {
-        return ['rotL', 'rotR', { act: 'pages', label: '📄 ' + toBn(it.pages.length), title: 'সব পৃষ্ঠা দেখুন ও সম্পাদনা করুন', cls: 'pdf-mini-btn--wide' }, 'del'];
+        return [
+          'rotL',
+          'rotR',
+          'zoom',
+          {
+            act: 'pages',
+            label: '📄 ' + fmtN(it.pages.length),
+            title: 'সব পৃষ্ঠা দেখুন ও সম্পাদনা করুন',
+            titleEn: 'View & edit pages',
+            cls: 'pdf-mini-btn--wide'
+          },
+          'del'
+        ];
       },
       sortable: true,
+      addMoreFor: 'pdfMergeAddMore',
       onReorder: function (order) { mergeItems = reorderArray(mergeItems, order); renderMergeUI(); },
       onAction: function (act, i) {
         var it = mergeItems[i];
@@ -734,7 +868,9 @@
     });
     var totalPages = 0, totalBytes = 0;
     mergeItems.forEach(function (it) { totalPages += it.pages.length; totalBytes += it.size; });
-    $('#pdfMergeSummary').textContent = toBn(mergeItems.length) + 'টি ফাইল • মোট ' + toBn(totalPages) + ' পৃষ্ঠা (' + fmtSize(totalBytes) + ')';
+    $('#pdfMergeSummary').textContent = isEn()
+      ? fmtN(mergeItems.length) + (mergeItems.length === 1 ? ' file' : ' files') + ' • ' + fmtN(totalPages) + (totalPages === 1 ? ' page total' : ' pages total') + ' (' + fmtSize(totalBytes) + ')'
+      : fmtN(mergeItems.length) + 'টি ফাইল • মোট ' + fmtN(totalPages) + ' পৃষ্ঠা (' + fmtSize(totalBytes) + ')';
   }
 
   function runMergePdf() {
@@ -942,12 +1078,12 @@
     bar.hidden = true;
     var levelName = { extreme: 'এক্সট্রিম', recommended: 'রেকমেন্ডেড', light: 'হালকা' }[r.level] || '';
     $('#pdfCompressStat').innerHTML =
-      '<div class="pdf-size-card"><span>আগের সাইজ</span><b>' + fmtSize(st.size) + '</b></div>' +
-      '<span class="pdf-compress-arrow" aria-hidden="true">→</span>' +
-      '<div class="pdf-size-card pdf-size-card--new"><span>নতুন সাইজ</span><b>' + fmtSize(newSize) + '</b></div>' +
-      '<span class="pdf-compress-badge' + (pct > 0 ? '' : ' is-neutral') + '">' +
+      '<div class="pdf-size-card inline-flex flex-col px-3 py-1.5 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs"><span class="text-[10px] text-slate-500 dark:text-studio-muted font-medium">আগের সাইজ</span><b class="text-sm font-extrabold text-slate-900 dark:text-studio-text">' + fmtSize(st.size) + '</b></div>' +
+      '<span class="pdf-compress-arrow text-base font-bold text-slate-400 mx-1" aria-hidden="true">→</span>' +
+      '<div class="pdf-size-card pdf-size-card--new inline-flex flex-col px-3 py-1.5 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs"><span class="text-[10px] text-slate-500 dark:text-studio-muted font-medium">নতুন সাইজ</span><b class="text-sm font-extrabold text-emerald-600 dark:text-studio-primary">' + fmtSize(newSize) + '</b></div>' +
+      '<span class="pdf-compress-badge inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ' + (pct > 0 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : 'is-neutral bg-slate-200 dark:bg-studio-surface text-slate-600 dark:text-studio-muted') + '">' +
       (pct > 0 ? toBn(pct) + '% ছোট হয়েছে' : 'সাইজ কমেনি — ফাইলটি আগেই অপটিমাইজড') + '</span>' +
-      '<span class="pdf-compress-level">' + levelName + ' লেভেল' + (r.gray ? ' • সাদাকালো' : '') + '</span>';
+      '<span class="pdf-compress-level text-xs text-slate-500 dark:text-studio-muted ml-auto">' + levelName + ' লেভেল' + (r.gray ? ' • সাদাকালো' : '') + '</span>';
     renderGrid($('#pdfCompressPreviewGrid'), {
       items: makePages(r.doc).map(function (p, i) { p.label = 'পৃষ্ঠা ' + toBn(i + 1); return p; }),
       label: function (p) { return p.label; },
@@ -1181,11 +1317,11 @@
         });
         return chain.then(function () {
           prev.hidden = false;
-          prev.innerHTML = '<div class="pdf-pages-grid pdf-pages-grid--compact">' + rendered.map(function (r) {
+          prev.innerHTML = '<div class="pdf-pages-grid pdf-pages-grid--compact grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">' + rendered.map(function (r) {
             var dl = base + '-page-' + r.n + '.' + fmt;
-            return '<div class="pdf-page-card"><div class="pdf-page-card__badge">পৃষ্ঠা ' + toBn(r.n) + '</div>' +
-              '<div class="pdf-page-card__thumb-wrap"><img src="' + r.url + '" class="pdf-page-card__thumb" alt="পৃষ্ঠা ' + r.n + '"></div>' +
-              '<a href="' + r.url + '" download="' + esc(dl) + '" class="chip-btn pdf-dl-chip">⬇ ' + fmt.toUpperCase() + '</a></div>';
+            return '<div class="pdf-page-card relative flex flex-col rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border p-2.5 shadow-2xs"><div class="pdf-page-card__badge absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded bg-slate-900/75 text-white text-[10px] font-bold">পৃষ্ঠা ' + toBn(r.n) + '</div>' +
+              '<div class="pdf-page-card__thumb-wrap relative aspect-[3/4] rounded-lg bg-slate-100 dark:bg-studio-panel overflow-hidden flex items-center justify-center mb-2"><img src="' + r.url + '" class="pdf-page-card__thumb max-w-full max-h-full object-contain rounded" alt="পৃষ্ঠা ' + r.n + '"></div>' +
+              '<a href="' + r.url + '" download="' + esc(dl) + '" class="chip-btn pdf-dl-chip mt-2 w-full inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 no-underline transition-colors">⬇ ' + fmt.toUpperCase() + '</a></div>';
           }).join('') + '</div>';
           if (rendered.length === 1) {
             downloadBlob(new Blob([dataUrlToUint8(rendered[0].url)], { type: mime }), base + '-page-1.' + fmt);
@@ -1216,9 +1352,9 @@
           return '=== পৃষ্ঠা ' + toBn(i + 1) + ' ===\n' + (t || '(এই পৃষ্ঠায় কোনো টেক্সট লেয়ার পাওয়া যায়নি — স্ক্যান করা পৃষ্ঠা হতে পারে)');
         }).join('\n\n');
         prev.hidden = false;
-        prev.innerHTML = '<div class="pdf-extracted-box"><div class="pdf-extracted-head"><strong>এক্সট্র্যাক্ট করা লেখা:</strong>' +
-          '<button type="button" class="chip-btn" id="pdfCopyExtTxtBtn">কপি করুন</button></div>' +
-          '<textarea class="textbox" rows="7" readonly id="pdfExtTxtArea" aria-label="এক্সট্র্যাক্ট করা লেখা"></textarea></div>';
+        prev.innerHTML = '<div class="pdf-extracted-box space-y-2"><div class="pdf-extracted-head flex items-center justify-between gap-2"><strong>এক্সট্র্যাক্ট করা লেখা:</strong>' +
+          '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 cursor-pointer transition-colors" id="pdfCopyExtTxtBtn">কপি করুন</button></div>' +
+          '<textarea class="textbox w-full p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-sans text-slate-800 dark:text-studio-text outline-none" rows="7" readonly id="pdfExtTxtArea" aria-label="এক্সট্র্যাক্ট করা লেখা"></textarea></div>';
         $('#pdfExtTxtArea').value = full;
         $('#pdfCopyExtTxtBtn').addEventListener('click', function () {
           navigator.clipboard.writeText(full).then(function () { showToast('লেখা কপি করা হয়েছে!'); });
@@ -1494,14 +1630,27 @@
   function on(id, ev, fn) { var el = $('#' + id); if (el) el.addEventListener(ev, fn); }
 
   function init() {
-    if (initialized) return;
+    var pdfRoot = $('#tool-pdf');
+    if (!pdfRoot) return;
+    if (pdfRoot.dataset.pdfBound === '1') {
+      var existingTab = pdfRoot.getAttribute('data-initial-tab');
+      if (existingTab) switchPdfTab(existingTab, pdfRoot.getAttribute('data-initial-opt') || undefined, true);
+      return;
+    }
+    pdfRoot.dataset.pdfBound = '1';
     initialized = true;
 
     $$('#tool-pdf .pdf-nav-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () { switchPdfTab(btn.getAttribute('data-pdf-tab')); });
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        switchPdfTab(btn.getAttribute('data-pdf-tab'));
+      });
     });
     $$('#tool-pdf [data-open-pdf]').forEach(function (card) {
-      card.addEventListener('click', function () { switchPdfTab(card.getAttribute('data-open-pdf'), card.getAttribute('data-sub-opt')); });
+      card.addEventListener('click', function (e) {
+        e.preventDefault();
+        switchPdfTab(card.getAttribute('data-open-pdf'), card.getAttribute('data-sub-opt'));
+      });
     });
     installPaneDrop();
 
@@ -1514,13 +1663,21 @@
     on('pdfPreviewClose', 'click', function () { $('#pdfPreviewDialog').close(); });
     on('pdfPreviewPrev', 'click', function () { if (preview.cur > 1) { preview.cur--; showPreviewPage(); } });
     on('pdfPreviewNext', 'click', function () { if (preview.cur < preview.total) { preview.cur++; showPreviewPage(); } });
+    on('pdfPreviewZoomIn', 'click', function () { applyPreviewZoom((preview.zoom || 100) + 25); });
+    on('pdfPreviewZoomOut', 'click', function () { applyPreviewZoom((preview.zoom || 100) - 25); });
+    on('pdfPreviewZoomReset', 'click', function () { applyPreviewZoom(100); });
     on('pdfPreviewDialog', 'keydown', function (e) {
       if (e.key === 'ArrowLeft' && preview.cur > 1) { preview.cur--; showPreviewPage(); }
       else if (e.key === 'ArrowRight' && preview.cur < preview.total) { preview.cur++; showPreviewPage(); }
+      else if (e.key === '+' || e.key === '=') { e.preventDefault(); applyPreviewZoom((preview.zoom || 100) + 25); }
+      else if (e.key === '-' || e.key === '_') { e.preventDefault(); applyPreviewZoom((preview.zoom || 100) - 25); }
+      else if (e.key === '0') { e.preventDefault(); applyPreviewZoom(100); }
     });
     on('pdfPreviewStage', 'click', function (e) {
       var fig = e.target.closest('.pdf-preview-fig');
-      if (fig) fig.classList.toggle('is-zoomed');
+      if (fig) {
+        applyPreviewZoom(preview.zoom > 100 ? 100 : 175);
+      }
     });
 
     // 1. Merge
@@ -1622,6 +1779,16 @@
     on('img2pdfRunBtn', 'click', runImg2Pdf);
     wireInput($('#doc2pdfInput'), loadDoc2PdfFile);
     on('doc2pdfRunBtn', 'click', runDoc2Pdf);
+
+    window.addEventListener('th:langchange', function () {
+      if (mergeItems.length) renderMergeUI();
+      if (splitState) renderSplitUI();
+      if (compressState) renderCompressUI();
+      if (orgState) renderOrgUI();
+      if (p2oState) renderPdf2OtherUI();
+      if (imgItems.length) renderImg2PdfUI();
+      if (pagesDlgItem) renderPagesDialog();
+    });
 
     var pdfRoot = $('#tool-pdf');
     var initTab = pdfRoot && pdfRoot.getAttribute('data-initial-tab');

@@ -70,10 +70,13 @@ eq('সৃষ্টি stem-joining ri-kar', E.unicodeToBijoy('সৃষ্ট�
 eq('কৃষি non-stem ri-kar', E.unicodeToBijoy('কৃষি'), 'K\u2026wl');
 eq('তৃতীয় non-stem ri-kar', E.unicodeToBijoy('তৃতীয়'), 'Z\u2026Zxq');
 eq('শ‍ৃ with stray ZWJ before ri-kar', E.unicodeToBijoy('শ\u200Dৃ'), 'k\u201E');
-// 2) ূ (uu-kar) stem vs non-stem
+// 2) ূ (uu-kar) & ু (u-kar) stem vs non-stem
 eq('উপকূলীয় non-stem uu-kar', E.unicodeToBijoy('উপকূলীয়'), 'DcK\u201Ajxq');
 eq('ভূমিকম্প non-stem uu-kar', E.unicodeToBijoy('ভূমিকম্প'), 'f\u201AwgK\u00A4\u00FA');
 eq('মূল্য right-stem uu-kar', E.unicodeToBijoy('মূল্য'), 'g~j\u00A8');
+eq('টুল non-stem u-kar (z)', E.unicodeToBijoy('টুল'), 'Uzj');
+eq('স্কুল non-stem u-kar (z)', E.unicodeToBijoy('স্কুল'), '\u00AF\u2039zj');
+eq('মেনু right-stem u-kar (y)', E.unicodeToBijoy('মেনু'), '\u2020gby');
 // 3) ণ্ড (\u00D0) and রু (i\u00E6) and দ্রু (`\u00AA\u2013)
 eq('অগ্নিকাণ্ড conj glyph', E.unicodeToBijoy('অগ্নিকাণ্ড'), 'AwM\u0153Kv\u00D0');
 eq('রুটি-মাংস ru glyph', E.unicodeToBijoy('রুটি-মাংস'), 'i\u00E6wU-gvsm');

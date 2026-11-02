@@ -96,7 +96,7 @@
     // digits
     '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
     // punctuation & signs
-    '|': '।', '&': HASANTA + ZWNJ, '$': '৳', '\u00B4': '×', '\uF0B4': '×',
+    '|': '।', '&': HASANTA + ZWNJ, '$': '৳', '\u00B4': '×', '\uF0B4': '×', '\uF0B8': '÷',
     '\u00D1': '—', '\u00D2': '“', '\u00D3': '”', '\u00D4': '‘', '\u00D5': '’',
     // phala / right-side conjunct parts
     '^': '্ব', '\u00A1': '্ব', '\u00A6': '্ব', '\u0178': '্ব',
@@ -388,6 +388,7 @@
     var last = cluster[cluster.length - 1];
     if (cluster.length > 1 && last === 'র' && kar === 'ু') return '\u2013';
     var noStem = KAR_NO_STEM[last] === 1 && !CONJ_STEM[cluster];
+    if (kar === 'ু') return noStem ? 'z' : 'y';
     if (kar === 'ৃ' || kar === 'ৄ') return noStem ? '\u2026' : '\u201E';
     if (kar === 'ূ') return noStem ? '\u201A' : '~';
     return U2B_BASE[kar] || kar;
@@ -495,13 +496,18 @@
     return out;
   }
 
-  function isBengaliChar(c) {
+  function isBengaliCoreChar(c) {
     var code = c.charCodeAt(0);
-    return (code >= 0x0980 && code <= 0x09FF) || code === 0x0964 || code === 0x0965 || code === 0x200C || code === 0x200D
-      || c === '(' || c === ')' || c === '/' || c === '=';
+    return (code >= 0x0980 && code <= 0x09FF) || code === 0x0964 || code === 0x0965 || code === 0x200C || code === 0x200D;
+  }
+  function isBengaliPunct(c) {
+    return c === '(' || c === ')' || c === '/' || c === '=';
+  }
+  function isBengaliChar(c) {
+    return isBengaliCoreChar(c) || isBengaliPunct(c);
   }
   // characters that must be rendered with the Symbol font in Bijoy documents
-  var U2B_SYMBOL = { '\u00D7': '\u00B4' };
+  var U2B_SYMBOL = { '\u00D7': '\u00B4', '\u00F7': '\u00B8' };
   var S2U_SYMBOL = { '\u00B4': '\u00D7', '\uF0B4': '\u00D7', '\u00B8': '\u00F7', '\uF0B8': '\u00F7' };
   function isSymbolChar(c) { return U2B_SYMBOL[c] !== undefined; }
   function convertSymbolRun(s) {
@@ -525,17 +531,32 @@
    * Unicode → Bijoy, keeping track of which parts are Bangla or Symbol.
    * Non-Bangla text (English, digits, etc.) is returned untouched with
    * bijoy:false so callers can keep it in its original font.
-   * Multiplication sign (×) is returned with symbol:true (for Symbol font).
+   * Multiplication/division signs (×, ÷) are returned with symbol:true (for Symbol font).
    * @returns {{text:string, bijoy:boolean, symbol?:boolean}[]}
    */
-  function unicodeToBijoySegments(input, inWordStart) {
+  function unicodeToBijoySegments(input, inWordStart, allowPunctAsBn) {
     if (!input) return [];
     var s = normalizeUnicode(input);
+    var hasBnContext = allowPunctAsBn !== undefined ? !!allowPunctAsBn : (hasBengali(s) || !!inWordStart);
+    var enParenMask = {};
+    if (hasBnContext) {
+      var pRe = /\(([^()]*)\)/g, pm;
+      while ((pm = pRe.exec(s))) {
+        var inner = pm[1].trim();
+        var isRoman = /^[ivxlcdm]+$/i.test(inner) && inner.length <= 4;
+        if (!hasBengali(inner) && /[A-Za-z]/.test(inner) && (!isRoman || /[\s0-9]/.test(pm[1]))) {
+          enParenMask[pm.index] = true;
+          enParenMask[pm.index + pm[0].length - 1] = true;
+        }
+      }
+    }
     // 1) classify into runs B (Bangla) / S (Symbol) / N (neutral) / O (other)
     var runs = [], cur = null, i, t;
     for (i = 0; i < s.length; i++) {
       var c = s[i];
-      t = isBengaliChar(c) ? 'B' : (isSymbolChar(c) ? 'S' : (isNeutral(c) ? 'N' : 'O'));
+      var isEnSlash = c === '/' && (/[A-Za-z]/.test(s[i - 1] || '') || /[A-Za-z]/.test(s[i + 1] || ''));
+      var isB = isBengaliCoreChar(c) || (hasBnContext && isBengaliPunct(c) && !enParenMask[i] && !isEnSlash);
+      t = isB ? 'B' : (isSymbolChar(c) ? 'S' : (isNeutral(c) ? 'N' : 'O'));
       if (cur && cur.t === t) cur.s += c;
       else { cur = { t: t, s: c }; runs.push(cur); }
     }
@@ -588,8 +609,8 @@
    * ------------------------------------------------------------------ */
   // । (U+0964) and ॥ (U+0965) live in the Devanagari block but are Bangla punctuation
   function hasBengali(s) { return /[\u0980-\u09FF\u0964\u0965]/.test(s); }
-  // Characters that trigger Unicode → Bijoy conversion (includes /, (), =, ×)
-  function hasU2B(s) { return /[\u0980-\u09FF\u0964\u0965()\/=\u00D7]/.test(s); }
+  // Characters that trigger Unicode → Bijoy conversion (includes /, (), =, ×, ÷)
+  function hasU2B(s) { return /[\u0980-\u09FF\u0964\u0965()\/=\u00D7\u00F7]/.test(s); }
 
   /**
    * Guess the encoding of a text sample.

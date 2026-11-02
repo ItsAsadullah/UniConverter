@@ -1,6 +1,6 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
-import PdfStudio from '../../components/PdfStudio.astro';
+import PdfStudio from '../../components/PdfStudio.svelte';
 import { PDF_SUBTOOLS, type PdfSubToolMeta } from '../../data/tools';
 
 export function getStaticPaths() {
@@ -26,8 +26,8 @@ const { sub } = Astro.props;
 
   <Fragment slot="scripts">
     <script is:inline src="/vendor/jszip.min.js" defer></script>
-    <script is:inline src="/js/bijoy-engine.js" defer></script>
-    <script is:inline src="/js/pdf-convert.js" defer></script>
-    <script is:inline src="/js/pdf-tools.js" defer></script>
+    <script is:inline src="/js/bijoy-engine.js?v=56" defer></script>
+    <script is:inline src="/js/pdf-convert.js?v=56" defer></script>
+    <script is:inline src="/js/pdf-tools.js?v=62" defer></script>
   </Fragment>
 </ToolLayout>

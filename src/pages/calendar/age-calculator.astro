@@ -1,0 +1,14 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import AgeTool from '../../components/AgeTool.svelte';
+import DateModals from '../../components/DateModals.svelte';
+---
+<ToolLayout toolId="age">
+  <AgeTool />
+
+  <DateModals slot="after-workbench" />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/js/tools.js?v=61" defer></script>
+  </Fragment>
+</ToolLayout>

@@ -1,5 +1,7 @@
 import { defineConfig } from 'astro/config';
 import icon from 'astro-icon';
+import svelte from '@astrojs/svelte';
+import tailwindcss from '@tailwindcss/vite';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
@@ -76,8 +78,9 @@ const localCropDataset = {
 };
 
 export default defineConfig({
-  integrations: [icon()],
-  vite: { plugins: [localCropDataset] },
+  devToolbar: { enabled: false },
+  integrations: [icon(), svelte()],
+  vite: { plugins: [tailwindcss(), localCropDataset] },
   output: 'static',
   compressHTML: true,
   build: {

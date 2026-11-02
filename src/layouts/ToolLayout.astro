@@ -1,24 +1,53 @@
 ---
-import { getToolMeta, type ToolMeta } from '../data/tools';
-import ToolsMenu from '../components/ToolsMenu.astro';
+import { Icon } from 'astro-icon/components';
+import { getToolMeta, CATEGORIES, ALL_TOOLS, getToolsByCategory, type ToolMeta, type CategoryId } from '../data/tools';
+import '../styles/studio-design.css';
 
 interface Props {
-  toolId: ToolMeta['id'];
+  toolId?: ToolMeta['id'] | 'home' | CategoryId;
   title?: string;
   description?: string;
   activeBadgeText?: string;
+  activeCategory?: CategoryId;
 }
 
-const { toolId, title, description, activeBadgeText } = Astro.props;
-const currentTool = getToolMeta(toolId);
-const pageTitle = title || currentTool.seoTitle;
+const { toolId = 'bijoy', title, description, activeCategory } = Astro.props;
+const legacyToolIds = ['bijoy', 'pdf', 'image', 'calendar', 'age', 'datecalc', 'invoice'];
+const currentTool = legacyToolIds.includes(toolId as string)
+  ? getToolMeta(toolId as ToolMeta['id'])
+  : getToolMeta('bijoy');
+
+const pageTitle = title || (toolId === 'home'
+  ? 'TechHat Studio — Document, PDF & Office Productivity Suite'
+  : currentTool.seoTitle);
 const pageDesc = description || currentTool.seoDesc;
-const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-const toBn = (n: number | string) => String(n).replace(/\d/g, (d) => bnDigits[Number(d)]);
-const currentYearBn = toBn(new Date().getFullYear());
+const currentYear = String(new Date().getFullYear());
+
+const rawCategory: CategoryId | undefined = activeCategory || (
+  toolId === 'bijoy' ? 'bangla'
+  : toolId === 'pdf' ? 'pdf'
+  : toolId === 'image' ? 'image'
+  : (toolId === 'calendar' || toolId === 'age' || toolId === 'datecalc') ? 'dates'
+  : toolId === 'invoice' ? 'utilities'
+  : undefined
+);
+const inferredCategory: CategoryId | undefined = rawCategory === 'business' ? 'utilities' : rawCategory;
+const currentCategoryMeta = inferredCategory ? CATEGORIES.find((c) => c.id === inferredCategory) : undefined;
+
+const cleanPath = (Astro.url.pathname || '/').replace(/\/+$/, '') || '/';
+const ALIAS_ROUTE_TO_TOOL_ID: Record<string, string> = {
+  '/calendar/age-calculator': 'age',
+  '/calendar/date-calculator': 'datecalc',
+  '/business/invoice-maker': 'invoice',
+  '/image/scanner': 'image-scan'
+};
+const aliasToolId = ALIAS_ROUTE_TO_TOOL_ID[cleanPath];
+const matchedCatalogTool = aliasToolId
+  ? ALL_TOOLS.find((t) => t.id === aliasToolId)
+  : ALL_TOOLS.find((t) => t.href === cleanPath);
 ---
 <!doctype html>
-<html lang="bn">
+<html lang="bn" data-lang="bn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -31,8 +60,15 @@ const currentYearBn = toBn(new Date().getFullYear());
         document.documentElement.setAttribute('data-theme', theme);
         var meta = document.querySelector('meta[name="color-scheme"]');
         if (meta) meta.content = theme;
-        if (localStorage.getItem('thbc-cache-ver') !== 'v37') {
-          localStorage.setItem('thbc-cache-ver', 'v37');
+
+        var savedLang = localStorage.getItem('thbc-lang') || localStorage.getItem('thbc-scan-lang') || 'bn';
+        var lang = savedLang === 'en' ? 'en' : 'bn';
+        document.documentElement.setAttribute('data-lang', lang);
+        document.documentElement.lang = lang;
+
+        var prevVer = localStorage.getItem('thbc-cache-ver');
+        if (prevVer !== 'v52') {
+          localStorage.setItem('thbc-cache-ver', 'v52');
           var hadStale = false;
           var p = [];
           if (window.caches) {
@@ -56,7 +92,7 @@ const currentYearBn = toBn(new Date().getFullYear());
   </script>
   <title>{pageTitle}</title>
   <meta name="description" content={pageDesc}>
-  <meta name="theme-color" content="#0a0f1d">
+  <meta name="theme-color" content="#0B1120">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
   <link rel="apple-touch-icon" href="/icons/icon-180.png">
@@ -65,74 +101,414 @@ const currentYearBn = toBn(new Date().getFullYear());
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700&family=Tiro+Bangla&display=swap">
-  <link rel="stylesheet" href="/css/app.css?v=35">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Anek+Bangla:wght@400;500;600;700&family=Tiro+Bangla&display=swap">
 </head>
-<body data-astro-mpa="1" data-active-tool={toolId}>
-  <a class="skip-link" href="#workbench">মূল অংশে যান</a>
-
-  <header class="topbar">
-    <div class="topbar__inner">
-      <a class="brand" href="/" aria-label="TechHat বাংলা কনভার্টার ও ইউটিলিটি হাব — হোম">
-        <img class="brand__mark" src="/icons/icon-192.png" width="34" height="34" alt="">
-        <h1 class="brand__name">TechHat <b>ইউটিলিটি হাব</b></h1>
+<body
+  data-astro-mpa="1"
+  data-active-tool={toolId}
+  class="min-h-screen flex flex-col bg-slate-50 dark:bg-studio-bg text-slate-900 dark:text-studio-text antialiased selection:bg-emerald-500/20"
+>
+  <!-- ============================================================ GLOBAL HEADER (TAILWIND CSS v4) -->
+  <header class="sticky top-0 z-50 bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-md border-b border-slate-200 dark:border-studio-border shadow-2xs">
+    <div class="w-full h-16 px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-4">
+      <a class="inline-flex items-center gap-2.5 no-underline text-slate-900 dark:text-studio-text shrink-0" href="/" aria-label="TechHat Studio">
+        <img class="w-8 h-8 rounded-lg" src="/icons/icon-48.png" width="32" height="32" decoding="async" alt="">
+        <span class="text-lg font-extrabold tracking-tight whitespace-nowrap">
+          TechHat <b class="text-emerald-600 dark:text-studio-primary font-extrabold">Studio</b>
+        </span>
       </a>
 
-      {toolId === 'bijoy' ? (
-        <div class="tabs" id="bijoyTabs" role="tablist" aria-label="কনভার্টারের ধরন">
-          <button class="tab" role="tab" id="tab-text" aria-controls="panel-text" aria-selected="true" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg> টেক্সট
-          </button>
-          <button class="tab" role="tab" id="tab-file" aria-controls="panel-file" aria-selected="false" tabindex="-1" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> ফাইল
-          </button>
-          <span class="tabs__ink" aria-hidden="true"></span>
-        </div>
-      ) : (
-        <div class="active-tool-header" id="activeToolHeader">
-          <span class="active-tool-pill" id="activeToolName" set:html={`${currentTool.icon} <span>${activeBadgeText || currentTool.title}</span>`} />
-          {toolId === 'calendar' && (
-            <button class="chip-btn" id="btnCalReset" type="button" title="আজকের তারিখে ফিরে যান">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4"/></svg>
-              আজকের তারিখ
-            </button>
-          )}
-        </div>
-      )}
+      <!-- Desktop Category Dropdown Navigation (5 Primary Studios) -->
+      <nav class="hidden lg:flex items-center gap-1.5" aria-label="Primary Navigation" id="desktopPrimaryNav">
+        {CATEGORIES.map((cat) => {
+          const items = getToolsByCategory(cat.id);
+          const isActive = inferredCategory === cat.id;
+          return (
+            <div class="relative group" data-nav-group={cat.id}>
+              <a
+                href={cat.href}
+                data-nav-cat={cat.id}
+                class:list={[
+                  'th-nav-link inline-flex items-center gap-2 h-10 px-3.5 rounded-xl text-sm font-bold no-underline whitespace-nowrap transition-colors text-slate-700 dark:text-studio-muted hover:bg-slate-100 dark:hover:bg-studio-panel hover:text-slate-950 dark:hover:text-studio-text [&.is-active]:bg-emerald-500/12 [&.is-active]:text-emerald-600 dark:[&.is-active]:text-studio-primary [&.is-active]:hover:bg-emerald-500/15 [&.is-active]:hover:text-emerald-600 dark:[&.is-active]:hover:text-studio-primary',
+                  isActive && 'is-active'
+                ]}
+              >
+                <Icon name={cat.lucideIcon} class="w-4 h-4 shrink-0" aria-hidden="true" />
+                <span data-i18n-bn={cat.title} data-i18n-en={cat.titleEn}>{cat.title}</span>
+              </a>
+              <div
+                class="th-nav-dropdown absolute top-full left-0 pt-1.5 w-72 opacity-0 invisible pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:pointer-events-auto z-50"
+                role="menu"
+                aria-label={cat.titleEn}
+              >
+                <div class="p-2 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xl">
+                  {items.map((item) => (
+                    <a
+                      href={item.href}
+                      aria-label={item.titleEn}
+                      class="flex items-center gap-3 px-3 py-2.5 rounded-xl no-underline text-slate-900 dark:text-studio-text hover:bg-slate-100 dark:hover:bg-studio-panel transition-colors"
+                      role="menuitem"
+                    >
+                      <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-studio-primary inline-flex items-center justify-center shrink-0">
+                        <Icon name={item.lucideIcon} class="w-4 h-4" aria-hidden="true" />
+                      </span>
+                      <span class="flex flex-col min-w-0">
+                        <b class="text-sm font-bold leading-tight truncate" data-i18n-bn={item.title} data-i18n-en={item.titleEn}>{item.title}</b>
+                        <small class="text-xs text-slate-500 dark:text-studio-muted truncate mt-0.5" data-i18n-bn={item.desc} data-i18n-en={item.descEn}>{item.desc}</small>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </nav>
 
-      <div class="topbar__actions">
-        <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="থিম পরিবর্তন করুন (লাইট / ডার্ক)" title="লাইট ও ডার্ক থিম পরিবর্তন">
-          <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
-          <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-          <span class="icon-btn__label theme-toggle__label">থিম</span>
+      <!-- Header Right Actions (Clean & Minimal: Language + Theme + Mobile Trigger) -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button class="chip-btn" id="btnCalReset" type="button" hidden={toolId !== 'calendar'} data-i18n-title-bn="আজকের তারিখ" data-i18n-title-en="Today">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4"/></svg>
+          <span data-i18n-bn="আজ" data-i18n-en="Today">আজ</span>
         </button>
-        <button class="icon-btn" id="installBtn" type="button" hidden title="অ্যাপ হিসেবে ইনস্টল করুন">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
-          <span class="icon-btn__label">ইনস্টল</span>
+
+        <!-- UNIVERSAL LANGUAGE SWITCHER (বাংলা ⇄ EN) -->
+        <div class="inline-flex items-center h-9.5 p-0.5 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border" id="globalLangSwitch" role="group" aria-label="Language Switcher">
+          <button type="button" class="th-lang-btn is-active h-8 px-3 border-0 rounded-md bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer transition-colors hover:text-slate-900 dark:hover:text-studio-text [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="bn" aria-pressed="true">বাংলা</button>
+          <button type="button" class="th-lang-btn h-8 px-3 border-0 rounded-md bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer transition-colors hover:text-slate-900 dark:hover:text-studio-text [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="en" aria-pressed="false">EN</button>
+        </div>
+
+        <button
+          class="inline-flex items-center justify-center w-9.5 h-9.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-100/80 dark:bg-studio-panel text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-studio-text transition-colors theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle theme"
+          title="Toggle Light / Dark theme"
+        >
+          <svg class="theme-toggle__moon w-4.5 h-4.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
+          <svg class="theme-toggle__sun w-4.5 h-4.5" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
         </button>
-        <ToolsMenu />
+
+        <button class="inline-flex items-center justify-center w-9.5 h-9.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-100/80 dark:bg-studio-panel text-slate-600 dark:text-studio-muted cursor-pointer" id="installBtn" type="button" hidden title="Install App">
+          <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
+        </button>
+
+        <button
+          type="button"
+          class="lg:hidden inline-flex items-center justify-center w-9.5 h-9.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-studio-panel text-slate-800 dark:text-studio-text cursor-pointer"
+          id="openMobileMenuBtn"
+          aria-label="Open menu"
+          title="Menu"
+        >
+          <Icon name="lucide:menu" class="w-4.5 h-4.5" aria-hidden="true" />
+        </button>
       </div>
     </div>
   </header>
 
-  <main id="workbench" class="workbench">
+  <!-- ============================================================ MAIN WORKBENCH -->
+  <main id="workbench" class="workbench flex-1 w-full max-w-none mx-auto px-4 sm:px-6 lg:px-10 pt-3 pb-8">
+    {toolId !== 'home' && currentCategoryMeta && (
+      <nav
+        id="globalBreadcrumbBar"
+        aria-label="Breadcrumb"
+        class="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-studio-muted pt-0.5 pb-2 select-none"
+      >
+        <a
+          href="/"
+          class="inline-flex items-center gap-1 text-slate-500 dark:text-studio-muted hover:text-emerald-600 dark:hover:text-studio-primary no-underline transition-colors"
+        >
+          <Icon name="lucide:home" class="w-3.5 h-3.5 opacity-80" aria-hidden="true" />
+          <span data-i18n-bn="হোম" data-i18n-en="Home">হোম</span>
+        </a>
+        <span class="text-slate-300 dark:text-slate-600" aria-hidden="true">/</span>
+        <a
+          href={currentCategoryMeta.href}
+          id="globalBreadcrumbCat"
+          class:list={[
+            'hover:text-emerald-600 dark:hover:text-studio-primary no-underline transition-colors',
+            matchedCatalogTool
+              ? 'text-slate-500 dark:text-studio-muted'
+              : 'text-slate-800 dark:text-studio-text font-semibold'
+          ]}
+          data-i18n-bn={currentCategoryMeta.title}
+          data-i18n-en={currentCategoryMeta.titleEn}
+        >
+          {currentCategoryMeta.title}
+        </a>
+        <span
+          id="globalBreadcrumbSep"
+          class="text-slate-300 dark:text-slate-600"
+          aria-hidden="true"
+          hidden={!matchedCatalogTool}
+        >/</span>
+        <div
+          id="globalBreadcrumbToolWrap"
+          class="relative group/bc inline-flex items-center"
+          hidden={!matchedCatalogTool}
+        >
+          <button
+            type="button"
+            id="globalBreadcrumbToolBtn"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border text-slate-800 dark:text-studio-text hover:border-emerald-500/60 dark:hover:border-studio-primary/60 hover:text-emerald-600 dark:hover:text-studio-primary text-xs font-bold shadow-2xs cursor-pointer transition-all"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span
+              id="globalBreadcrumbTool"
+              class="truncate"
+              data-i18n-bn={matchedCatalogTool ? matchedCatalogTool.title : ''}
+              data-i18n-en={matchedCatalogTool ? matchedCatalogTool.titleEn : ''}
+            >
+              {matchedCatalogTool ? matchedCatalogTool.title : ''}
+            </span>
+            <Icon
+              name="lucide:chevron-down"
+              class="w-3.5 h-3.5 text-slate-400 group-hover/bc:text-emerald-600 dark:group-hover/bc:text-studio-primary transition-transform duration-150 group-[.is-open]/bc:rotate-180 group-hover/bc:rotate-180"
+              aria-hidden="true"
+            />
+          </button>
+
+          <div
+            id="globalBreadcrumbDropdown"
+            class="th-nav-dropdown absolute top-full left-0 pt-1.5 w-60 opacity-0 invisible pointer-events-none group-hover/bc:opacity-100 group-hover/bc:visible group-hover/bc:pointer-events-auto group-[.is-open]/bc:opacity-100 group-[.is-open]/bc:visible group-[.is-open]/bc:pointer-events-auto transition-all duration-150 z-40"
+            role="menu"
+          >
+            <div class="p-1.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xl space-y-0.5">
+              <a
+                href={currentCategoryMeta.href}
+                data-bc-item={currentCategoryMeta.href}
+                aria-label={currentCategoryMeta.id === 'pdf' ? 'All PDF Tools' : currentCategoryMeta.id === 'image' ? 'All Image Tools' : `All ${currentCategoryMeta.titleEn}`}
+                class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg no-underline text-xs font-semibold text-slate-600 dark:text-studio-muted hover:bg-slate-100 dark:hover:bg-studio-panel hover:text-slate-900 dark:hover:text-studio-text transition-colors"
+                role="menuitem"
+              >
+                <Icon name="lucide:layout-grid" class="w-3.5 h-3.5 shrink-0 opacity-80" aria-hidden="true" />
+                <span
+                  class="truncate"
+                  data-i18n-bn={currentCategoryMeta.id === 'pdf' ? 'সব PDF টুলস' : currentCategoryMeta.id === 'image' ? 'সব ইমেজ টুলস' : `সব ${currentCategoryMeta.title}`}
+                  data-i18n-en={currentCategoryMeta.id === 'pdf' ? 'All PDF Tools' : currentCategoryMeta.id === 'image' ? 'All Image Tools' : `All ${currentCategoryMeta.titleEn}`}
+                >
+                  {currentCategoryMeta.id === 'pdf' ? 'সব PDF টুলস' : currentCategoryMeta.id === 'image' ? 'সব ইমেজ টুলস' : `সব ${currentCategoryMeta.title}`}
+                </span>
+              </a>
+              <div class="my-1 h-px bg-slate-100 dark:bg-studio-border"></div>
+              {getToolsByCategory(currentCategoryMeta.id).map((item) => {
+                const isCurrentTool = matchedCatalogTool?.id === item.id;
+                return (
+                  <a
+                    href={item.href}
+                    data-bc-item={item.href}
+                    data-bc-tool-id={item.id}
+                    aria-label={item.titleEn}
+                    class:list={[
+                      'flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg no-underline text-xs font-semibold text-slate-700 dark:text-studio-text hover:bg-slate-100 dark:hover:bg-studio-panel transition-colors [&.is-active]:bg-emerald-500/12 [&.is-active]:text-emerald-600 dark:[&.is-active]:text-studio-primary [&.is-active]:font-bold',
+                      isCurrentTool && 'is-active'
+                    ]}
+                    role="menuitem"
+                  >
+                    <span class="inline-flex items-center gap-2.5 min-w-0">
+                      <Icon name={item.lucideIcon} class="w-3.5 h-3.5 shrink-0 opacity-85" aria-hidden="true" />
+                      <span class="truncate" data-i18n-bn={item.title} data-i18n-en={item.titleEn}>{item.title}</span>
+                    </span>
+                    <Icon name="lucide:check" class="w-3.5 h-3.5 shrink-0 hidden [.is-active_&]:block" aria-hidden="true" />
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </nav>
+    )}
     <div class="workbench-grid">
       <div class="tool-stage">
         <slot />
       </div>
-
     </div>
   </main>
 
-  <slot name="after-workbench" />
+  <div id="afterWorkbenchSlot">
+    <slot name="after-workbench" />
+  </div>
 
-  <footer class="footer">
-    <p>© <span id="year">{currentYearBn}</span> TechHat • সব রূপান্তর ও হিসাব আপনার ডিভাইসেই হয়, কোনো ডেটা কোথাও পাঠানো হয় না।</p>
+  <!-- ============================================================ UNIVERSAL SEARCH MODAL (TAILWIND v4) -->
+  <dialog
+    id="universalSearchDialog"
+    class="w-[min(640px,calc(100vw-24px))] max-h-[min(80vh,600px)] mt-[8vh] mx-auto p-0 rounded-2xl border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text shadow-2xl overflow-hidden backdrop:bg-slate-950/60 backdrop:backdrop-blur-xs"
+    aria-label="Universal Search"
+  >
+    <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-slate-200 dark:border-studio-border">
+      <Icon name="lucide:search" class="w-4.5 h-4.5 text-slate-400 shrink-0" aria-hidden="true" />
+      <input
+        type="search"
+        id="universalSearchInput"
+        class="flex-1 border-0 bg-transparent text-slate-900 dark:text-studio-text text-[15px] outline-none"
+        placeholder="যেকোনো টুল খুঁজুন…"
+        data-i18n-placeholder-bn="যেকোনো টুল খুঁজুন (যেমন: বিজয়, PDF, স্ক্যানার, ইনভয়েস)…"
+        data-i18n-placeholder-en="Search tools (e.g. Bijoy, Merge PDF, Scanner, Resize, Invoice)…"
+        autocomplete="off"
+        aria-label="Search tools"
+      />
+      <button type="button" class="border border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-studio-panel text-slate-500 dark:text-studio-muted text-[11px] font-semibold px-2 py-0.5 rounded cursor-pointer" id="closeUniversalSearchBtn">ESC</button>
+    </div>
+
+    <div class="flex items-center gap-1.5 px-3.5 py-2 border-b border-slate-200 dark:border-studio-border overflow-x-auto" id="universalSearchCats" role="tablist" aria-label="Category Filter">
+      <button type="button" class="th-cmd-cat is-active border border-transparent bg-slate-100 dark:bg-studio-panel text-slate-600 dark:text-studio-muted text-xs font-semibold px-2.5 py-1 rounded-md whitespace-nowrap cursor-pointer transition-colors [&.is-active]:bg-emerald-600 dark:[&.is-active]:bg-studio-primary [&.is-active]:text-white dark:[&.is-active]:text-slate-950" data-cmd-cat="all" data-i18n-bn="সব" data-i18n-en="All">সব</button>
+      {CATEGORIES.map((cat) => (
+        <button
+          type="button"
+          class="th-cmd-cat border border-transparent bg-slate-100 dark:bg-studio-panel text-slate-600 dark:text-studio-muted text-xs font-semibold px-2.5 py-1 rounded-md whitespace-nowrap cursor-pointer transition-colors [&.is-active]:bg-emerald-600 dark:[&.is-active]:bg-studio-primary [&.is-active]:text-white dark:[&.is-active]:text-slate-950"
+          data-cmd-cat={cat.id}
+          data-i18n-bn={cat.title}
+          data-i18n-en={cat.titleEn}
+        >
+          {cat.title}
+        </button>
+      ))}
+    </div>
+
+    <div class="max-h-[400px] overflow-y-auto p-2.5" id="universalSearchBody">
+      <div id="universalRecentWrap" hidden>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2 py-1" data-i18n-bn="সাম্প্রতিক অনুসন্ধান" data-i18n-en="Recent Searches">সাম্প্রতিক অনুসন্ধান</div>
+        <div class="flex flex-wrap gap-1.5 px-2 pb-2" id="universalRecentPills"></div>
+      </div>
+
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2 py-1" id="universalResultsLabel" data-i18n-bn="সকল টুলস" data-i18n-en="All Tools">সকল টুলস</div>
+      <div id="universalSearchList" class="space-y-0.5">
+        {ALL_TOOLS.map((tool) => (
+          <a
+            href={tool.href}
+            aria-label={tool.titleEn}
+            class="th-cmd-item flex items-center gap-3 px-2.5 py-2 rounded-lg no-underline text-slate-900 dark:text-studio-text transition-colors hover:bg-slate-100 dark:hover:bg-studio-panel [&.is-selected]:bg-slate-100 dark:[&.is-selected]:bg-studio-panel [&.is-selected]:outline-1 [&.is-selected]:outline-emerald-500/60"
+            data-cmd-item
+            data-tool-id={tool.id}
+            data-cat={tool.categoryId}
+            data-title-bn={tool.title}
+            data-title-en={tool.titleEn}
+            data-desc-bn={tool.desc}
+            data-desc-en={tool.descEn}
+            data-search={`${tool.title} ${tool.titleEn} ${tool.desc} ${tool.descEn} ${tool.keywords} ${tool.badge}`.toLowerCase()}
+          >
+            <span class="th-cmd-item__ic w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-studio-primary inline-flex items-center justify-center shrink-0">
+              <Icon name={tool.lucideIcon} class="w-4 h-4" aria-hidden="true" />
+            </span>
+            <span class="flex-1 min-w-0 flex flex-col">
+              <b class="text-[13.5px] font-semibold text-slate-900 dark:text-studio-text truncate" data-i18n-bn={tool.title} data-i18n-en={tool.titleEn}>{tool.title}</b>
+              <small class="text-xs text-slate-500 dark:text-studio-muted truncate" data-i18n-bn={tool.desc} data-i18n-en={tool.descEn}>{tool.desc}</small>
+            </span>
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-slate-500 dark:text-studio-muted whitespace-nowrap" data-i18n-bn={tool.badge} data-i18n-en={tool.badgeEn}>{tool.badge}</span>
+          </a>
+        ))}
+      </div>
+
+      <div id="universalSearchEmpty" class="py-10 text-center" hidden>
+        <p class="text-sm font-semibold text-slate-500" data-i18n-bn="কোনো টুল পাওয়া যায়নি" data-i18n-en="No matching tools found">কোনো টুল পাওয়া যায়নি</p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between px-3.5 py-2 border-t border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel text-[11px] text-slate-400">
+      <span data-i18n-bn="↑↓ নেভিগেশন • Enter ওপেন" data-i18n-en="↑↓ Navigate • Enter to open">↑↓ নেভিগেশন • Enter ওপেন</span>
+      <span data-i18n-bn="১০০% ক্লায়েন্ট-সাইড" data-i18n-en="100% Client-Side">১০০% ক্লায়েন্ট-সাইড</span>
+    </div>
+  </dialog>
+
+  <!-- ============================================================ MOBILE NAVIGATION DRAWER (TAILWIND v4) -->
+  <dialog
+    id="mobileNavDrawer"
+    class="w-[min(320px,86vw)] h-dvh max-h-dvh ml-auto mr-0 my-0 p-4 border-0 border-l border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text shadow-2xl overflow-y-auto backdrop:bg-slate-950/60"
+    aria-label="Mobile Navigation"
+  >
+    <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-studio-border">
+      <a href="/" aria-label="TechHat Studio" class="inline-flex items-center gap-2 no-underline text-slate-900 dark:text-studio-text">
+        <img class="w-7 h-7 rounded-lg" src="/icons/icon-48.png" width="28" height="28" loading="lazy" decoding="async" alt="">
+        <span class="text-sm font-bold">TechHat <b class="text-emerald-600 dark:text-studio-primary">Studio</b></span>
+      </a>
+      <button type="button" class="border border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-studio-panel text-slate-500 text-xs font-semibold px-2 py-1 rounded cursor-pointer" id="closeMobileMenuBtn" aria-label="Close">✕</button>
+    </div>
+
+    <div class="flex items-center justify-between gap-2 mb-4">
+      <button
+        type="button"
+        class="flex-1 inline-flex items-center gap-2 h-8.5 px-3 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-studio-panel text-slate-600 dark:text-studio-muted text-xs font-medium"
+        data-open-search
+      >
+        <Icon name="lucide:search" class="w-3.5 h-3.5" aria-hidden="true" />
+        <span data-i18n-bn="টুল খুঁজুন…" data-i18n-en="Search tools…">টুল খুঁজুন…</span>
+      </button>
+
+      <div class="inline-flex items-center h-8.5 p-0.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border" role="group" aria-label="Language">
+        <button type="button" class="th-lang-btn is-active h-7.5 px-3 border-0 rounded-md bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer transition-colors [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="bn">বাংলা</button>
+        <button type="button" class="th-lang-btn h-7.5 px-3 border-0 rounded-md bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer transition-colors [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="en">EN</button>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      {CATEGORIES.map((cat) => {
+        const items = getToolsByCategory(cat.id);
+        return (
+          <div>
+            <a href={cat.href} aria-label={cat.titleEn} class="flex items-center gap-2 font-bold text-xs uppercase tracking-wider py-1 text-emerald-600 dark:text-studio-primary no-underline">
+              <Icon name={cat.lucideIcon} class="w-3.5 h-3.5" aria-hidden="true" />
+              <span data-i18n-bn={cat.title} data-i18n-en={cat.titleEn}>{cat.title}</span>
+            </a>
+            <div class="pl-3 mt-1 space-y-0.5 border-l border-slate-200 dark:border-studio-border">
+              {items.map((it) => (
+                <a
+                  href={it.href}
+                  aria-label={it.titleEn}
+                  class="block py-1.5 px-2 rounded-lg text-xs font-medium text-slate-700 dark:text-studio-text hover:bg-slate-100 dark:hover:bg-studio-panel no-underline"
+                  data-i18n-bn={it.title}
+                  data-i18n-en={it.titleEn}
+                >
+                  {it.title}
+                </a>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </dialog>
+
+  <!-- ============================================================ MINIMALIST PRODUCTION FOOTER (TAILWIND v4) -->
+  <footer class="th-footer mt-8 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar py-4 px-4 sm:px-6 lg:px-10">
+    <div class="w-full flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center gap-2.5">
+        <a class="inline-flex items-center gap-2 no-underline text-slate-900 dark:text-studio-text" href="/" aria-label="TechHat Studio">
+          <img class="w-6 h-6 rounded-md" src="/icons/icon-48.png" width="24" height="24" loading="lazy" decoding="async" alt="">
+          <span class="text-sm font-bold">TechHat <b class="text-emerald-600 dark:text-studio-primary">Studio</b></span>
+        </a>
+        <span class="text-xs text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
+        <span
+          class="text-xs text-slate-500 dark:text-studio-muted hidden sm:inline"
+          data-i18n-bn="১০০% ব্রাউজার-ভিত্তিক প্রাইভেট প্রসেসিং"
+          data-i18n-en="100% Client-Side Private Processing"
+        >
+          ১০০% ব্রাউজার-ভিত্তিক প্রাইভেট প্রসেসিং
+        </span>
+      </div>
+
+      <nav class="flex items-center flex-wrap gap-4" aria-label="Footer Categories">
+        {CATEGORIES.map((cat) => (
+          <a
+            href={cat.href}
+            class="text-xs font-semibold text-slate-500 dark:text-studio-muted hover:text-emerald-600 dark:hover:text-studio-primary no-underline transition-colors"
+            data-i18n-bn={cat.title}
+            data-i18n-en={cat.titleEn}
+          >
+            {cat.title}
+          </a>
+        ))}
+      </nav>
+
+      <p class="text-xs text-slate-400 dark:text-slate-500 m-0">
+        © <span id="year">{currentYear}</span> TechHat
+      </p>
+    </div>
   </footer>
 
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <div class="toast fixed bottom-5 right-5 sm:right-8 z-[100] px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold shadow-xl pointer-events-none" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script is:inline src="/js/shell.js?v=36" defer></script>
+  <script is:inline src="/js/shell.js?v=62"></script>
   <slot name="scripts" />
 </body>
 </html>

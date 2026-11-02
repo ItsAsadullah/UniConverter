@@ -1,14 +1,4 @@
 ---
-import ToolLayout from '../../layouts/ToolLayout.astro';
-import ImageStudio from '../../components/ImageStudio.astro';
+import CategoryLanding from '../../components/CategoryLanding.astro';
 ---
-<ToolLayout toolId="image">
-  <ImageStudio initialTab="hub" />
-
-  <Fragment slot="scripts">
-    <script is:inline src="/vendor/jszip.min.js" defer></script>
-    <script is:inline src="/js/image-tools.js?v=59" defer></script>
-    <script is:inline src="/js/document-scan-core.js?v=23" defer></script>
-    <script is:inline src="/js/document-scanner.js?v=26" defer></script>
-  </Fragment>
-</ToolLayout>
+<CategoryLanding categoryId="image" />

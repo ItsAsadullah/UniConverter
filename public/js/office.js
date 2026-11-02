@@ -61,10 +61,13 @@
     return p === null || p === undefined ? fallback : p;
   }
   function qn(prefix, name) { return prefix ? prefix + ':' + name : name; }
-  /** Get/create child `name`, inserted according to schema `order`. */
+  /** Get/create child `name`, inserted according to schema `order` (removing any duplicate elements of the same name). */
   function ensureKid(parent, ns, prefix, name, order) {
-    var ex = kid(parent, ns, name);
-    if (ex) return ex;
+    var matches = kids(parent, ns, name);
+    if (matches.length) {
+      for (var i = 1; i < matches.length; i++) parent.removeChild(matches[i]);
+      return matches[0];
+    }
     var el = parent.ownerDocument.createElementNS(ns, qn(prefix, name));
     var idx = order.indexOf(name), ref = null;
     for (var c = parent.firstChild; c; c = c.nextSibling) {
@@ -79,7 +82,9 @@
     for (var c = el.firstChild; c; c = c.nextSibling) if (c.nodeType === 1) return c;
     return null;
   }
-  function removeKid(parent, ns, name) { var k = kid(parent, ns, name); if (k) parent.removeChild(k); }
+  function removeKid(parent, ns, name) {
+    kids(parent, ns, name).forEach(function (k) { parent.removeChild(k); });
+  }
   function textOf(el) { return el.textContent || ''; }
   function setText(el, text, preserve) {
     while (el.firstChild) el.removeChild(el.firstChild);
@@ -148,16 +153,26 @@
   var THEME_ATTR = { ascii: 'asciiTheme', hAnsi: 'hAnsiTheme', cs: 'cstheme', eastAsia: 'eastAsiaTheme' };
 
   function readWRPr(rPr, p, theme) {
-    var f = kid(rPr, NS.w, 'rFonts');
-    if (f) {
+    kids(rPr, NS.w, 'rFonts').forEach(function (f) {
       ['ascii', 'hAnsi', 'cs', 'eastAsia'].forEach(function (k) {
         var th = wAttr(f, THEME_ATTR[k]), v = wAttr(f, k);
         if (th && theme[th]) p[k] = theme[th];
         else if (v) p[k] = v;
       });
-    }
-    ['b', 'bCs', 'i', 'iCs'].forEach(function (k) { var e = kid(rPr, NS.w, k); if (e) p[k] = onOff(e); });
-    ['sz', 'szCs'].forEach(function (k) { var e = kid(rPr, NS.w, k); if (e && wAttr(e, 'val')) p[k] = wAttr(e, 'val'); });
+    });
+    var hasB = false, hasBCs = false, hasI = false, hasICs = false, hasSz = false, hasSzCs = false;
+    kids(rPr, NS.w, 'b').forEach(function (e) { p.b = onOff(e); hasB = true; });
+    kids(rPr, NS.w, 'bCs').forEach(function (e) { p.bCs = onOff(e); hasBCs = true; });
+    if (hasB && !hasBCs) p.bCs = p.b;
+    else if (hasBCs && !hasB) p.b = p.bCs;
+    kids(rPr, NS.w, 'i').forEach(function (e) { p.i = onOff(e); hasI = true; });
+    kids(rPr, NS.w, 'iCs').forEach(function (e) { p.iCs = onOff(e); hasICs = true; });
+    if (hasI && !hasICs) p.iCs = p.i;
+    else if (hasICs && !hasI) p.i = p.iCs;
+    kids(rPr, NS.w, 'sz').forEach(function (e) { if (wAttr(e, 'val')) { p.sz = wAttr(e, 'val'); hasSz = true; } });
+    kids(rPr, NS.w, 'szCs').forEach(function (e) { if (wAttr(e, 'val')) { p.szCs = wAttr(e, 'val'); hasSzCs = true; } });
+    if (hasSz && !hasSzCs) p.szCs = p.sz;
+    else if (hasSzCs && !hasSz) p.sz = p.szCs;
     return p;
   }
 
@@ -220,10 +235,10 @@
   function setWToggle(rPr, name, on, inheritedOn, pfx) {
     var el = kid(rPr, NS.w, name);
     if (on) {
-      el = el || ensureKid(rPr, NS.w, pfx, name, W_RPR_ORDER);
+      el = ensureKid(rPr, NS.w, pfx, name, W_RPR_ORDER);
       wDel(el, 'val');
     } else if (el || inheritedOn) {
-      el = el || ensureKid(rPr, NS.w, pfx, name, W_RPR_ORDER);
+      el = ensureKid(rPr, NS.w, pfx, name, W_RPR_ORDER);
       wSet(el, 'val', '0', pfx);
     }
   }
@@ -256,9 +271,14 @@
     var b = props.bCs !== undefined ? props.bCs : props.b;
     var i = props.iCs !== undefined ? props.iCs : props.i;
     setWToggle(rPr, 'b', !!b, !!props.b, pfx);
+    setWToggle(rPr, 'bCs', !!b, !!props.bCs, pfx);
     setWToggle(rPr, 'i', !!i, !!props.i, pfx);
+    setWToggle(rPr, 'iCs', !!i, !!props.iCs, pfx);
     var sz = props.szCs || props.sz;
-    if (sz) setWVal(rPr, 'sz', sz, pfx);
+    if (sz) {
+      setWVal(rPr, 'sz', sz, pfx);
+      setWVal(rPr, 'szCs', sz, pfx);
+    }
     removeKid(rPr, NS.w, 'cs');
     removeKid(rPr, NS.w, 'rtl');
     var lang = kid(rPr, NS.w, 'lang');
@@ -405,13 +425,14 @@
         }
       } else {
         mergeSplitSyllables(runs);
+        var paraHasBn = runs.some(function (r) { return E_.hasBengali(runText(r)); });
         var propsList = [], txtList = [], directList = [], arabicList = [], neutralAsBijoy = [];
         var anyDirect = false, i;
         for (i = 0; i < runs.length; i++) {
           propsList[i] = ctx.styles.resolve(runs[i], pStyle);
           txtList[i] = runText(runs[i]);
           arabicList[i] = isArabicRun(runs[i], propsList[i], txtList[i]);
-          directList[i] = !arabicList[i] && E_.hasU2B(txtList[i]);
+          directList[i] = !arabicList[i] && (paraHasBn ? E_.hasU2B(txtList[i]) : /[\u00D7\u00F7]/.test(txtList[i]));
           if (directList[i]) anyDirect = true;
         }
         if (anyDirect) {
@@ -428,9 +449,12 @@
         var enFont = ctx.opts.englishFont !== undefined ? ctx.opts.englishFont : 'Times New Roman';
         runs.forEach(function (r, idx) {
           if (!directList[idx] && !neutralAsBijoy[idx]) {
-            if (enFont && !arabicList[idx] && /[A-Za-z]/.test(txtList[idx])) {
+            if (enFont && !arabicList[idx] && /[A-Za-z0-9]/.test(txtList[idx])) {
               ctx.stats.runs++;
               wordApplyBijoyProps(r, propsList[idx], ctx, pfx, enFont);
+            } else {
+              var uRPr = kid(r, NS.w, 'rPr');
+              if (uRPr && kids(uRPr, NS.w, 'rFonts').length > 1) ensureKid(uRPr, NS.w, pfx, 'rFonts', W_RPR_ORDER);
             }
             return;
           }
@@ -451,14 +475,15 @@
               var rawT = textOf(c);
               var segs = neutralAsBijoy[idx]
                 ? [{ bijoy: true, text: E_.convertBengaliRun(rawT, prevBnWord) }]
-                : E_.unicodeToBijoySegments(rawT, prevBnWord);
+                : E_.unicodeToBijoySegments(rawT, prevBnWord, paraHasBn);
               prevBnWord = /[\u0980-\u09FF\u200C\u200D]$/.test(rawT);
               segs.forEach(function (sg) {
                 var mode = sg.symbol ? 'S' : (sg.bijoy ? 'B' : 'O');
                 if (!cur || curMode !== mode) start(mode);
-                made[made.length - 1].text += sg.text;
+                var symTxt = sg.symbol ? sg.text.replace(/\u00B4/g, '\uF0B4').replace(/\u00B8/g, '\uF0B8') : sg.text;
+                made[made.length - 1].text += symTxt;
                 var t = doc.createElementNS(NS.w, qn(pfx, c.localName));
-                setText(t, sg.text);
+                setText(t, symTxt);
                 cur.appendChild(t);
               });
             } else {
@@ -469,7 +494,11 @@
           made.forEach(function (m) {
             if (m.mode === 'B') wordApplyBijoyProps(m.el, props, ctx, pfx);
             else if (m.mode === 'S') wordApplyBijoyProps(m.el, props, ctx, pfx, 'Symbol');
-            else if (m.mode === 'O' && enFont && /[A-Za-z]/.test(m.text)) wordApplyBijoyProps(m.el, props, ctx, pfx, enFont);
+            else if (m.mode === 'O' && enFont && /[A-Za-z0-9]/.test(m.text)) wordApplyBijoyProps(m.el, props, ctx, pfx, enFont);
+            else {
+              var mRPr = kid(m.el, NS.w, 'rPr');
+              if (mRPr && kids(mRPr, NS.w, 'rFonts').length > 1) ensureKid(mRPr, NS.w, pfx, 'rFonts', W_RPR_ORDER);
+            }
             r.parentNode.insertBefore(m.el, r);
           });
           r.parentNode.removeChild(r);
@@ -752,6 +781,47 @@
 
   var DRAWING_PARTS = /^(word|xl|ppt)\/(charts\/chart\d*|diagrams\/(data|drawing)\d*|drawings\/drawing\d*)\.xml$/;
 
+  function ensureWordFontTable(fontDoc, fontNames) {
+    if (!fontDoc || !fontDoc.documentElement) return false;
+    var pfx = prefixFor(fontDoc, NS.w, 'w');
+    var existing = {};
+    all(fontDoc, NS.w, 'font').forEach(function (f) {
+      var n = wAttr(f, 'name');
+      if (n) existing[n.toLowerCase()] = true;
+    });
+    var changed = false;
+    fontNames.forEach(function (name) {
+      if (!name || existing[name.toLowerCase()]) return;
+      existing[name.toLowerCase()] = true;
+      var isSym = /^symbol$/i.test(name);
+      var fEl = fontDoc.createElementNS(NS.w, qn(pfx, 'font'));
+      wSet(fEl, 'name', name, pfx);
+      var pan = fontDoc.createElementNS(NS.w, qn(pfx, 'panose1'));
+      wSet(pan, 'val', isSym ? '05050102010706020507' : '020B0604020202020204', pfx);
+      fEl.appendChild(pan);
+      var ch = fontDoc.createElementNS(NS.w, qn(pfx, 'charset'));
+      wSet(ch, 'val', isSym ? '02' : '00', pfx);
+      fEl.appendChild(ch);
+      var fam = fontDoc.createElementNS(NS.w, qn(pfx, 'family'));
+      wSet(fam, 'val', isSym ? 'roman' : 'auto', pfx);
+      fEl.appendChild(fam);
+      var pitch = fontDoc.createElementNS(NS.w, qn(pfx, 'pitch'));
+      wSet(pitch, 'val', 'variable', pfx);
+      fEl.appendChild(pitch);
+      var sig = fontDoc.createElementNS(NS.w, qn(pfx, 'sig'));
+      wSet(sig, 'usb0', isSym ? '00000000' : '00000003', pfx);
+      wSet(sig, 'usb1', isSym ? '10000000' : '00000000', pfx);
+      wSet(sig, 'usb2', '00000000', pfx);
+      wSet(sig, 'usb3', '00000000', pfx);
+      wSet(sig, 'csb0', isSym ? '80000000' : '00000001', pfx);
+      wSet(sig, 'csb1', '00000000', pfx);
+      fEl.appendChild(sig);
+      fontDoc.documentElement.appendChild(fEl);
+      changed = true;
+    });
+    return changed;
+  }
+
   async function convertWord(zip, ctx) {
     var stylesDoc = await readXml(zip, 'word/styles.xml');
     var themeDoc = await readXml(zip, 'word/theme/theme1.xml');
@@ -762,6 +832,11 @@
     await forEachPart(zip, parts, ctx, function (doc) { processWordDoc(doc, ctx); });
     await forEachPart(zip, listParts(zip, DRAWING_PARTS), ctx, function (doc) { processDrawingDoc(doc, ctx); });
     if (ctx.dir === 'b2u' && stylesDoc && ctx.stats.runs) { retargetWordStyles(stylesDoc, ctx); writeXml(zip, 'word/styles.xml', stylesDoc); }
+    var fontTableDoc = await readXml(zip, 'word/fontTable.xml');
+    if (fontTableDoc && ctx.stats.runs) {
+      var targetFonts = ctx.dir === 'b2u' ? [ctx.opts.unicodeFont] : [ctx.opts.bijoyFont, 'Symbol'];
+      if (ensureWordFontTable(fontTableDoc, targetFonts)) writeXml(zip, 'word/fontTable.xml', fontTableDoc);
+    }
   }
 
   async function convertPowerPoint(zip, ctx) {

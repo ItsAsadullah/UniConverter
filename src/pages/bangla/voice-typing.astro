@@ -1,0 +1,26 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import BijoyWorkspace from '../../components/BijoyWorkspace.svelte';
+---
+
+<ToolLayout
+  toolId="bijoy"
+  activeCategory="bangla"
+  title="Voice Typing (Bangla & English) — ভয়েস টাইপিং | TechHat Studio"
+  description="Type Bangla (Unicode & Bijoy) and English with your voice."
+>
+  <BijoyWorkspace
+    initialTab="text"
+    voiceFocus={true}
+    workspaceTitle="ভয়েস টাইপিং"
+    workspaceTitleEn="Voice Typing"
+  />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/vendor/jszip.min.js" defer></script>
+    <script is:inline src="/js/bijoy-engine.js?v=52" defer></script>
+    <script is:inline src="/js/office.js?v=47" defer></script>
+    <script is:inline src="/js/formats.js?v=47" defer></script>
+    <script is:inline src="/js/app.js?v=51" defer></script>
+  </Fragment>
+</ToolLayout>

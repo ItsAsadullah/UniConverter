@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import BijoyWorkspace from '../../components/BijoyWorkspace.svelte';
+---
+
+<ToolLayout
+  toolId="bijoy"
+  activeCategory="bangla"
+  title="Office File Converter (DOCX, XLSX, PPTX) — অফিস ফাইল কনভার্টার | TechHat Studio"
+  description="Convert MS Word (.docx), Excel (.xlsx), PowerPoint (.pptx) and RTF files between Bijoy and Unicode while preserving formatting."
+>
+  <BijoyWorkspace
+    initialTab="file"
+    workspaceTitle="অফিস ফাইল কনভার্টার"
+    workspaceTitleEn="Office File Converter"
+  />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/vendor/jszip.min.js" defer></script>
+    <script is:inline src="/js/bijoy-engine.js?v=52" defer></script>
+    <script is:inline src="/js/office.js?v=47" defer></script>
+    <script is:inline src="/js/formats.js?v=47" defer></script>
+    <script is:inline src="/js/app.js?v=51" defer></script>
+  </Fragment>
+</ToolLayout>

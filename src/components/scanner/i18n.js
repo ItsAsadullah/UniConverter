@@ -1,0 +1,353 @@
+// TechHat Document Studio — Bilingual Dictionary (বাংলা & English)
+
+const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+
+export function fmtNum(n, lang = 'bn') {
+  const s = String(n);
+  if (lang !== 'bn') return s;
+  return s.replace(/\d/g, (d) => BN_DIGITS[Number(d)]);
+}
+
+export const I18N = {
+  bn: {
+    brandTitle: 'TechHat Studio',
+    brandSub: 'ডকুমেন্ট স্ক্যানার ও এডিটর',
+    localBadge: '১০০% অফলাইন · আপনার ডিভাইসেই প্রসেস হয়',
+    cameraBtn: 'ক্যামেরা',
+    cameraTip: 'সরাসরি ক্যামেরা দিয়ে ডকুমেন্ট স্ক্যান করুন',
+    addPageBtn: 'পেজ যোগ',
+    addPageTip: 'নতুন পেজ বা ছবি যোগ করুন',
+    newScanBtn: 'নতুন',
+    newScanTip: 'সব পেজ সরিয়ে নতুন স্ক্যান শুরু করুন',
+    themeTip: 'লাইট / ডার্ক থিম পরিবর্তন',
+    langSwitchTip: 'Switch language to English',
+
+    // Mobile nav
+    navPages: 'পেজগুলো',
+    navCanvas: 'ক্যানভাস',
+    navInspector: 'ইন্সপেক্টর ও এক্সপোর্ট',
+
+    // Left sidebar
+    pagesTitle: 'পেজগুলো',
+    dragHint: 'টেনে সাজান',
+    addMoreBtn: 'পেজ যোগ করুন',
+    addMoreSub: 'JPG, PNG, WebP · একসাথে ৬০টি পর্যন্ত পেজ',
+    pageWord: 'পেজ',
+    moveUpTip: 'আগে নিন',
+    moveDownTip: 'পরে নিন',
+    deletePageTip: 'এই পেজ সরান',
+    closeDrawerTip: 'বন্ধ করুন',
+
+    // Toolbar
+    sidebarToggleTip: 'পেজ সাইডবার দেখান বা লুকান',
+    autoDetectBtn: 'অটো ডিটেক্ট',
+    autoDetectTip: 'স্বয়ংক্রিয়ভাবে ডকুমেন্টের চার কোণা শনাক্ত করুন',
+    fullImageBtn: 'পুরো ছবি',
+    fullImageTip: 'পুরো ছবি নির্বাচন করুন',
+    rotateLeftBtn: 'বামে',
+    rotateLeftTip: 'বামে ৯০° ঘোরান',
+    rotateRightBtn: 'ডানে',
+    rotateRightTip: 'ডানে ৯০° ঘোরান',
+    retouchBtn: 'দাগ ও ব্যাকগ্রাউন্ড মুছুন',
+    retouchShortBtn: 'রিটাচ স্টুডিও',
+    retouchTip: 'ফটোশপ-স্টাইল রিটাচ, স্পট হিলিং ও ব্যাকগ্রাউন্ড কালার পিকার',
+    undoBtn: 'পূর্বাবস্থা',
+    undoTip: 'আগের পরিবর্তন (Ctrl+Z)',
+    redoBtn: 'পুনরায়',
+    redoTip: 'পুনরায় (Ctrl+Y)',
+    viewCrop: 'ক্রপ',
+    viewSplit: 'পাশাপাশি',
+    viewPreview: 'প্রিভিউ',
+    inspectorBtn: 'ইন্সপেক্টর',
+
+    // Empty state
+    emptyEyebrow: 'TECHHAT DOCUMENT STUDIO',
+    emptyTitle: 'প্রফেশনাল ডকুমেন্ট স্ক্যানার ও এডিটর',
+    emptyDesc: 'ডকুমেন্ট, সার্টিফিকেট, রসিদ বা বইয়ের পাতার ছবি যোগ করুন। অটো ক্রপ, বাঁকা লাইন সোজা, শ্যাডো রিমুভ ও রিটাচ করে প্রিন্ট-রেডি PDF তৈরি করুন।',
+    choosePhotosBtn: 'ছবি বেছে নিন',
+    openCameraBtn: 'ক্যামেরা খুলুন',
+    dropPasteHint: 'এখানে ছবি টেনে ছেড়ে দিন (Drag & Drop) অথবা Ctrl+V চেপে পেস্ট করুন',
+    featAutoCrop: 'স্মার্ট ৪-কোণা অটো ক্রপ',
+    featDewarp: 'অটো লাইন ডি-ওয়ার্প',
+    featMagic: 'ম্যাজিক+ শ্যাডো ও স্পট ক্লিনার',
+    featPdf: 'মাল্টিপেজ A4 PDF',
+
+    // Canvas captions
+    cropCaption: 'মূল ছবি ও পার্সপেক্টিভ ক্রপ',
+    cropSubCaption: 'চার কোণা বা চার পাশের হ্যান্ডেল টেনে সীমানা ঠিক করুন',
+    previewCaption: 'স্ক্যান প্রিভিউ',
+    corners: ['উপরের বাম কোণা', 'উপরের ডান কোণা', 'নিচের ডান কোণা', 'নিচের বাম কোণা'],
+    edges: ['উপরের ধার', 'ডান ধার', 'নিচের ধার', 'বাম ধার'],
+
+    // Retouch studio
+    tools: {
+      brush: 'ব্রাশ টুল',
+      heal: 'স্পট হিলিং',
+      wand: 'ম্যাজিক ইরেজার',
+      rect: 'বক্স ফিল',
+      picker: 'কালার পিকার',
+      hand: 'হ্যান্ড প্যান'
+    },
+    dockLabels: {
+      brush: 'ব্রাশ',
+      heal: 'হিলিং',
+      wand: 'ম্যাজিক',
+      rect: 'বক্স ফিল',
+      picker: 'পিকার',
+      hand: 'প্যান'
+    },
+    pickerBtn: 'পিকার',
+    autoPaperBtn: 'অটো পেপার',
+    sizeLbl: 'সাইজ',
+    hardnessLbl: 'হার্ডনেস',
+    toleranceLbl: 'টলারেন্স',
+    opacityLbl: 'অপাসিটি',
+    borderTrimBtn: 'বর্ডার ট্রিম',
+    resetAllRetouchBtn: 'সব রিসেট',
+    doneBtn: '✕ সম্পন্ন',
+    eraserHint: '💡 B ব্রাশ · J স্পট হিলিং · W ম্যাজিক ইরেজার · M বক্স ফিল · I কালার পিকার (বা Alt+Click) · Shift ধরে সোজা লাইন · Ctrl+Wheel প্রিভিউ জুম',
+
+    // Status & Zoom bar
+    compareBtn: 'মূল ছবি তুলনা',
+    compareTip: 'স্ক্যানের আগের ও পরের অবস্থা তুলনা করুন',
+    shortcutsHint: 'Ctrl ± জুম · Space প্যান',
+    statusInitial: 'শুরু করতে ডকুমেন্টের ছবি যোগ করুন',
+
+    // Inspector
+    inspectorTitle: 'ইন্সপেক্টর ও এনহ্যান্স',
+    resetBtn: 'রিসেট',
+    accFiltersTitle: 'AI ও কালার ফিল্টার',
+    accFiltersBadge: 'প্রিসেট',
+    presets: [
+      { value: 'magic_plus', icon: 'wand-sparkles', title: 'ম্যাজিক+', desc: 'সাদা পেজ · স্পষ্ট লেখা', ai: true },
+      { value: 'auto', icon: 'sparkles', title: 'অটো এনহ্যান্স', desc: 'পরিষ্কার ও স্বাভাবিক' },
+      { value: 'original', icon: 'image', title: 'অরিজিনাল', desc: 'মূল রঙ ও ছবি' },
+      { value: 'color', icon: 'palette', title: 'কালার স্ক্যান', desc: 'রঙিন ডকুমেন্ট' },
+      { value: 'shadow', icon: 'sun', title: 'শ্যাডো ফিক্স', desc: 'অসম আলো সংশোধন' },
+      { value: 'gray', icon: 'contrast', title: 'গ্রেস্কেল', desc: 'নরম সাদাকালো' },
+      { value: 'bw', icon: 'scan-text', title: 'সাদা-কালো', desc: 'লেখা ও ফটোকপি' }
+    ],
+    accSmartTitle: 'স্মার্ট ফিক্স ও ক্লিনআপ',
+    accSmartBadge: 'অটো',
+    optShadow: 'শ্যাডো ও অসম আলো কমান',
+    optText: 'লেখা গাঢ় ও স্পষ্ট করুন',
+    optStraighten: 'অটো লাইন সোজা করুন',
+    optCleanSpots: 'ছিটেফোঁটা দাগ কমান',
+    optCleanMargins: 'ফ্রেমের বাইরে সাদা করুন',
+    cleanMarginsHint: 'চার পাশের বাইরের বর্ডার নিশ্চিত হলে তার বাইরের অংশ সাদা করে। সেখানে লেখা থাকলে বন্ধ রাখুন।',
+    launchRetouchBtn: 'ফটোশপ রিটাচ ও কালার পিকার খুলুন',
+
+    accManualTitle: 'ম্যানুয়াল এডজাস্টমেন্ট',
+    accManualBadge: 'টিউনিং',
+    lblBrightness: 'উজ্জ্বলতা (Brightness)',
+    lblContrast: 'কনট্রাস্ট (Contrast)',
+    lblSharpness: 'শার্পনেস (Sharpness)',
+    lblAngle: 'সূক্ষ্ম কোণ (Fine Angle)',
+    lblCurve: 'বইয়ের বাঁক সংশোধন (Curve)',
+    lblCurveHint: 'বাঁকানো লাইনের জন্য হাতে সমন্বয় করুন',
+    lblTrim: 'মার্জিন ট্রিম (Border Trim)',
+    lblTrimHint: 'বাইরের বাড়তি ব্যাকগ্রাউন্ড স্লিম ট্রিম করে পরিষ্কার করুন',
+    applyAllBtn: 'সব পেজে এই ফিল্টার প্রয়োগ করুন',
+
+    accExportTitle: 'এক্সপোর্ট ও অ্যাডভান্সড',
+    accExportBadge: 'A4 · PDF',
+    lblFilename: 'ফাইলের নাম',
+    lblPaperSize: 'পেজ সাইজ',
+    paperA4: 'A4 (210 × 297 mm)',
+    paperLetter: 'Letter',
+    paperOrig: 'স্ক্যানের অনুপাত',
+    lblQuality: 'রেজোলিউশন',
+    qualHigh: 'হাই · 3000px',
+    qualBalanced: 'ব্যালান্সড · 2200px',
+    qualSmall: 'ছোট · 1400px',
+    lblMargin: 'প্রিন্ট পেজ মার্জিন রাখুন',
+    lblDatasetMode: 'ডেটাসেট মোড',
+    learnedPrefix: 'শেখা উদাহরণ: ',
+
+    // Export footer
+    downloadPdfBtn: 'PDF ডাউনলোড',
+    downloadJpgBtn: 'এই পেজ JPG',
+    downloadZipBtn: 'সব পেজ ZIP',
+
+    // Modals
+    camDialogTitle: 'ডকুমেন্ট ক্যামেরা',
+    camDialogHint: 'পুরো পেজ ফ্রেমের মধ্যে রেখে ছবি তুলুন। পরে চার কোণা ঠিক করতে পারবেন।',
+    camSwitchBtn: 'ক্যামেরা বদলান',
+    camCaptureBtn: 'ছবি তুলুন ও যোগ করুন',
+    resetDialogTitle: 'নতুন ডকুমেন্ট শুরু করবেন?',
+    resetDialogDesc: 'বর্তমান পেজগুলো সরিয়ে দেওয়া হবে। প্রয়োজন হলে আগে PDF ডাউনলোড করুন।',
+    cancelBtn: 'ফিরে যান',
+    confirmResetBtn: 'নতুন শুরু করুন'
+  },
+
+  en: {
+    brandTitle: 'TechHat Studio',
+    brandSub: 'Document Scanner & Editor',
+    localBadge: '100% Offline · Processed Locally on Device',
+    cameraBtn: 'Camera',
+    cameraTip: 'Scan document directly using camera',
+    addPageBtn: 'Add Pages',
+    addPageTip: 'Add new pages or images',
+    newScanBtn: 'New',
+    newScanTip: 'Clear all pages and start a new scan',
+    themeTip: 'Toggle Light / Dark theme',
+    langSwitchTip: 'ভাষা বাংলায় পরিবর্তন করুন',
+
+    // Mobile nav
+    navPages: 'Pages',
+    navCanvas: 'Canvas',
+    navInspector: 'Inspector & Export',
+
+    // Left sidebar
+    pagesTitle: 'Pages',
+    dragHint: 'Drag to reorder',
+    addMoreBtn: 'Add Pages',
+    addMoreSub: 'JPG, PNG, WebP · Up to 60 pages',
+    pageWord: 'Page',
+    moveUpTip: 'Move Up',
+    moveDownTip: 'Move Down',
+    deletePageTip: 'Delete Page',
+    closeDrawerTip: 'Close panel',
+
+    // Toolbar
+    sidebarToggleTip: 'Show or hide Pages sidebar',
+    autoDetectBtn: 'Auto Detect',
+    autoDetectTip: 'Automatically detect document corners & orientation',
+    fullImageBtn: 'Full Image',
+    fullImageTip: 'Select full image bounds',
+    rotateLeftBtn: 'Left',
+    rotateLeftTip: 'Rotate 90° Counter-Clockwise',
+    rotateRightBtn: 'Right',
+    rotateRightTip: 'Rotate 90° Clockwise',
+    retouchBtn: 'Spot & Background Retouch',
+    retouchShortBtn: 'Retouch Studio',
+    retouchTip: 'Photoshop-style Retouch, Spot Healing & Background Color Picker',
+    undoBtn: 'Undo',
+    undoTip: 'Undo last change (Ctrl+Z)',
+    redoBtn: 'Redo',
+    redoTip: 'Redo change (Ctrl+Y)',
+    viewCrop: 'Crop',
+    viewSplit: 'Split View',
+    viewPreview: 'Preview',
+    inspectorBtn: 'Inspector',
+
+    // Empty state
+    emptyEyebrow: 'TECHHAT DOCUMENT STUDIO',
+    emptyTitle: 'Professional Document Scanner & Retouch Studio',
+    emptyDesc: 'Drop document photos, certificates, receipts, or book pages. Auto-crop, straighten bowed lines, remove shadows, retouch spots, and export print-ready PDFs.',
+    choosePhotosBtn: 'Select Images',
+    openCameraBtn: 'Open Camera',
+    dropPasteHint: 'Drag & drop images here or press Ctrl+V to paste from clipboard',
+    featAutoCrop: 'Smart 4-Corner Auto Crop',
+    featDewarp: 'Auto Line Dewarping',
+    featMagic: 'Magic+ Shadow & Spot Cleaner',
+    featPdf: 'Multipage A4 PDF Export',
+
+    // Canvas captions
+    cropCaption: 'Source & Perspective Crop',
+    cropSubCaption: 'Drag corner or edge handles to refine document bounds',
+    previewCaption: 'Enhanced Scan Preview',
+    corners: ['Top-Left Corner', 'Top-Right Corner', 'Bottom-Right Corner', 'Bottom-Left Corner'],
+    edges: ['Top Edge', 'Right Edge', 'Bottom Edge', 'Left Edge'],
+
+    // Retouch studio
+    tools: {
+      brush: 'Brush Tool',
+      heal: 'Spot Healing',
+      wand: 'Magic Eraser',
+      rect: 'Rectangle Fill',
+      picker: 'Color Picker',
+      hand: 'Hand Pan'
+    },
+    dockLabels: {
+      brush: 'Brush',
+      heal: 'Heal',
+      wand: 'Magic',
+      rect: 'Box Fill',
+      picker: 'Picker',
+      hand: 'Pan'
+    },
+    pickerBtn: 'Picker',
+    autoPaperBtn: 'Auto Paper',
+    sizeLbl: 'Size',
+    hardnessLbl: 'Hardness',
+    toleranceLbl: 'Tolerance',
+    opacityLbl: 'Opacity',
+    borderTrimBtn: 'Border Trim',
+    resetAllRetouchBtn: 'Reset All',
+    doneBtn: '✕ Done',
+    eraserHint: '💡 B Brush · J Spot Heal · W Magic Eraser · M Box Fill · I Eyedropper (or Alt+Click) · Shift+Click straight line · Ctrl+Wheel zoom',
+
+    // Status & Zoom bar
+    compareBtn: 'Compare Original',
+    compareTip: 'Compare Before / After enhancement',
+    shortcutsHint: 'Ctrl ± Zoom · Space Pan',
+    statusInitial: 'Add document images to begin scanning',
+
+    // Inspector
+    inspectorTitle: 'Inspector & Enhance',
+    resetBtn: 'Reset',
+    accFiltersTitle: 'AI & Scan Filters',
+    accFiltersBadge: 'Presets',
+    presets: [
+      { value: 'magic_plus', icon: 'wand-sparkles', title: 'Magic+ AI', desc: 'Pure White Page · Crisp Ink', ai: true },
+      { value: 'auto', icon: 'sparkles', title: 'Auto Enhance', desc: 'Clean & Natural' },
+      { value: 'original', icon: 'image', title: 'Original', desc: 'True Color & Unfiltered' },
+      { value: 'color', icon: 'palette', title: 'Color Scan', desc: 'Vibrant Stamps & Seals' },
+      { value: 'shadow', icon: 'sun', title: 'Shadow Fix', desc: 'Flatten Uneven Lighting' },
+      { value: 'gray', icon: 'contrast', title: 'Grayscale', desc: 'Smooth Monochrome' },
+      { value: 'bw', icon: 'scan-text', title: 'B&W Text', desc: 'High-Contrast Photocopy' }
+    ],
+    accSmartTitle: 'Smart Fix & Cleanup',
+    accSmartBadge: 'Auto',
+    optShadow: 'Remove Shadows & Glare',
+    optText: 'Sharpen & Darken Text',
+    optStraighten: 'Auto Straighten Lines',
+    optCleanSpots: 'Remove Isolated Specks',
+    optCleanMargins: 'Whiten Outside Border Frame',
+    cleanMarginsHint: 'Clears outside a confident 4-sided border frame. Turn off if margin notes exist outside the border.',
+    launchRetouchBtn: 'Open Photoshop Retouch & Color Picker',
+
+    accManualTitle: 'Manual Adjustments',
+    accManualBadge: 'Tuning',
+    lblBrightness: 'Brightness',
+    lblContrast: 'Contrast',
+    lblSharpness: 'Sharpness',
+    lblAngle: 'Fine Angle',
+    lblCurve: 'Book Fold Correction (Curve)',
+    lblCurveHint: 'Manually flatten curved book pages',
+    lblTrim: 'Border Trim',
+    lblTrimHint: 'Trim outer edges with background color',
+    applyAllBtn: 'Apply Filter to All Pages',
+
+    accExportTitle: 'Export & Advanced',
+    accExportBadge: 'A4 · PDF',
+    lblFilename: 'File Name',
+    lblPaperSize: 'Page Size',
+    paperA4: 'A4 (210 × 297 mm)',
+    paperLetter: 'Letter',
+    paperOrig: 'Original Aspect',
+    lblQuality: 'Resolution',
+    qualHigh: 'High · 3000px',
+    qualBalanced: 'Balanced · 2200px',
+    qualSmall: 'Compact · 1400px',
+    lblMargin: 'Include Page Margins',
+    lblDatasetMode: 'Dataset Split',
+    learnedPrefix: 'Learned Samples: ',
+
+    // Export footer
+    downloadPdfBtn: 'Download PDF',
+    downloadJpgBtn: 'This Page JPG',
+    downloadZipBtn: 'All Pages ZIP',
+
+    // Modals
+    camDialogTitle: 'Document Camera',
+    camDialogHint: 'Align the full page inside the guide frame. You can adjust corners afterward.',
+    camSwitchBtn: 'Switch Camera',
+    camCaptureBtn: 'Capture & Add Page',
+    resetDialogTitle: 'Start a New Document?',
+    resetDialogDesc: 'All current pages will be cleared. Download your PDF first if needed.',
+    cancelBtn: 'Cancel',
+    confirmResetBtn: 'Start New'
+  }
+};
