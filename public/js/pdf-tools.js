@@ -2115,7 +2115,8 @@
     s = s.replace(/\bgj[-~]Z\b/g, 'g~jZ');
 
     // Rule 6: Transposed ri-kar (…) / u-kar across final consonant
-    s = s.replace(/([K-Z_`a-np-t])([K-Z_`a-np-t])([\u201E\u2026])/g, '$1$3$2');
+    s = s.replace(/([K-Z_`a-np-t\u00A1-\u00FF])([K-Z_`a-np-t])([\u201E\u2026])/g, '$1$3$2');
+    s = s.replace(/([\u00A1-\u00FF])([K-Z_`a-np-t])([yz~])(?![vxyz~\u201E\u2026])/g, '$1$3$2');
     s = s.replace(/\bgvbly/g, 'gvbyl')
          .replace(/\b(A?)mLy(x?)\b/g, '$1myL$2')
          .replace(/\bNgy\b/g, 'Nyg')
@@ -2165,6 +2166,8 @@
     if (s.normalize) s = s.normalize('NFC');
     // Remove stray zero-width characters in the middle of consonant+halant clusters
     s = s.replace(/([\u0995-\u09B9\u09DC\u09DD\u09DF])[\u200B\uFEFF]+(\u09CD)/g, '$1$2');
+    // Replace space + visarga (used as colon in Bijoy, e.g. "নাম ঃ" -> "নাম :") to prevent dotted circle
+    s = s.replace(/\s+\u0983/g, ' :');
     // 1. Rejoin words split right after a pre-base vowel sign (e.g. "প্রকৃি তর" -> "প্রকৃতির", "স্মৃি ত" -> "স্মৃতি")
     s = s.replace(/([\u09BE-\u09CC\u09D7])([\u09BF\u09C7\u09C8])\s*([\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?(?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?)*)/g, '$1$3$2');
     // 2. Fix visual-order pre-base vowel signs (ি, ে, ৈ) ONLY when ORPHANED (at word start or preceded by space/punct/vowel),
@@ -2240,12 +2243,6 @@
     return false;
   }
 
-  function isSubscriptOrCombiningBijoy(str) {
-    if (!str) return false;
-    var s = normalizeC1ToCp1252(str).trim();
-    return /^[\u201C\u2013\u00E6\u201A\u0192\u201E\u2026\u00A8\u00A9\u00AA\u00AB\u00D6\u00A1-\u00AD\u00F8\u00FA\u0153\u0178yz~^u\u09BC\u09BE-\u09CD\u09D7]+$/.test(s);
-  }
-
   function isBoldFontHint(fontHint) {
     if (!fontHint) return false;
     return /bold|black|heavy|demi|semibold|extrabold|[-_.]bd\b/i.test(String(fontHint));
@@ -2258,7 +2255,7 @@
       var bestDist = Infinity;
       for (var i = 0; i < rows.length; i++) {
         var r = rows[i];
-        var tol = Math.max(4.0, Math.min(r.h, it.h) * 0.5);
+        var tol = Math.max(4.0, Math.min(r.h, it.h) * 0.48);
         var dist = Math.abs(r.y - it.y);
         if (dist <= tol && dist < bestDist) {
           bestDist = dist;
@@ -2276,16 +2273,10 @@
     rows.sort(function (a, b) { return b.y - a.y; });
 
     rows.forEach(function (r) {
-      r.items.sort(function (a, b) {
-        var ax = a.isSub ? (a.x - a.h * 0.42) : a.x;
-        var bx = b.isSub ? (b.x - b.h * 0.42) : b.x;
-        var diff = ax - bx;
-        if (Math.abs(diff) <= Math.max(a.h, b.h, 8) * 0.55) return a.streamIdx - b.streamIdx;
-        return diff;
-      });
+      r.items.sort(function (a, b) { return a.x - b.x; });
       var clusters = [];
       r.items.forEach(function (it) {
-        var endX = it.x + (it.isSub ? 0 : Math.max(1, it.w));
+        var endX = it.x + Math.max(1, it.w);
         if (!clusters.length) {
           clusters.push({ minX: it.x, maxX: endX, chars: it.str.length, items: [it] });
           return;
@@ -2293,7 +2284,7 @@
         var prev = clusters[clusters.length - 1];
         var gap = it.x - prev.maxX;
         var refH = Math.max(r.h, it.h, 8);
-        if (it.isSub || gap <= Math.max(13, refH * 1.45)) {
+        if (gap <= Math.max(14, refH * 1.5)) {
           prev.maxX = Math.max(prev.maxX, endX);
           prev.chars += it.str.length;
           prev.items.push(it);
@@ -2469,7 +2460,7 @@
       var bestDist = Infinity;
       for (var i = 0; i < rows.length; i++) {
         var r = rows[i];
-        var tol = Math.max(4.0, Math.min(r.h, it.h) * 0.5);
+        var tol = Math.max(4.0, Math.min(r.h, it.h) * 0.48);
         var dist = Math.abs(r.y - it.y);
         if (dist <= tol && dist < bestDist) {
           bestDist = dist;
@@ -2489,13 +2480,8 @@
 
     var rawRowObjs = [];
     rows.forEach(function (r) {
-      r.items.sort(function (a, b) {
-        var ax = a.isSub ? (a.x - a.h * 0.42) : a.x;
-        var bx = b.isSub ? (b.x - b.h * 0.42) : b.x;
-        var diff = ax - bx;
-        if (Math.abs(diff) <= Math.max(a.h, b.h, 8) * 0.55) return a.streamIdx - b.streamIdx;
-        return diff;
-      });
+      // Strictly sort left-to-right by X coordinate (never use a wide streamIdx window which breaks V8 TimSort transitivity!)
+      r.items.sort(function (a, b) { return a.x - b.x; });
 
       var rowForceBijoy = pageBijoy || r.items.some(function (it) {
         return it.bijoyFont || hasBijoyGlyphSignature(it.str);
@@ -2503,7 +2489,7 @@
 
       var wordRuns = [];
       r.items.forEach(function (cur) {
-        var curEndX = cur.x + (cur.isSub ? 0 : cur.w);
+        var curEndX = cur.x + cur.w;
         if (!wordRuns.length) {
           wordRuns.push({
             str: cur.str,
@@ -2519,13 +2505,12 @@
         var prev = wordRuns[wordRuns.length - 1];
         var gap = cur.x - prev.endX;
         var refH = Math.max(prev.h, cur.h, 8);
-        // Faux-bold overlaid text detection
+        // Faux-bold overlaid duplicate text detection
         if (gap < -refH * 0.45 && cur.str === prev.str) {
           prev.isBold = true;
           return;
         }
-        var prevEndsPreKar = (prev.bijoyFont || rowForceBijoy) && /[w\u2020\u2021\u02C6\u2030\u00A9&]$/.test(prev.str);
-        if (cur.isSub || (prevEndsPreKar && gap <= refH * 1.45) || (gap <= refH * 0.24 && (prev.bijoyFont === !!(cur.bijoyFont || rowForceBijoy)))) {
+        if (gap <= refH * 0.16 && (prev.bijoyFont === !!(cur.bijoyFont || rowForceBijoy))) {
           prev.str += cur.str;
           prev.endX = Math.max(prev.endX, curEndX);
           prev.h = Math.max(prev.h, cur.h);
@@ -2543,31 +2528,44 @@
         }
       });
 
-      var cells = [];
-      var cellGapThresh = colBounds.isNarrowCol ? 11.5 : 17;
+      // Assemble raw cells BEFORE calling cleanAndConvertPdfRun so full context (like "K. i I ii" or "cÖK…w Zi") is preserved!
+      var rawCells = [];
       for (var i = 0; i < wordRuns.length; i++) {
         var seg = wordRuns[i];
-        var converted = cleanAndConvertPdfRun(seg.str, seg.fontHint, seg.bijoyFont || rowForceBijoy).trim();
-        if (!converted) continue;
-        if (!cells.length) {
-          cells.push({ text: converted, x: seg.x, endX: seg.endX, h: seg.h, isBold: seg.isBold });
+        var segTrim = seg.str.trim();
+        if (!segTrim) continue;
+        if (!rawCells.length) {
+          rawCells.push({ rawText: seg.str, x: seg.x, endX: seg.endX, h: seg.h, isBold: seg.isBold, fontHint: seg.fontHint });
           continue;
         }
-        var prevCell = cells[cells.length - 1];
-        var gap2 = seg.x - prevCell.endX;
-        var refH2 = Math.max(prevCell.h, seg.h, 8);
-        var isMidLineMcqOpt = /^\(?([খঘঙBbDd])[.)](?:\s|$)/.test(converted) && prevCell.text.length > 0;
-        if (isMidLineMcqOpt || gap2 > Math.max(cellGapThresh, refH2 * (colBounds.isNarrowCol ? 1.32 : 1.72))) {
-          cells.push({ text: converted, x: seg.x, endX: seg.endX, h: seg.h, isBold: seg.isBold });
+        var prevC = rawCells[rawCells.length - 1];
+        var gap2 = seg.x - prevC.endX;
+        var refH2 = Math.max(prevC.h, seg.h, 8);
+        // Inside a narrow column (2-col exam paper), ONLY split into sub-columns when a mid-line secondary MCQ option (খ/ঘ / L/N / B/D) starts!
+        // On a full-width band, split when there is a large tab jump (> 28pt or 2.5 * h).
+        var isMidLineMcqRaw = /^\(?([খঘঙBbDdLN])[.)](?:\s|$)/.test(segTrim) && prevC.rawText.trim().length > 0;
+        var isFullWidthTabJump = !colBounds.isNarrowCol && gap2 > Math.max(28, refH2 * 2.5);
+        if (isMidLineMcqRaw || isFullWidthTabJump) {
+          rawCells.push({ rawText: seg.str, x: seg.x, endX: seg.endX, h: seg.h, isBold: seg.isBold, fontHint: seg.fontHint });
         } else {
-          prevCell.text = cleanAndConvertPdfRun(prevCell.text + (gap2 > refH2 * 0.12 ? ' ' : '') + converted, '', rowForceBijoy);
-          prevCell.endX = Math.max(prevCell.endX, seg.endX);
-          prevCell.h = Math.max(prevCell.h, seg.h);
-          if (seg.isBold) prevCell.isBold = true;
+          prevC.rawText += (gap2 > refH2 * 0.14 ? ' ' : '') + seg.str;
+          prevC.endX = Math.max(prevC.endX, seg.endX);
+          prevC.h = Math.max(prevC.h, seg.h);
+          if (seg.isBold) prevC.isBold = true;
         }
       }
 
-      // Split a single cell if two side-by-side MCQ options (ক... খ... or গ... ঘ...) were stored in a single string
+      var cells = [];
+      rawCells.forEach(function (rc) {
+        var conv = cleanAndConvertPdfRun(rc.rawText, rc.fontHint, rowForceBijoy)
+          .replace(/ +/g, ' ')
+          .trim();
+        if (conv) {
+          cells.push({ text: conv, x: rc.x, endX: rc.endX, h: rc.h, isBold: rc.isBold });
+        }
+      });
+
+      // Split a single cell if two side-by-side MCQ options (ক... খ... or গ... ঘ...) were stored in one cell
       if (cells.length === 1) {
         var mOpt = cells[0].text.match(/^(\(?[কগAca][.)]\s+.+?)\s+(?=\(?[খঘBdb][.)]\s+.+)/);
         if (mOpt) {
@@ -2650,7 +2648,7 @@
       );
 
       if (canMerge) {
-        prev.cells[0].text = cleanAndConvertPdfRun(prev.cells[0].text + ' ' + cur.cells[0].text, '', pageBijoy);
+        prev.cells[0].text = repairUnicodeBangla(prev.cells[0].text + ' ' + cur.cells[0].text);
         prev.text = prev.cells[0].text;
         prev.lastY = cur.y;
         prev.lastMaxX = cur.maxX;
@@ -2741,57 +2739,29 @@
 
       var pageBijoy = anyBijoyFont || hasBijoyGlyphSignature(allConcat);
       var items = [];
-      var seq = 0;
 
-      rawItems.forEach(function (it) {
-        var rawOrig = it.str || '';
-        if (!rawOrig || !rawOrig.trim()) return;
+      rawItems.forEach(function (it, idx) {
+        var raw = it.str || '';
+        if (!raw || !raw.trim()) return;
         var tr = it.transform || [1, 0, 0, 1, 0, 0];
-        var baseX = tr[4] || 0;
-        var baseY = tr[5] || 0;
-        var h = Math.max(6, Math.hypot(tr[2] || 0, tr[3] || 0) || Math.abs(tr[3]) || Math.abs(tr[0]) || it.height || 10);
-        var totalW = (typeof it.width === 'number' && !isNaN(it.width))
-          ? Math.max(0, it.width)
-          : (rawOrig.length * h * 0.48);
+        var x = tr[4] || 0;
+        var y = tr[5] || 0;
+        var h = Math.max(6, Math.abs(tr[3]) || Math.abs(tr[0]) || it.height || 10);
+        var w = Math.max(0, it.width || (raw.length * h * 0.48));
         var fn = it.fontName || '_default';
         var stObj = styles[fn] || {};
         var fontHint = fn + ' ' + (stObj.fontFamily || '');
-        var bjFont = !!(fontIsBijoy[fn] || isBijoyFontName(fontHint));
-        var boldFont = isBoldFontHint(fontHint);
-
-        // If a single PDF text item contains large multi-space/tab gaps, split into positioned sub-items
-        var charW = rawOrig.length > 0 ? (totalW / rawOrig.length) : (h * 0.45);
-        var parts = rawOrig.split(/(\s{3,}|\t+)/);
-        var offsetChars = 0;
-        for (var p = 0; p < parts.length; p++) {
-          var part = parts[p];
-          if (!part) continue;
-          if (/^(\s{3,}|\t+)$/.test(part)) {
-            offsetChars += part.length;
-            continue;
-          }
-          var leadSpaces = (part.match(/^\s*/) || [''])[0].length;
-          var trailSpaces = (part.match(/\s*$/) || [''])[0].length;
-          var trimmedPart = part.trim();
-          if (trimmedPart) {
-            var subX = baseX + (offsetChars + leadSpaces * 0.65) * charW;
-            var subW = Math.max(0, (part.length - (leadSpaces + trailSpaces) * 0.85) * charW);
-            var isSub = isSubscriptOrCombiningBijoy(trimmedPart) && subW < h * 0.35;
-            items.push({
-              str: trimmedPart,
-              x: subX,
-              y: baseY,
-              w: isSub ? 0 : subW,
-              h: h,
-              streamIdx: seq++,
-              isSub: isSub,
-              isBold: boldFont,
-              fontHint: fontHint,
-              bijoyFont: bjFont
-            });
-          }
-          offsetChars += part.length;
-        }
+        items.push({
+          str: raw,
+          x: x,
+          y: y,
+          w: w,
+          h: h,
+          streamIdx: idx,
+          isBold: isBoldFontHint(fontHint),
+          fontHint: fontHint,
+          bijoyFont: !!(fontIsBijoy[fn] || isBijoyFontName(fontHint))
+        });
       });
 
       return buildPageLayoutFromItems(items, vp.width, pageBijoy, rawItems.length);
