@@ -2037,9 +2037,327 @@
   }
 
   /* ==================================================================
-   * 5. PDF → JPG / PNG / WORD / TEXT
+   * 5. PDF → JPG / PNG / WORD / TEXT (WITH SMART 2D LAYOUT, BIJOY/UNICODE FIX & AI OCR)
    * ================================================================== */
   var p2oState = null;
+  var tesseractReady = null;
+
+  var C1_TO_CP1252 = {
+    0x80: '\u20AC', 0x82: '\u201A', 0x83: '\u0192', 0x84: '\u201E', 0x85: '\u2026',
+    0x86: '\u2020', 0x87: '\u2021', 0x88: '\u02C6', 0x89: '\u2030', 0x8A: '\u0160',
+    0x8B: '\u2039', 0x8C: '\u0152', 0x8E: '\u017D', 0x91: '\u2018', 0x92: '\u2019',
+    0x93: '\u201C', 0x94: '\u201D', 0x95: '\u2022', 0x96: '\u2013', 0x97: '\u2014',
+    0x98: '\u02DC', 0x99: '\u2122', 0x9A: '\u0161', 0x9B: '\u203A', 0x9C: '\u0153',
+    0x9E: '\u017E', 0x9F: '\u0178'
+  };
+
+  function normalizeC1ToCp1252(str) {
+    if (!str) return '';
+    return String(str).replace(/[\u0080-\u009F]/g, function (ch) {
+      var code = ch.charCodeAt(0);
+      return C1_TO_CP1252[code] || ch;
+    });
+  }
+
+  function isBijoyFontName(fontHint) {
+    if (!fontHint) return false;
+    var s = String(fontHint).toLowerCase();
+    if (/unicode|nikosh|kalpurush|solaiman|siyam|vrinda|nirmala|shonar|adorsho|charukola|bornomala|mitra|mukti|akaash|lohit|noto|anek|hind|baloo|atma|galada|mina/.test(s)) {
+      return false;
+    }
+    return /sutonny|tonnybangla|sulekha|chanchal|rinky|boishakhi|prothoma|bensen|kongsho|shorif|bijoy|mj\b|omj\b|cmj\b|bmj\b|emj\b/.test(s);
+  }
+
+  function repairUnicodeBangla(str) {
+    if (!str) return '';
+    var s = String(str);
+    if (s.normalize) s = s.normalize('NFC');
+    // Remove stray zero-width characters in the middle of consonant+halant clusters
+    s = s.replace(/([\u0995-\u09B9\u09DC\u09DD\u09DF])[\u200B\uFEFF]+(\u09CD)/g, '$1$2');
+    // Fix visual-order pre-base vowel signs (ি, ে, ৈ) placed BEFORE consonant/conjunct cluster in PDF streams
+    for (var pass = 0; pass < 2; pass++) {
+      s = s.replace(/([\u09BF\u09C7\u09C8])([\u0995-\u09B9\u09DC\u09DD\u09DF\u09CE](?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF])*)/g, '$2$1');
+    }
+    // Combine split two-part vowel signs: ে + া -> ো and ে + ৗ -> ৌ
+    s = s.replace(/\u09C7\u09BE/g, '\u09CB').replace(/\u09C7\u09D7/g, '\u09CC');
+    s = s.replace(/\u09BE\u09C7/g, '\u09CB').replace(/\u09D7\u09C7/g, '\u09CC');
+    // Collapse accidental duplicate vowel signs on the same consonant
+    s = s.replace(/([\u09BE-\u09CC\u09D7])\1+/g, '$1');
+    return s;
+  }
+
+  function cleanAndConvertPdfRun(str, fontHint) {
+    if (!str) return '';
+    var s = normalizeC1ToCp1252(str)
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+    if (!s) return '';
+
+    var eng = window.BijoyEngine;
+    var hasBanglaUnicode = /[\u0980-\u09FF]/.test(s);
+    var bijoyFont = isBijoyFontName(fontHint);
+    var hasBijoyHighChars = /[†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿À-ÿ]/.test(s);
+
+    if (eng && typeof eng.bijoyToUnicode === 'function' && !hasBanglaUnicode) {
+      var detected = typeof eng.detect === 'function' ? eng.detect(s) : 'unknown';
+      if (bijoyFont || detected === 'bijoy' || hasBijoyHighChars) {
+        try {
+          s = eng.bijoyToUnicode(s);
+        } catch (e) {}
+      }
+    }
+
+    if (/[\u0980-\u09FF]/.test(s)) {
+      s = repairUnicodeBangla(s);
+    }
+    return s;
+  }
+
+  function isTextGarbledOrEmpty(text, rawItemsCount) {
+    var trimmed = String(text || '').replace(/\s+/g, '');
+    if (!trimmed.length) return true;
+    if (rawItemsCount > 5 && trimmed.length < 3) return true;
+
+    // PUA or Unicode replacement characters indicate missing/broken ToUnicode CMap
+    var puaMatches = trimmed.match(/[\uE000-\uF8FF\uFFFD]/g);
+    if (puaMatches && puaMatches.length / trimmed.length > 0.06) return true;
+
+    // Count legitimate readable characters (Bangla, Latin, digits, common punctuation)
+    var validMatches = trimmed.match(/[\u0980-\u09FFa-zA-Z0-9.,;:!?"'()\[\]{}\-\/\\+@#$%&*=<>|_~`^৳₹$€£¥°•–—‘’“”…]/g);
+    var validCount = validMatches ? validMatches.length : 0;
+    if (validCount / trimmed.length < 0.72) return true;
+
+    // Detect unconverted legacy glyph-index gibberish (e.g. strings full of random symbols inside words)
+    var weirdInsideWord = trimmed.match(/[a-zA-Z][~`|\\^<>]+[a-zA-Z]/g);
+    if (weirdInsideWord && weirdInsideWord.length >= 3) return true;
+
+    return false;
+  }
+
+  function extractPageTextSmart(page) {
+    return page.getTextContent({ normalizeWhitespace: false, disableCombineTextItems: false }).then(function (tc) {
+      var styles = tc.styles || {};
+      var rawItems = tc.items || [];
+      var items = [];
+
+      rawItems.forEach(function (it) {
+        var raw = it.str || '';
+        if (!raw.trim()) return;
+        var tr = it.transform || [1, 0, 0, 1, 0, 0];
+        var x = tr[4] || 0;
+        var y = tr[5] || 0;
+        var h = Math.max(6, Math.abs(tr[3]) || Math.abs(tr[0]) || it.height || 10);
+        var w = Math.max(0, it.width || (raw.length * h * 0.48));
+        var stObj = styles[it.fontName] || {};
+        var fontHint = (it.fontName || '') + ' ' + (stObj.fontFamily || '');
+        items.push({
+          str: raw,
+          x: x,
+          y: y,
+          w: w,
+          h: h,
+          fontHint: fontHint,
+          bijoyFont: isBijoyFontName(fontHint)
+        });
+      });
+
+      if (!items.length) {
+        return { text: '', rawCount: rawItems.length, garbled: true };
+      }
+
+      // 1. Group items into horizontal rows using adaptive Y tolerance
+      var rows = [];
+      items.forEach(function (it) {
+        var bestRow = null;
+        var bestDist = Infinity;
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          var tol = Math.max(4, Math.min(r.h, it.h) * 0.48);
+          var dist = Math.abs(r.y - it.y);
+          if (dist <= tol && dist < bestDist) {
+            bestDist = dist;
+            bestRow = r;
+          }
+        }
+        if (bestRow) {
+          bestRow.items.push(it);
+          bestRow.y = (bestRow.y * (bestRow.items.length - 1) + it.y) / bestRow.items.length;
+          bestRow.h = Math.max(bestRow.h, it.h);
+        } else {
+          rows.push({ y: it.y, h: it.h, items: [it] });
+        }
+      });
+
+      // 2. Sort rows top-to-bottom (higher PDF Y is higher on the page)
+      rows.sort(function (a, b) { return b.y - a.y; });
+
+      // 3. Sort items left-to-right within each row and merge intra-word runs before font conversion
+      var outLines = [];
+      var prevRow = null;
+
+      rows.forEach(function (r) {
+        r.items.sort(function (a, b) { return a.x - b.x; });
+
+        // Merge tightly-spaced adjacent runs that belong to the same word/font
+        var wordRuns = [];
+        r.items.forEach(function (cur) {
+          if (!wordRuns.length) {
+            wordRuns.push({
+              str: cur.str,
+              x: cur.x,
+              endX: cur.x + cur.w,
+              h: cur.h,
+              fontHint: cur.fontHint,
+              bijoyFont: cur.bijoyFont
+            });
+            return;
+          }
+          var prev = wordRuns[wordRuns.length - 1];
+          var gap = cur.x - prev.endX;
+          var refH = Math.max(prev.h, cur.h, 8);
+          // Skip exact duplicate overlaid text (bold shadow effect in some PDFs)
+          if (gap < -refH * 0.45 && cur.str === prev.str) {
+            return;
+          }
+          if (gap <= refH * 0.16 && prev.bijoyFont === cur.bijoyFont) {
+            prev.str += cur.str;
+            prev.endX = Math.max(prev.endX, cur.x + cur.w);
+            prev.h = Math.max(prev.h, cur.h);
+          } else {
+            wordRuns.push({
+              str: cur.str,
+              x: cur.x,
+              endX: cur.x + cur.w,
+              h: cur.h,
+              fontHint: cur.fontHint,
+              bijoyFont: cur.bijoyFont
+            });
+          }
+        });
+
+        var lineStr = '';
+        for (var i = 0; i < wordRuns.length; i++) {
+          var seg = wordRuns[i];
+          var converted = cleanAndConvertPdfRun(seg.str, seg.fontHint);
+          if (!converted) continue;
+          if (i > 0 && lineStr.length > 0) {
+            var prevSeg = wordRuns[i - 1];
+            var gap2 = seg.x - prevSeg.endX;
+            var refH2 = Math.max(prevSeg.h, seg.h, 8);
+            if (gap2 > refH2 * 2.1) {
+              lineStr += '\t';
+            } else if (gap2 > refH2 * 0.14) {
+              lineStr += ' ';
+            }
+          }
+          lineStr += converted;
+        }
+
+        lineStr = repairUnicodeBangla(lineStr)
+          .replace(/ +/g, ' ')
+          .replace(/ *\t */g, '\t')
+          .trim();
+
+        if (lineStr) {
+          if (prevRow && (prevRow.y - r.y) > Math.max(prevRow.h, r.h) * 2.15) {
+            outLines.push('');
+          }
+          outLines.push(lineStr);
+          prevRow = r;
+        }
+      });
+
+      var finalTxt = outLines.join('\n').trim();
+      return {
+        text: finalTxt,
+        rawCount: rawItems.length,
+        garbled: isTextGarbledOrEmpty(finalTxt, rawItems.length)
+      };
+    });
+  }
+
+  function ensureTesseract() {
+    if (window.Tesseract) return Promise.resolve(window.Tesseract);
+    if (!tesseractReady) {
+      tesseractReady = loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js')
+        .catch(function () {
+          return loadScript('https://unpkg.com/tesseract.js@5/dist/tesseract.min.js');
+        })
+        .then(function () {
+          if (!window.Tesseract) throw new Error('OCR ইঞ্জিন লোড করা যায়নি');
+          return window.Tesseract;
+        });
+    }
+    return tesseractReady;
+  }
+
+  function preprocessCanvasForOcr(srcCanvas) {
+    var w = srcCanvas.width;
+    var h = srcCanvas.height;
+    var out = document.createElement('canvas');
+    out.width = w;
+    out.height = h;
+    var ctx = out.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(srcCanvas, 0, 0);
+    try {
+      var img = ctx.getImageData(0, 0, w, h);
+      var d = img.data;
+      // Enhance contrast and suppress faint watermarks (like light red/green seals behind text)
+      for (var i = 0; i < d.length; i += 4) {
+        var r = d[i], g = d[i + 1], b = d[i + 2];
+        var lum = 0.299 * r + 0.587 * g + 0.114 * b;
+        // Faint colored watermark suppression: high luminance or pastel tint becomes pure white
+        var maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
+        var sat = maxC - minC;
+        if (lum > 205 || (lum > 165 && sat > 28)) {
+          d[i] = d[i + 1] = d[i + 2] = 255;
+        } else if (lum < 145) {
+          // Darken ink for sharper glyph edges
+          var dark = Math.max(0, Math.round((lum / 145) * 85));
+          d[i] = d[i + 1] = d[i + 2] = dark;
+        } else {
+          var mid = Math.min(255, Math.round(140 + ((lum - 145) / 60) * 115));
+          d[i] = d[i + 1] = d[i + 2] = mid;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+    } catch (e) {}
+    return out;
+  }
+
+  function ocrPageCanvas(doc, pageNum, rotation, lang, onPct) {
+    return ensureTesseract().then(function (Tesseract) {
+      return renderPageCanvas(doc, pageNum, { scale: 2.4, rotation: rotation || 0 }).then(function (r) {
+        var cleanCanvas = preprocessCanvasForOcr(r.canvas);
+        return Tesseract.recognize(cleanCanvas, lang || 'ben+eng', {
+          logger: function (m) {
+            if (m && m.status === 'recognizing text' && typeof m.progress === 'number' && onPct) {
+              onPct(m.progress);
+            }
+          }
+        });
+      });
+    }).then(function (res) {
+      var raw = (res && res.data && res.data.text) ? res.data.text : '';
+      var cleaned = raw
+        .split(/\r?\n/)
+        .map(function (ln) { return repairUnicodeBangla(ln).replace(/\s+/g, ' ').trim(); })
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+      return cleaned;
+    });
+  }
+
+  function syncPdf2OtherFormatControls() {
+    var fmt = ($('input[name="pdfToOtherFmt"]:checked') || {}).value || 'jpg';
+    var isImg = (fmt === 'jpg' || fmt === 'png');
+    var dpiWrap = $('#pdfToImgDpiWrap');
+    var ocrWrap = $('#pdfToTextOcrWrap');
+    if (dpiWrap) dpiWrap.hidden = !isImg;
+    if (ocrWrap) ocrWrap.hidden = isImg;
+  }
 
   function loadPdf2OtherFile(files) {
     loadSinglePdf(files).then(function (st) {
@@ -2050,6 +2368,7 @@
 
   function renderPdf2OtherUI() {
     showStage('pdfToOther', !!p2oState);
+    syncPdf2OtherFormatControls();
     if (!p2oState) return;
     var st = p2oState;
     var prev = $('#pdfToOtherPreview');
@@ -2069,18 +2388,61 @@
     $('#pdfToOtherSummary').textContent = toBn(st.pages.length) + ' পৃষ্ঠা রূপান্তরের জন্য প্রস্তুত';
   }
 
-  function extractPageText(page) {
-    return page.getTextContent().then(function (tc) {
-      var lines = [], lastY = null, cur = [];
-      (tc.items || []).forEach(function (it) {
-        var y = it.transform ? Math.round(it.transform[5]) : 0;
-        if (lastY !== null && Math.abs(y - lastY) > 6) { lines.push(cur.join(' ')); cur = []; }
-        if (it.str) cur.push(it.str);
-        lastY = y;
+  function buildWordDocHtml(pageTexts, title) {
+    var fontStack = "'Nirmala UI','Kalpurush','Noto Sans Bengali','Calibri',sans-serif";
+    var pageHtmls = pageTexts.map(function (pageText) {
+      var lines = String(pageText || '').split(/\r?\n/);
+      var blocks = [];
+      var tableRows = [];
+
+      function flushTable() {
+        if (!tableRows.length) return;
+        var maxCols = 1;
+        tableRows.forEach(function (cols) { if (cols.length > maxCols) maxCols = cols.length; });
+        var trs = tableRows.map(function (cols) {
+          var tds = [];
+          for (var c = 0; c < maxCols; c++) {
+            var val = cols[c] !== undefined ? cols[c] : '';
+            var isFirst = (c === 0 && maxCols === 2 && val.length < 36);
+            tds.push(
+              '<td style="padding:3pt 8pt 3pt 0;vertical-align:top;font-family:' + fontStack + ';font-size:11.5pt;line-height:1.45;' +
+              (isFirst ? 'font-weight:bold;width:34%;' : '') + '">' + esc(val) + '</td>'
+            );
+          }
+          return '<tr>' + tds.join('') + '</tr>';
+        }).join('');
+        blocks.push('<table style="width:100%;border-collapse:collapse;margin:4pt 0 8pt 0;">' + trs + '</table>');
+        tableRows = [];
+      }
+
+      lines.forEach(function (line) {
+        var trimmed = line.trim();
+        if (!trimmed) {
+          flushTable();
+          blocks.push('<p style="margin:0 0 6pt 0;font-size:6pt;">&nbsp;</p>');
+          return;
+        }
+        if (trimmed.indexOf('\t') !== -1) {
+          tableRows.push(trimmed.split('\t'));
+        } else {
+          flushTable();
+          blocks.push(
+            '<p style="font-family:' + fontStack + ';font-size:11.5pt;line-height:1.5;margin:0 0 6pt 0;color:#0f172a;">' +
+            esc(trimmed) +
+            '</p>'
+          );
+        }
       });
-      if (cur.length) lines.push(cur.join(' '));
-      return lines.join('\n');
+      flushTable();
+      return '<div class="SectionPage">' + blocks.join('') + '</div>';
     });
+
+    return '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+      '<head><meta charset="utf-8"><title>' + esc(title) + '</title>' +
+      '<style>@page { size: 21cm 29.7cm; margin: 2cm; } body { font-family: ' + fontStack + '; font-size: 11.5pt; }</style>' +
+      '</head><body>' +
+      pageHtmls.join('<br clear="all" style="page-break-before:always" />') +
+      '</body></html>';
   }
 
   function runPdf2Other() {
@@ -2088,6 +2450,8 @@
     if (!st) return;
     var fmt = ($('input[name="pdfToOtherFmt"]:checked') || {}).value || 'jpg';
     var scale = parseFloat(($('input[name="pdfImgScale"]:checked') || {}).value || '2.2');
+    var ocrMode = ($('input[name="pdfOcrMode"]:checked') || {}).value || 'auto';
+    var ocrLang = ($('input[name="pdfOcrLang"]:checked') || {}).value || 'ben+eng';
     var btn = $('#pdfToOtherRunBtn');
     var prev = $('#pdfToOtherPreview');
     var base = baseName(st.name);
@@ -2132,40 +2496,91 @@
       }
 
       var texts = [];
+      var usedOcrCount = 0;
       var chainT = Promise.resolve();
       st.pages.forEach(function (p, i) {
         chainT = chainT.then(function () {
-          setProgress(5 + ((i + 1) / total) * 85, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' থেকে লেখা পড়া হচ্ছে…');
           if (p.isBlank) { texts.push(''); return; }
-          return p.doc.pdfjs.getPage(p.idx + 1).then(extractPageText).then(function (t) { texts.push(t); });
+          var basePct = 5 + (i / total) * 85;
+          var stepPct = 85 / total;
+
+          if (ocrMode === 'force') {
+            setProgress(basePct + 2, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' — AI OCR চলছে (বাংলা + ইংরেজি)…');
+            return ocrPageCanvas(p.doc, p.idx + 1, p.rotation, ocrLang, function (prog) {
+              var pct = Math.min(94, Math.round(basePct + prog * stepPct));
+              setProgress(pct, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' — OCR চলছে (' + toBn(Math.round(prog * 100)) + '%)…');
+            }).then(function (ocrTxt) {
+              usedOcrCount++;
+              texts.push(ocrTxt);
+            });
+          }
+
+          setProgress(basePct + 2, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' থেকে স্মার্ট লেআউট ও ফন্ট পড়া হচ্ছে…');
+          return p.doc.pdfjs.getPage(p.idx + 1).then(extractPageTextSmart).then(function (res) {
+            if (ocrMode === 'auto' && res.garbled) {
+              setProgress(basePct + 5, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' স্ক্যান/হিজিবিজি শনাক্ত হয়েছে — অটো OCR চলছে…');
+              return ocrPageCanvas(p.doc, p.idx + 1, p.rotation, ocrLang, function (prog) {
+                var pct = Math.min(94, Math.round(basePct + prog * stepPct));
+                setProgress(pct, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' — অটো OCR চলছে (' + toBn(Math.round(prog * 100)) + '%)…');
+              }).then(function (ocrTxt) {
+                usedOcrCount++;
+                texts.push(ocrTxt || res.text);
+              }).catch(function () {
+                texts.push(res.text);
+              });
+            }
+            texts.push(res.text);
+          });
         });
       });
+
       return chainT.then(function () {
         var full = texts.map(function (t, i) {
-          return '=== পৃষ্ঠা ' + toBn(i + 1) + ' ===\n' + (t || '(এই পৃষ্ঠায় কোনো টেক্সট লেয়ার পাওয়া যায়নি — স্ক্যান করা পৃষ্ঠা হতে পারে)');
+          var cleanT = String(t || '').replace(/\t/g, '    ');
+          return (total > 1 ? '=== পৃষ্ঠা ' + toBn(i + 1) + ' ===\n' : '') +
+            (cleanT || '(এই পৃষ্ঠায় কোনো লেখা পাওয়া যায়নি)');
         }).join('\n\n');
+
+        var modeBadge = usedOcrCount > 0
+          ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold">AI OCR (' + toBn(usedOcrCount) + ' পৃষ্ঠা) + স্মার্ট ফিক্স</span>'
+          : '<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 text-[11px] font-bold">২ডি স্মার্ট লেআউট + বিজয়/ইউনিকোড ফিক্স</span>';
+
         prev.hidden = false;
-        prev.innerHTML = '<div class="pdf-extracted-box space-y-2"><div class="pdf-extracted-head flex items-center justify-between gap-2"><strong>এক্সট্র্যাক্ট করা লেখা:</strong>' +
-          '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 cursor-pointer transition-colors" id="pdfCopyExtTxtBtn">কপি করুন</button></div>' +
-          '<textarea class="textbox w-full p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-sans text-slate-800 dark:text-studio-text outline-none" rows="7" readonly id="pdfExtTxtArea" aria-label="এক্সট্র্যাক্ট করা লেখা"></textarea></div>';
-        $('#pdfExtTxtArea').value = full;
-        $('#pdfCopyExtTxtBtn').addEventListener('click', function () {
-          navigator.clipboard.writeText(full).then(function () { showToast('লেখা কপি করা হয়েছে!'); });
-        });
-        if (fmt === 'txt') {
-          downloadBlob(new Blob(['\ufeff' + full], { type: 'text/plain;charset=utf-8' }), base + '.txt');
-          showToast('টেক্সট (.txt) ফাইল ডাউনলোড হয়েছে!');
-        } else {
-          var body = texts.map(function (t) {
-            return '<div>' + String(t || '').split('\n').map(function (line) {
-              return '<p style="font-family:\'Nirmala UI\',\'Calibri\',sans-serif;font-size:12pt;line-height:1.5;margin:0 0 8pt;">' + esc(line) + '</p>';
-            }).join('') + '</div>';
-          }).join('<br clear="all" style="page-break-before:always" />');
-          var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
-            '<head><meta charset="utf-8"><title>' + esc(base) + '</title></head><body>' + body + '</body></html>';
-          downloadBlob(new Blob(['\ufeff' + html], { type: 'application/msword;charset=utf-8' }), base + '.doc');
-          showToast('Word (.doc) ফাইল ডাউনলোড হয়েছে!');
+        prev.innerHTML = '<div class="pdf-extracted-box space-y-2.5">' +
+          '<div class="pdf-extracted-head flex items-center justify-between flex-wrap gap-2">' +
+            '<div class="flex items-center gap-2 flex-wrap"><strong>এক্সট্র্যাক্ট করা লেখা (সম্পাদনাযোগ্য):</strong>' + modeBadge + '</div>' +
+            '<div class="flex items-center gap-2">' +
+              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 cursor-pointer transition-colors" id="pdfCopyExtTxtBtn">কপি করুন</button>' +
+              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border-0 cursor-pointer transition-colors" id="pdfRedownloadExtBtn">⬇ আবার ডাউনলোড (' + (fmt === 'txt' ? '.txt' : '.doc') + ')</button>' +
+            '</div>' +
+          '</div>' +
+          '<textarea class="textbox w-full p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-sans text-slate-800 dark:text-studio-text outline-none leading-relaxed" rows="10" id="pdfExtTxtArea" aria-label="এক্সট্র্যাক্ট করা লেখা"></textarea>' +
+        '</div>';
+
+        var area = $('#pdfExtTxtArea');
+        area.value = full;
+
+        function triggerDocOrTxtDownload(useRawPages) {
+          if (fmt === 'txt') {
+            var txtContent = useRawPages ? full : area.value;
+            downloadBlob(new Blob(['\ufeff' + txtContent], { type: 'text/plain;charset=utf-8' }), base + '.txt');
+            showToast('টেক্সট (.txt) ফাইল ডাউনলোড হয়েছে!');
+          } else {
+            var pagesForDoc = useRawPages ? texts : [area.value];
+            var html = buildWordDocHtml(pagesForDoc, base);
+            downloadBlob(new Blob(['\ufeff' + html], { type: 'application/msword;charset=utf-8' }), base + '.doc');
+            showToast('Word (.doc) ফাইল ডাউনলোড হয়েছে!');
+          }
         }
+
+        $('#pdfCopyExtTxtBtn').addEventListener('click', function () {
+          navigator.clipboard.writeText(area.value).then(function () { showToast('লেখা কপি করা হয়েছে!'); });
+        });
+        $('#pdfRedownloadExtBtn').addEventListener('click', function () {
+          triggerDocOrTxtDownload(area.value === full);
+        });
+
+        triggerDocOrTxtDownload(true);
       });
     }).then(function () { setProgress(null); btn.disabled = false; }, function (err) {
       setProgress(null);
@@ -2786,11 +3201,9 @@
     // 5. PDF → others
     wireDropzone($('#pdfToOtherDropzone'), $('#pdfToOtherInput'), loadPdf2OtherFile);
     $$('input[name="pdfToOtherFmt"]').forEach(function (r) {
-      r.addEventListener('change', function () {
-        var v = $('input[name="pdfToOtherFmt"]:checked').value;
-        $('#pdfToImgDpiWrap').hidden = !(v === 'jpg' || v === 'png');
-      });
+      r.addEventListener('change', syncPdf2OtherFormatControls);
     });
+    syncPdf2OtherFormatControls();
     on('pdfToOtherRotLeftAll', 'click', function () { if (p2oState) { rotateAll(p2oState.pages, -90); renderPdf2OtherUI(); } });
     on('pdfToOtherRotRightAll', 'click', function () { if (p2oState) { rotateAll(p2oState.pages, 90); renderPdf2OtherUI(); } });
     on('pdfToOtherResetBtn', 'click', function () { p2oState = null; renderPdf2OtherUI(); });

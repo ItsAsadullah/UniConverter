@@ -368,14 +368,14 @@
                     <input type="radio" name="pdfToOtherFmt" value="doc" class="mt-1 accent-emerald-600" />
                     <span class="pdf-radio-card__body flex flex-col">
                       <strong class="text-xs font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="PDF → Word (.doc)" data-i18n-en="PDF → Word (.doc)">PDF → Word (.doc)</strong>
-                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="এডিটেবল MS Word ডকুমেন্ট" data-i18n-en="Editable MS Word document">এডিটেবল MS Word ডকুমেন্ট</small>
+                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="এডিটেবল Word (OCR ও বিজয়/ইউনিকোড ফিক্স সহ)" data-i18n-en="Editable Word (with OCR & Bijoy/Unicode Fix)">এডিটেবল Word (OCR ও বিজয়/ইউনিকোড ফিক্স সহ)</small>
                     </span>
                   </label>
                   <label class="pdf-radio-card flex items-start gap-2.5 p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
                     <input type="radio" name="pdfToOtherFmt" value="txt" class="mt-1 accent-emerald-600" />
                     <span class="pdf-radio-card__body flex flex-col">
                       <strong class="text-xs font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="PDF → টেক্সট (.txt)" data-i18n-en="PDF → Text (.txt)">PDF → টেক্সট (.txt)</strong>
-                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="সব পৃষ্ঠার লেখা প্লেইন টেক্সট" data-i18n-en="Extract plain text from all pages">সব পৃষ্ঠার লেখা প্লেইন টেক্সট</small>
+                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="নির্ভুল ইউনিকোড টেক্সট (OCR ও ফন্ট ফিক্স সহ)" data-i18n-en="Clean Unicode text (with OCR & Font Fix)">নির্ভুল ইউনিকোড টেক্সট (OCR ও ফন্ট ফিক্স সহ)</small>
                     </span>
                   </label>
                 </div>
@@ -388,6 +388,47 @@
                     <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfImgScale" value="1.5" class="accent-emerald-600" /> <span data-i18n-bn="স্ট্যান্ডার্ড (150 DPI)" data-i18n-en="Standard (150 DPI)">স্ট্যান্ডার্ড (150 DPI)</span></label>
                     <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfImgScale" value="2.2" checked class="accent-emerald-600" /> <span data-i18n-bn="হাই এইচডি (220 DPI)" data-i18n-en="High HD (220 DPI)">হাই এইচডি (220 DPI)</span></label>
                     <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfImgScale" value="3.0" class="accent-emerald-600" /> <span data-i18n-bn="আল্ট্রা প্রিন্ট (300 DPI)" data-i18n-en="Ultra Print (300 DPI)">আল্ট্রা প্রিন্ট (300 DPI)</span></label>
+                  </div>
+                </fieldset>
+              </div>
+
+              <div class="pdf-sub-controls pt-3 border-t border-slate-200 dark:border-studio-border space-y-3" id="pdfToTextOcrWrap" hidden>
+                <fieldset class="pdf-fieldset border-0 p-0 m-0">
+                  <legend class="pdf-legend text-xs font-bold text-slate-700 dark:text-studio-text mb-1.5 flex items-center gap-1.5">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold uppercase tracking-wide">AI OCR + Smart Fix</span>
+                    <span data-i18n-bn="লেখা উদ্ধারের মোড (হিজিবিজি লেখা ও স্ক্যান PDF ফিক্স)" data-i18n-en="Text Recovery & OCR Mode (Fix Garbled & Scanned PDFs)">লেখা উদ্ধারের মোড (হিজিবিজি লেখা ও স্ক্যান PDF ফিক্স)</span>
+                  </legend>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
+                      <input type="radio" name="pdfOcrMode" value="auto" checked class="mt-0.5 accent-emerald-600" />
+                      <span class="flex flex-col">
+                        <strong class="font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="স্মার্ট অটো + অটো OCR (প্রস্তাবিত)" data-i18n-en="Smart Auto + Auto OCR (Recommended)">স্মার্ট অটো + অটো OCR (প্রস্তাবিত)</strong>
+                        <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="বিজয়/ইউনিকোড ফন্ট ঠিক করবে এবং স্ক্যান বা ভাঙা ফন্ট হলে স্বয়ংক্রিয়ভাবে OCR চালাবে" data-i18n-en="Fixes Bijoy/Unicode fonts & auto-runs OCR on scanned or broken pages">বিজয়/ইউনিকোড ফন্ট ঠিক করবে এবং স্ক্যান বা ভাঙা ফন্ট হলে স্বয়ংক্রিয়ভাবে OCR চালাবে</small>
+                      </span>
+                    </label>
+                    <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
+                      <input type="radio" name="pdfOcrMode" value="force" class="mt-0.5 accent-emerald-600" />
+                      <span class="flex flex-col">
+                        <strong class="font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="সব পৃষ্ঠায় OCR চালু করুন (Force OCR)" data-i18n-en="Force OCR on All Pages">সব পৃষ্ঠায় OCR চালু করুন (Force OCR)</strong>
+                        <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="স্ক্যান করা ছবি বা কাস্টম ফন্টের হিজিবিজি PDF থেকে সরাসরি ছবি পড়ে নির্ভুল লেখা তুলবে" data-i18n-en="Reads every page visually with OCR — best for scanned or severely garbled PDFs">স্ক্যান করা ছবি বা কাস্টম ফন্টের হিজিবিজি PDF থেকে সরাসরি ছবি পড়ে নির্ভুল লেখা তুলবে</small>
+                      </span>
+                    </label>
+                    <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
+                      <input type="radio" name="pdfOcrMode" value="fast" class="mt-0.5 accent-emerald-600" />
+                      <span class="flex flex-col">
+                        <strong class="font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="শুধু টেক্সট ও ফন্ট ফিক্স (দ্রুত)" data-i18n-en="Text Layer & Font Fix Only (Fast)">শুধু টেক্সট ও ফন্ট ফিক্স (দ্রুত)</strong>
+                        <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="২ডি লেআউট ও বিজয়/ইউনিকোড ফিক্স সহ দ্রুত টেক্সট এক্সট্র্যাক্ট (OCR ছাড়া)" data-i18n-en="Fast 2D layout & Bijoy/Unicode repair without OCR">২ডি লেআউট ও বিজয়/ইউনিকোড ফিক্স সহ দ্রুত টেক্সট এক্সট্র্যাক্ট (OCR ছাড়া)</small>
+                      </span>
+                    </label>
+                  </div>
+                </fieldset>
+
+                <fieldset class="pdf-fieldset border-0 p-0 m-0">
+                  <legend class="pdf-legend text-xs font-bold text-slate-700 dark:text-studio-text mb-1.5" data-i18n-bn="OCR ভাষা (OCR Language)" data-i18n-en="OCR Language">OCR ভাষা (OCR Language)</legend>
+                  <div class="pdf-radio-inline flex items-center flex-wrap gap-4 text-xs text-slate-700 dark:text-studio-text">
+                    <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfOcrLang" value="ben+eng" checked class="accent-emerald-600" /> <span data-i18n-bn="বাংলা + ইংরেজি (Bangla + English)" data-i18n-en="Bangla + English (ben+eng)">বাংলা + ইংরেজি (Bangla + English)</span></label>
+                    <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfOcrLang" value="ben" class="accent-emerald-600" /> <span data-i18n-bn="শুধু বাংলা (Bangla)" data-i18n-en="Bangla Only (ben)">শুধু বাংলা (Bangla)</span></label>
+                    <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfOcrLang" value="eng" class="accent-emerald-600" /> <span data-i18n-bn="শুধু ইংরেজি (English)" data-i18n-en="English Only (eng)">শুধু ইংরেজি (English)</span></label>
                   </div>
                 </fieldset>
               </div>
