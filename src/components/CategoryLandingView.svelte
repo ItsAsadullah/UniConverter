@@ -4,12 +4,14 @@
   import {
     getCategoryMeta,
     getToolsByCategory,
+    getToolIconPalette,
     type CategoryId
   } from '../data/tools';
 
   let { categoryId }: { categoryId: CategoryId } = $props();
   let category = $derived(getCategoryMeta(categoryId));
   let categoryTools = $derived(getToolsByCategory(categoryId));
+  let catPalette = $derived(getToolIconPalette(category.color));
 </script>
 
 <div class="w-full pb-8" data-directory-root>
@@ -19,7 +21,7 @@
     aria-labelledby="catHeroTitle"
   >
     <div class="flex items-center gap-3.5 min-w-0">
-      <span class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-studio-primary flex items-center justify-center shrink-0">
+      <span class="w-12 h-12 rounded-2xl {catPalette.iconWrap} flex items-center justify-center shrink-0 shadow-2xs">
         <Icon name={category.lucideIcon} class="w-6 h-6" />
       </span>
       <div class="min-w-0">
@@ -33,7 +35,7 @@
             {category.title}
           </h1>
           <span
-            class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-studio-primary"
+            class="text-xs font-bold px-2.5 py-0.5 rounded-full {catPalette.iconWrap}"
             data-dir-count
           >
             {categoryTools.length}

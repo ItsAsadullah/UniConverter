@@ -1,6 +1,6 @@
 ---
-import { Icon } from 'astro-icon/components';
-import { getToolMeta, CATEGORIES, ALL_TOOLS, getToolsByCategory, type ToolMeta, type CategoryId } from '../data/tools';
+import Icon from '../components/ui/Icon.svelte';
+import { getToolMeta, CATEGORIES, ALL_TOOLS, getToolsByCategory, getToolIconPalette, type ToolMeta, type CategoryId } from '../data/tools';
 import '../styles/studio-design.css';
 
 interface Props {
@@ -124,6 +124,7 @@ const matchedCatalogTool = aliasToolId
         {CATEGORIES.map((cat) => {
           const items = getToolsByCategory(cat.id);
           const isActive = inferredCategory === cat.id;
+          const catPal = getToolIconPalette(cat.color);
           return (
             <div class="relative group" data-nav-group={cat.id}>
               <a
@@ -134,7 +135,7 @@ const matchedCatalogTool = aliasToolId
                   isActive && 'is-active'
                 ]}
               >
-                <Icon name={cat.lucideIcon} class="w-4 h-4 shrink-0" aria-hidden="true" />
+                <Icon name={cat.lucideIcon} class={`w-4 h-4 shrink-0 ${catPal.text}`} />
                 <span data-i18n-bn={cat.title} data-i18n-en={cat.titleEn}>{cat.title}</span>
               </a>
               <div
@@ -143,22 +144,25 @@ const matchedCatalogTool = aliasToolId
                 aria-label={cat.titleEn}
               >
                 <div class="p-2 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xl">
-                  {items.map((item) => (
-                    <a
-                      href={item.href}
-                      aria-label={item.titleEn}
-                      class="flex items-center gap-3 px-3 py-2.5 rounded-xl no-underline text-slate-900 dark:text-studio-text hover:bg-slate-100 dark:hover:bg-studio-panel transition-colors"
-                      role="menuitem"
-                    >
-                      <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-studio-primary inline-flex items-center justify-center shrink-0">
-                        <Icon name={item.lucideIcon} class="w-4 h-4" aria-hidden="true" />
-                      </span>
-                      <span class="flex flex-col min-w-0">
-                        <b class="text-sm font-bold leading-tight truncate" data-i18n-bn={item.title} data-i18n-en={item.titleEn}>{item.title}</b>
-                        <small class="text-xs text-slate-500 dark:text-studio-muted truncate mt-0.5" data-i18n-bn={item.desc} data-i18n-en={item.descEn}>{item.desc}</small>
-                      </span>
-                    </a>
-                  ))}
+                  {items.map((item) => {
+                    const itemPal = getToolIconPalette(item.color);
+                    return (
+                      <a
+                        href={item.href}
+                        aria-label={item.titleEn}
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl no-underline text-slate-900 dark:text-studio-text hover:bg-slate-100 dark:hover:bg-studio-panel transition-colors"
+                        role="menuitem"
+                      >
+                        <span class={`w-8 h-8 rounded-lg ${itemPal.iconWrap} inline-flex items-center justify-center shrink-0`}>
+                          <Icon name={item.lucideIcon} class="w-4 h-4" />
+                        </span>
+                        <span class="flex flex-col min-w-0">
+                          <b class="text-sm font-bold leading-tight truncate" data-i18n-bn={item.title} data-i18n-en={item.titleEn}>{item.title}</b>
+                          <small class="text-xs text-slate-500 dark:text-studio-muted truncate mt-0.5" data-i18n-bn={item.desc} data-i18n-en={item.descEn}>{item.desc}</small>
+                        </span>
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -295,6 +299,7 @@ const matchedCatalogTool = aliasToolId
               <div class="my-1 h-px bg-slate-100 dark:bg-studio-border"></div>
               {getToolsByCategory(currentCategoryMeta.id).map((item) => {
                 const isCurrentTool = matchedCatalogTool?.id === item.id;
+                const itemPal = getToolIconPalette(item.color);
                 return (
                   <a
                     href={item.href}
@@ -308,10 +313,10 @@ const matchedCatalogTool = aliasToolId
                     role="menuitem"
                   >
                     <span class="inline-flex items-center gap-2.5 min-w-0">
-                      <Icon name={item.lucideIcon} class="w-3.5 h-3.5 shrink-0 opacity-85" aria-hidden="true" />
+                      <Icon name={item.lucideIcon} class={`w-3.5 h-3.5 shrink-0 ${itemPal.text}`} />
                       <span class="truncate" data-i18n-bn={item.title} data-i18n-en={item.titleEn}>{item.title}</span>
                     </span>
-                    <Icon name="lucide:check" class="w-3.5 h-3.5 shrink-0 hidden [.is-active_&]:block" aria-hidden="true" />
+                    <Icon name="lucide:check" class="w-3.5 h-3.5 shrink-0 hidden [.is-active_&]:block" />
                   </a>
                 );
               })}
@@ -375,30 +380,33 @@ const matchedCatalogTool = aliasToolId
 
       <div class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2 py-1" id="universalResultsLabel" data-i18n-bn="সকল টুলস" data-i18n-en="All Tools">সকল টুলস</div>
       <div id="universalSearchList" class="space-y-0.5">
-        {ALL_TOOLS.map((tool) => (
-          <a
-            href={tool.href}
-            aria-label={tool.titleEn}
-            class="th-cmd-item flex items-center gap-3 px-2.5 py-2 rounded-lg no-underline text-slate-900 dark:text-studio-text transition-colors hover:bg-slate-100 dark:hover:bg-studio-panel [&.is-selected]:bg-slate-100 dark:[&.is-selected]:bg-studio-panel [&.is-selected]:outline-1 [&.is-selected]:outline-emerald-500/60"
-            data-cmd-item
-            data-tool-id={tool.id}
-            data-cat={tool.categoryId}
-            data-title-bn={tool.title}
-            data-title-en={tool.titleEn}
-            data-desc-bn={tool.desc}
-            data-desc-en={tool.descEn}
-            data-search={`${tool.title} ${tool.titleEn} ${tool.desc} ${tool.descEn} ${tool.keywords} ${tool.badge}`.toLowerCase()}
-          >
-            <span class="th-cmd-item__ic w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-studio-primary inline-flex items-center justify-center shrink-0">
-              <Icon name={tool.lucideIcon} class="w-4 h-4" aria-hidden="true" />
-            </span>
-            <span class="flex-1 min-w-0 flex flex-col">
-              <b class="text-[13.5px] font-semibold text-slate-900 dark:text-studio-text truncate" data-i18n-bn={tool.title} data-i18n-en={tool.titleEn}>{tool.title}</b>
-              <small class="text-xs text-slate-500 dark:text-studio-muted truncate" data-i18n-bn={tool.desc} data-i18n-en={tool.descEn}>{tool.desc}</small>
-            </span>
-            <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-slate-500 dark:text-studio-muted whitespace-nowrap" data-i18n-bn={tool.badge} data-i18n-en={tool.badgeEn}>{tool.badge}</span>
-          </a>
-        ))}
+        {ALL_TOOLS.map((tool) => {
+          const toolPal = getToolIconPalette(tool.color);
+          return (
+            <a
+              href={tool.href}
+              aria-label={tool.titleEn}
+              class="th-cmd-item flex items-center gap-3 px-2.5 py-2 rounded-lg no-underline text-slate-900 dark:text-studio-text transition-colors hover:bg-slate-100 dark:hover:bg-studio-panel [&.is-selected]:bg-slate-100 dark:[&.is-selected]:bg-studio-panel [&.is-selected]:outline-1 [&.is-selected]:outline-emerald-500/60"
+              data-cmd-item
+              data-tool-id={tool.id}
+              data-cat={tool.categoryId}
+              data-title-bn={tool.title}
+              data-title-en={tool.titleEn}
+              data-desc-bn={tool.desc}
+              data-desc-en={tool.descEn}
+              data-search={`${tool.title} ${tool.titleEn} ${tool.desc} ${tool.descEn} ${tool.keywords} ${tool.badge}`.toLowerCase()}
+            >
+              <span class={`th-cmd-item__ic w-8 h-8 rounded-lg ${toolPal.iconWrap} inline-flex items-center justify-center shrink-0`}>
+                <Icon name={tool.lucideIcon} class="w-4 h-4" />
+              </span>
+              <span class="flex-1 min-w-0 flex flex-col">
+                <b class="text-[13.5px] font-semibold text-slate-900 dark:text-studio-text truncate" data-i18n-bn={tool.title} data-i18n-en={tool.titleEn}>{tool.title}</b>
+                <small class="text-xs text-slate-500 dark:text-studio-muted truncate" data-i18n-bn={tool.desc} data-i18n-en={tool.descEn}>{tool.desc}</small>
+              </span>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-slate-500 dark:text-studio-muted whitespace-nowrap" data-i18n-bn={tool.badge} data-i18n-en={tool.badgeEn}>{tool.badge}</span>
+            </a>
+          );
+        })}
       </div>
 
       <div id="universalSearchEmpty" class="py-10 text-center" hidden>

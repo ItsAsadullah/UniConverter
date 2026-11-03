@@ -20,54 +20,54 @@
         </div>
 
         <div class="pdf-hub-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" data-open-img="scan" data-accent="teal">
-            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M7 8h10M7 12h10M7 16h7"/></svg></span>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-indigo-500 dark:hover:border-indigo-400 cursor-pointer transition-colors" data-open-img="scan" data-accent="teal">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/15 to-cyan-500/15 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2" fill="currentColor" fill-opacity="0.18" stroke="none"/><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M7 8h10M7 12h10M7 16h7"/></svg></span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="ডকুমেন্ট স্ক্যানার" data-i18n-en="Document Scanner">ডকুমেন্ট স্ক্যানার</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="অটো পেজ ডিটেক্ট, বাঁকা পেজ সোজা, শ্যাডো সংশোধন ও পরিষ্কার লেখা। একাধিক পেজ থেকে PDF তৈরি করুন।" data-i18n-en="Auto page detection, perspective deskew, shadow removal & multipage PDF export.">অটো পেজ ডিটেক্ট, বাঁকা পেজ সোজা, শ্যাডো সংশোধন ও পরিষ্কার লেখা। একাধিক পেজ থেকে PDF তৈরি করুন।</span>
           </button>
-          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" data-open-img="resize" data-preset="job-photo" data-accent="teal">
-            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-blue-500 dark:hover:border-blue-400 cursor-pointer transition-colors" data-open-img="resize" data-preset="job-photo" data-accent="teal">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-sky-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5" fill="currentColor" fill-opacity="0.16" stroke="none"/><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
             </span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="রিসাইজ ও সরকারি ফর্ম প্রিসেট" data-i18n-en="Image Resizer & Presets">রিসাইজ ও সরকারি ফর্ম প্রিসেট</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="চাকরির ছবি (300×300), আনসার ভিডিপি (250×250), স্বাক্ষর (300×80 ও 300×100), পাসপোর্ট সাইজ ও পজিশনিং।" data-i18n-en="Job photo (300×300), Ansar VDP (250×250), signature (300×80 & 300×100), passport size & positioning.">চাকরির ছবি (300×300), আনসার ভিডিপি (250×250), স্বাক্ষর (300×80 ও 300×100), পাসপোর্ট সাইজ ও পজিশনিং।</span>
           </button>
 
           <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" data-open-img="compress" data-accent="green">
-            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-teal-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="currentColor" fill-opacity="0.16" stroke="none"/><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
             </span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="কমপ্রেস ইমেজ" data-i18n-en="Compress Image">কমপ্রেস ইমেজ</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="কোয়ালিটি ঠিক রেখে ছবির KB কমান এবং প্রিভিউ দেখে ডাউনলোড করুন।" data-i18n-en="Reduce image file size in KB while preserving quality with live preview.">কোয়ালিটি ঠিক রেখে ছবির KB কমান এবং প্রিভিউ দেখে ডাউনলোড করুন।</span>
           </button>
 
-          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" data-open-img="crop" data-accent="purple">
-            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-purple-500 dark:hover:border-purple-400 cursor-pointer transition-colors" data-open-img="crop" data-accent="purple">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/15 to-fuchsia-500/15 text-purple-600 dark:text-purple-400 ring-1 ring-purple-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" fill="currentColor" fill-opacity="0.18" stroke="none"/><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
             </span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="ক্রপ, কাস্টম সাইজ ও রাউন্ড ফটো" data-i18n-en="Crop & Circle Photo">ক্রপ, কাস্টম সাইজ ও রাউন্ড ফটো</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="কাস্টম সাইজে (px) বা অনুপাতে ছবি ক্রপ (250×250, 300×100, 1:1), ঘোরান ও বৃত্তাকার ছবি তৈরি করুন।" data-i18n-en="Crop images to custom dimensions or aspect ratios, rotate, flip & create circular avatars.">কাস্টম সাইজে (px) বা অনুপাতে ছবি ক্রপ (250×250, 300×100, 1:1), ঘোরান ও বৃত্তাকার ছবি তৈরি করুন।</span>
           </button>
 
-          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" data-open-img="convert" data-accent="amber">
-            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-amber-500 dark:hover:border-amber-400 cursor-pointer transition-colors" data-open-img="convert" data-accent="amber">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fill-opacity="0.16"/><circle cx="8.5" cy="8.5" r="1.5" fill="#f59e0b"/><path d="m21 15-5-5L5 21"/></svg>
             </span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="কনভার্ট, ইফেক্ট ও ওয়াটারমার্ক" data-i18n-en="Convert & Watermark">কনভার্ট, ইফেক্ট ও ওয়াটারমার্ক</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="JPG ⇄ PNG ⇄ WebP ⇄ Base64 রূপান্তর, ছবির ওপর লেখা, বর্ডার ও ফটো ইফেক্ট।" data-i18n-en="Convert between JPG, PNG, WebP & Base64, add watermarks, borders & photo filters.">JPG ⇄ PNG ⇄ WebP ⇄ Base64 রূপান্তর, ছবির ওপর লেখা, বর্ডার ও ফটো ইফেক্ট।</span>
           </button>
 
-          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" data-open-img="combine" data-accent="blue">
-            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-cyan-500 dark:hover:border-cyan-400 cursor-pointer transition-colors" data-open-img="combine" data-accent="blue">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/15 to-blue-500/15 text-cyan-600 dark:text-cyan-400 ring-1 ring-cyan-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5" fill="currentColor" fill-opacity="0.18"/><rect x="13" y="4" width="8" height="16" rx="1.5" fill="currentColor" fill-opacity="0.18"/></svg>
             </span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="আইডি কার্ড স্ক্যানার ও ছবি জোড়া" data-i18n-en="NID Card Scanner">আইডি কার্ড স্ক্যানার ও ছবি জোড়া</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="অটো এজ ডিটেকশন, ৪-কোণা পার্সপেক্টিভ ক্রপ ও কালার এডজাস্ট করে A4 পাতায় উপরে-নিচে বসান।" data-i18n-en="Auto edge detection, 4-corner perspective crop & color tuning on an A4 print sheet.">অটো এজ ডিটেকশন, ৪-কোণা পার্সপেক্টিভ ক্রপ ও কালার এডজাস্ট করে A4 পাতায় উপরে-নিচে বসান।</span>
           </button>
 
-          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" data-open-img="colors" data-accent="red">
-            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-.5a1.5 1.5 0 0 1 1.5-1.5H17a5 5 0 0 0 5-5c0-5.5-4.5-11-10-11z"/></svg>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-rose-500 dark:hover:border-rose-400 cursor-pointer transition-colors" data-open-img="colors" data-accent="red">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500/15 to-pink-500/15 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-.5a1.5 1.5 0 0 1 1.5-1.5H17a5 5 0 0 0 5-5c0-5.5-4.5-11-10-11z" fill="currentColor" fill-opacity="0.16"/><circle cx="13.5" cy="6.5" r="1.2" fill="#ef4444" stroke="none"/><circle cx="17.5" cy="10.5" r="1.2" fill="#f59e0b" stroke="none"/><circle cx="8.5" cy="7.5" r="1.2" fill="#3b82f6" stroke="none"/><circle cx="6.5" cy="12.5" r="1.2" fill="#10b981" stroke="none"/></svg>
             </span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="কালার পিকার ও প্যালেট" data-i18n-en="Color Picker & Palette">কালার পিকার ও প্যালেট</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="যেকোনো ছবি থেকে প্রধান রঙগুলোর প্যালেট বের করুন এবং ক্লিক করে HEX/RGB কোড কপি করুন।" data-i18n-en="Extract dominant color palettes from any image and copy HEX/RGB codes in one click.">যেকোনো ছবি থেকে প্রধান রঙগুলোর প্যালেট বের করুন এবং ক্লিক করে HEX/RGB কোড কপি করুন।</span>
@@ -88,10 +88,10 @@
           </div>
         </div>
 
-        <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" id="imgResizeDropzone" for="imgResizeInput">
+        <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-blue-500 dark:hover:border-blue-400 cursor-pointer transition-colors" id="imgResizeDropzone" for="imgResizeInput">
           <input type="file" id="imgResizeInput" name="imgResizeInput" accept="image/*" class="visually-hidden sr-only">
-          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/15 to-sky-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20 flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5" fill="currentColor" fill-opacity="0.16" stroke="none"/><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
           </div>
           <div class="pdf-dropzone__title text-sm font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="রিসাইজ করার জন্য ছবি এখানে ছাড়ুন অথবা ব্রাউজ করুন" data-i18n-en="Drag & drop an image here or click to browse">রিসাইজ করার জন্য ছবি এখানে ছাড়ুন অথবা ব্রাউজ করুন</div>
         </label>
@@ -254,8 +254,8 @@
 
         <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" id="imgCompressDropzone" for="imgCompressInput">
           <input type="file" id="imgCompressInput" name="imgCompressInput" accept="image/*" multiple class="visually-hidden sr-only">
-          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-teal-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="currentColor" fill-opacity="0.16" stroke="none"/><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
           </div>
           <div class="pdf-dropzone__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="কমপ্রেস করার জন্য এক বা একাধিক ছবি ছাড়ুন বা সিলেক্ট করুন" data-i18n-en="Drag & drop one or more images here or click to browse">কমপ্রেস করার জন্য এক বা একাধিক ছবি ছাড়ুন বা সিলেক্ট করুন</div>
         </label>
@@ -327,10 +327,10 @@
           </div>
         </div>
 
-        <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" id="imgCropDropzone" for="imgCropInput">
+        <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-purple-500 dark:hover:border-purple-400 cursor-pointer transition-colors" id="imgCropDropzone" for="imgCropInput">
           <input type="file" id="imgCropInput" name="imgCropInput" accept="image/*" class="visually-hidden sr-only">
-          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500/15 to-fuchsia-500/15 text-purple-600 dark:text-purple-400 ring-1 ring-purple-500/20 flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" fill="currentColor" fill-opacity="0.18" stroke="none"/><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
           </div>
           <div class="pdf-dropzone__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="ক্রপ বা রাউন্ড করার জন্য ছবি ছাড়ুন বা সিলেক্ট করুন" data-i18n-en="Drag & drop an image here or click to browse">ক্রপ বা রাউন্ড করার জন্য ছবি ছাড়ুন বা সিলেক্ট করুন</div>
         </label>
@@ -440,10 +440,10 @@
           </div>
         </div>
 
-        <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" id="imgConvertDropzone" for="imgConvertInput">
+        <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-amber-500 dark:hover:border-amber-400 cursor-pointer transition-colors" id="imgConvertDropzone" for="imgConvertInput">
           <input type="file" id="imgConvertInput" name="imgConvertInput" accept="image/*" class="visually-hidden sr-only">
-          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20 flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fill-opacity="0.16"/><circle cx="8.5" cy="8.5" r="1.5" fill="#f59e0b"/><path d="m21 15-5-5L5 21"/></svg>
           </div>
           <div class="pdf-dropzone__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="কনভার্ট বা এডিট করার জন্য ছবি ছাড়ুন বা সিলেক্ট করুন" data-i18n-en="Drag & drop an image here or click to browse">কনভার্ট বা এডিট করার জন্য ছবি ছাড়ুন বা সিলেক্ট করুন</div>
         </label>
@@ -1189,10 +1189,10 @@
           </div>
         </div>
 
-        <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" id="imgColorsDropzone" for="imgColorsInput">
+        <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-rose-500 dark:hover:border-rose-400 cursor-pointer transition-colors" id="imgColorsDropzone" for="imgColorsInput">
           <input type="file" id="imgColorsInput" name="imgColorsInput" accept="image/*" class="visually-hidden sr-only">
-          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-.5a1.5 1.5 0 0 1 1.5-1.5H17a5 5 0 0 0 5-5c0-5.5-4.5-11-10-11z"/></svg>
+          <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500/15 to-pink-500/15 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20 flex items-center justify-center mb-3 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-.5a1.5 1.5 0 0 1 1.5-1.5H17a5 5 0 0 0 5-5c0-5.5-4.5-11-10-11z" fill="currentColor" fill-opacity="0.16"/><circle cx="13.5" cy="6.5" r="1.2" fill="#ef4444" stroke="none"/><circle cx="17.5" cy="10.5" r="1.2" fill="#f59e0b" stroke="none"/><circle cx="8.5" cy="7.5" r="1.2" fill="#3b82f6" stroke="none"/><circle cx="6.5" cy="12.5" r="1.2" fill="#10b981" stroke="none"/></svg>
           </div>
           <div class="pdf-dropzone__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="রঙ বাছাই করার জন্য একটি ছবি ছাড়ুন বা সিলেক্ট করুন" data-i18n-en="Drag & drop an image to pick colors or click to browse">রঙ বাছাই করার জন্য একটি ছবি ছাড়ুন বা সিলেক্ট করুন</div>
         </label>

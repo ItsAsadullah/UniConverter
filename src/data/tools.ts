@@ -1,4 +1,5 @@
 export type CategoryId = 'bangla' | 'pdf' | 'image' | 'dates' | 'business' | 'utilities';
+export type ToolColor = 'emerald' | 'crimson' | 'teal' | 'blue' | 'purple' | 'amber' | 'rose' | 'indigo' | 'violet' | 'fuchsia' | 'cyan' | 'orange' | 'sky';
 
 export interface CategoryMeta {
   id: CategoryId;
@@ -10,7 +11,7 @@ export interface CategoryMeta {
   longDesc: string;
   badge: string;
   badgeEn: string;
-  color: 'emerald' | 'crimson' | 'teal' | 'blue' | 'purple' | 'amber' | 'rose';
+  color: ToolColor;
   lucideIcon: string;
   seoTitle: string;
   seoDesc: string;
@@ -27,7 +28,7 @@ export interface StudioToolItem {
   descEn: string;
   badge: string;
   badgeEn: string;
-  color: 'emerald' | 'crimson' | 'teal' | 'blue' | 'purple' | 'amber' | 'rose';
+  color: ToolColor;
   lucideIcon: string;
   keywords: string;
   popular?: boolean;
@@ -43,7 +44,7 @@ export interface ToolMeta {
   title: string;
   desc: string;
   badge: string;
-  color: 'emerald' | 'crimson' | 'teal' | 'blue' | 'purple' | 'amber' | 'rose';
+  color: ToolColor;
   keywords: string;
   icon: string;
   seoTitle: string;
@@ -57,6 +58,7 @@ export interface PdfSubToolMeta {
   titleEn: string;
   desc: string;
   descEn: string;
+  color?: ToolColor;
   lucideIcon: string;
   keywords: string;
   popular?: boolean;
@@ -71,6 +73,7 @@ export interface ImageSubToolMeta {
   titleEn: string;
   desc: string;
   descEn: string;
+  color?: ToolColor;
   lucideIcon: string;
   keywords: string;
   popular?: boolean;
@@ -89,7 +92,7 @@ export const CATEGORIES: CategoryMeta[] = [
     longDesc: 'বিজয় ও ইউনিকোড টেক্সট, Word/Excel/PPT ফাইল কনভার্টার এবং ভয়েস টাইপিং।',
     badge: 'বাংলা ও অফিস',
     badgeEn: 'Bangla & Office',
-    color: 'emerald',
+    color: 'indigo',
     lucideIcon: 'lucide:languages',
     seoTitle: 'বাংলা ও অফিস টুলস — বিজয় ⇄ ইউনিকোড, Word/Excel কনভার্টার ও ভয়েস টাইপ | TechHat Studio',
     seoDesc: 'বিজয় থেকে ইউনিকোড এবং ইউনিকোড থেকে বিজয়ে টেক্সট ও অফিস ফাইল (.docx, .xlsx, .pptx, .rtf) রূপান্তর এবং বাংলা ভয়েস টাইপিং।'
@@ -104,7 +107,7 @@ export const CATEGORIES: CategoryMeta[] = [
     longDesc: 'PDF মার্জ, স্প্লিট, সাইজ কমপ্রেস, পেজ অর্গানাইজ এবং PDF ⇄ JPG/Word রূপান্তর।',
     badge: 'PDF টুলস',
     badgeEn: 'PDF Tools',
-    color: 'crimson',
+    color: 'rose',
     lucideIcon: 'lucide:file-text',
     seoTitle: 'পিডিএফ স্টুডিও (PDF Studio) — মার্জ, স্প্লিট, কমপ্রেস ও কনভার্ট | TechHat Studio',
     seoDesc: 'ফ্রি অনলাইন ও অফলাইন PDF টুলস — PDF মার্জ, স্প্লিট, কমপ্রেস, পেজ রোটেশন ও অর্গানাইজ এবং PDF কনভার্টার।'
@@ -119,7 +122,7 @@ export const CATEGORIES: CategoryMeta[] = [
     longDesc: 'ডকুমেন্ট স্ক্যানার, NID স্ক্যানার, চাকরির ছবি রিসাইজার, কমপ্রেসর এবং কালার পিকার।',
     badge: 'ইমেজ স্টুডিও',
     badgeEn: 'Image Studio',
-    color: 'teal',
+    color: 'sky',
     lucideIcon: 'lucide:scan-line',
     seoTitle: 'ইমেজ স্টুডিও (Image Studio) — ডকুমেন্ট স্ক্যানার, ছবি রিসাইজ, ক্রপ ও NID স্ক্যানার | TechHat Studio',
     seoDesc: 'ডকুমেন্ট স্ক্যানার, সরকারি চাকরির ছবি (300×300) ও স্বাক্ষর (300×80) রিসাইজার, ইমেজ কমপ্রেসর, ক্রপ ও NID স্ক্যানার।'
@@ -134,7 +137,7 @@ export const CATEGORIES: CategoryMeta[] = [
     longDesc: 'ইংরেজি, বাংলা ও হিজরি তারিখ রূপান্তর, নিখুঁত বয়স নির্ণয় এবং দিন গণনা।',
     badge: 'তারিখ ও সময়',
     badgeEn: 'Dates & Time',
-    color: 'blue',
+    color: 'violet',
     lucideIcon: 'lucide:calendar-days',
     seoTitle: 'ক্যালেন্ডার ও তারিখ টুলস — বাংলা তারিখ কনভার্টার, বয়স ও দিন গণনা | TechHat Studio',
     seoDesc: 'ইংরেজি, বাংলা ও হিজরি তারিখ রূপান্তর, নিখুঁত বয়স ক্যালকুলেটর এবং তারিখের ব্যবধান হিসাব।'
@@ -149,7 +152,7 @@ export const CATEGORIES: CategoryMeta[] = [
     longDesc: 'প্রিন্ট-রেডি A4 ইনভয়েস ও ক্যাশ মেমো, সরকারি চাকরির ফটো প্রিসেট, HEX/RGB কালার প্যালেট এবং Base64।',
     badge: 'ইউটিলিটিস',
     badgeEn: 'Utilities',
-    color: 'purple',
+    color: 'amber',
     lucideIcon: 'lucide:sparkles',
     seoTitle: 'ইউটিলিটি টুলস — ইনভয়েস মেকার, কালার পিকার, Base64 ও ফটো প্রিসেট | TechHat Studio',
     seoDesc: 'ইনভয়েস ও ক্যাশ মেমো জেনারেটর, কালার পিকার ও প্যালেট জেনারেটর, ইমেজ টু Base64 এবং সরকারি চাকরির ছবি রিসাইজার।'
@@ -364,7 +367,7 @@ export const ALL_TOOLS: StudioToolItem[] = [
     descEn: 'Instant Bangla font & text converter',
     badge: 'টেক্সট',
     badgeEn: 'Text',
-    color: 'emerald',
+    color: 'indigo',
     lucideIcon: 'lucide:languages',
     keywords: 'bijoy to unicode unicode to bijoy bangla font converter sutonnymj অভ্র বিজয় ইউনিকোড বাংলা ফন্ট কনভার্টার',
     popular: true,
@@ -398,7 +401,7 @@ export const ALL_TOOLS: StudioToolItem[] = [
     descEn: 'Bangla (Unicode/Bijoy) & English speech to text',
     badge: 'ভয়েস',
     badgeEn: 'Voice',
-    color: 'emerald',
+    color: 'fuchsia',
     lucideIcon: 'lucide:mic',
     keywords: 'bangla voice typing speech to text microphone কথা বলে বাংলা টাইপ ভয়েস টাইপিং',
     seoTitle: 'বাংলা ভয়েস টাইপিং — কথা বলে ইউনিকোড ও বিজয় টাইপ করুন | TechHat Studio',
@@ -406,43 +409,66 @@ export const ALL_TOOLS: StudioToolItem[] = [
   },
 
   // B. PDF Studio
-  ...PDF_SUBTOOLS.map((s): StudioToolItem => ({
-    id: `pdf-${s.slug}`,
-    categoryId: 'pdf',
-    href: `/pdf/${s.slug}`,
-    title: s.title,
-    titleEn: s.titleEn,
-    desc: s.desc,
-    descEn: s.descEn,
-    badge: 'PDF',
-    badgeEn: 'PDF',
-    color: 'crimson',
-    lucideIcon: s.lucideIcon,
-    keywords: s.keywords,
-    popular: s.popular,
-    seoTitle: s.seoTitle,
-    seoDesc: s.seoDesc
-  })),
+  ...PDF_SUBTOOLS.map((s): StudioToolItem => {
+    const pdfColorMap: Record<string, ToolColor> = {
+      'merge': 'rose',
+      'split': 'purple',
+      'compress': 'amber',
+      'organize': 'indigo',
+      'pdf-to-other': 'blue',
+      'other-to-pdf': 'cyan',
+      'decrypt': 'emerald',
+      'encrypt': 'crimson'
+    };
+    return {
+      id: `pdf-${s.slug}`,
+      categoryId: 'pdf',
+      href: `/pdf/${s.slug}`,
+      title: s.title,
+      titleEn: s.titleEn,
+      desc: s.desc,
+      descEn: s.descEn,
+      badge: 'PDF',
+      badgeEn: 'PDF',
+      color: pdfColorMap[s.slug] || 'rose',
+      lucideIcon: s.lucideIcon,
+      keywords: s.keywords,
+      popular: s.popular,
+      seoTitle: s.seoTitle,
+      seoDesc: s.seoDesc
+    };
+  }),
 
   // C. Image & Scanner Studio
-  ...IMAGE_SUBTOOLS.map((s): StudioToolItem => ({
-    id: `image-${s.slug}`,
-    categoryId: 'image',
-    href: `/image/${s.slug}`,
-    aliases: s.slug === 'scan' ? ['/image/scanner'] : undefined,
-    title: s.title,
-    titleEn: s.titleEn,
-    desc: s.desc,
-    descEn: s.descEn,
-    badge: s.slug === 'scan' ? 'স্ক্যানার' : 'ইমেজ',
-    badgeEn: s.slug === 'scan' ? 'Scanner' : 'Image',
-    color: 'teal',
-    lucideIcon: s.lucideIcon,
-    keywords: s.keywords,
-    popular: s.popular,
-    seoTitle: s.seoTitle,
-    seoDesc: s.seoDesc
-  })),
+  ...IMAGE_SUBTOOLS.map((s): StudioToolItem => {
+    const imgColorMap: Record<string, ToolColor> = {
+      'scan': 'blue',
+      'resize': 'violet',
+      'compress': 'orange',
+      'crop': 'fuchsia',
+      'convert': 'amber',
+      'combine': 'cyan',
+      'colors': 'rose'
+    };
+    return {
+      id: `image-${s.slug}`,
+      categoryId: 'image',
+      href: `/image/${s.slug}`,
+      aliases: s.slug === 'scan' ? ['/image/scanner'] : undefined,
+      title: s.title,
+      titleEn: s.titleEn,
+      desc: s.desc,
+      descEn: s.descEn,
+      badge: s.slug === 'scan' ? 'স্ক্যানার' : 'ইমেজ',
+      badgeEn: s.slug === 'scan' ? 'Scanner' : 'Image',
+      color: imgColorMap[s.slug] || 'sky',
+      lucideIcon: s.lucideIcon,
+      keywords: s.keywords,
+      popular: s.popular,
+      seoTitle: s.seoTitle,
+      seoDesc: s.seoDesc
+    };
+  }),
 
   // D. Calendar & Date Tools
   {
@@ -668,4 +694,76 @@ export function getCategoryMeta(id: CategoryId): CategoryMeta {
 export function getToolsByCategory(id: CategoryId): StudioToolItem[] {
   const normalized = id === 'business' ? 'utilities' : id;
   return ALL_TOOLS.filter((t) => t.categoryId === normalized);
+}
+
+const ICON_PALETTE_MAP: Record<string, { iconWrap: string; text: string; cardHover: string }> = {
+  indigo: {
+    iconWrap: 'bg-gradient-to-br from-indigo-500/15 to-blue-500/10 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400',
+    text: 'text-indigo-600 dark:text-indigo-400',
+    cardHover: 'hover:border-indigo-500/70 dark:hover:border-indigo-400/70'
+  },
+  blue: {
+    iconWrap: 'bg-gradient-to-br from-blue-500/15 to-cyan-500/10 border border-blue-500/25 text-blue-600 dark:text-blue-400',
+    text: 'text-blue-600 dark:text-blue-400',
+    cardHover: 'hover:border-blue-500/70 dark:hover:border-blue-400/70'
+  },
+  sky: {
+    iconWrap: 'bg-gradient-to-br from-sky-500/15 to-blue-500/10 border border-sky-500/25 text-sky-600 dark:text-sky-400',
+    text: 'text-sky-600 dark:text-sky-400',
+    cardHover: 'hover:border-sky-500/70 dark:hover:border-sky-400/70'
+  },
+  cyan: {
+    iconWrap: 'bg-gradient-to-br from-cyan-500/15 to-teal-500/10 border border-cyan-500/25 text-cyan-600 dark:text-cyan-400',
+    text: 'text-cyan-600 dark:text-cyan-400',
+    cardHover: 'hover:border-cyan-500/70 dark:hover:border-cyan-400/70'
+  },
+  teal: {
+    iconWrap: 'bg-gradient-to-br from-teal-500/15 to-emerald-500/10 border border-teal-500/25 text-teal-600 dark:text-teal-400',
+    text: 'text-teal-600 dark:text-teal-400',
+    cardHover: 'hover:border-teal-500/70 dark:hover:border-teal-400/70'
+  },
+  emerald: {
+    iconWrap: 'bg-gradient-to-br from-emerald-500/15 to-teal-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400',
+    text: 'text-emerald-600 dark:text-emerald-400',
+    cardHover: 'hover:border-emerald-500/70 dark:hover:border-emerald-400/70'
+  },
+  violet: {
+    iconWrap: 'bg-gradient-to-br from-violet-500/15 to-purple-500/10 border border-violet-500/25 text-violet-600 dark:text-violet-400',
+    text: 'text-violet-600 dark:text-violet-400',
+    cardHover: 'hover:border-violet-500/70 dark:hover:border-violet-400/70'
+  },
+  purple: {
+    iconWrap: 'bg-gradient-to-br from-purple-500/15 to-fuchsia-500/10 border border-purple-500/25 text-purple-600 dark:text-purple-400',
+    text: 'text-purple-600 dark:text-purple-400',
+    cardHover: 'hover:border-purple-500/70 dark:hover:border-purple-400/70'
+  },
+  fuchsia: {
+    iconWrap: 'bg-gradient-to-br from-fuchsia-500/15 to-pink-500/10 border border-fuchsia-500/25 text-fuchsia-600 dark:text-fuchsia-400',
+    text: 'text-fuchsia-600 dark:text-fuchsia-400',
+    cardHover: 'hover:border-fuchsia-500/70 dark:hover:border-fuchsia-400/70'
+  },
+  rose: {
+    iconWrap: 'bg-gradient-to-br from-rose-500/15 to-pink-500/10 border border-rose-500/25 text-rose-600 dark:text-rose-400',
+    text: 'text-rose-600 dark:text-rose-400',
+    cardHover: 'hover:border-rose-500/70 dark:hover:border-rose-400/70'
+  },
+  crimson: {
+    iconWrap: 'bg-gradient-to-br from-red-500/15 to-rose-500/10 border border-red-500/25 text-red-600 dark:text-red-400',
+    text: 'text-red-600 dark:text-red-400',
+    cardHover: 'hover:border-red-500/70 dark:hover:border-red-400/70'
+  },
+  amber: {
+    iconWrap: 'bg-gradient-to-br from-amber-500/15 to-orange-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400',
+    text: 'text-amber-600 dark:text-amber-400',
+    cardHover: 'hover:border-amber-500/70 dark:hover:border-amber-400/70'
+  },
+  orange: {
+    iconWrap: 'bg-gradient-to-br from-orange-500/15 to-amber-500/10 border border-orange-500/25 text-orange-600 dark:text-orange-400',
+    text: 'text-orange-600 dark:text-orange-400',
+    cardHover: 'hover:border-orange-500/70 dark:hover:border-orange-400/70'
+  }
+};
+
+export function getToolIconPalette(color?: string) {
+  return ICON_PALETTE_MAP[color || 'blue'] || ICON_PALETTE_MAP.blue;
 }

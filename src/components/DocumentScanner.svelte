@@ -105,6 +105,7 @@
   data-lang="en"
 >
   <input id="dsFiles" type="file" accept="image/jpeg,image/png,image/webp,image/bmp,image/avif" multiple hidden />
+  <input id="dsDocFiles" type="file" accept=".pdf,application/pdf,image/jpeg,image/png,image/webp,image/bmp,image/avif" multiple hidden />
   <input id="dsCameraFallback" type="file" accept="image/*" capture="environment" hidden />
 
   <!-- COMPACT MOBILE/TABLET QUICK ACCESS BAR -->
@@ -356,48 +357,175 @@
         </div>
       </div>
 
-      <!-- CLEAN INITIAL UPLOAD STATE (LIKE OTHER IMAGE TOOLS — BEFORE ANY IMAGE IS OPENED) -->
+      <!-- CLEAN INITIAL UPLOAD STATE (MODERN HERO DROPZONE — BEFORE ANY IMAGE IS OPENED) -->
       <div
         class="ds-empty space-y-4"
         id="dsEmpty"
       >
-        <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-3 mb-3">
-          <div>
-            <h3 class="pdf-ws-title text-lg font-bold text-slate-900 dark:text-studio-text m-0" data-i18n="emptyTitle">{t.emptyTitle}</h3>
-            <span class="sr-only" data-i18n="emptyEyebrow">{t.emptyEyebrow}</span>
-          </div>
+        <div class="sr-only">
+          <h3 data-i18n="emptyTitle">{t.emptyTitle}</h3>
+          <span data-i18n="emptyEyebrow">{t.emptyEyebrow}</span>
+          <p data-i18n="emptyDesc">{t.emptyDesc}</p>
+          <span data-i18n="dropPasteHint">{t.dropPasteHint}</span>
+          <span data-i18n="choosePhotosBtn">{t.choosePhotosBtn}</span>
+          <span data-i18n="openCameraBtn">{t.openCameraBtn}</span>
+          <em data-i18n="featAutoCrop">{t.featAutoCrop}</em>
+          <em data-i18n="featDewarp">{t.featDewarp}</em>
+          <em data-i18n="featMagic">{t.featMagic}</em>
+          <em data-i18n="featPdf">{t.featPdf}</em>
         </div>
 
         <div
-          class="ds-empty-card pdf-dropzone flex flex-col items-center justify-center text-center p-8 sm:p-10 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors group-[.is-over]/ds:border-emerald-500 group-[.is-over]/ds:bg-emerald-500/5"
+          class="ds-empty-card pdf-dropzone relative flex flex-col items-center justify-center text-center py-12 px-5 sm:px-10 rounded-2xl border border-slate-200/80 dark:border-studio-border bg-[#f4f5f7] dark:bg-studio-panel/75 hover:border-blue-400/70 dark:hover:border-blue-500/60 cursor-pointer transition-all duration-200 group-[.is-over]/ds:border-blue-500 group-[.is-over]/ds:bg-blue-50/60 dark:group-[.is-over]/ds:bg-blue-500/10 shadow-[0_1px_3px_rgba(15,23,42,0.03)]"
           data-ds="add"
         >
-          <span
-            class="ds-empty-symbol pdf-dropzone__icon w-12 h-12 rounded-2xl grid place-items-center bg-emerald-500/10 text-emerald-600 dark:text-studio-primary mb-3"
+          <!-- Multi-layered Colorful Hero Illustration (Monitor + Document + Glossy Blue Photo Card + Camera Outline + Emerald Plus Badge) -->
+          <div class="ds-empty-symbol relative w-44 h-34 mb-4 select-none pointer-events-none flex items-center justify-center">
+            <svg viewBox="0 0 200 150" class="w-full h-full overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="dsHeroGlow" x1="65" y1="65" x2="105" y2="138" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.28" />
+                  <stop offset="65%" stop-color="#99f6e4" stop-opacity="0.16" />
+                  <stop offset="100%" stop-color="#f4f5f7" stop-opacity="0" />
+                </linearGradient>
+                <linearGradient id="dsHeroCamStroke" x1="126" y1="12" x2="156" y2="62" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#5eead4" stop-opacity="0.55" />
+                  <stop offset="100%" stop-color="#99f6e4" stop-opacity="0.1" />
+                </linearGradient>
+                <linearGradient id="dsHeroBlueCard" x1="42" y1="24" x2="96" y2="70" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#0055ff" />
+                  <stop offset="55%" stop-color="#3b82f6" stop-opacity="0.92" />
+                  <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.72" />
+                </linearGradient>
+                <linearGradient id="dsHeroPlusGrad" x1="126" y1="90" x2="162" y2="128" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#10b981" />
+                  <stop offset="100%" stop-color="#0d9488" />
+                </linearGradient>
+                <filter id="dsHeroCardShadow" x="-15%" y="-15%" width="130%" height="135%">
+                  <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#1e3a8a" flood-opacity="0.18" />
+                </filter>
+                <filter id="dsHeroPlusShadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0d9488" flood-opacity="0.28" />
+                </filter>
+              </defs>
+
+              <!-- Soft Mint-Teal Ambient Backdrop Glow -->
+              <path d="M46 130 C46 84, 72 62, 108 62 C136 62, 152 90, 152 130 Z" fill="url(#dsHeroGlow)" />
+
+              <!-- Faint Teal Camera Outline (Top-Right Behind Monitor) -->
+              <g stroke="url(#dsHeroCamStroke)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M114 27 H122 L126 20 H142 L146 27 H154 A6 6 0 0 1 160 33 V61 A6 6 0 0 1 154 67 H114 A6 6 0 0 1 108 61 V33 A6 6 0 0 1 114 27 Z" fill="#e6f7f3" fill-opacity="0.25" />
+                <circle cx="134" cy="46" r="10.5" />
+              </g>
+
+              <!-- Desktop Monitor Stand & Base -->
+              <path d="M93 108 H113 L116 125 H90 Z" fill="#e2e8f0" />
+              <rect x="76" y="124" width="54" height="5" rx="2.5" fill="#ffffff" />
+              <line x1="36" y1="129" x2="150" y2="129" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.55" />
+
+              <!-- Desktop Monitor Outer Frame & Dark Screen -->
+              <rect x="57" y="42" width="92" height="68" rx="6" fill="#ffffff" stroke="#d5dde6" stroke-width="2" />
+              <rect x="61" y="46" width="84" height="54" rx="3" fill="#181b20" />
+              <!-- Monitor Lower Chin Bar -->
+              <path d="M58 100 H148 V105 A4 4 0 0 1 144 109 H62 A4 4 0 0 1 58 105 Z" fill="#f8fafc" />
+
+              <!-- White Document Page Inside Monitor -->
+              <g>
+                <path d="M90 54 H112 L119 61 V93 H90 Z" fill="#ffffff" />
+                <path d="M112 54 V61 H119 Z" fill="#cbd5e1" />
+                <rect x="95" y="66" width="18" height="2" rx="1" fill="#e2e8f0" />
+                <rect x="95" y="72" width="14" height="2" rx="1" fill="#e2e8f0" />
+                <rect x="95" y="78" width="16" height="2" rx="1" fill="#e2e8f0" />
+              </g>
+
+              <!-- Floating Glossy Blue Image Card (Top-Left Overlapping Monitor) -->
+              <g filter="url(#dsHeroCardShadow)">
+                <rect x="42" y="25" width="48" height="38" rx="5" fill="url(#dsHeroBlueCard)" stroke="#ffffff" stroke-width="1" stroke-opacity="0.65" />
+                <circle cx="52.5" cy="35" r="3.5" fill="#ffffff" fill-opacity="0.92" />
+                <path d="M44 59 L58 43 L70 59 Z" fill="#2563eb" fill-opacity="0.55" />
+                <path d="M58 59 L73 39 L88 59 Z" fill="#ffffff" fill-opacity="0.45" />
+              </g>
+
+              <!-- Emerald Green Plus Circle Badge (Bottom-Right Overlapping Monitor) -->
+              <g filter="url(#dsHeroPlusShadow)">
+                <circle cx="144" cy="109" r="19" fill="url(#dsHeroPlusGrad)" />
+                <path d="M144 100 V118 M135 109 H153" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" />
+              </g>
+            </svg>
+          </div>
+
+          <!-- Hero Subtitle Instruction -->
+          <p
+            class="text-[15px] sm:text-[16px] font-normal text-slate-600 dark:text-slate-300 m-0 mb-7 tracking-[-0.01em] max-w-[54ch]"
+            data-i18n="dropPasteHero"
           >
-            <Icon name="lucide:scan-line" class="w-6 h-6" />
-          </span>
-          <div class="pdf-dropzone__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n="dropPasteHint">{t.dropPasteHint}</div>
-          <p class="m-0 max-w-[48ch] text-slate-500 dark:text-studio-muted text-xs leading-relaxed mb-4" data-i18n="emptyDesc">{t.emptyDesc}</p>
-          <div class="ds-empty-actions flex flex-wrap justify-center gap-2.5">
-            <button type="button" class="{btnPrimary} min-h-[36px] px-4 py-1.5 rounded-xl text-xs" data-ds="add">
-              <Icon name="lucide:upload" class="w-3.5 h-3.5 shrink-0" />
-              <span data-i18n="choosePhotosBtn">{t.choosePhotosBtn}</span>
-            </button>
+            {t.dropPasteHero}
+          </p>
+
+          <!-- Elevated White Action Cards with Colorful Modern Icons -->
+          <div class="ds-empty-actions grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 w-full max-w-[840px]">
+            <!-- 1. Smart Scan (Camera) -->
             <button
               type="button"
-              class="{btnBase} min-h-[36px] px-4 py-1.5 text-xs rounded-xl border-slate-300 dark:border-studio-border"
               data-ds="camera"
+              class="group/btn min-h-[54px] px-5 py-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/85 dark:border-studio-border shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_22px_rgba(16,185,129,0.12)] hover:border-emerald-400/80 dark:hover:border-emerald-500/70 hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer text-slate-800 dark:text-white text-[14px] font-medium"
             >
-              <Icon name="lucide:camera" class="w-3.5 h-3.5 shrink-0" />
-              <span data-i18n="openCameraBtn">{t.openCameraBtn}</span>
+              <svg class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.38a1.5 1.5 0 0 0 1.25-.67l.74-1.11A1.5 1.5 0 0 1 11.12 3.5h1.76a1.5 1.5 0 0 1 1.25.67l.74 1.11a1.5 1.5 0 0 0 1.25.67h1.38A2.5 2.5 0 0 1 20 8.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-9Z" fill="#10b981" />
+                <circle cx="12" cy="13" r="4.2" fill="#ffffff" />
+                <circle cx="12" cy="13" r="2.3" fill="#059669" />
+                <circle cx="16.8" cy="8.8" r="1" fill="#ffffff" />
+              </svg>
+              <span data-i18n="smartScanBtn">{t.smartScanBtn}</span>
             </button>
-          </div>
-          <div class="sr-only">
-            <em data-i18n="featAutoCrop">{t.featAutoCrop}</em>
-            <em data-i18n="featDewarp">{t.featDewarp}</em>
-            <em data-i18n="featMagic">{t.featMagic}</em>
-            <em data-i18n="featPdf">{t.featPdf}</em>
+
+            <!-- 2. Import Images -->
+            <button
+              type="button"
+              data-ds="add"
+              class="group/btn min-h-[54px] px-5 py-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/85 dark:border-studio-border shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_22px_rgba(37,99,235,0.12)] hover:border-blue-400/80 dark:hover:border-blue-500/70 hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer text-slate-800 dark:text-white text-[14px] font-medium"
+            >
+              <svg class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="2.5" y="3.5" width="16.5" height="16.5" rx="3" fill="#1677ff" />
+                <circle cx="7.5" cy="8.5" r="1.75" fill="#ffffff" />
+                <path d="M4 17.5L9.2 11.8L13.5 16.2L15.8 13.8L17.5 17.5H4Z" fill="#93c5fd" fill-opacity="0.85" />
+                <circle cx="17.5" cy="17.5" r="4.5" fill="#1d4ed8" stroke="#ffffff" stroke-width="1.4" />
+                <path d="M19 18.8V17.4C19 16.3 18.1 15.5 17 15.5H15.6M15.6 15.5L17 14.1M15.6 15.5L17 16.9" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span data-i18n="importImagesBtn">{t.importImagesBtn}</span>
+            </button>
+
+            <!-- 3. Import Files (PDF & Images) -->
+            <button
+              type="button"
+              data-ds="import-files"
+              class="group/btn min-h-[54px] px-5 py-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/85 dark:border-studio-border shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_22px_rgba(37,99,235,0.12)] hover:border-indigo-400/80 dark:hover:border-indigo-500/70 hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer text-slate-800 dark:text-white text-[14px] font-medium"
+            >
+              <svg class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4.5 5A2.5 2.5 0 0 1 7 2.5h6.8L18.5 7.2V17.5A2.5 2.5 0 0 1 16 20H7a2.5 2.5 0 0 1-2.5-2.5V5Z" fill="#1677ff" />
+                <path d="M13.8 2.5V6.2A1 1 0 0 0 14.8 7.2H18.5L13.8 2.5Z" fill="#93c5fd" />
+                <path d="M7.5 10.5H13.5M7.5 13.5H12.5M7.5 16.5H10.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" />
+                <circle cx="17.5" cy="17.5" r="4.5" fill="#1d4ed8" stroke="#ffffff" stroke-width="1.4" />
+                <path d="M19 18.8V17.4C19 16.3 18.1 15.5 17 15.5H15.6M15.6 15.5L17 14.1M15.6 15.5L17 16.9" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span data-i18n="importFilesBtn">{t.importFilesBtn}</span>
+            </button>
+
+            <!-- 4. Paste (Ctrl+V) -->
+            <button
+              type="button"
+              data-ds="paste"
+              class="group/btn min-h-[54px] px-5 py-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/85 dark:border-studio-border shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_22px_rgba(124,58,237,0.12)] hover:border-violet-400/80 dark:hover:border-violet-500/70 hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer text-slate-800 dark:text-white text-[14px] font-medium"
+            >
+              <svg class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="4" y="4.5" width="14" height="16.5" rx="2.5" fill="#7c3aed" />
+                <rect x="8" y="2.5" width="6" height="3.5" rx="1.2" fill="#fbbf24" />
+                <rect x="7" y="9" width="8" height="8.5" rx="1.5" fill="#ffffff" fill-opacity="0.92" />
+                <circle cx="17.5" cy="17.5" r="4.5" fill="#f59e0b" stroke="#ffffff" stroke-width="1.4" />
+                <path d="M17.5 15.2V19.5M17.5 19.5L15.8 17.8M17.5 19.5L19.2 17.8" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span data-i18n="pasteBtn">{t.pasteBtn}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -941,24 +1069,33 @@
         <section class="rounded-lg border border-slate-200/90 dark:border-studio-border bg-slate-50/60 dark:bg-studio-panel/60 p-1.5">
           <div class="flex items-center justify-between gap-1.5 mb-1 px-0.5">
             <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-800 dark:text-studio-text">
-              <Icon name="lucide:wand-sparkles" class="w-3 h-3 text-emerald-600 dark:text-studio-primary" />
+              <Icon name="lucide:wand-sparkles" class="w-3 h-3 text-violet-600 dark:text-violet-400" />
               <span data-i18n="accFiltersTitle">{t.accFiltersTitle}</span>
             </span>
             <span
-              class="inline-flex items-center px-1.5 py-0 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold"
+              class="inline-flex items-center px-1.5 py-0 rounded-full bg-violet-500/10 text-violet-700 dark:text-violet-300 text-[9px] font-bold"
               data-i18n="accFiltersBadge">{t.accFiltersBadge}</span
             >
           </div>
           <fieldset class="ds-presets m-0 p-0 border-0 grid grid-cols-3 gap-1">
             <legend class="sr-only" data-i18n="accFiltersTitle">{t.accFiltersTitle}</legend>
             {#each t.presets as preset, idx}
+              {@const presetColors = [
+                'text-violet-600 dark:text-violet-400',
+                'text-amber-500 dark:text-amber-400',
+                'text-blue-600 dark:text-blue-400',
+                'text-fuchsia-600 dark:text-fuchsia-400',
+                'text-orange-500 dark:text-orange-400',
+                'text-indigo-600 dark:text-indigo-400',
+                'text-cyan-600 dark:text-cyan-400'
+              ]}
               <label class="relative cursor-pointer {idx === 0 ? 'col-span-3' : ''}" title={preset.desc}>
                 <input type="radio" name="dsFilter" value={preset.value} checked={preset.value === 'magic_plus'} class="sr-only peer" />
                 <span
-                  class="min-h-[26px] px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-1 transition-colors hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-studio-surface peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 dark:peer-checked:bg-emerald-500/15 peer-checked:[&_svg]:text-emerald-600 dark:peer-checked:[&_svg]:text-emerald-400 peer-checked:[&_b]:text-emerald-700 dark:peer-checked:[&_b]:text-emerald-300"
+                  class="min-h-[26px] px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-1 transition-colors hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-studio-surface peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 dark:peer-checked:bg-emerald-500/15 peer-checked:[&_b]:text-emerald-700 dark:peer-checked:[&_b]:text-emerald-300"
                 >
                   <span class="inline-flex items-center gap-1 min-w-0">
-                    <Icon name={`lucide:${preset.icon}`} class="w-3 h-3 text-slate-500 dark:text-studio-muted shrink-0" />
+                    <Icon name={`lucide:${preset.icon}`} class="w-3 h-3 {presetColors[idx % presetColors.length]} shrink-0" />
                     <b class="text-[10px] font-bold text-slate-800 dark:text-studio-text truncate" data-i18n-preset-title={preset.value}
                       >{preset.title}</b
                     >
@@ -971,7 +1108,7 @@
                     <small class="sr-only" data-i18n-preset-desc={preset.value}>{preset.desc}</small>
                   {/if}
                   {#if preset.ai}
-                    <em class="ds-ai-tag not-italic px-1 py-0 rounded bg-emerald-600 text-white text-[8px] font-extrabold tracking-wider uppercase shrink-0"
+                    <em class="ds-ai-tag not-italic px-1 py-0 rounded bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[8px] font-extrabold tracking-wider uppercase shrink-0"
                       >AI</em
                     >
                   {/if}
@@ -985,28 +1122,28 @@
         <section class="ds-section ds-smart-options rounded-lg border border-slate-200/90 dark:border-studio-border bg-slate-50/60 dark:bg-studio-panel/60 p-1.5">
           <div class="flex items-center justify-between gap-1.5 mb-1 px-0.5">
             <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-800 dark:text-studio-text">
-              <Icon name="lucide:sparkles" class="w-3 h-3 text-emerald-600 dark:text-studio-primary" />
+              <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-500 dark:text-amber-400" />
               <span data-i18n="accSmartTitle">{t.accSmartTitle}</span>
             </span>
             <span
-              class="inline-flex items-center px-1.5 py-0 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold"
+              class="inline-flex items-center px-1.5 py-0 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[9px] font-bold"
               data-i18n="accSmartBadge">{t.accSmartBadge}</span
             >
           </div>
           <div class="grid grid-cols-2 gap-1">
             {#each [
-              { id: 'dsShadow', icon: 'lucide:sun', key: 'optShadow', label: t.optShadow },
-              { id: 'dsText', icon: 'lucide:scan-text', key: 'optText', label: t.optText },
-              { id: 'dsStraighten', icon: 'lucide:align-horizontal-justify-center', key: 'optStraighten', label: t.optStraighten },
-              { id: 'dsCleanSpots', icon: 'lucide:eraser', key: 'optCleanSpots', label: t.optCleanSpots },
-              { id: 'dsCleanMargins', icon: 'lucide:scan', key: 'optCleanMargins', label: t.optCleanMargins }
+              { id: 'dsShadow', icon: 'lucide:sun', color: 'text-amber-500 dark:text-amber-400', key: 'optShadow', label: t.optShadow },
+              { id: 'dsText', icon: 'lucide:scan-text', color: 'text-indigo-600 dark:text-indigo-400', key: 'optText', label: t.optText },
+              { id: 'dsStraighten', icon: 'lucide:align-horizontal-justify-center', color: 'text-blue-600 dark:text-blue-400', key: 'optStraighten', label: t.optStraighten },
+              { id: 'dsCleanSpots', icon: 'lucide:eraser', color: 'text-rose-500 dark:text-rose-400', key: 'optCleanSpots', label: t.optCleanSpots },
+              { id: 'dsCleanMargins', icon: 'lucide:scan', color: 'text-emerald-600 dark:text-emerald-400', key: 'optCleanMargins', label: t.optCleanMargins }
             ] as opt}
               <label
                 class="ds-toggle min-h-[25px] flex items-center justify-between gap-1 px-1.5 py-0.5 rounded-md bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer text-[10px] font-semibold text-slate-800 dark:text-studio-text transition-colors hover:border-slate-300 dark:hover:border-slate-600"
                 title={opt.key === 'optCleanMargins' ? t.cleanMarginsHint : opt.label}
               >
                 <span class="inline-flex items-center gap-1 min-w-0">
-                  <Icon name={opt.icon} class="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <Icon name={opt.icon} class="w-3 h-3 {opt.color} shrink-0" />
                   <em class="not-italic truncate" data-i18n={opt.key}>{opt.label}</em>
                 </span>
                 <input id={opt.id} type="checkbox" checked class="w-3 h-3 accent-emerald-600 cursor-pointer shrink-0" />
@@ -1019,7 +1156,7 @@
               disabled
               title={t.retouchTip}
             >
-              <Icon name="lucide:pipette" class="w-3 h-3 shrink-0" />
+              <Icon name="lucide:pipette" class="w-3 h-3 text-fuchsia-600 dark:text-fuchsia-400 shrink-0" />
               <span class="truncate" data-i18n="launchRetouchBtn">{t.launchRetouchBtn}</span>
             </button>
           </div>
@@ -1030,11 +1167,11 @@
         <section class="ds-section ds-sliders rounded-lg border border-slate-200/90 dark:border-studio-border bg-slate-50/60 dark:bg-studio-panel/60 p-1.5">
           <div class="flex items-center justify-between gap-1.5 mb-1 px-0.5">
             <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-800 dark:text-studio-text">
-              <Icon name="lucide:sliders-horizontal" class="w-3 h-3 text-emerald-600 dark:text-studio-primary" />
+              <Icon name="lucide:sliders-horizontal" class="w-3 h-3 text-blue-600 dark:text-blue-400" />
               <span data-i18n="accManualTitle">{t.accManualTitle}</span>
             </span>
             <span
-              class="inline-flex items-center px-1.5 py-0 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold"
+              class="inline-flex items-center px-1.5 py-0 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[9px] font-bold"
               data-i18n="accManualBadge">{t.accManualBadge}</span
             >
           </div>
@@ -1042,12 +1179,12 @@
           <!-- Compact 3x2 Parameter Pill Grid (Click any pill to toggle its slider below!) -->
           <div class="grid grid-cols-2 gap-1">
             {#each [
-              { key: 'brightness', icon: 'lucide:sun-medium', i18nKey: 'lblBrightness', label: t.lblBrightness, outId: 'dsBrightnessValue', initVal: '100%' },
-              { key: 'contrast', icon: 'lucide:contrast', i18nKey: 'lblContrast', label: t.lblContrast, outId: 'dsContrastValue', initVal: '100%' },
-              { key: 'sharpness', icon: 'lucide:triangle', i18nKey: 'lblSharpness', label: t.lblSharpness, outId: 'dsSharpnessValue', initVal: '25%' },
-              { key: 'angle', icon: 'lucide:rotate-cw', i18nKey: 'lblAngle', label: t.lblAngle, outId: 'dsAngleValue', initVal: '0°' },
-              { key: 'curve', icon: 'lucide:book-open', i18nKey: 'lblCurve', label: t.lblCurve, outId: 'dsCurveValue', initVal: '0' },
-              { key: 'trim', icon: 'lucide:maximize', i18nKey: 'lblTrim', label: t.lblTrim, outId: 'dsTrimValue', initVal: '0%' }
+              { key: 'brightness', icon: 'lucide:sun-medium', color: 'text-amber-500 dark:text-amber-400', i18nKey: 'lblBrightness', label: t.lblBrightness, outId: 'dsBrightnessValue', initVal: '100%' },
+              { key: 'contrast', icon: 'lucide:contrast', color: 'text-indigo-600 dark:text-indigo-400', i18nKey: 'lblContrast', label: t.lblContrast, outId: 'dsContrastValue', initVal: '100%' },
+              { key: 'sharpness', icon: 'lucide:triangle', color: 'text-violet-600 dark:text-violet-400', i18nKey: 'lblSharpness', label: t.lblSharpness, outId: 'dsSharpnessValue', initVal: '25%' },
+              { key: 'angle', icon: 'lucide:rotate-cw', color: 'text-blue-600 dark:text-blue-400', i18nKey: 'lblAngle', label: t.lblAngle, outId: 'dsAngleValue', initVal: '0°' },
+              { key: 'curve', icon: 'lucide:book-open', color: 'text-cyan-600 dark:text-cyan-400', i18nKey: 'lblCurve', label: t.lblCurve, outId: 'dsCurveValue', initVal: '0' },
+              { key: 'trim', icon: 'lucide:maximize', color: 'text-emerald-600 dark:text-emerald-400', i18nKey: 'lblTrim', label: t.lblTrim, outId: 'dsTrimValue', initVal: '0%' }
             ] as adj}
               <button
                 type="button"
@@ -1056,7 +1193,7 @@
                 class="min-h-[25px] px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-700 dark:text-studio-text cursor-pointer transition-colors hover:border-emerald-500/50 aria-expanded:border-emerald-500 aria-expanded:bg-emerald-500/10 dark:aria-expanded:bg-emerald-500/15 aria-expanded:text-emerald-700 dark:aria-expanded:text-emerald-300"
               >
                 <span class="inline-flex items-center gap-1 min-w-0">
-                  <Icon name={adj.icon} class="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <Icon name={adj.icon} class="w-3 h-3 {adj.color} shrink-0" />
                   <span class="truncate" data-i18n={adj.i18nKey}>{adj.label}</span>
                 </span>
                 <output id={adj.outId} class="text-emerald-600 dark:text-emerald-400 font-bold text-[10px] tabular-nums shrink-0">{adj.initVal}</output>

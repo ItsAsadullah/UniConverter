@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from './ui/Icon.svelte';
   import ToolCard from './ToolCard.svelte';
-  import { CATEGORIES, ALL_TOOLS } from '../data/tools';
+  import { CATEGORIES, ALL_TOOLS, getToolIconPalette } from '../data/tools';
 
   const popularSearches = [
     { bn: 'বিজয় ⇄ ইউনিকোড', en: 'Bijoy ⇄ Unicode', query: 'বিজয়' },
@@ -72,7 +72,7 @@
           data-dir-cat="recent"
           id="homeRecentTabBtn"
         >
-          <Icon name="lucide:history" class="w-3.5 h-3.5 shrink-0" />
+          <Icon name="lucide:history" class="w-3.5 h-3.5 shrink-0 text-sky-500 [.is-active_&]:text-current" />
           <span data-i18n-bn="সাম্প্রতিক" data-i18n-en="Recently Used">সাম্প্রতিক</span>
         </button>
 
@@ -82,7 +82,7 @@
           class="th-dir-tab inline-flex items-center gap-1.5 whitespace-nowrap border-0 bg-transparent text-slate-600 dark:text-studio-muted text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-studio-panel hover:text-slate-900 dark:hover:text-studio-text [&.is-active]:bg-emerald-600 dark:[&.is-active]:bg-studio-primary [&.is-active]:text-white dark:[&.is-active]:text-slate-950"
           data-dir-cat="popular"
         >
-          <Icon name="lucide:zap" class="w-3.5 h-3.5 shrink-0" />
+          <Icon name="lucide:zap" class="w-3.5 h-3.5 shrink-0 text-amber-500 [.is-active_&]:text-current" />
           <span data-i18n-bn="জনপ্রিয়" data-i18n-en="Popular">জনপ্রিয়</span>
         </button>
 
@@ -93,7 +93,7 @@
             class="th-dir-tab inline-flex items-center gap-1.5 whitespace-nowrap border-0 bg-transparent text-slate-600 dark:text-studio-muted text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-studio-panel hover:text-slate-900 dark:hover:text-studio-text [&.is-active]:bg-emerald-600 dark:[&.is-active]:bg-studio-primary [&.is-active]:text-white dark:[&.is-active]:text-slate-950"
             data-dir-cat={cat.id}
           >
-            <Icon name={cat.lucideIcon} class="w-3.5 h-3.5 shrink-0" />
+            <Icon name={cat.lucideIcon} class="w-3.5 h-3.5 shrink-0 {getToolIconPalette(cat.color).text} [.is-active_&]:text-current" />
             <span data-i18n-bn={cat.title} data-i18n-en={cat.titleEn}>{cat.title}</span>
           </button>
         {/each}
@@ -104,7 +104,7 @@
           class="th-dir-tab inline-flex items-center gap-1.5 whitespace-nowrap border-0 bg-transparent text-slate-600 dark:text-studio-muted text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-studio-panel hover:text-slate-900 dark:hover:text-studio-text [&.is-active]:bg-emerald-600 dark:[&.is-active]:bg-studio-primary [&.is-active]:text-white dark:[&.is-active]:text-slate-950"
           data-dir-cat="all"
         >
-          <Icon name="lucide:layout-grid" class="w-3.5 h-3.5 shrink-0" />
+          <Icon name="lucide:layout-grid" class="w-3.5 h-3.5 shrink-0 text-blue-500 [.is-active_&]:text-current" />
           <span data-i18n-bn="সব টুলস" data-i18n-en="All Tools">সব টুলস</span>
           <span class="text-[10.5px] opacity-75" data-dir-count>{ALL_TOOLS.length}</span>
         </button>

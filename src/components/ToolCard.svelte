@@ -1,15 +1,16 @@
 <script lang="ts">
   import Icon from './ui/Icon.svelte';
-  import type { StudioTool } from '../data/tools';
+  import { getToolIconPalette, type StudioTool } from '../data/tools';
 
   let { tool }: { tool: StudioTool } = $props();
+  let palette = $derived(getToolIconPalette(tool.color));
   let searchBlob = $derived(
     `${tool.title} ${tool.titleEn} ${tool.desc} ${tool.descEn} ${tool.keywords} ${tool.badge}`.toLowerCase()
   );
 </script>
 
 <article
-  class="th-tool-card group relative flex flex-col justify-between p-5 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-2xs transition-all duration-150 hover:shadow-md hover:border-emerald-500/80 dark:hover:border-studio-primary hover:bg-slate-50/60 dark:hover:bg-studio-panel"
+  class="th-tool-card group relative flex flex-col justify-between p-5 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-2xs transition-all duration-150 hover:shadow-md {palette.cardHover} hover:bg-slate-50/60 dark:hover:bg-studio-panel"
   data-tool-card
   data-tool-id={tool.id}
   data-cat={tool.categoryId}
@@ -22,7 +23,7 @@
     aria-label={tool.title}
   >
     <div class="flex items-start justify-between gap-2 mb-3.5">
-      <span class="th-tool-card__icon w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary inline-flex items-center justify-center shrink-0">
+      <span class="th-tool-card__icon w-11 h-11 rounded-xl {palette.iconWrap} inline-flex items-center justify-center shrink-0 shadow-2xs">
         <Icon name={tool.lucideIcon} class="w-5.5 h-5.5" />
       </span>
     </div>
