@@ -95,12 +95,13 @@
 </script>
 
 <section
-  class="img-pane th-nid-studio ds group/ds lg:fixed lg:inset-x-0 lg:top-12 lg:bottom-0 lg:z-40 lg:w-screen lg:h-[calc(100dvh-3rem)] relative w-full h-[calc(100dvh-3rem)] max-lg:h-auto max-lg:min-h-[calc(100dvh-3.5rem)] flex-1 min-h-0 flex flex-col overflow-hidden bg-slate-100 dark:bg-studio-bg text-slate-900 dark:text-studio-text antialiased select-none [&_[hidden]]:!hidden"
+  class="img-pane th-nid-studio ds group/ds relative w-full text-slate-900 dark:text-studio-text antialiased select-none [&_[hidden]]:!hidden data-[has-pages=true]:lg:fixed data-[has-pages=true]:lg:inset-x-0 data-[has-pages=true]:lg:top-12 data-[has-pages=true]:lg:bottom-0 data-[has-pages=true]:lg:z-40 data-[has-pages=true]:lg:w-screen data-[has-pages=true]:lg:h-[calc(100dvh-3rem)] data-[has-pages=true]:h-[calc(100dvh-3rem)] data-[has-pages=true]:max-lg:h-auto data-[has-pages=true]:max-lg:min-h-[calc(100dvh-3.5rem)] data-[has-pages=true]:flex-1 data-[has-pages=true]:min-h-0 data-[has-pages=true]:flex data-[has-pages=true]:flex-col data-[has-pages=true]:overflow-hidden data-[has-pages=true]:bg-slate-100 dark:data-[has-pages=true]:bg-studio-bg"
   id="img-pane-scan"
   hidden={!active}
   aria-label={t.brandSub}
   data-view="split"
   data-sidebar-collapsed="false"
+  data-has-pages="false"
   data-lang="en"
 >
   <input id="dsFiles" type="file" accept="image/jpeg,image/png,image/webp,image/bmp,image/avif" multiple hidden />
@@ -108,7 +109,7 @@
 
   <!-- COMPACT MOBILE/TABLET QUICK ACCESS BAR -->
   <nav
-    class="ds-mobile-nav sticky top-0 z-40 hidden max-lg:grid max-lg:grid-cols-3 border-b border-slate-200 dark:border-studio-border bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-xs px-2 py-1 gap-1 shrink-0"
+    class="ds-mobile-nav group-data-[has-pages=false]/ds:!hidden sticky top-0 z-40 hidden max-lg:grid max-lg:grid-cols-3 border-b border-slate-200 dark:border-studio-border bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-xs px-2 py-1 gap-1 shrink-0"
     aria-label="Workspace Navigation"
   >
     <button type="button" data-ds="toggle-sidebar" class={btnBase}>
@@ -134,11 +135,11 @@
 
   <!-- NATIVE DESKTOP THREE-PANEL WORKSPACE -->
   <div
-    class="ds-body flex-1 min-h-0 grid grid-cols-[188px_minmax(0,1fr)_324px] group-data-[sidebar-collapsed=true]/ds:grid-cols-[0px_minmax(0,1fr)_324px] max-xl:grid-cols-[172px_minmax(0,1fr)_304px] max-xl:group-data-[sidebar-collapsed=true]/ds:grid-cols-[0px_minmax(0,1fr)_304px] max-lg:grid-cols-1 max-lg:group-data-[sidebar-collapsed=true]/ds:grid-cols-1 overflow-hidden"
+    class="ds-body flex-1 min-h-0 grid grid-cols-[188px_minmax(0,1fr)_324px] group-data-[sidebar-collapsed=true]/ds:grid-cols-[0px_minmax(0,1fr)_324px] max-xl:grid-cols-[172px_minmax(0,1fr)_304px] max-xl:group-data-[sidebar-collapsed=true]/ds:grid-cols-[0px_minmax(0,1fr)_304px] max-lg:grid-cols-1 max-lg:group-data-[sidebar-collapsed=true]/ds:grid-cols-1 group-data-[has-pages=false]/ds:!grid-cols-1 overflow-hidden"
   >
     <!-- LEFT PANEL: NATIVE PAGE FILMSTRIP -->
     <aside
-      class="ds-pages bg-white dark:bg-studio-sidebar border-r border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden group-data-[sidebar-collapsed=true]/ds:lg:opacity-0 group-data-[sidebar-collapsed=true]/ds:lg:pointer-events-none group-data-[sidebar-collapsed=true]/ds:lg:border-r-0 max-lg:fixed max-lg:top-12 max-lg:left-0 max-lg:bottom-0 max-lg:w-[min(260px,86vw)] max-lg:z-90 max-lg:shadow-2xl max-lg:-translate-x-[104%] max-lg:group-data-[drawer=pages]/ds:translate-x-0 max-lg:transition-transform max-lg:duration-200"
+      class="ds-pages group-data-[has-pages=false]/ds:!hidden bg-white dark:bg-studio-sidebar border-r border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden group-data-[sidebar-collapsed=true]/ds:lg:opacity-0 group-data-[sidebar-collapsed=true]/ds:lg:pointer-events-none group-data-[sidebar-collapsed=true]/ds:lg:border-r-0 max-lg:fixed max-lg:top-12 max-lg:left-0 max-lg:bottom-0 max-lg:w-[min(260px,86vw)] max-lg:z-90 max-lg:shadow-2xl max-lg:-translate-x-[104%] max-lg:group-data-[drawer=pages]/ds:translate-x-0 max-lg:transition-transform max-lg:duration-200"
       id="dsPagesSidebar"
       aria-label={t.pagesTitle}
     >
@@ -203,10 +204,10 @@
     </aside>
 
     <!-- CENTER PANEL: NATIVE STUDIO COMMAND BAR & DUAL/SINGLE CANVAS -->
-    <div class="ds-main min-w-0 min-h-0 flex flex-col bg-slate-100 dark:bg-studio-bg overflow-hidden">
+    <div class="ds-main min-w-0 min-h-0 flex flex-col bg-slate-100 dark:bg-studio-bg group-data-[has-pages=false]/ds:bg-transparent overflow-hidden">
       <!-- STICKY COMPACT NATIVE DESKTOP COMMAND RIBBON -->
       <div
-        class="ds-toolbar sticky top-0 z-30 min-h-[34px] px-2 py-0.5 border-b border-slate-200 dark:border-studio-border bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-xs flex items-center gap-1 flex-wrap shrink-0"
+        class="ds-toolbar group-data-[has-pages=false]/ds:!hidden sticky top-0 z-30 min-h-[34px] px-2 py-0.5 border-b border-slate-200 dark:border-studio-border bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-xs flex items-center gap-1 flex-wrap shrink-0"
         role="toolbar"
         aria-label="Document Editing Toolbar"
       >
@@ -355,58 +356,48 @@
         </div>
       </div>
 
-      <!-- EMPTY STATE ARTBOARD -->
+      <!-- CLEAN INITIAL UPLOAD STATE (LIKE OTHER IMAGE TOOLS — BEFORE ANY IMAGE IS OPENED) -->
       <div
-        class="ds-empty flex-1 min-h-0 grid place-items-center p-4 overflow-y-auto bg-[radial-gradient(circle_at_50%_35%,rgba(16,185,129,0.07),transparent_55%),repeating-linear-gradient(0deg,rgba(148,163,184,0.06)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(148,163,184,0.06)_0_1px,transparent_1px_24px)]"
+        class="ds-empty space-y-4"
         id="dsEmpty"
       >
+        <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-3 mb-3">
+          <div>
+            <h3 class="pdf-ws-title text-lg font-bold text-slate-900 dark:text-studio-text m-0" data-i18n="emptyTitle">{t.emptyTitle}</h3>
+            <span class="sr-only" data-i18n="emptyEyebrow">{t.emptyEyebrow}</span>
+          </div>
+        </div>
+
         <div
-          class="ds-empty-card w-full max-w-[500px] px-6 py-5 max-sm:px-4 max-sm:py-4 rounded-2xl border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-sidebar text-center grid justify-items-center gap-2 shadow-md group-[.is-over]/ds:border-emerald-500 group-[.is-over]/ds:ring-4 group-[.is-over]/ds:ring-emerald-500/15"
+          class="ds-empty-card pdf-dropzone flex flex-col items-center justify-center text-center p-8 sm:p-10 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors group-[.is-over]/ds:border-emerald-500 group-[.is-over]/ds:bg-emerald-500/5"
+          data-ds="add"
         >
           <span
-            class="ds-empty-symbol w-12 h-12 rounded-2xl grid place-items-center bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+            class="ds-empty-symbol pdf-dropzone__icon w-12 h-12 rounded-2xl grid place-items-center bg-emerald-500/10 text-emerald-600 dark:text-studio-primary mb-3"
           >
             <Icon name="lucide:scan-line" class="w-6 h-6" />
           </span>
-          <span class="ds-eyebrow text-[10px] font-extrabold tracking-widest uppercase text-emerald-600 dark:text-emerald-400" data-i18n="emptyEyebrow"
-            >{t.emptyEyebrow}</span
-          >
-          <h2 class="m-0 text-base font-extrabold text-slate-900 dark:text-studio-text tracking-tight" data-i18n="emptyTitle">{t.emptyTitle}</h2>
-          <p class="m-0 max-w-[44ch] text-slate-600 dark:text-studio-muted text-xs leading-relaxed" data-i18n="emptyDesc">{t.emptyDesc}</p>
-          <div class="ds-empty-actions flex flex-wrap justify-center gap-2 mt-1">
-            <button type="button" class="{btnPrimary} min-h-[34px] px-4 py-1.5 rounded-xl text-xs" data-ds="add">
+          <div class="pdf-dropzone__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n="dropPasteHint">{t.dropPasteHint}</div>
+          <p class="m-0 max-w-[48ch] text-slate-500 dark:text-studio-muted text-xs leading-relaxed mb-4" data-i18n="emptyDesc">{t.emptyDesc}</p>
+          <div class="ds-empty-actions flex flex-wrap justify-center gap-2.5">
+            <button type="button" class="{btnPrimary} min-h-[36px] px-4 py-1.5 rounded-xl text-xs" data-ds="add">
               <Icon name="lucide:upload" class="w-3.5 h-3.5 shrink-0" />
               <span data-i18n="choosePhotosBtn">{t.choosePhotosBtn}</span>
             </button>
             <button
               type="button"
-              class="{btnBase} min-h-[34px] px-4 py-1.5 text-xs rounded-xl border-slate-300 dark:border-studio-border"
+              class="{btnBase} min-h-[36px] px-4 py-1.5 text-xs rounded-xl border-slate-300 dark:border-studio-border"
               data-ds="camera"
             >
               <Icon name="lucide:camera" class="w-3.5 h-3.5 shrink-0" />
               <span data-i18n="openCameraBtn">{t.openCameraBtn}</span>
             </button>
           </div>
-          <span class="ds-muted text-slate-500 dark:text-studio-muted text-[11px]" data-i18n="dropPasteHint">{t.dropPasteHint}</span>
-          <div
-            class="ds-empty-features w-full pt-2.5 mt-0.5 border-t border-slate-200 dark:border-studio-border flex flex-wrap justify-center gap-x-3 gap-y-1 text-slate-600 dark:text-studio-muted text-[10px] font-semibold"
-          >
-            <span class="inline-flex items-center gap-1"
-              ><Icon name="lucide:crop" class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-              <em class="not-italic" data-i18n="featAutoCrop">{t.featAutoCrop}</em></span
-            >
-            <span class="inline-flex items-center gap-1"
-              ><Icon name="lucide:align-horizontal-justify-center" class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-              <em class="not-italic" data-i18n="featDewarp">{t.featDewarp}</em></span
-            >
-            <span class="inline-flex items-center gap-1"
-              ><Icon name="lucide:wand-sparkles" class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-              <em class="not-italic" data-i18n="featMagic">{t.featMagic}</em></span
-            >
-            <span class="inline-flex items-center gap-1"
-              ><Icon name="lucide:files" class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-              <em class="not-italic" data-i18n="featPdf">{t.featPdf}</em></span
-            >
+          <div class="sr-only">
+            <em data-i18n="featAutoCrop">{t.featAutoCrop}</em>
+            <em data-i18n="featDewarp">{t.featDewarp}</em>
+            <em data-i18n="featMagic">{t.featMagic}</em>
+            <em data-i18n="featPdf">{t.featPdf}</em>
           </div>
         </div>
       </div>
@@ -830,7 +821,7 @@
 
       <!-- BOTTOM WORKSPACE HUD & ZOOM BAR -->
       <footer
-        class="ds-status min-h-[28px] px-2.5 py-0.5 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-2 max-sm:flex-wrap text-[11px] text-slate-600 dark:text-studio-muted shrink-0"
+        class="ds-status group-data-[has-pages=false]/ds:!hidden min-h-[28px] px-2.5 py-0.5 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-2 max-sm:flex-wrap text-[11px] text-slate-600 dark:text-studio-muted shrink-0"
       >
         <div class="ds-status-left inline-flex items-center gap-1.5">
           <div
@@ -898,7 +889,7 @@
 
     <!-- RIGHT PANEL: ULTRA-COMPACT PHOTOSHOP INSPECTOR & CLICK-TO-SHOW SLIDERS -->
     <aside
-      class="ds-settings bg-white dark:bg-studio-sidebar border-l border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden max-lg:fixed max-lg:top-12 max-lg:right-0 max-lg:bottom-0 max-lg:w-[min(340px,94vw)] max-lg:z-90 max-lg:shadow-2xl max-lg:translate-x-[104%] max-lg:group-data-[drawer=inspector]/ds:translate-x-0 max-lg:transition-transform max-lg:duration-200"
+      class="ds-settings group-data-[has-pages=false]/ds:!hidden bg-white dark:bg-studio-sidebar border-l border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden max-lg:fixed max-lg:top-12 max-lg:right-0 max-lg:bottom-0 max-lg:w-[min(340px,94vw)] max-lg:z-90 max-lg:shadow-2xl max-lg:translate-x-[104%] max-lg:group-data-[drawer=inspector]/ds:translate-x-0 max-lg:transition-transform max-lg:duration-200"
       id="dsInspectorPanel"
       aria-label={t.inspectorTitle}
     >

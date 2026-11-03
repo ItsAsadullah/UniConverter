@@ -138,33 +138,33 @@
 
 @layer components {
   /* ==========================================================================
-     1. FULL-VIEWPORT SCANNER / NID STUDIO SHELL
+     1. FULL-VIEWPORT SCANNER / NID STUDIO SHELL (ACTIVE WHEN IMAGES ARE LOADED)
      ========================================================================== */
-  html:has(#img-pane-scan:not([hidden])),
-  body:has(#img-pane-scan:not([hidden])) {
+  html:has(#img-pane-scan[data-has-pages="true"]:not([hidden])),
+  body:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) {
     height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
     scrollbar-gutter: auto !important;
   }
 
-  body:has(#img-pane-scan:not([hidden])) > header {
+  body:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) > header {
     position: sticky !important;
     top: 0 !important;
     z-index: 50 !important;
     flex-shrink: 0 !important;
   }
 
-  body:has(#img-pane-scan:not([hidden])) > header > div {
+  body:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) > header > div {
     height: 3rem !important;
     min-height: 3rem !important;
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
 
-  .workbench:has(#img-pane-scan:not([hidden])),
-  .workbench-grid:has(#img-pane-scan:not([hidden])),
-  #tool-image:has(#img-pane-scan:not([hidden])) {
+  .workbench:has(#img-pane-scan[data-has-pages="true"]:not([hidden])),
+  .workbench-grid:has(#img-pane-scan[data-has-pages="true"]:not([hidden])),
+  #tool-image:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) {
     width: 100% !important;
     height: calc(100dvh - 3rem) !important;
     max-width: none !important;
@@ -177,14 +177,14 @@
     overflow: hidden !important;
   }
 
-  body:has(#img-pane-scan:not([hidden])) > :is(.topbar, .footer, .th-footer),
-  body:has(#img-pane-scan:not([hidden])) .tools-sidebar,
-  body:has(#img-pane-scan:not([hidden])) #globalBreadcrumbBar,
-  .img-studio-card:has(#img-pane-scan:not([hidden])) > .pdf-nav-bar {
+  body:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) > :is(.topbar, .footer, .th-footer),
+  body:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) .tools-sidebar,
+  body:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) #globalBreadcrumbBar,
+  .img-studio-card:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) > .pdf-nav-bar {
     display: none !important;
   }
 
-  .img-studio-card:has(#img-pane-scan:not([hidden])) {
+  .img-studio-card:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) {
     padding: 0 !important;
     margin: 0 !important;
     border: 0 !important;
@@ -199,7 +199,7 @@
     flex-direction: column !important;
   }
 
-  .img-studio-card:has(#img-pane-scan:not([hidden])) > .util-body {
+  .img-studio-card:has(#img-pane-scan[data-has-pages="true"]:not([hidden])) > .util-body {
     flex: 1 1 0% !important;
     min-height: 0 !important;
     height: 100% !important;

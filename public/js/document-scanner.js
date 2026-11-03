@@ -71,7 +71,7 @@
     });
   }
   function movePage(from,to){if(from<0||to<0||to>=pages.length||from===to)return;pages.splice(to,0,pages.splice(from,1)[0]);renderList();updateControls();status(tr('পেজের ক্রম আপডেট হয়েছে','Page order updated'));}
-  function showState(){var has=pages.length>0;root.dataset.hasPages=String(has);$('#dsEmpty').hidden=has;$('#dsWorkspace').hidden=!has;updateControls();}
+  function showState(){var has=pages.length>0;root.dataset.hasPages=String(has);$('#dsEmpty').hidden=has;$('#dsWorkspace').hidden=!has;updateControls();if(has)requestAnimationFrame(function(){if(fitMode)fit();});}
   function closeDrawers(){delete root.dataset.drawer;var bd=$('#dsDrawerBackdrop');if(bd)bd.hidden=true;}
   function selectPage(id){closeDrawers();if(id===activeId)return;activeId=id;compare=false;sourcePage=null;fitMode=true;pan={x:0,y:0};$('#dsCompare').setAttribute('aria-pressed','false');renderList();updateControls();drawSource();schedulePreview();}
   async function addFiles(files){
