@@ -7,7 +7,7 @@
   }
 
   let { active = false }: Props = $props();
-  const t = I18N.bn;
+  const t = I18N.en;
 
   function applyScannerLang(lang: string) {
     const root = document.getElementById('img-pane-scan');
@@ -95,13 +95,13 @@
 </script>
 
 <section
-  class="img-pane th-nid-studio ds group/ds relative w-full h-[calc(100dvh-3rem)] max-lg:h-auto max-lg:min-h-[calc(100dvh-3.5rem)] flex-1 min-h-0 flex flex-col overflow-hidden bg-slate-100 dark:bg-studio-bg text-slate-900 dark:text-studio-text antialiased select-none [&_[hidden]]:!hidden"
+  class="img-pane th-nid-studio ds group/ds lg:fixed lg:inset-x-0 lg:top-12 lg:bottom-0 lg:z-40 lg:w-screen lg:h-[calc(100dvh-3rem)] relative w-full h-[calc(100dvh-3rem)] max-lg:h-auto max-lg:min-h-[calc(100dvh-3.5rem)] flex-1 min-h-0 flex flex-col overflow-hidden bg-slate-100 dark:bg-studio-bg text-slate-900 dark:text-studio-text antialiased select-none [&_[hidden]]:!hidden"
   id="img-pane-scan"
   hidden={!active}
   aria-label={t.brandSub}
   data-view="split"
   data-sidebar-collapsed="false"
-  data-lang="bn"
+  data-lang="en"
 >
   <input id="dsFiles" type="file" accept="image/jpeg,image/png,image/webp,image/bmp,image/avif" multiple hidden />
   <input id="dsCameraFallback" type="file" accept="image/*" capture="environment" hidden />
@@ -151,7 +151,7 @@
           <span
             id="dsCount"
             class="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold tabular-nums"
-            >০</span
+            >0</span
           >
         </strong>
         <div class="ds-panel-head-actions inline-flex items-center gap-1">
@@ -170,7 +170,7 @@
       </div>
 
       <div
-        class="ds-page-list flex-1 min-h-0 overflow-y-auto p-1.5 flex flex-col gap-1 [scrollbar-width:thin] empty:grid empty:place-items-center empty:text-center empty:px-2.5 empty:before:content-['কোনো_পেজ_নেই_·_নিচে_+_বাটনে_ক্লিক_করে_ছবি_যোগ_করুন'] group-data-[lang=en]/ds:empty:before:content-['No_pages_yet_·_Click_+_below_to_add_scans'] empty:before:text-[10px] empty:before:leading-relaxed empty:before:text-slate-400 dark:empty:before:text-slate-500"
+        class="ds-page-list flex-1 min-h-0 overflow-y-auto p-1.5 flex flex-col gap-1 [scrollbar-width:thin] empty:grid empty:place-items-center empty:text-center empty:px-2.5 empty:before:content-['No_pages_yet_·_Click_+_below_to_add_scans'] group-data-[lang=bn]/ds:empty:before:content-['কোনো_পেজ_নেই_·_নিচে_+_বাটনে_ক্লিক_করে_ছবি_যোগ_করুন'] empty:before:text-[10px] empty:before:leading-relaxed empty:before:text-slate-400 dark:empty:before:text-slate-500"
         id="dsPageList"
         aria-label={t.pagesTitle}
       ></div>
@@ -872,7 +872,7 @@
           </div>
           <span
             class="ds-page-pill px-2 py-0 rounded-full bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-[10px] font-bold text-slate-700 dark:text-studio-text tabular-nums"
-            id="dsPageName">{t.pageWord} ১</span
+            id="dsPageName">{t.pageWord} 1</span
           >
         </div>
         <span id="dsStatus" role="status" class="text-slate-800 dark:text-studio-text font-semibold text-[11px] truncate">{t.statusInitial}</span>
@@ -1180,7 +1180,7 @@
               <option value="training">Training</option>
               <option value="testing">Testing</option>
             </select>
-            <button type="button" data-ds="clear-learning">{t.learnedPrefix}০</button>
+            <button type="button" data-ds="clear-learning">{t.learnedPrefix}0</button>
           </div>
         </div>
 
@@ -1190,7 +1190,7 @@
             <Icon name="lucide:file-down" class="w-3.5 h-3.5 shrink-0" />
             <span data-i18n="downloadPdfBtn">{t.downloadPdfBtn}</span>
           </span>
-          <span id="dsExportCount" class="px-1.5 py-0 rounded-full bg-black/15 text-[10px] font-extrabold tabular-nums">০ পেজ</span>
+          <span id="dsExportCount" class="px-1.5 py-0 rounded-full bg-black/15 text-[10px] font-extrabold tabular-nums">0 pages</span>
         </button>
 
         <div class="ds-export-sub grid grid-cols-4 gap-1">

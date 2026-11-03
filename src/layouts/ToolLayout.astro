@@ -61,14 +61,15 @@ const matchedCatalogTool = aliasToolId
         var meta = document.querySelector('meta[name="color-scheme"]');
         if (meta) meta.content = theme;
 
-        var savedLang = localStorage.getItem('thbc-lang') || localStorage.getItem('thbc-scan-lang') || 'bn';
+        var defaultLang = location.pathname.indexOf('/image/scan') === 0 ? 'en' : 'bn';
+        var savedLang = localStorage.getItem('thbc-lang') || localStorage.getItem('thbc-scan-lang') || defaultLang;
         var lang = savedLang === 'en' ? 'en' : 'bn';
         document.documentElement.setAttribute('data-lang', lang);
         document.documentElement.lang = lang;
 
         var prevVer = localStorage.getItem('thbc-cache-ver');
-        if (prevVer !== 'v52') {
-          localStorage.setItem('thbc-cache-ver', 'v52');
+        if (prevVer !== 'v53') {
+          localStorage.setItem('thbc-cache-ver', 'v53');
           var hadStale = false;
           var p = [];
           if (window.caches) {

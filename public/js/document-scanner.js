@@ -525,7 +525,119 @@
     if(p)schedulePreview();
     else status(tr('শুরু করতে ডকুমেন্টের ছবি যোগ করুন','Add document images to begin scanning'));
   });
+  var SCAN_I18N={
+    bn:{
+      brandTitle:'TechHat Studio',brandSub:'ডকুমেন্ট স্ক্যানার ও এডিটর',localBadge:'১০০% অফলাইন · আপনার ডিভাইসেই প্রসেস হয়',
+      cameraBtn:'ক্যামেরা',cameraTip:'সরাসরি ক্যামেরা দিয়ে ডকুমেন্ট স্ক্যান করুন',addPageBtn:'পেজ যোগ',addPageTip:'নতুন পেজ বা ছবি যোগ করুন',newScanBtn:'নতুন',newScanTip:'সব পেজ সরিয়ে নতুন স্ক্যান শুরু করুন',
+      navPages:'পেজগুলো',navCanvas:'ক্যানভাস',navInspector:'ইন্সপেক্টর ও এক্সপোর্ট',
+      pagesTitle:'পেজগুলো',dragHint:'টেনে সাজান',addMoreBtn:'পেজ যোগ করুন',addMoreSub:'JPG, PNG, WebP · একসাথে ৬০টি পর্যন্ত পেজ',pageWord:'পেজ',moveUpTip:'আগে নিন',moveDownTip:'পরে নিন',deletePageTip:'এই পেজ সরান',closeDrawerTip:'বন্ধ করুন',
+      sidebarToggleTip:'পেজ সাইডবার দেখান বা লুকান',autoDetectBtn:'অটো ডিটেক্ট',autoDetectTip:'স্বয়ংক্রিয়ভাবে ডকুমেন্টের চার কোণা শনাক্ত করুন',fullImageBtn:'পুরো ছবি',fullImageTip:'পুরো ছবি নির্বাচন করুন',rotateLeftBtn:'বামে',rotateLeftTip:'বামে ৯০° ঘোরান',rotateRightBtn:'ডানে',rotateRightTip:'ডানে ৯০° ঘোরান',retouchBtn:'দাগ ও ব্যাকগ্রাউন্ড মুছুন',retouchShortBtn:'রিটাচ স্টুডিও',retouchTip:'ফটোশপ-স্টাইল রিটাচ, স্পট হিলিং ও ব্যাকগ্রাউন্ড কালার পিকার',undoBtn:'পূর্বাবস্থা',undoTip:'আগের পরিবর্তন (Ctrl+Z)',redoBtn:'পুনরায়',redoTip:'পুনরায় (Ctrl+Y)',viewCrop:'ক্রপ',viewSplit:'পাশাপাশি',viewPreview:'প্রিভিউ',inspectorBtn:'ইন্সপেক্টর',
+      emptyEyebrow:'TECHHAT DOCUMENT STUDIO',emptyTitle:'প্রফেশনাল ডকুমেন্ট স্ক্যানার ও এডিটর',emptyDesc:'ডকুমেন্ট, সার্টিফিকেট, রসিদ বা বইয়ের পাতার ছবি যোগ করুন। অটো ক্রপ, বাঁকা লাইন সোজা, শ্যাডো রিমুভ ও রিটাচ করে প্রিন্ট-রেডি PDF তৈরি করুন।',choosePhotosBtn:'ছবি বেছে নিন',openCameraBtn:'ক্যামেরা খুলুন',dropPasteHint:'এখানে ছবি টেনে ছেড়ে দিন (Drag & Drop) অথবা Ctrl+V চেপে পেস্ট করুন',featAutoCrop:'স্মার্ট ৪-কোণা অটো ক্রপ',featDewarp:'অটো লাইন ডি-ওয়ার্প',featMagic:'ম্যাজিক+ শ্যাডো ও স্পট ক্লিনার',featPdf:'মাল্টিপেজ A4 PDF',
+      cropCaption:'মূল ছবি ও পার্সপেক্টিভ ক্রপ',cropSubCaption:'চার কোণা বা চার পাশের হ্যান্ডেল টেনে সীমানা ঠিক করুন',previewCaption:'স্ক্যান প্রিভিউ',
+      corners:['উপরের বাম কোণা','উপরের ডান কোণা','নিচের ডান কোণা','নিচের বাম কোণা'],edges:['উপরের ধার','ডান ধার','নিচের ধার','বাম ধার'],
+      tools:{brush:'ব্রাশ টুল',heal:'স্পট হিলিং',wand:'ম্যাজিক ইরেজার',rect:'বক্স ফিল',picker:'কালার পিকার',hand:'হ্যান্ড প্যান'},
+      dockLabels:{brush:'ব্রাশ',heal:'হিলিং',wand:'ম্যাজিক',rect:'বক্স ফিল',picker:'পিকার',hand:'প্যান'},
+      pickerBtn:'পিকার',autoPaperBtn:'অটো পেপার',sizeLbl:'সাইজ',hardnessLbl:'হার্ডনেস',toleranceLbl:'টলারেন্স',opacityLbl:'অপাসিটি',borderTrimBtn:'বর্ডার ট্রিম',resetAllRetouchBtn:'সব রিসেট',doneBtn:'✕ সম্পন্ন',eraserHint:'💡 B ব্রাশ · J স্পট হিলিং · W ম্যাজিক ইরেজার · M বক্স ফিল · I কালার পিকার (বা Alt+Click) · Shift ধরে সোজা লাইন · Ctrl+Wheel প্রিভিউ জুম',
+      compareBtn:'মূল ছবি তুলনা',compareTip:'স্ক্যানের আগের ও পরের অবস্থা তুলনা করুন',shortcutsHint:'Ctrl ± জুম · Space প্যান',statusInitial:'শুরু করতে ডকুমেন্টের ছবি যোগ করুন',
+      inspectorTitle:'ইন্সপেক্টর ও এনহ্যান্স',resetBtn:'রিসেট',accFiltersTitle:'AI ও কালার ফিল্টার',accFiltersBadge:'প্রিসেট',
+      presets:[
+        {value:'magic_plus',title:'ম্যাজিক+',desc:'সাদা পেজ · স্পষ্ট লেখা'},
+        {value:'auto',title:'অটো এনহ্যান্স',desc:'পরিষ্কার ও স্বাভাবিক'},
+        {value:'original',title:'অরিজিনাল',desc:'মূল রঙ ও ছবি'},
+        {value:'color',title:'কালার স্ক্যান',desc:'রঙিন ডকুমেন্ট'},
+        {value:'shadow',title:'শ্যাডো ফিক্স',desc:'অসম আলো সংশোধন'},
+        {value:'gray',title:'গ্রেস্কেল',desc:'নরম সাদাকালো'},
+        {value:'bw',title:'সাদা-কালো',desc:'লেখা ও ফটোকপি'}
+      ],
+      accSmartTitle:'স্মার্ট ফিক্স ও ক্লিনআপ',accSmartBadge:'অটো',optShadow:'শ্যাডো রিমুভ',optText:'লেখা গাঢ় ও স্পষ্ট',optStraighten:'অটো লাইন সোজা',optCleanSpots:'ছিটেফোঁটা দাগ পরিষ্কার',optCleanMargins:'বর্ডার ফ্রেম সাদা',cleanMarginsHint:'চার পাশের বাইরের বর্ডার নিশ্চিত হলে তার বাইরের অংশ সাদা করে। সেখানে লেখা থাকলে বন্ধ রাখুন।',launchRetouchBtn:'রিটাচ ও কালার পিকার',
+      accManualTitle:'ম্যানুয়াল এডজাস্টমেন্ট',accManualBadge:'লাইভ স্লাইডার',lblBrightness:'উজ্জ্বলতা',lblContrast:'কনট্রাস্ট',lblSharpness:'শার্পনেস',lblAngle:'সূক্ষ্ম কোণ',lblCurve:'বইয়ের বাঁক (Curve)',lblCurveHint:'বাঁকানো লাইনের জন্য হাতে সমন্বয় করুন',lblTrim:'বর্ডার ট্রিম (Trim)',lblTrimHint:'বাইরের বাড়তি ব্যাকগ্রাউন্ড স্লিম ট্রিম করে পরিষ্কার করুন',applyAllBtn:'সব পেজে প্রয়োগ',
+      accExportTitle:'পেজ সেটআপ ও এক্সপোর্ট',accExportBadge:'A4 · 300 DPI',lblFilename:'ফাইলের নাম',lblPaperSize:'পেজ সাইজ',paperA4:'A4 (210 × 297 mm)',paperLetter:'Letter',paperOrig:'স্ক্যানের অনুপাত',lblQuality:'রেজোলিউশন',qualHigh:'হাই · 3000px',qualBalanced:'ব্যালান্সড · 2200px',qualSmall:'ছোট · 1400px',lblMargin:'প্রিন্ট মার্জিন',lblDatasetMode:'ডেটাসেট মোড',learnedPrefix:'শেখা উদাহরণ: ',
+      downloadPdfBtn:'PDF ডাউনলোড',downloadJpgBtn:'JPG',downloadPngBtn:'PNG',downloadZipBtn:'সব ZIP',printBtn:'প্রিন্ট',printTip:'সরাসরি প্রিন্টার দিয়ে প্রিন্ট করুন (Ctrl+P)',
+      camDialogTitle:'ডকুমেন্ট ক্যামেরা',camDialogHint:'পুরো পেজ ফ্রেমের মধ্যে রেখে ছবি তুলুন। পরে চার কোণা ঠিক করতে পারবেন।',camSwitchBtn:'ক্যামেরা বদলান',camCaptureBtn:'ছবি তুলুন ও যোগ করুন',resetDialogTitle:'নতুন ডকুমেন্ট শুরু করবেন?',resetDialogDesc:'বর্তমান পেজগুলো সরিয়ে দেওয়া হবে। প্রয়োজন হলে আগে PDF ডাউনলোড করুন।',cancelBtn:'ফিরে যান',confirmResetBtn:'নতুন শুরু করুন'
+    },
+    en:{
+      brandTitle:'TechHat Studio',brandSub:'Document Scanner & Editor',localBadge:'100% Offline · Processed Locally on Device',
+      cameraBtn:'Camera',cameraTip:'Scan document directly using camera',addPageBtn:'Add Pages',addPageTip:'Add new pages or images',newScanBtn:'New',newScanTip:'Clear all pages and start a new scan',
+      navPages:'Pages',navCanvas:'Canvas',navInspector:'Inspector & Export',
+      pagesTitle:'Pages',dragHint:'Drag to reorder',addMoreBtn:'Add Pages',addMoreSub:'JPG, PNG, WebP · Up to 60 pages',pageWord:'Page',moveUpTip:'Move Up',moveDownTip:'Move Down',deletePageTip:'Delete Page',closeDrawerTip:'Close panel',
+      sidebarToggleTip:'Show or hide Pages sidebar',autoDetectBtn:'Auto Detect',autoDetectTip:'Automatically detect document corners & orientation',fullImageBtn:'Full Image',fullImageTip:'Select full image bounds',rotateLeftBtn:'Left',rotateLeftTip:'Rotate 90° Counter-Clockwise',rotateRightBtn:'Right',rotateRightTip:'Rotate 90° Clockwise',retouchBtn:'Spot & Background Retouch',retouchShortBtn:'Retouch Studio',retouchTip:'Photoshop-style Retouch, Spot Healing & Background Color Picker',undoBtn:'Undo',undoTip:'Undo last change (Ctrl+Z)',redoBtn:'Redo',redoTip:'Redo change (Ctrl+Y)',viewCrop:'Crop',viewSplit:'Split View',viewPreview:'Preview',inspectorBtn:'Inspector',
+      emptyEyebrow:'TECHHAT DOCUMENT STUDIO',emptyTitle:'Professional Document Scanner & Retouch Studio',emptyDesc:'Drop document photos, certificates, receipts, or book pages. Auto-crop, straighten bowed lines, remove shadows, retouch spots, and export print-ready PDFs.',choosePhotosBtn:'Select Images',openCameraBtn:'Open Camera',dropPasteHint:'Drag & drop images here or press Ctrl+V to paste from clipboard',featAutoCrop:'Smart 4-Corner Auto Crop',featDewarp:'Auto Line Dewarping',featMagic:'Magic+ Shadow & Spot Cleaner',featPdf:'Multipage A4 PDF Export',
+      cropCaption:'Source & Perspective Crop',cropSubCaption:'Drag corner or edge handles to refine document bounds',previewCaption:'Enhanced Scan Preview',
+      corners:['Top-Left Corner','Top-Right Corner','Bottom-Right Corner','Bottom-Left Corner'],edges:['Top Edge','Right Edge','Bottom Edge','Left Edge'],
+      tools:{brush:'Brush Tool',heal:'Spot Healing',wand:'Magic Eraser',rect:'Rectangle Fill',picker:'Color Picker',hand:'Hand Pan'},
+      dockLabels:{brush:'Brush',heal:'Heal',wand:'Magic',rect:'Box Fill',picker:'Picker',hand:'Pan'},
+      pickerBtn:'Picker',autoPaperBtn:'Auto Paper',sizeLbl:'Size',hardnessLbl:'Hardness',toleranceLbl:'Tolerance',opacityLbl:'Opacity',borderTrimBtn:'Border Trim',resetAllRetouchBtn:'Reset All',doneBtn:'✕ Done',eraserHint:'💡 B Brush · J Spot Heal · W Magic Eraser · M Box Fill · I Eyedropper (or Alt+Click) · Shift+Click straight line · Ctrl+Wheel zoom',
+      compareBtn:'Compare Original',compareTip:'Compare Before / After enhancement',shortcutsHint:'Ctrl ± Zoom · Space Pan',statusInitial:'Add document images to begin scanning',
+      inspectorTitle:'Inspector & Enhance',resetBtn:'Reset',accFiltersTitle:'AI & Scan Filters',accFiltersBadge:'Presets',
+      presets:[
+        {value:'magic_plus',title:'Magic+ AI',desc:'Pure White Page · Crisp Ink'},
+        {value:'auto',title:'Auto Enhance',desc:'Clean & Natural'},
+        {value:'original',title:'Original',desc:'True Color & Unfiltered'},
+        {value:'color',title:'Color Scan',desc:'Vibrant Stamps & Seals'},
+        {value:'shadow',title:'Shadow Fix',desc:'Flatten Uneven Lighting'},
+        {value:'gray',title:'Grayscale',desc:'Smooth Monochrome'},
+        {value:'bw',title:'B&W Text',desc:'High-Contrast Photocopy'}
+      ],
+      accSmartTitle:'Smart Fix & Cleanup',accSmartBadge:'Auto',optShadow:'Remove Shadows',optText:'Crisp Dark Text',optStraighten:'Auto Straighten',optCleanSpots:'Clean Specks',optCleanMargins:'Whiten Margins',cleanMarginsHint:'Clears outside a confident 4-sided border frame. Turn off if margin notes exist outside the border.',launchRetouchBtn:'Retouch & Color Picker',
+      accManualTitle:'Manual Adjustments',accManualBadge:'Live Sliders',lblBrightness:'Brightness',lblContrast:'Contrast',lblSharpness:'Sharpness',lblAngle:'Fine Angle',lblCurve:'Book Curve',lblCurveHint:'Manually flatten curved book pages',lblTrim:'Border Trim',lblTrimHint:'Trim outer edges with background color',applyAllBtn:'Apply to All Pages',
+      accExportTitle:'Page Setup & Export',accExportBadge:'A4 · 300 DPI',lblFilename:'File Name',lblPaperSize:'Page Size',paperA4:'A4 (210 × 297 mm)',paperLetter:'Letter',paperOrig:'Original Aspect',lblQuality:'Resolution',qualHigh:'High · 3000px',qualBalanced:'Balanced · 2200px',qualSmall:'Compact · 1400px',lblMargin:'Print Margins',lblDatasetMode:'Dataset Split',learnedPrefix:'Learned Samples: ',
+      downloadPdfBtn:'Download PDF',downloadJpgBtn:'JPG',downloadPngBtn:'PNG',downloadZipBtn:'All ZIP',printBtn:'Print',printTip:'Print scanned document directly (Ctrl+P)',
+      camDialogTitle:'Document Camera',camDialogHint:'Align the full page inside the guide frame. You can adjust corners afterward.',camSwitchBtn:'Switch Camera',camCaptureBtn:'Capture & Add Page',resetDialogTitle:'Start a New Document?',resetDialogDesc:'All current pages will be cleared. Download your PDF first if needed.',cancelBtn:'Cancel',confirmResetBtn:'Start New'
+    }
+  };
+  function applyScannerLang(lang){
+    var clean=(lang==='bn'||lang==='en')?lang:'en';
+    var dict=SCAN_I18N[clean]||SCAN_I18N.en;
+    root.dataset.lang=clean;
+    $$('[data-i18n]').forEach(function(el){
+      var k=el.getAttribute('data-i18n');
+      if(k&&typeof dict[k]==='string')el.textContent=dict[k];
+    });
+    $$('[data-i18n-title]').forEach(function(el){
+      var k=el.getAttribute('data-i18n-title');
+      if(k&&typeof dict[k]==='string'){
+        el.title=dict[k];
+        if(el.hasAttribute('aria-label'))el.setAttribute('aria-label',dict[k]);
+      }
+    });
+    $$('[data-i18n-dock]').forEach(function(el){
+      var k=el.getAttribute('data-i18n-dock');
+      if(k&&dict.dockLabels&&dict.dockLabels[k])el.textContent=dict.dockLabels[k];
+    });
+    $$('[data-ds-tool]').forEach(function(el){
+      var k=el.getAttribute('data-ds-tool');
+      var sc={brush:'B',heal:'J',wand:'W',rect:'M',picker:'I',hand:'H'}[k];
+      if(k&&dict.tools&&dict.tools[k])el.title=dict.tools[k]+(sc?' ('+sc+')':'');
+    });
+    if(Array.isArray(dict.presets)){
+      dict.presets.forEach(function(p){
+        var b=root.querySelector('[data-i18n-preset-title="'+p.value+'"]');
+        var s=root.querySelector('[data-i18n-preset-desc="'+p.value+'"]');
+        if(b)b.textContent=p.title;
+        if(s)s.textContent=p.desc;
+      });
+    }
+    if(Array.isArray(dict.corners)){
+      $$('[data-ds-corner]').forEach(function(b,i){
+        if(dict.corners[i]){b.title=dict.corners[i];b.setAttribute('aria-label',dict.corners[i]);}
+      });
+    }
+    if(Array.isArray(dict.edges)){
+      $$('[data-ds-edge]').forEach(function(b,i){
+        if(dict.edges[i]){b.title=dict.edges[i];b.setAttribute('aria-label',dict.edges[i]);}
+      });
+    }
+    root.dispatchEvent(new CustomEvent('ds:langchange',{detail:{lang:clean}}));
+  }
+  window.addEventListener('th:langchange',function(e){
+    var l=e&&e.detail&&e.detail.lang;
+    if(l==='en'||l==='bn')applyScannerLang(l);
+  });
   installEraser();
+  try{
+    var initLang=document.documentElement.getAttribute('data-lang')||localStorage.getItem('thbc-lang')||localStorage.getItem('thbc-scan-lang')||'en';
+    applyScannerLang(initLang);
+  }catch(e){applyScannerLang('en');}
   renderList();showState();
   }
   window.TechHatScannerInit = initDocumentScanner;

@@ -142,21 +142,31 @@
      ========================================================================== */
   html:has(#img-pane-scan:not([hidden])),
   body:has(#img-pane-scan:not([hidden])) {
-    @apply lg:h-dvh lg:max-h-dvh lg:overflow-hidden bg-slate-50 dark:bg-studio-bg;
-    scrollbar-gutter: auto;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    scrollbar-gutter: auto !important;
   }
 
   body:has(#img-pane-scan:not([hidden])) > header {
-    @apply sticky top-0 z-50 shrink-0;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    flex-shrink: 0 !important;
   }
 
   body:has(#img-pane-scan:not([hidden])) > header > div {
-    @apply h-12 px-3 sm:px-5;
+    height: 3rem !important;
+    min-height: 3rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
 
   .workbench:has(#img-pane-scan:not([hidden])),
-  .workbench-grid:has(#img-pane-scan:not([hidden])) {
+  .workbench-grid:has(#img-pane-scan:not([hidden])),
+  #tool-image:has(#img-pane-scan:not([hidden])) {
     width: 100% !important;
+    height: calc(100dvh - 3rem) !important;
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -175,11 +185,26 @@
   }
 
   .img-studio-card:has(#img-pane-scan:not([hidden])) {
-    @apply p-0 m-0 border-0 rounded-none bg-transparent shadow-none max-w-none flex-1 min-h-0 flex flex-col;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    max-width: none !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .img-studio-card:has(#img-pane-scan:not([hidden])) > .util-body {
-    @apply flex-1 min-h-0 flex flex-col;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   /* Compact Photoshop-style range sliders inside Document Scanner */
