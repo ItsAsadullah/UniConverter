@@ -2087,8 +2087,16 @@
       // Otherwise it is an actual em-dash (\u00D1 in SutonnyMJ -> '—').
       .replace(/([^\u0161\u203A\u00AF\u00A4\u2022\u00AE]|^)\u2014/g, '$1\u00D1');
 
-    // Rejoin words broken after zero-width subscript + pre-base kar: e.g. "cÖK…w Zi" -> "cÖK…wZi", "¯§„w Z" -> "¯§„wZ"
-    s = s.replace(/([\u201E\u2026~yz\u201C\u2013\u201A\u0192]w)\s+([A-Za-z`]+)/g, '$1$2');
+    // Convert PostScript quoteleft (\u2018 ‘) to Bijoy grave (` = দ) when used as consonant দ:
+    // 1) Before B+y/z ("‘By" -> "`yB" দুই)
+    s = s.replace(/[\u2018\u2019'`]B([yz])/g, '`$1B');
+    // 2) Inside a word after any Bijoy char or pre-base kar ("w‘‡q" -> "w`‡q" দিয়ে, "b‘xi" -> "b`xi" নদীর)
+    s = s.replace(/([A-Za-z\u2020\u2021\u02C6\u2030\u00A9&])\u2018/g, '$1`');
+    // 3) At start of word when followed by dependent kar/phala or common দ-clusters ("‘qvjy" -> "`qvjy" দয়ালু, "‘vI" -> "`vI" দাও)
+    s = s.replace(/\u2018(?=[vxxyz~\u201C\u2013\u201E\u2026\u00A8\u00D6\u00AA\u00AB]|qv|wL|wZ|wY|w`|e\u00A9)/g, '`');
+
+    // Rejoin words broken after pre-base kar: e.g. "cÖK…w Zi" -> "cÖK…wZi", "¯§„w Z" -> "¯§„wZ"
+    s = s.replace(/([w\u2020\u2021\u02C6\u2030])\s+([A-Za-z`_]+)/g, '$1$2');
 
     // Rule 1: Pre-base kar (w, †, ‡, ˆ, ‰) followed by subscript kar/phala -> swap back! ("g‡yLvk" -> "gy‡Lvk")
     s = s.replace(/([w\u2020\u2021\u02C6\u2030])([yz~\u201C\u2013\u00E6\u201A\u0192\u201E\u2026\u00D6\u00AA\u00AB])/g, '$2$1');
@@ -2100,8 +2108,7 @@
     // Fixes "mLyx" -> "myLx" (সুখী), "gZ…¨y" -> "g…Z¨y" (মৃত্যু)
     s = s.replace(/([K-Z_`a-np-tw])([K-Z_`a-np-t])([\u00A8\u00D6\u00AA\u00AB^\u00A1\u00A6\u0178\u00AC\u00AD\u00F8\u00A5\u00A7\u0153\u00E8]?)([yz~\u201C\u2013\u00E6\u201A\u0192\u201E\u2026])([vxyz~\u201C\u2013\u00E6\u201A\u0192\u201E\u2026])/g, '$1$4$2$3$5');
 
-    // Rule 4: Independent vowel (B-J) cannot take subscript kar ("`By" / "'By" -> "`yB" দুই)
-    s = s.replace(/['`]B([yz])/g, '`$1B');
+    // Rule 4: Independent vowel (B-J) cannot take subscript kar
     s = s.replace(/([`K-Z_a-np-t])([B-J])([yz~\u201C\u2013\u201A\u0192\u201E\u2026])/g, '$1$3$2');
 
     // Rule 5: Hyphen or tilde transposed in gj-Z / gj~Z -> g~jZ (মূলত)
@@ -2159,7 +2166,7 @@
     // Remove stray zero-width characters in the middle of consonant+halant clusters
     s = s.replace(/([\u0995-\u09B9\u09DC\u09DD\u09DF])[\u200B\uFEFF]+(\u09CD)/g, '$1$2');
     // 1. Rejoin words split right after a pre-base vowel sign (e.g. "প্রকৃি তর" -> "প্রকৃতির", "স্মৃি ত" -> "স্মৃতি")
-    s = s.replace(/([\u09BE-\u09CC\u09D7])([\u09BF\u09C7\u09C8])\s+([\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?(?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?)*)/g, '$1$3$2');
+    s = s.replace(/([\u09BE-\u09CC\u09D7])([\u09BF\u09C7\u09C8])\s*([\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?(?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?)*)/g, '$1$3$2');
     // 2. Fix visual-order pre-base vowel signs (ি, ে, ৈ) ONLY when ORPHANED (at word start or preceded by space/punct/vowel),
     // NEVER when already preceded by a consonant!
     s = s.replace(/(^|[\s([{'"“‘—–\-\u0985-\u0994\u09BE-\u09CC\u09D7])([\u09BF\u09C7\u09C8])([\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?(?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?)*)/g, '$1$3$2');
@@ -2218,18 +2225,17 @@
     // Count legitimate readable characters (Bangla, Latin, digits, common punctuation)
     var validMatches = trimmed.match(/[\u0980-\u09FF\u0964\u0965a-zA-Z0-9.,;:!?"'()\[\]{}\-\/\\+@#$%&*=<>|_~`^৳₹$€£¥°•–—‘’“”…]/g);
     var validCount = validMatches ? validMatches.length : 0;
-    if (validCount / trimmed.length < 0.75) return true;
+    if (validCount / trimmed.length < 0.72) return true;
 
-    // Detect remaining broken Bangla sequences (consecutive vowel signs, vowel sign after halant, or leftover CP1252 Bijoy glyphs)
-    var doubleKars = (text.match(/[\u09BE-\u09CC\u09D7]{2,}|\u09CD[\u09BE-\u09CC\u09D7]|(?:^|\s)[\u09BE-\u09CC\u09CD\u09D7]/g) || []).length;
-    if (doubleKars >= 3) return true;
-
+    var wordsCount = Math.max(1, String(text || '').trim().split(/\s+/).length);
     var leftoverBijoy = (text.match(/[†‡ˆ‰Š‹ŒŽ•˜™š›œžŸ¡-ÿ\u03BC]/g) || []).length;
-    if (leftoverBijoy >= 3) return true;
+    if (leftoverBijoy >= Math.max(4, wordsCount * 0.12)) return true;
 
-    // Detect unconverted legacy glyph-index gibberish
+    var doubleKars = (text.match(/[\u09BE-\u09CC\u09D7]{2,}|\u09CD[\u09BE-\u09CC\u09D7]/g) || []).length;
+    if (doubleKars >= Math.max(5, wordsCount * 0.15)) return true;
+
     var weirdInsideWord = trimmed.match(/[a-zA-Z][~`|\\^<>]+[a-zA-Z]/g);
-    if (weirdInsideWord && weirdInsideWord.length >= 3) return true;
+    if (weirdInsideWord && weirdInsideWord.length >= 4) return true;
 
     return false;
   }
@@ -2240,15 +2246,230 @@
     return /^[\u201C\u2013\u00E6\u201A\u0192\u201E\u2026\u00A8\u00A9\u00AA\u00AB\u00D6\u00A1-\u00AD\u00F8\u00FA\u0153\u0178yz~^u\u09BC\u09BE-\u09CD\u09D7]+$/.test(s);
   }
 
-  function extractColumnLines(colItems, pageBijoy, allowTabs) {
-    if (!colItems.length) return [];
+  function isBoldFontHint(fontHint) {
+    if (!fontHint) return false;
+    return /bold|black|heavy|demi|semibold|extrabold|[-_.]bd\b/i.test(String(fontHint));
+  }
+
+  function groupPreliminaryRows(items) {
+    var rows = [];
+    items.forEach(function (it) {
+      var bestRow = null;
+      var bestDist = Infinity;
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        var tol = Math.max(4.0, Math.min(r.h, it.h) * 0.5);
+        var dist = Math.abs(r.y - it.y);
+        if (dist <= tol && dist < bestDist) {
+          bestDist = dist;
+          bestRow = r;
+        }
+      }
+      if (bestRow) {
+        bestRow.items.push(it);
+        bestRow.y = (bestRow.y * (bestRow.items.length - 1) + it.y) / bestRow.items.length;
+        bestRow.h = Math.max(bestRow.h, it.h);
+      } else {
+        rows.push({ y: it.y, h: it.h, items: [it] });
+      }
+    });
+    rows.sort(function (a, b) { return b.y - a.y; });
+
+    rows.forEach(function (r) {
+      r.items.sort(function (a, b) {
+        var ax = a.isSub ? (a.x - a.h * 0.42) : a.x;
+        var bx = b.isSub ? (b.x - b.h * 0.42) : b.x;
+        var diff = ax - bx;
+        if (Math.abs(diff) <= Math.max(a.h, b.h, 8) * 0.55) return a.streamIdx - b.streamIdx;
+        return diff;
+      });
+      var clusters = [];
+      r.items.forEach(function (it) {
+        var endX = it.x + (it.isSub ? 0 : Math.max(1, it.w));
+        if (!clusters.length) {
+          clusters.push({ minX: it.x, maxX: endX, chars: it.str.length, items: [it] });
+          return;
+        }
+        var prev = clusters[clusters.length - 1];
+        var gap = it.x - prev.maxX;
+        var refH = Math.max(r.h, it.h, 8);
+        if (it.isSub || gap <= Math.max(13, refH * 1.45)) {
+          prev.maxX = Math.max(prev.maxX, endX);
+          prev.chars += it.str.length;
+          prev.items.push(it);
+        } else {
+          clusters.push({ minX: it.x, maxX: endX, chars: it.str.length, items: [it] });
+        }
+      });
+      r.clusters = clusters;
+      r.minX = clusters.length ? clusters[0].minX : 0;
+      r.maxX = clusters.length ? clusters[clusters.length - 1].maxX : 0;
+    });
+    return rows;
+  }
+
+  function segmentPageBands(items, pageWidth) {
+    var minX = Infinity, maxX = -Infinity;
+    items.forEach(function (it) {
+      if (it.x < minX) minX = it.x;
+      var ex = it.x + Math.max(2, it.w);
+      if (ex > maxX) maxX = ex;
+    });
+    if (!isFinite(minX) || !isFinite(maxX)) {
+      return [{ type: 'single', items: items, bounds: { minX: 36, maxX: 559, width: 523, isNarrowCol: false } }];
+    }
+    var spanW = Math.max(100, maxX - minX);
+    var fullBounds = { minX: minX, maxX: maxX, width: spanW, isNarrowCol: false };
+    if (items.length < 10 || spanW < 230) {
+      return [{ type: 'single', items: items, bounds: fullBounds }];
+    }
+
+    var prelimRows = groupPreliminaryRows(items);
+    if (prelimRows.length < 5) {
+      return [{ type: 'single', items: items, bounds: fullBounds }];
+    }
+
+    var bestX = null;
+    var bestScore = -Infinity;
+    var bestSplitInfo = null;
+
+    for (var frac = 0.43; frac <= 0.57; frac += 0.01) {
+      var candX = minX + spanW * frac;
+      var rowStates = prelimRows.map(function (r) {
+        var crosses = false;
+        var leftW = 0, rightW = 0, leftChars = 0, rightChars = 0;
+        var leftMin = Infinity, leftMax = -Infinity, rightMin = Infinity, rightMax = -Infinity;
+        for (var c = 0; c < r.clusters.length; c++) {
+          var cl = r.clusters[c];
+          if (cl.maxX <= candX + 6) {
+            leftChars += cl.chars;
+            if (cl.minX < leftMin) leftMin = cl.minX;
+            if (cl.maxX > leftMax) leftMax = cl.maxX;
+          } else if (cl.minX >= candX - 6) {
+            rightChars += cl.chars;
+            if (cl.minX < rightMin) rightMin = cl.minX;
+            if (cl.maxX > rightMax) rightMax = cl.maxX;
+          } else {
+            crosses = true;
+          }
+        }
+        if (isFinite(leftMin)) leftW = leftMax - leftMin;
+        if (isFinite(rightMin)) rightW = rightMax - rightMin;
+        return { row: r, crosses: crosses, leftW: leftW, rightW: rightW, leftChars: leftChars, rightChars: rightChars };
+      });
+
+      var topIdx = 0;
+      var maxTop = Math.min(8, Math.floor(rowStates.length * 0.35));
+      while (topIdx < maxTop && rowStates[topIdx].crosses) {
+        topIdx++;
+      }
+      var botIdx = rowStates.length - 1;
+      var minBot = Math.max(topIdx + 4, rowStates.length - 3);
+      while (botIdx >= minBot && rowStates[botIdx].crosses) {
+        botIdx--;
+      }
+
+      var bodyStates = rowStates.slice(topIdx, botIdx + 1);
+      var leftRows = 0, rightRows = 0, crossRows = 0;
+      var leftLongRows = 0, rightLongRows = 0;
+      var leftNumOrOpt = 0, rightNumOrOpt = 0;
+
+      bodyStates.forEach(function (st) {
+        if (st.crosses) {
+          crossRows++;
+          return;
+        }
+        if (st.leftChars > 0) {
+          leftRows++;
+          if (st.leftW > spanW * 0.22 || st.leftChars >= 14) leftLongRows++;
+        }
+        if (st.rightChars > 0) {
+          rightRows++;
+          if (st.rightW > spanW * 0.22 || st.rightChars >= 14) rightLongRows++;
+        }
+        st.row.items.forEach(function (it) {
+          var s = it.str.trim();
+          if (/^(?:[0-9০-৯]+[.)]|[কখগঘABCDKLMN][.)]|i{1,3}\.)/.test(s)) {
+            if (it.x < candX) leftNumOrOpt++;
+            else rightNumOrOpt++;
+          }
+        });
+      });
+
+      if (leftRows >= 4 && rightRows >= 4 && crossRows <= Math.max(1, Math.floor(bodyStates.length * 0.08))) {
+        var isArticleOrExam = (leftLongRows >= 2 && rightLongRows >= 2) || (leftNumOrOpt >= 2 && rightNumOrOpt >= 2);
+        if (isArticleOrExam) {
+          var balance = Math.min(leftRows, rightRows) / Math.max(leftRows, rightRows);
+          var score = (leftRows + rightRows) * 2 - crossRows * 15 + balance * 10;
+          if (score > bestScore) {
+            bestScore = score;
+            bestX = candX;
+            bestSplitInfo = { topIdx: topIdx, botIdx: botIdx, prelimRows: prelimRows };
+          }
+        }
+      }
+    }
+
+    if (bestX === null || !bestSplitInfo) {
+      return [{ type: 'single', items: items, bounds: fullBounds }];
+    }
+
+    var bands = [];
+    var pRows = bestSplitInfo.prelimRows;
+    if (bestSplitInfo.topIdx > 0) {
+      var topItems = [];
+      for (var t = 0; t < bestSplitInfo.topIdx; t++) {
+        topItems.push.apply(topItems, pRows[t].items);
+      }
+      bands.push({ type: 'single', items: topItems, bounds: fullBounds });
+    }
+
+    var leftItems = [], rightItems = [];
+    for (var b = bestSplitInfo.topIdx; b <= bestSplitInfo.botIdx; b++) {
+      pRows[b].items.forEach(function (it) {
+        if (it.x + Math.max(0, it.w) * 0.35 < bestX) leftItems.push(it);
+        else rightItems.push(it);
+      });
+    }
+    var leftMinX = minX, leftMaxX = bestX - 6;
+    var rightMinX = bestX + 6, rightMaxX = maxX;
+    leftItems.forEach(function (it) {
+      if (it.x < leftMinX) leftMinX = it.x;
+      if (it.x + it.w > leftMaxX && it.x + it.w <= bestX + 8) leftMaxX = it.x + it.w;
+    });
+    rightItems.forEach(function (it) {
+      if (it.x < rightMinX && it.x >= bestX - 8) rightMinX = it.x;
+      if (it.x + it.w > rightMaxX) rightMaxX = it.x + it.w;
+    });
+
+    bands.push({
+      type: 'two-col',
+      leftItems: leftItems,
+      rightItems: rightItems,
+      leftBounds: { minX: leftMinX, maxX: Math.max(leftMinX + 120, leftMaxX), width: Math.max(120, leftMaxX - leftMinX), isNarrowCol: true },
+      rightBounds: { minX: rightMinX, maxX: Math.max(rightMinX + 120, rightMaxX), width: Math.max(120, rightMaxX - rightMinX), isNarrowCol: true }
+    });
+
+    if (bestSplitInfo.botIdx < pRows.length - 1) {
+      var botItems = [];
+      for (var f = bestSplitInfo.botIdx + 1; f < pRows.length; f++) {
+        botItems.push.apply(botItems, pRows[f].items);
+      }
+      bands.push({ type: 'single', items: botItems, bounds: fullBounds });
+    }
+
+    return bands;
+  }
+
+  function extractStructuredBlocks(colItems, pageBijoy, colBounds) {
+    if (!colItems || !colItems.length) return [];
     var rows = [];
     colItems.forEach(function (it) {
       var bestRow = null;
       var bestDist = Infinity;
       for (var i = 0; i < rows.length; i++) {
         var r = rows[i];
-        var tol = Math.max(4.2, Math.min(r.h, it.h) * 0.52);
+        var tol = Math.max(4.0, Math.min(r.h, it.h) * 0.5);
         var dist = Math.abs(r.y - it.y);
         if (dist <= tol && dist < bestDist) {
           bestDist = dist;
@@ -2266,20 +2487,13 @@
 
     rows.sort(function (a, b) { return b.y - a.y; });
 
-    var outLines = [];
-    var prevRow = null;
-
+    var rawRowObjs = [];
     rows.forEach(function (r) {
-      // Group consecutive stream items that belong to the same word/phrase BEFORE sorting across columns,
-      // so zero-width backspacing subscripts (y, z, ~, „, …, Ö) are never swapped with the next consonant!
       r.items.sort(function (a, b) {
         var ax = a.isSub ? (a.x - a.h * 0.42) : a.x;
         var bx = b.isSub ? (b.x - b.h * 0.42) : b.x;
         var diff = ax - bx;
-        var tol = Math.max(a.h, b.h, 8) * 0.55;
-        if (Math.abs(diff) <= tol) {
-          return a.streamIdx - b.streamIdx;
-        }
+        if (Math.abs(diff) <= Math.max(a.h, b.h, 8) * 0.55) return a.streamIdx - b.streamIdx;
         return diff;
       });
 
@@ -2296,133 +2510,206 @@
             x: cur.x,
             endX: Math.max(cur.x, curEndX),
             h: cur.h,
-            fontHint: cur.fontHint,
-            bijoyFont: cur.bijoyFont || rowForceBijoy
+            isBold: !!cur.isBold,
+            fontHint: cur.fontHint || '',
+            bijoyFont: !!(cur.bijoyFont || rowForceBijoy)
           });
           return;
         }
         var prev = wordRuns[wordRuns.length - 1];
         var gap = cur.x - prev.endX;
         var refH = Math.max(prev.h, cur.h, 8);
-        // Skip exact duplicate overlaid text (bold shadow effect in some PDFs)
+        // Faux-bold overlaid text detection
         if (gap < -refH * 0.45 && cur.str === prev.str) {
+          prev.isBold = true;
           return;
         }
-        if (cur.isSub || (gap <= refH * 0.22 && (prev.bijoyFont === (cur.bijoyFont || rowForceBijoy)))) {
+        var prevEndsPreKar = (prev.bijoyFont || rowForceBijoy) && /[w\u2020\u2021\u02C6\u2030\u00A9&]$/.test(prev.str);
+        if (cur.isSub || (prevEndsPreKar && gap <= refH * 1.45) || (gap <= refH * 0.24 && (prev.bijoyFont === !!(cur.bijoyFont || rowForceBijoy)))) {
           prev.str += cur.str;
           prev.endX = Math.max(prev.endX, curEndX);
           prev.h = Math.max(prev.h, cur.h);
+          if (cur.isBold) prev.isBold = true;
         } else {
           wordRuns.push({
             str: cur.str,
             x: cur.x,
             endX: Math.max(cur.x, curEndX),
             h: cur.h,
-            fontHint: cur.fontHint,
-            bijoyFont: cur.bijoyFont || rowForceBijoy
+            isBold: !!cur.isBold,
+            fontHint: cur.fontHint || '',
+            bijoyFont: !!(cur.bijoyFont || rowForceBijoy)
           });
         }
       });
 
-      var lineStr = '';
+      var cells = [];
+      var cellGapThresh = colBounds.isNarrowCol ? 11.5 : 17;
       for (var i = 0; i < wordRuns.length; i++) {
         var seg = wordRuns[i];
-        var converted = cleanAndConvertPdfRun(seg.str, seg.fontHint, seg.bijoyFont || rowForceBijoy);
+        var converted = cleanAndConvertPdfRun(seg.str, seg.fontHint, seg.bijoyFont || rowForceBijoy).trim();
         if (!converted) continue;
-        if (i > 0 && lineStr.length > 0) {
-          var prevSeg = wordRuns[i - 1];
-          var gap2 = seg.x - prevSeg.endX;
-          var refH2 = Math.max(prevSeg.h, seg.h, 8);
-          if (allowTabs && gap2 > refH2 * 2.2) {
-            lineStr += '\t';
-          } else if (gap2 > refH2 * 0.14) {
-            lineStr += ' ';
-          }
+        if (!cells.length) {
+          cells.push({ text: converted, x: seg.x, endX: seg.endX, h: seg.h, isBold: seg.isBold });
+          continue;
         }
-        lineStr += converted;
+        var prevCell = cells[cells.length - 1];
+        var gap2 = seg.x - prevCell.endX;
+        var refH2 = Math.max(prevCell.h, seg.h, 8);
+        var isMidLineMcqOpt = /^\(?([খঘঙBbDd])[.)](?:\s|$)/.test(converted) && prevCell.text.length > 0;
+        if (isMidLineMcqOpt || gap2 > Math.max(cellGapThresh, refH2 * (colBounds.isNarrowCol ? 1.32 : 1.72))) {
+          cells.push({ text: converted, x: seg.x, endX: seg.endX, h: seg.h, isBold: seg.isBold });
+        } else {
+          prevCell.text = cleanAndConvertPdfRun(prevCell.text + (gap2 > refH2 * 0.12 ? ' ' : '') + converted, '', rowForceBijoy);
+          prevCell.endX = Math.max(prevCell.endX, seg.endX);
+          prevCell.h = Math.max(prevCell.h, seg.h);
+          if (seg.isBold) prevCell.isBold = true;
+        }
       }
 
-      lineStr = cleanAndConvertPdfRun(lineStr, '', rowForceBijoy)
-        .replace(/ +/g, ' ')
-        .replace(/ *\t */g, '\t')
-        .trim();
-
-      if (lineStr) {
-        if (prevRow && (prevRow.y - r.y) > Math.max(prevRow.h, r.h) * 2.15) {
-          outLines.push('');
+      // Split a single cell if two side-by-side MCQ options (ক... খ... or গ... ঘ...) were stored in a single string
+      if (cells.length === 1) {
+        var mOpt = cells[0].text.match(/^(\(?[কগAca][.)]\s+.+?)\s+(?=\(?[খঘBdb][.)]\s+.+)/);
+        if (mOpt) {
+          var leftPart = mOpt[1].trim();
+          var rightPart = cells[0].text.slice(mOpt[0].length).trim();
+          var c0 = cells[0];
+          cells = [
+            { text: leftPart, x: c0.x, endX: colBounds.minX + colBounds.width * 0.48, h: c0.h, isBold: c0.isBold },
+            { text: rightPart, x: colBounds.minX + colBounds.width * 0.5, endX: c0.endX, h: c0.h, isBold: c0.isBold }
+          ];
         }
-        outLines.push(lineStr);
-        prevRow = r;
+      }
+
+      if (!cells.length) return;
+      var rowMinX = cells[0].x;
+      var rowMaxX = cells[cells.length - 1].endX;
+      var rowW = Math.max(10, rowMaxX - rowMinX);
+      var leftOff = Math.max(0, rowMinX - colBounds.minX);
+      var rightOff = Math.max(0, colBounds.maxX - rowMaxX);
+      var align = 'left';
+      if (cells.length === 1) {
+        if (leftOff > 14 && rightOff > 14 && Math.abs(leftOff - rightOff) < Math.max(22, colBounds.width * 0.14) && rowW < colBounds.width * 0.86) {
+          align = 'center';
+        } else if (leftOff > colBounds.width * 0.48 && rightOff < 26) {
+          align = 'right';
+        }
+      }
+      var indentPt = (align === 'left' && cells.length === 1 && leftOff >= 8 && leftOff <= colBounds.width * 0.4)
+        ? Math.round(Math.min(36, leftOff * 0.8))
+        : 0;
+
+      var fullRowText = cells.map(function (c) { return c.text; }).join('\t');
+      var isBoldRow = cells.some(function (c) { return c.isBold; }) ||
+        /^(নিচের\s+উদ্দীপক|উদ্দীপকটি\s+পড়ে|নিচের\s+কোনটি)/.test(fullRowText.trim());
+
+      rawRowObjs.push({
+        y: r.y,
+        h: Math.round(Math.min(20, Math.max(9, r.h)) * 2) / 2,
+        minX: rowMinX,
+        maxX: rowMaxX,
+        align: align,
+        indentPt: indentPt,
+        isBold: isBoldRow,
+        cells: cells,
+        text: fullRowText
+      });
+    });
+
+    // Merge wrapped continuation lines of paragraphs/questions so multi-line sentences don't split with gaps
+    var merged = [];
+    rawRowObjs.forEach(function (cur) {
+      if (!merged.length) {
+        cur.lastY = cur.y;
+        cur.lastMaxX = cur.maxX;
+        cur.mergedCount = 1;
+        cur.spaceBeforePt = 0;
+        merged.push(cur);
+        return;
+      }
+      var prev = merged[merged.length - 1];
+      var dy = prev.lastY - cur.y;
+      var maxH = Math.max(prev.h, cur.h, 10);
+
+      var canMerge = (
+        prev.cells.length === 1 &&
+        cur.cells.length === 1 &&
+        (prev.align === 'left' || prev.align === 'justify') &&
+        cur.align === 'left' &&
+        dy > 0 && dy <= maxH * 1.85 &&
+        Math.abs(prev.h - cur.h) <= 1.5 &&
+        prev.isBold === cur.isBold &&
+        !/^\s*\(?([কখগঘঙABCDabcd]|[ivxIVX]{1,4})[.)]\s/.test(prev.text) &&
+        !/:\s*$/.test(prev.text) &&
+        !/^[^:]{1,32}:\s+.+/.test(prev.text) &&
+        !/^\s*\(?[0-9০-৯]+[.)।]\s*/.test(cur.text) &&
+        !/^\s*\(?([কখগঘঙABCDabcd]|[ivxIVX]{1,4})[.)]\s*/.test(cur.text) &&
+        !/^\s*([-•▪*]|নিচের\s+উদ্দীপক|উদ্দীপকটি\s+পড়ে|নিচের\s+কোনটি|বি\.?\s*দ্র|দ্রষ্টব্য)/.test(cur.text) &&
+        !/^\s*[A-Za-z\u0980-\u09FF\s().]{2,28}:\s*/.test(cur.text) &&
+        ((prev.lastMaxX - colBounds.minX) >= colBounds.width * 0.55 || !/[।?!]\s*$/.test(prev.text))
+      );
+
+      if (canMerge) {
+        prev.cells[0].text = cleanAndConvertPdfRun(prev.cells[0].text + ' ' + cur.cells[0].text, '', pageBijoy);
+        prev.text = prev.cells[0].text;
+        prev.lastY = cur.y;
+        prev.lastMaxX = cur.maxX;
+        prev.mergedCount = (prev.mergedCount || 1) + 1;
+        if (prev.mergedCount >= 3) prev.align = 'justify';
+      } else {
+        cur.spaceBeforePt = dy > maxH * 2.0 ? 6.5 : (dy > maxH * 1.45 ? 3 : 1.2);
+        cur.lastY = cur.y;
+        cur.lastMaxX = cur.maxX;
+        cur.mergedCount = 1;
+        merged.push(cur);
       }
     });
 
-    return outLines;
+    return merged;
   }
 
-  function detectTwoColumnSplit(items, pageWidth) {
-    if (items.length < 14) return null;
-    var minX = Infinity, maxX = -Infinity;
-    items.forEach(function (it) {
-      if (it.x < minX) minX = it.x;
-      if (it.x + it.w > maxX) maxX = it.x + it.w;
-    });
-    var spanW = maxX - minX;
-    var refW = Math.max(pageWidth || 0, spanW);
-    if (spanW < 240 || refW < 280) return null;
-
-    var centerMin = minX + spanW * 0.42;
-    var centerMax = minX + spanW * 0.58;
-    var bestX = null;
-    var bestCross = Infinity;
-    var bestBalance = 0;
-
-    for (var frac = 0.44; frac <= 0.56; frac += 0.015) {
-      var candX = minX + spanW * frac;
-      var leftN = 0, rightN = 0, crossN = 0;
-      var leftChars = 0, rightChars = 0;
-      for (var i = 0; i < items.length; i++) {
-        var it = items[i];
-        var endX = it.x + Math.max(2, it.w);
-        if (endX <= candX + 5) {
-          leftN++;
-          leftChars += it.str.length;
-        } else if (it.x >= candX - 5) {
-          rightN++;
-          rightChars += it.str.length;
-        } else {
-          crossN++;
-        }
-      }
-      if (leftN >= 6 && rightN >= 6 && leftChars >= 45 && rightChars >= 45) {
-        var balance = Math.min(leftN, rightN) / Math.max(leftN, rightN);
-        if (crossN < bestCross || (crossN === bestCross && balance > bestBalance)) {
-          bestCross = crossN;
-          bestBalance = balance;
-          bestX = candX;
-        }
-      }
+  function buildPageLayoutFromItems(items, pageWidth, pageBijoy, rawCount) {
+    if (!items || !items.length) {
+      return { text: '', layout: null, rawCount: rawCount || 0, garbled: true };
     }
+    var bands = segmentPageBands(items, pageWidth || 595);
+    var layoutBands = [];
+    var textParts = [];
 
-    if (bestX === null || bestCross > Math.max(2, items.length * 0.06)) return null;
-
-    // Distinguish a 2-column exam/article page from a 2-column key-value form (like Admit Card):
-    // In a 2-column exam/article page, BOTH left and right columns contain multi-word sentences or numbered items.
-    var leftLong = 0, rightLong = 0;
-    items.forEach(function (it) {
-      if (it.x + it.w <= bestX + 5) {
-        if (it.w > spanW * 0.22 || it.str.length > 14) leftLong++;
-      } else if (it.x >= bestX - 5) {
-        if (it.w > spanW * 0.22 || it.str.length > 14) rightLong++;
+    bands.forEach(function (band) {
+      if (band.type === 'two-col') {
+        var leftBlocks = extractStructuredBlocks(band.leftItems, pageBijoy, band.leftBounds);
+        var rightBlocks = extractStructuredBlocks(band.rightItems, pageBijoy, band.rightBounds);
+        layoutBands.push({
+          type: 'two-col',
+          leftBlocks: leftBlocks,
+          rightBlocks: rightBlocks,
+          leftBounds: band.leftBounds,
+          rightBounds: band.rightBounds
+        });
+        var lTxt = leftBlocks.map(function (b) { return b.text; }).join('\n').trim();
+        var rTxt = rightBlocks.map(function (b) { return b.text; }).join('\n').trim();
+        if (lTxt) textParts.push(lTxt);
+        if (rTxt) textParts.push(rTxt);
+      } else {
+        var singleBlocks = extractStructuredBlocks(band.items, pageBijoy, band.bounds);
+        layoutBands.push({
+          type: 'single',
+          blocks: singleBlocks,
+          bounds: band.bounds
+        });
+        var sTxt = singleBlocks.map(function (b) { return b.text; }).join('\n').trim();
+        if (sTxt) textParts.push(sTxt);
       }
     });
-    if (leftLong < 2 && rightLong < 2) {
-      // Check if numbered questions exist on both sides
-      var leftNum = items.some(function (it) { return it.x < bestX && /^\s*[0-9০-৯]+\./.test(it.str); });
-      var rightNum = items.some(function (it) { return it.x >= bestX - 5 && /^\s*[0-9০-৯]+\./.test(it.str); });
-      if (!(leftNum && rightNum)) return null;
-    }
 
-    return bestX;
+    var combinedText = textParts.join('\n\n').trim();
+    return {
+      text: combinedText,
+      layout: { bands: layoutBands, pageWidth: pageWidth || 595 },
+      rawCount: rawCount || items.length,
+      garbled: isTextGarbledOrEmpty(combinedText, rawCount || items.length)
+    };
   }
 
   function extractPageTextSmart(page) {
@@ -2454,67 +2741,60 @@
 
       var pageBijoy = anyBijoyFont || hasBijoyGlyphSignature(allConcat);
       var items = [];
+      var seq = 0;
 
-      rawItems.forEach(function (it, idx) {
-        var raw = it.str || '';
-        if (!raw || !raw.trim()) return;
+      rawItems.forEach(function (it) {
+        var rawOrig = it.str || '';
+        if (!rawOrig || !rawOrig.trim()) return;
         var tr = it.transform || [1, 0, 0, 1, 0, 0];
-        var x = tr[4] || 0;
-        var y = tr[5] || 0;
-        var h = Math.max(6, Math.abs(tr[3]) || Math.abs(tr[0]) || it.height || 10);
-        var w = (typeof it.width === 'number' && !isNaN(it.width))
+        var baseX = tr[4] || 0;
+        var baseY = tr[5] || 0;
+        var h = Math.max(6, Math.hypot(tr[2] || 0, tr[3] || 0) || Math.abs(tr[3]) || Math.abs(tr[0]) || it.height || 10);
+        var totalW = (typeof it.width === 'number' && !isNaN(it.width))
           ? Math.max(0, it.width)
-          : (raw.length * h * 0.48);
+          : (rawOrig.length * h * 0.48);
         var fn = it.fontName || '_default';
         var stObj = styles[fn] || {};
         var fontHint = fn + ' ' + (stObj.fontFamily || '');
-        var isSub = isSubscriptOrCombiningBijoy(raw) && w < h * 0.35;
-        items.push({
-          str: raw,
-          x: x,
-          y: y,
-          w: w,
-          h: h,
-          streamIdx: idx,
-          isSub: isSub,
-          fontHint: fontHint,
-          bijoyFont: !!(fontIsBijoy[fn] || isBijoyFontName(fontHint))
-        });
+        var bjFont = !!(fontIsBijoy[fn] || isBijoyFontName(fontHint));
+        var boldFont = isBoldFontHint(fontHint);
+
+        // If a single PDF text item contains large multi-space/tab gaps, split into positioned sub-items
+        var charW = rawOrig.length > 0 ? (totalW / rawOrig.length) : (h * 0.45);
+        var parts = rawOrig.split(/(\s{3,}|\t+)/);
+        var offsetChars = 0;
+        for (var p = 0; p < parts.length; p++) {
+          var part = parts[p];
+          if (!part) continue;
+          if (/^(\s{3,}|\t+)$/.test(part)) {
+            offsetChars += part.length;
+            continue;
+          }
+          var leadSpaces = (part.match(/^\s*/) || [''])[0].length;
+          var trailSpaces = (part.match(/\s*$/) || [''])[0].length;
+          var trimmedPart = part.trim();
+          if (trimmedPart) {
+            var subX = baseX + (offsetChars + leadSpaces * 0.65) * charW;
+            var subW = Math.max(0, (part.length - (leadSpaces + trailSpaces) * 0.85) * charW);
+            var isSub = isSubscriptOrCombiningBijoy(trimmedPart) && subW < h * 0.35;
+            items.push({
+              str: trimmedPart,
+              x: subX,
+              y: baseY,
+              w: isSub ? 0 : subW,
+              h: h,
+              streamIdx: seq++,
+              isSub: isSub,
+              isBold: boldFont,
+              fontHint: fontHint,
+              bijoyFont: bjFont
+            });
+          }
+          offsetChars += part.length;
+        }
       });
 
-      if (!items.length) {
-        return { text: '', columns: null, rawCount: rawItems.length, garbled: true };
-      }
-
-      var splitX = detectTwoColumnSplit(items, vp.width);
-      if (splitX !== null) {
-        var leftItems = [];
-        var rightItems = [];
-        items.forEach(function (it) {
-          if (it.x + it.w * 0.35 < splitX) leftItems.push(it);
-          else rightItems.push(it);
-        });
-        var leftLines = extractColumnLines(leftItems, pageBijoy, false);
-        var rightLines = extractColumnLines(rightItems, pageBijoy, false);
-        var col1Text = leftLines.join('\n').trim();
-        var col2Text = rightLines.join('\n').trim();
-        var combined = [col1Text, col2Text].filter(Boolean).join('\n\n');
-        return {
-          text: combined,
-          columns: [col1Text, col2Text],
-          rawCount: rawItems.length,
-          garbled: isTextGarbledOrEmpty(combined, rawItems.length)
-        };
-      }
-
-      var outLines = extractColumnLines(items, pageBijoy, true);
-      var finalTxt = outLines.join('\n').trim();
-      return {
-        text: finalTxt,
-        columns: null,
-        rawCount: rawItems.length,
-        garbled: isTextGarbledOrEmpty(finalTxt, rawItems.length)
-      };
+      return buildPageLayoutFromItems(items, vp.width, pageBijoy, rawItems.length);
     });
   }
 
@@ -2550,13 +2830,11 @@
       for (var i = 0; i < d.length; i += 4) {
         var r = d[i], g = d[i + 1], b = d[i + 2];
         var lum = 0.299 * r + 0.587 * g + 0.114 * b;
-        // Faint colored watermark suppression: high luminance or pastel tint becomes pure white
         var maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
         var sat = maxC - minC;
         if (lum > 205 || (lum > 165 && sat > 28)) {
           d[i] = d[i + 1] = d[i + 2] = 255;
         } else if (lum < 145) {
-          // Darken ink for sharper glyph edges
           var dark = Math.max(0, Math.round((lum / 145) * 85));
           d[i] = d[i + 1] = d[i + 2] = dark;
         } else {
@@ -2570,8 +2848,13 @@
   }
 
   function ocrPageCanvas(doc, pageNum, rotation, lang, onPct) {
+    var ocrScale = 2.4;
+    var canvasHeight = 842 * ocrScale;
+    var pageW = 595;
     return ensureTesseract().then(function (Tesseract) {
-      return renderPageCanvas(doc, pageNum, { scale: 2.4, rotation: rotation || 0 }).then(function (r) {
+      return renderPageCanvas(doc, pageNum, { scale: ocrScale, rotation: rotation || 0 }).then(function (r) {
+        canvasHeight = r.canvas.height || canvasHeight;
+        pageW = Math.round((r.canvas.width || (595 * ocrScale)) / ocrScale);
         var cleanCanvas = preprocessCanvasForOcr(r.canvas);
         return Tesseract.recognize(cleanCanvas, lang || 'ben+eng', {
           logger: function (m) {
@@ -2582,14 +2865,44 @@
         });
       });
     }).then(function (res) {
-      var raw = (res && res.data && res.data.text) ? res.data.text : '';
+      var data = (res && res.data) || {};
+      var words = data.words || [];
+      if (words.length > 0) {
+        var ocrItems = [];
+        words.forEach(function (w, idx) {
+          var txt = repairUnicodeBangla((w.text || '').trim());
+          if (!txt) return;
+          var bb = w.bbox || {};
+          var x0 = (bb.x0 || 0) / ocrScale;
+          var x1 = (bb.x1 || (bb.x0 || 0) + 20) / ocrScale;
+          var y0 = (bb.y0 || 0) / ocrScale;
+          var y1 = (bb.y1 || (bb.y0 || 0) + 14) / ocrScale;
+          var hPt = Math.max(8.5, Math.min(18, (y1 - y0) * 0.78));
+          ocrItems.push({
+            str: txt,
+            x: x0,
+            y: (canvasHeight / ocrScale) - y1,
+            w: Math.max(4, x1 - x0),
+            h: hPt,
+            streamIdx: idx,
+            isSub: false,
+            isBold: !!w.is_bold,
+            fontHint: '',
+            bijoyFont: false
+          });
+        });
+        if (ocrItems.length > 0) {
+          return buildPageLayoutFromItems(ocrItems, pageW, false, ocrItems.length);
+        }
+      }
+      var raw = data.text || '';
       var cleaned = raw
         .split(/\r?\n/)
         .map(function (ln) { return repairUnicodeBangla(ln).replace(/\s+/g, ' ').trim(); })
         .join('\n')
         .replace(/\n{3,}/g, '\n\n')
         .trim();
-      return cleaned;
+      return { text: cleaned, layout: null, rawCount: 1, garbled: !cleaned };
     });
   }
 
@@ -2631,74 +2944,193 @@
     $('#pdfToOtherSummary').textContent = toBn(st.pages.length) + ' পৃষ্ঠা রূপান্তরের জন্য প্রস্তুত';
   }
 
-  function renderColumnBlocksHtml(colText, fontStack) {
-    var lines = String(colText || '').split(/\r?\n/);
-    var blocks = [];
-    var tableRows = [];
+  function formatBlockHtmlContent(text) {
+    var escaped = esc(text);
+    // Highlight leading question number (e.g. "১. ", "12. ") slightly bold for visual clarity
+    return escaped.replace(/^(\s*\(?[0-9০-৯]+[.)])(\s+)/, '<b>$1</b>$2');
+  }
 
-    function flushTable() {
-      if (!tableRows.length) return;
-      var maxCols = 1;
-      tableRows.forEach(function (cols) { if (cols.length > maxCols) maxCols = cols.length; });
-      var trs = tableRows.map(function (cols) {
+  function renderStructuredBlocksHtml(blocks, colBounds, fontStack) {
+    if (!blocks || !blocks.length) return '';
+    var htmlParts = [];
+    var tableQueue = [];
+    var bounds = colBounds || { minX: 36, maxX: 559, width: 523, isNarrowCol: false };
+
+    function flushTableQueue() {
+      if (!tableQueue.length) return;
+      var maxCols = 2;
+      tableQueue.forEach(function (b) { if (b.cells.length > maxCols) maxCols = b.cells.length; });
+
+      var trs = tableQueue.map(function (b) {
         var tds = [];
+        var fSize = Math.min(13, Math.max(9.5, b.h || 10.5));
         for (var c = 0; c < maxCols; c++) {
-          var val = cols[c] !== undefined ? cols[c] : '';
-          var isFirst = (c === 0 && maxCols === 2 && val.length < 36);
+          var cell = b.cells[c] || { text: '', x: bounds.minX, endX: bounds.maxX, isBold: false };
+          var widthPct = Math.floor(100 / maxCols);
+          var textAlign = 'left';
+          var boldCell = cell.isBold || b.isBold;
+
+          if (maxCols === 2) {
+            var isMcqPair = bounds.isNarrowCol || /^\s*\(?[কখগঘঙABCDabcd][.)]/.test(b.cells[0].text);
+            var isHeaderLeftRight = !bounds.isNarrowCol && b.cells[1] &&
+              (b.cells[1].x > bounds.minX + bounds.width * 0.55) &&
+              (b.cells[1].endX > bounds.maxX - 45);
+            if (isMcqPair) {
+              widthPct = 50;
+            } else if (isHeaderLeftRight) {
+              widthPct = c === 0 ? 58 : 42;
+              if (c === 1) textAlign = 'right';
+            } else {
+              var c1Rel = b.cells[1] ? Math.round(((b.cells[1].x - bounds.minX) / Math.max(100, bounds.width)) * 100) : 35;
+              var col0W = Math.max(22, Math.min(55, c1Rel));
+              widthPct = c === 0 ? col0W : (100 - col0W);
+              if (c === 0 && cell.text.length < 32 && /[:：]\s*$/.test(cell.text)) boldCell = true;
+            }
+          }
+
           tds.push(
-            '<td style="padding:3pt 8pt 3pt 0;vertical-align:top;font-family:' + fontStack + ';font-size:11.5pt;line-height:1.45;' +
-            (isFirst ? 'font-weight:bold;width:34%;' : '') + '">' + esc(val) + '</td>'
+            '<td width="' + widthPct + '%" valign="top" align="' + textAlign + '" style="width:' + widthPct + '%;padding:1.5pt ' + (c < maxCols - 1 ? '6pt' : '0') + ' 1.5pt 0;vertical-align:top;text-align:' + textAlign + ';font-family:' + fontStack + ';font-size:' + fSize + 'pt;line-height:1.3;' +
+            (boldCell ? 'font-weight:bold;' : '') + '">' + esc(cell.text) + '</td>'
           );
         }
         return '<tr>' + tds.join('') + '</tr>';
       }).join('');
-      blocks.push('<table style="width:100%;border-collapse:collapse;margin:4pt 0 8pt 0;">' + trs + '</table>');
-      tableRows = [];
+
+      htmlParts.push(
+        '<table width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;table-layout:fixed;mso-table-lspace:0pt;mso-table-rspace:0pt;margin:1.5pt 0 3pt 0;">' +
+        trs +
+        '</table>'
+      );
+      tableQueue = [];
     }
 
-    lines.forEach(function (line) {
-      var trimmed = line.trim();
-      if (!trimmed) {
-        flushTable();
-        blocks.push('<p style="margin:0 0 6pt 0;font-size:6pt;">&nbsp;</p>');
+    blocks.forEach(function (b) {
+      if (b.cells && b.cells.length >= 2) {
+        if (tableQueue.length && tableQueue[0].cells.length !== b.cells.length) {
+          flushTableQueue();
+        }
+        tableQueue.push(b);
         return;
       }
-      if (trimmed.indexOf('\t') !== -1) {
-        tableRows.push(trimmed.split('\t'));
-      } else {
-        flushTable();
-        blocks.push(
-          '<p style="font-family:' + fontStack + ';font-size:11.5pt;line-height:1.5;margin:0 0 6pt 0;color:#0f172a;">' +
-          esc(trimmed) +
-          '</p>'
-        );
+      flushTableQueue();
+      var txt = (b.text || '').trim();
+      if (!txt) return;
+
+      var isQuestion = /^\s*\(?[0-9০-৯]+[.)]\s+/.test(txt);
+      var isSingleOpt = /^\s*\(?[কখগঘঙABCDabcd][.)]\s+/.test(txt);
+      var isRomanOpt = /^\s*\(?[ivxIVX]{1,4}[.)]\s+/.test(txt);
+      var fSize = Math.min(18, Math.max(9.5, b.h || 10.5));
+      var topM = b.spaceBeforePt !== undefined ? b.spaceBeforePt : 1.5;
+      var botM = 2;
+
+      if (isQuestion) {
+        topM = Math.max(topM, 4.5);
+        botM = 2;
+      } else if (isSingleOpt || isRomanOpt) {
+        topM = Math.min(topM, 1);
+        botM = 1;
+      } else if (b.align === 'center') {
+        botM = 2.5;
+      } else if (b.align === 'justify') {
+        topM = Math.max(topM, 2.5);
+        botM = 4;
       }
+
+      var leftIndent = b.indentPt || (isRomanOpt ? 10 : (isSingleOpt ? 3 : 0));
+      var alignAttr = (b.align === 'center' || b.align === 'right' || b.align === 'justify') ? ' align="' + b.align + '"' : '';
+      var styleStr = 'font-family:' + fontStack + ';font-size:' + fSize + 'pt;line-height:1.32;margin:' + topM + 'pt 0 ' + botM + 'pt ' + leftIndent + 'pt;color:#0f172a;text-align:' + (b.align || 'left') + ';' +
+        (b.isBold ? 'font-weight:bold;' : '');
+
+      htmlParts.push('<p' + alignAttr + ' style="' + styleStr + '">' + formatBlockHtmlContent(txt) + '</p>');
     });
-    flushTable();
-    return blocks.join('');
+
+    flushTableQueue();
+    return htmlParts.join('');
   }
 
-  function buildWordDocHtml(pageTexts, title, pageColumns) {
-    var fontStack = "'Nirmala UI','Kalpurush','Noto Sans Bengali','Calibri',sans-serif";
-    var pageHtmls = pageTexts.map(function (pageText, idx) {
-      var cols = pageColumns && pageColumns[idx];
-      if (cols && cols.length === 2 && (cols[0] || cols[1])) {
-        var leftHtml = renderColumnBlocksHtml(cols[0], fontStack);
-        var rightHtml = renderColumnBlocksHtml(cols[1], fontStack);
-        return '<div class="SectionPage"><table style="width:100%;border-collapse:collapse;table-layout:fixed;"><tr>' +
-          '<td style="width:48.5%;vertical-align:top;padding-right:10pt;">' + leftHtml + '</td>' +
-          '<td style="width:3%;vertical-align:top;">&nbsp;</td>' +
-          '<td style="width:48.5%;vertical-align:top;padding-left:10pt;">' + rightHtml + '</td>' +
-          '</tr></table></div>';
+  function renderPlainFallbackBlocksHtml(colText, fontStack) {
+    var lines = String(colText || '').split(/\r?\n/);
+    var pseudoBlocks = [];
+    lines.forEach(function (ln) {
+      var trimmed = ln.trim();
+      if (!trimmed) return;
+      var parts = trimmed.split('\t');
+      if (parts.length >= 2) {
+        pseudoBlocks.push({
+          h: 10.5,
+          align: 'left',
+          isBold: false,
+          cells: parts.map(function (p, i) { return { text: p.trim(), x: i * 140, endX: (i + 1) * 130, isBold: false }; }),
+          text: trimmed
+        });
+      } else {
+        pseudoBlocks.push({
+          h: 10.5,
+          align: 'left',
+          indentPt: 0,
+          isBold: /^(নিচের\s+উদ্দীপক|উদ্দীপকটি\s+পড়ে|নিচের\s+কোনটি)/.test(trimmed),
+          cells: [{ text: trimmed, x: 0, endX: 200, isBold: false }],
+          text: trimmed
+        });
       }
-      return '<div class="SectionPage">' + renderColumnBlocksHtml(pageText, fontStack) + '</div>';
     });
+    return renderStructuredBlocksHtml(pseudoBlocks, { minX: 0, maxX: 520, width: 520, isNarrowCol: false }, fontStack);
+  }
 
-    return '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+  function renderPageLayoutBodyHtml(pageText, pageLayout, fontStack) {
+    if (pageLayout && pageLayout.bands && pageLayout.bands.length) {
+      return pageLayout.bands.map(function (band) {
+        if (band.type === 'two-col') {
+          var leftHtml = renderStructuredBlocksHtml(band.leftBlocks, band.leftBounds, fontStack);
+          var rightHtml = renderStructuredBlocksHtml(band.rightBlocks, band.rightBounds, fontStack);
+          return '<table width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;table-layout:fixed;mso-table-lspace:0pt;mso-table-rspace:0pt;margin:2pt 0;">' +
+            '<tr>' +
+              '<td width="48%" valign="top" style="width:48.5%;vertical-align:top;padding-right:9pt;border-right:1pt solid #cbd5e1;">' + leftHtml + '</td>' +
+              '<td width="3%" valign="top" style="width:2.5%;vertical-align:top;font-size:1pt;">&nbsp;</td>' +
+              '<td width="49%" valign="top" style="width:49%;vertical-align:top;padding-left:6pt;">' + rightHtml + '</td>' +
+            '</tr>' +
+          '</table>';
+        }
+        return renderStructuredBlocksHtml(band.blocks, band.bounds, fontStack);
+      }).join('');
+    }
+    return renderPlainFallbackBlocksHtml(pageText, fontStack);
+  }
+
+  function buildWordDocHtml(pageTexts, title, pageLayouts, customHtmlBody) {
+    var fontStack = "'Nirmala UI','Kalpurush','Siyam Rupali','Noto Sans Bengali','Calibri',sans-serif";
+    var bodyContent = '';
+    if (customHtmlBody) {
+      bodyContent = '<div class="WordSection1">' + customHtmlBody + '</div>';
+    } else {
+      var pageHtmls = pageTexts.map(function (pageText, idx) {
+        var lay = pageLayouts && pageLayouts[idx];
+        return renderPageLayoutBodyHtml(pageText, lay, fontStack);
+      });
+      bodyContent = '<div class="WordSection1">' +
+        pageHtmls.join('<br clear="all" style="page-break-before:always;mso-break-type:section-break" />') +
+        '</div>';
+    }
+
+    return '<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
       '<head><meta charset="utf-8"><title>' + esc(title) + '</title>' +
-      '<style>@page { size: 21cm 29.7cm; margin: 1.8cm; } body { font-family: ' + fontStack + '; font-size: 11.5pt; }</style>' +
+      '<!--[if gte mso 9]><xml>' +
+      '<w:WordDocument>' +
+      '<w:View>Print</w:View>' +
+      '<w:Zoom>100</w:Zoom>' +
+      '<w:DoNotOptimizeForBrowser/>' +
+      '</w:WordDocument>' +
+      '</xml><![endif]-->' +
+      '<style>' +
+      '@page WordSection1 { size: 595.3pt 841.9pt; margin: 34.0pt 36.0pt 34.0pt 36.0pt; mso-header-margin: 18.0pt; mso-footer-margin: 18.0pt; }' +
+      'div.WordSection1 { page: WordSection1; }' +
+      'body { font-family: ' + fontStack + '; font-size: 10.5pt; color: #0f172a; margin: 0; padding: 0; }' +
+      'p { margin: 0 0 2pt 0; line-height: 1.32; }' +
+      'table { border-collapse: collapse; }' +
+      'td { vertical-align: top; }' +
+      '</style>' +
       '</head><body>' +
-      pageHtmls.join('<br clear="all" style="page-break-before:always" />') +
+      bodyContent +
       '</body></html>';
   }
 
@@ -2753,12 +3185,12 @@
       }
 
       var texts = [];
-      var pageColumns = [];
+      var pageLayouts = [];
       var usedOcrCount = 0;
       var chainT = Promise.resolve();
       st.pages.forEach(function (p, i) {
         chainT = chainT.then(function () {
-          if (p.isBlank) { texts.push(''); pageColumns.push(null); return; }
+          if (p.isBlank) { texts.push(''); pageLayouts.push(null); return; }
           var basePct = 5 + (i / total) * 85;
           var stepPct = 85 / total;
 
@@ -2767,10 +3199,10 @@
             return ocrPageCanvas(p.doc, p.idx + 1, p.rotation, ocrLang, function (prog) {
               var pct = Math.min(94, Math.round(basePct + prog * stepPct));
               setProgress(pct, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' — OCR চলছে (' + toBn(Math.round(prog * 100)) + '%)…');
-            }).then(function (ocrTxt) {
+            }).then(function (ocrRes) {
               usedOcrCount++;
-              texts.push(ocrTxt);
-              pageColumns.push(null);
+              texts.push(ocrRes.text || '');
+              pageLayouts.push(ocrRes.layout || null);
             });
           }
 
@@ -2781,17 +3213,17 @@
               return ocrPageCanvas(p.doc, p.idx + 1, p.rotation, ocrLang, function (prog) {
                 var pct = Math.min(94, Math.round(basePct + prog * stepPct));
                 setProgress(pct, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' — অটো OCR চলছে (' + toBn(Math.round(prog * 100)) + '%)…');
-              }).then(function (ocrTxt) {
+              }).then(function (ocrRes) {
                 usedOcrCount++;
-                texts.push(ocrTxt || res.text);
-                pageColumns.push(null);
+                texts.push((ocrRes && ocrRes.text) || res.text);
+                pageLayouts.push((ocrRes && ocrRes.layout) || res.layout || null);
               }).catch(function () {
                 texts.push(res.text);
-                pageColumns.push(res.columns || null);
+                pageLayouts.push(res.layout || null);
               });
             }
             texts.push(res.text);
-            pageColumns.push(res.columns || null);
+            pageLayouts.push(res.layout || null);
           });
         });
       });
@@ -2803,44 +3235,93 @@
             (cleanT || '(এই পৃষ্ঠায় কোনো লেখা পাওয়া যায়নি)');
         }).join('\n\n');
 
+        var fontStack = "'Nirmala UI','Kalpurush','Siyam Rupali','Noto Sans Bengali','Calibri',sans-serif";
+        var richPreviewPagesHtml = texts.map(function (t, idx) {
+          var pageHead = total > 1
+            ? '<div style="font-size:9pt;color:#64748b;border-bottom:1px dashed #cbd5e1;padding-bottom:4px;margin-bottom:10px;font-weight:bold;">পৃষ্ঠা ' + toBn(idx + 1) + '</div>'
+            : '';
+          var bodyH = renderPageLayoutBodyHtml(t, pageLayouts[idx], fontStack);
+          return '<div class="pdf-doc-sheet" style="background:#ffffff;color:#0f172a;padding:22px 26px;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 2px 8px rgba(15,23,42,0.06);margin-bottom:12px;">' +
+            pageHead +
+            (bodyH || '<p style="color:#94a3b8;">(এই পৃষ্ঠায় কোনো লেখা পাওয়া যায়নি)</p>') +
+            '</div>';
+        }).join('');
+
         var modeBadge = usedOcrCount > 0
-          ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold">AI OCR (' + toBn(usedOcrCount) + ' পৃষ্ঠা) + স্মার্ট ফিক্স</span>'
-          : '<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 text-[11px] font-bold">২ডি স্মার্ট লেআউট + বিজয়/ইউনিকোড ফিক্স</span>';
+          ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold">AI OCR (' + toBn(usedOcrCount) + ' পৃষ্ঠা) + ২ডি লেআউট</span>'
+          : '<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 text-[11px] font-bold">হুবহু ২ডি লেআউট + বিজয়/ইউনিকোড ফিক্স</span>';
+
+        var showRichDefault = (fmt !== 'txt');
 
         prev.hidden = false;
         prev.innerHTML = '<div class="pdf-extracted-box space-y-2.5">' +
           '<div class="pdf-extracted-head flex items-center justify-between flex-wrap gap-2">' +
-            '<div class="flex items-center gap-2 flex-wrap"><strong>এক্সট্র্যাক্ট করা লেখা (সম্পাদনাযোগ্য):</strong>' + modeBadge + '</div>' +
-            '<div class="flex items-center gap-2">' +
+            '<div class="flex items-center gap-2 flex-wrap"><strong>কনভার্ট করা ডকুমেন্ট (সম্পাদনাযোগ্য প্রিভিউ):</strong>' + modeBadge + '</div>' +
+            '<div class="flex items-center gap-2 flex-wrap">' +
+              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 cursor-pointer transition-colors" id="pdfToggleViewModeBtn">' +
+                (showRichDefault ? '📝 প্লেইন টেক্সট ভিউ' : '📄 ফরম্যাটেড পেজ ভিউ') +
+              '</button>' +
               '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 cursor-pointer transition-colors" id="pdfCopyExtTxtBtn">কপি করুন</button>' +
               '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border-0 cursor-pointer transition-colors" id="pdfRedownloadExtBtn">⬇ আবার ডাউনলোড (' + (fmt === 'txt' ? '.txt' : '.doc') + ')</button>' +
             '</div>' +
           '</div>' +
-          '<textarea class="textbox w-full p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-sans text-slate-800 dark:text-studio-text outline-none leading-relaxed" rows="10" id="pdfExtTxtArea" aria-label="এক্সট্র্যাক্ট করা লেখা"></textarea>' +
+          '<div id="pdfDocRichPreview" contenteditable="true" spellcheck="false" class="w-full max-h-[540px] overflow-y-auto p-3 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border outline-none"' + (showRichDefault ? '' : ' hidden') + '>' +
+            richPreviewPagesHtml +
+          '</div>' +
+          '<textarea class="textbox w-full p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-sans text-slate-800 dark:text-studio-text outline-none leading-relaxed" rows="12" id="pdfExtTxtArea" aria-label="এক্সট্র্যাক্ট করা লেখা"' + (showRichDefault ? ' hidden' : '') + '></textarea>' +
         '</div>';
 
         var area = $('#pdfExtTxtArea');
+        var richBox = $('#pdfDocRichPreview');
+        var toggleBtn = $('#pdfToggleViewModeBtn');
         area.value = full;
+        var richEdited = false;
+        var plainEdited = false;
 
-        function triggerDocOrTxtDownload(useRawPages) {
+        if (richBox) {
+          richBox.addEventListener('input', function () { richEdited = true; });
+        }
+        if (area) {
+          area.addEventListener('input', function () { plainEdited = true; });
+        }
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', function () {
+            var isRichVisible = !richBox.hidden;
+            richBox.hidden = isRichVisible;
+            area.hidden = !isRichVisible;
+            toggleBtn.textContent = isRichVisible ? '📄 ফরম্যাটেড পেজ ভিউ' : '📝 প্লেইন টেক্সট ভিউ';
+          });
+        }
+
+        function triggerDocOrTxtDownload(initialAuto) {
           if (fmt === 'txt') {
-            var txtContent = useRawPages ? full : area.value;
+            var txtContent = initialAuto ? full : area.value;
             downloadBlob(new Blob(['\ufeff' + txtContent], { type: 'text/plain;charset=utf-8' }), base + '.txt');
             showToast('টেক্সট (.txt) ফাইল ডাউনলোড হয়েছে!');
           } else {
-            var pagesForDoc = useRawPages ? texts : [area.value];
-            var colsForDoc = useRawPages ? pageColumns : null;
-            var html = buildWordDocHtml(pagesForDoc, base, colsForDoc);
+            var html;
+            if (!initialAuto && richEdited && richBox) {
+              var sheets = $all('.pdf-doc-sheet', richBox);
+              var customBody = sheets.length
+                ? sheets.map(function (sh) { return sh.innerHTML; }).join('<br clear="all" style="page-break-before:always;mso-break-type:section-break" />')
+                : richBox.innerHTML;
+              html = buildWordDocHtml(texts, base, pageLayouts, customBody);
+            } else if (!initialAuto && plainEdited && !richEdited) {
+              html = buildWordDocHtml([area.value], base, null);
+            } else {
+              html = buildWordDocHtml(texts, base, pageLayouts);
+            }
             downloadBlob(new Blob(['\ufeff' + html], { type: 'application/msword;charset=utf-8' }), base + '.doc');
             showToast('Word (.doc) ফাইল ডাউনলোড হয়েছে!');
           }
         }
 
         $('#pdfCopyExtTxtBtn').addEventListener('click', function () {
-          navigator.clipboard.writeText(area.value).then(function () { showToast('লেখা কপি করা হয়েছে!'); });
+          var copyTxt = (!richBox.hidden && richEdited) ? richBox.innerText : area.value;
+          navigator.clipboard.writeText(copyTxt).then(function () { showToast('লেখা কপি করা হয়েছে!'); });
         });
         $('#pdfRedownloadExtBtn').addEventListener('click', function () {
-          triggerDocOrTxtDownload(area.value === full);
+          triggerDocOrTxtDownload(false);
         });
 
         triggerDocOrTxtDownload(true);
