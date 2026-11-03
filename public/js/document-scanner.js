@@ -92,7 +92,7 @@
   function updateControls(){
     var p=current(),has=!!p;
     $$('.ds-presets input,.ds-section:not(.ds-export-settings) input').forEach(function(el){el.disabled=busy||!has;});
-    $$('[data-ds]').forEach(function(b){var action=b.dataset.ds;if(['detect','full','left','right','pdf','jpg','png','zip','print','apply-all','reset-color','compare','toggle-eraser','erase-borders'].includes(action))b.disabled=busy||!has;});if($('#dsCompare'))$('#dsCompare').disabled=busy||!has;$$('[data-ds-tool]').forEach(function(b){b.disabled=busy||!has;});
+    $$('[data-ds]').forEach(function(b){var action=b.dataset.ds;if(['detect','full','left','right','pdf','jpg','png','zip','print','apply-all','reset-color','compare','toggle-eraser','erase-borders'].includes(action))b.disabled=busy||!has;});if($('#dsCompare'))$('#dsCompare').disabled=busy||!has;$$('[data-ds-tool],[data-ds-adj-btn]').forEach(function(b){b.disabled=busy||!has;});if(!has&&$('#dsActiveSliderTray'))$('#dsActiveSliderTray').hidden=true;
     var learningButton=$('[data-ds="clear-learning"]');if(learningButton)learningButton.textContent=tr('শেখা উদাহরণ: ','Learned: ')+bn(cropExamples().length);
     $('[data-ds="undo"]').disabled=busy||!has||!p.undo.length;$('[data-ds="redo"]').disabled=busy||!has||!p.redo.length;
     var eraseUndo=$('[data-ds="undo-erase"]'),eraseClear=$('[data-ds="clear-erases"]');if(eraseUndo)eraseUndo.disabled=busy||!has||!(p&&p.erases&&p.erases.length);if(eraseClear)eraseClear.disabled=busy||!has||!(p&&p.erases&&p.erases.length);
@@ -181,7 +181,9 @@
     }catch(error){toast(error.message||tr('এক্সপোর্ট করা যায়নি','Export failed'));}finally{setBusy(false);schedulePreview();}
   }
   // Actions use the same per-page geometry and settings for preview and export.
-  root.addEventListener('click',async function(e){var toolBtn=e.target.closest('[data-ds-tool]');if(toolBtn&&!busy&&!toolBtn.disabled){if(!eraserActive)setEraserMode(true);setEraserTool(toolBtn.dataset.dsTool);return;}var swatchBtn=e.target.closest('[data-ds-swatch]');if(swatchBtn&&!busy){setEraserColor(swatchBtn.dataset.dsSwatch,true);return;}var btn=e.target.closest('[data-ds]');if(!btn||btn.disabled)return;var action=btn.dataset.ds,p=current();
+  function closePopovers(except){$$('[data-ds-pop-panel]').forEach(function(p){if(p.dataset.dsPopPanel!==except)p.hidden=true;});$$('[data-ds-pop-btn]').forEach(function(b){if(b.dataset.dsPopBtn!==except)b.setAttribute('aria-expanded','false');});}
+  function toggleAdjSlider(key){var tray=$('#dsActiveSliderTray');if(!tray)return;var pane=key?tray.querySelector('[data-ds-adj-pane="'+key+'"]'):null,isOpen=pane&&!pane.hidden&&!tray.hidden;$$('[data-ds-adj-pane]').forEach(function(el){el.hidden=true;});$$('[data-ds-adj-btn]').forEach(function(b){b.setAttribute('aria-expanded','false');});if(!key||isOpen){tray.hidden=true;return;}if(pane){pane.hidden=false;tray.hidden=false;var btn=$('[data-ds-adj-btn="'+key+'"]');if(btn)btn.setAttribute('aria-expanded','true');}}
+  root.addEventListener('click',async function(e){var popBtn=e.target.closest('[data-ds-pop-btn]');if(popBtn&&!busy){var pk=popBtn.dataset.dsPopBtn,pp=$('[data-ds-pop-panel="'+pk+'"]'),wasOpen=pp&&!pp.hidden;closePopovers();if(pp&&!wasOpen){pp.hidden=false;popBtn.setAttribute('aria-expanded','true');}return;}if(!e.target.closest('[data-ds-pop-wrap]'))closePopovers();var adjBtn=e.target.closest('[data-ds-adj-btn]');if(adjBtn&&!busy&&!adjBtn.disabled){toggleAdjSlider(adjBtn.dataset.dsAdjBtn);return;}if(e.target.closest('[data-ds-adj-close]')){toggleAdjSlider(null);return;}var toolBtn=e.target.closest('[data-ds-tool]');if(toolBtn&&!busy&&!toolBtn.disabled){if(!eraserActive)setEraserMode(true);setEraserTool(toolBtn.dataset.dsTool);return;}var swatchBtn=e.target.closest('[data-ds-swatch]');if(swatchBtn&&!busy){setEraserColor(swatchBtn.dataset.dsSwatch,true);return;}var btn=e.target.closest('[data-ds]');if(!btn||btn.disabled)return;var action=btn.dataset.ds,p=current();
     if(action==='add'){$('#dsFiles').click();return;}if(action==='theme'){document.querySelector('#themeToggle')?.click();return;}if(action==='camera'){openCamera();return;}if(action==='camera-close'){$('#dsCameraDialog').close();return;}if(action==='camera-switch'){cameraFacing=cameraFacing==='environment'?'user':'environment';openCamera();return;}
     if(action==='capture'){var video=$('#dsVideo');if(!video.videoWidth)return;var capture=document.createElement('canvas');capture.width=video.videoWidth;capture.height=video.videoHeight;capture.getContext('2d').drawImage(video,0,0);var photo=await canvasBlob(capture,.97);$('#dsCameraDialog').close();await addFiles([new File([photo],'camera-'+Date.now()+'.jpg',{type:'image/jpeg'})]);return;}
     if(action==='clear-learning'){try{localStorage.removeItem(learningKey);}catch(e){}updateControls();toast(tr('আপনার ব্যক্তিগত ক্রপ শেখার তথ্য মুছে ফেলা হয়েছে।','Your learned crop preferences have been cleared.'));return;}
@@ -318,7 +320,7 @@
     if(bar)bar.hidden=!eraserActive;
     if(dock)dock.hidden=false;
     if(wrap){wrap.classList.toggle('is-eraser-active',eraserActive);wrap.dataset.tool=eraserTool;}
-    if(!eraserActive){if(cur)cur.hidden=true;if(loupe)loupe.hidden=true;$$('[data-ds-tool]').forEach(function(b){b.classList.remove('is-active');b.setAttribute('aria-pressed','false');});setPreviewZoom(1);}
+    if(!eraserActive){closePopovers();if(cur)cur.hidden=true;if(loupe)loupe.hidden=true;$$('[data-ds-tool]').forEach(function(b){b.classList.remove('is-active');b.setAttribute('aria-pressed','false');});setPreviewZoom(1);}
     $$('[data-ds="toggle-eraser"]').forEach(function(b){
       b.setAttribute('aria-pressed',String(eraserActive));
       b.classList.toggle('is-active',eraserActive);
@@ -417,7 +419,7 @@
       paintSegmentOnCanvas(prev,{x:pos.x,y:pos.y},eraserStroke.size);
     });
     wrap.addEventListener('pointerdown',function(e){
-      if(!eraserActive||busy||(e.button!==0&&e.button!==1))return;
+      closePopovers();if(!eraserActive||busy||(e.button!==0&&e.button!==1))return;
       var p=current();if(!p)return;
       if(space||eraserTool==='hand'||e.button===1){
         e.preventDefault();

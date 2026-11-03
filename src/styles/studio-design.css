@@ -140,20 +140,34 @@
   /* ==========================================================================
      1. FULL-VIEWPORT SCANNER / NID STUDIO SHELL
      ========================================================================== */
+  html:has(#img-pane-scan:not([hidden])),
+  body:has(#img-pane-scan:not([hidden])) {
+    @apply lg:h-dvh lg:max-h-dvh lg:overflow-hidden bg-slate-50 dark:bg-studio-bg;
+    scrollbar-gutter: auto;
+  }
+
+  body:has(#img-pane-scan:not([hidden])) > header {
+    @apply sticky top-0 z-50 shrink-0;
+  }
+
+  body:has(#img-pane-scan:not([hidden])) > header > div {
+    @apply h-12 px-3 sm:px-5;
+  }
+
   .workbench:has(#img-pane-scan:not([hidden])),
   .workbench-grid:has(#img-pane-scan:not([hidden])) {
     width: 100% !important;
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
   }
 
-  body:has(#img-pane-scan:not([hidden])) {
-    @apply overflow-hidden max-lg:overflow-auto bg-slate-50 dark:bg-studio-bg;
-  }
-
-  body:has(#img-pane-scan:not([hidden])) > :is(.topbar, .footer),
+  body:has(#img-pane-scan:not([hidden])) > :is(.topbar, .footer, .th-footer),
   body:has(#img-pane-scan:not([hidden])) .tools-sidebar,
   body:has(#img-pane-scan:not([hidden])) #globalBreadcrumbBar,
   .img-studio-card:has(#img-pane-scan:not([hidden])) > .pdf-nav-bar {
@@ -161,7 +175,48 @@
   }
 
   .img-studio-card:has(#img-pane-scan:not([hidden])) {
-    @apply p-0 m-0 border-0 rounded-none bg-transparent shadow-none max-w-none;
+    @apply p-0 m-0 border-0 rounded-none bg-transparent shadow-none max-w-none flex-1 min-h-0 flex flex-col;
+  }
+
+  .img-studio-card:has(#img-pane-scan:not([hidden])) > .util-body {
+    @apply flex-1 min-h-0 flex flex-col;
+  }
+
+  /* Compact Photoshop-style range sliders inside Document Scanner */
+  #img-pane-scan input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.35);
+    outline: none;
+  }
+  html[data-theme="dark"] #img-pane-scan input[type="range"] {
+    background: rgba(71, 85, 105, 0.55);
+  }
+  #img-pane-scan input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: #059669;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  #img-pane-scan input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+  #img-pane-scan input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: #059669;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
   }
 
   /* ==========================================================================
