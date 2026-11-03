@@ -2062,10 +2062,94 @@
   function isBijoyFontName(fontHint) {
     if (!fontHint) return false;
     var s = String(fontHint).toLowerCase();
-    if (/unicode|nikosh|kalpurush|solaiman|siyam|vrinda|nirmala|shonar|adorsho|charukola|bornomala|mitra|mukti|akaash|lohit|noto|anek|hind|baloo|atma|galada|mina/.test(s)) {
+    if (/unicode|nikosh|kalpurush|solaiman|siyam|vrinda|nirmala|shonar|adorsho|charukola|bornomala|mitra|mukti|akaash|lohit|noto|anek|hind|baloo|atma|galada|mina|omj\b/.test(s)) {
       return false;
     }
-    return /sutonny|tonnybangla|sulekha|chanchal|rinky|boishakhi|prothoma|bensen|kongsho|shorif|bijoy|mj\b|omj\b|cmj\b|bmj\b|emj\b/.test(s);
+    return /sutonny|tonnybangla|sulekha|chanchal|rinky|boishakhi|prothoma|bensen|kongsho|shorif|bijoy|mj\b|cmj\b|bmj\b|emj\b/.test(s);
+  }
+
+  function hasBijoyGlyphSignature(str) {
+    if (!str) return false;
+    var s = normalizeC1ToCp1252(str);
+    if (/[†‡ˆ‰Š‹ŒŽ‘’“”•–˜™š›œžŸ©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿À-ÿ\u03BC]/.test(s)) return true;
+    if (/\b(?:Avwg|Avgvi|evsjv|Zvi|Zv‡`i|K‡i|Ki‡Z|n‡q‡Q|wKš‘|Rb¨|gvbyl|gvbly|myLx|mLyx|bvwUKvq|DÏxcK|cÖkœ|DËi|mwVK|wb‡Pi|\d+wU)\b/.test(s)) return true;
+    var eng = window.BijoyEngine;
+    if (eng && typeof eng.detect === 'function' && eng.detect(s) === 'bijoy') return true;
+    return false;
+  }
+
+  function normalizeBijoyPreConvert(str) {
+    if (!str) return '';
+    var s = normalizeC1ToCp1252(str)
+      // Greek mu (\u03BC) from PDF Adobe Glyph List (/mu) -> Micro sign (\u00B5 = ক্র in SutonnyMJ)
+      .replace(/\u03BC/g, '\u00B5')
+      // Em-dash (\u2014) is only '্ত' in SutonnyMJ when preceded by half-form prefix (š, ›, ¯, ¤, •, ®).
+      // Otherwise it is an actual em-dash (\u00D1 in SutonnyMJ -> '—').
+      .replace(/([^\u0161\u203A\u00AF\u00A4\u2022\u00AE]|^)\u2014/g, '$1\u00D1');
+
+    // Rejoin words broken after zero-width subscript + pre-base kar: e.g. "cÖK…w Zi" -> "cÖK…wZi", "¯§„w Z" -> "¯§„wZ"
+    s = s.replace(/([\u201E\u2026~yz\u201C\u2013\u201A\u0192]w)\s+([A-Za-z`]+)/g, '$1$2');
+
+    // Rule 1: Pre-base kar (w, †, ‡, ˆ, ‰) followed by subscript kar/phala -> swap back! ("g‡yLvk" -> "gy‡Lvk")
+    s = s.replace(/([w\u2020\u2021\u02C6\u2030])([yz~\u201C\u2013\u00E6\u201A\u0192\u201E\u2026\u00D6\u00AA\u00AB])/g, '$2$1');
+
+    // Rule 2: Post-base kar (v, x) followed by phala (Ö, ª, «, ¨, etc.) -> swap back! ("AvKvÖšÍ" -> "AvKÖvšÍ")
+    s = s.replace(/([vx])([\u00D6\u00AA\u00AB\u00A8^\u00A1\u00A6\u0178\u00AC\u00AD\u00F8\u00A5\u00A7\u0153\u00E8])/g, '$2$1');
+
+    // Rule 3: C1 + C2 + (phala)? + subscriptKar + anyKar -> move subscriptKar back to C1!
+    // Fixes "mLyx" -> "myLx" (সুখী), "gZ…¨y" -> "g…Z¨y" (মৃত্যু)
+    s = s.replace(/([K-Z_`a-np-tw])([K-Z_`a-np-t])([\u00A8\u00D6\u00AA\u00AB^\u00A1\u00A6\u0178\u00AC\u00AD\u00F8\u00A5\u00A7\u0153\u00E8]?)([yz~\u201C\u2013\u00E6\u201A\u0192\u201E\u2026])([vxyz~\u201C\u2013\u00E6\u201A\u0192\u201E\u2026])/g, '$1$4$2$3$5');
+
+    // Rule 4: Independent vowel (B-J) cannot take subscript kar ("`By" / "'By" -> "`yB" দুই)
+    s = s.replace(/['`]B([yz])/g, '`$1B');
+    s = s.replace(/([`K-Z_a-np-t])([B-J])([yz~\u201C\u2013\u201A\u0192\u201E\u2026])/g, '$1$3$2');
+
+    // Rule 5: Hyphen or tilde transposed in gj-Z / gj~Z -> g~jZ (মূলত)
+    s = s.replace(/\bgj[-~]Z\b/g, 'g~jZ');
+
+    // Rule 6: Transposed ri-kar (…) / u-kar across final consonant
+    s = s.replace(/([K-Z_`a-np-t])([K-Z_`a-np-t])([\u201E\u2026])/g, '$1$3$2');
+    s = s.replace(/\bgvbly/g, 'gvbyl')
+         .replace(/\b(A?)mLy(x?)\b/g, '$1myL$2')
+         .replace(/\bNgy\b/g, 'Nyg')
+         .replace(/\bwecjy\b/g, 'wecyj')
+         .replace(/\bcZzj\b/g, 'cyZzj')
+         .replace(/\bbZbz\b/g, 'bZzb')
+         .replace(/\bZibz\b/g, 'ZiyY')
+         .replace(/\bG[kK]mgg\b/g, 'GKmgq');
+
+    return s;
+  }
+
+  function convertBijoyPreserveRoman(str) {
+    var eng = window.BijoyEngine;
+    if (!eng || typeof eng.bijoyToUnicode !== 'function') return str;
+    var s = normalizeBijoyPreConvert(str);
+    var tokens = [];
+    function stash(m) {
+      var ch = String.fromCharCode(0xE100 + tokens.length);
+      tokens.push(m);
+      return ch;
+    }
+    // Protect Roman numerals in MCQ options ("i, ii I iii", "i I ii") and list markers ("i.", "ii.", "iii.")
+    s = s.replace(/\b(i{1,3}|iv)\s*,\s*(i{1,3}|iv)\s+I\s+(i{1,3}|iv)\b/g, function (_, a, b, c) {
+      return stash(a) + ', ' + stash(b) + ' I ' + stash(c);
+    });
+    s = s.replace(/\b(i{1,3}|iv)\s+I\s+(i{1,3}|iv)\b/g, function (_, a, b) {
+      return stash(a) + ' I ' + stash(b);
+    });
+    s = s.replace(/(^|[\s\t(])(i{1,3}|iv)\.(?=\s|$)/g, function (_, pre, rom) {
+      return pre + stash(rom + '.');
+    });
+
+    var out = s;
+    try {
+      out = eng.bijoyToUnicode(s);
+    } catch (e) {}
+    out = out.replace(/[\uE100-\uE1FF]/g, function (ch) {
+      return tokens[ch.charCodeAt(0) - 0xE100] || '';
+    });
+    return out;
   }
 
   function repairUnicodeBangla(str) {
@@ -2074,36 +2158,46 @@
     if (s.normalize) s = s.normalize('NFC');
     // Remove stray zero-width characters in the middle of consonant+halant clusters
     s = s.replace(/([\u0995-\u09B9\u09DC\u09DD\u09DF])[\u200B\uFEFF]+(\u09CD)/g, '$1$2');
-    // Fix visual-order pre-base vowel signs (ি, ে, ৈ) placed BEFORE consonant/conjunct cluster in PDF streams
-    for (var pass = 0; pass < 2; pass++) {
-      s = s.replace(/([\u09BF\u09C7\u09C8])([\u0995-\u09B9\u09DC\u09DD\u09DF\u09CE](?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF])*)/g, '$2$1');
-    }
-    // Combine split two-part vowel signs: ে + া -> ো and ে + ৗ -> ৌ
+    // 1. Rejoin words split right after a pre-base vowel sign (e.g. "প্রকৃি তর" -> "প্রকৃতির", "স্মৃি ত" -> "স্মৃতি")
+    s = s.replace(/([\u09BE-\u09CC\u09D7])([\u09BF\u09C7\u09C8])\s+([\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?(?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?)*)/g, '$1$3$2');
+    // 2. Fix visual-order pre-base vowel signs (ি, ে, ৈ) ONLY when ORPHANED (at word start or preceded by space/punct/vowel),
+    // NEVER when already preceded by a consonant!
+    s = s.replace(/(^|[\s([{'"“‘—–\-\u0985-\u0994\u09BE-\u09CC\u09D7])([\u09BF\u09C7\u09C8])([\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?(?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?)*)/g, '$1$3$2');
+    // 3. If a consonant cluster C1 (with no vowel sign) is followed by C2 + V1 + V2 (two consecutive vowel signs on C2, which is illegal in Bangla),
+    // move V1 back onto C1! (Fixes কবরিাজরে -> কবিরাজের, নচরিে -> নিচের, দৃষ্টতিে -> দৃষ্টিতে, মত্যৃুকে -> মৃত্যুকে, নর্দশিে -> নির্দেশ, মেুখাশ -> মুখোশ)
+    s = s.replace(/([\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?(?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?)*)([\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?(?:\u09CD[\u0995-\u09B9\u09DC\u09DD\u09DF](?:\u09BC)?)*)([\u09BE-\u09CC\u09D7])([\u09BE-\u09CC\u09D7])/g, '$1$3$2$4');
+    // 4. Combine split two-part vowel signs: ে + া -> ো and ে + ৗ -> ৌ
     s = s.replace(/\u09C7\u09BE/g, '\u09CB').replace(/\u09C7\u09D7/g, '\u09CC');
     s = s.replace(/\u09BE\u09C7/g, '\u09CB').replace(/\u09D7\u09C7/g, '\u09CC');
-    // Collapse accidental duplicate vowel signs on the same consonant
+    // 5. Collapse accidental identical consecutive vowel signs on the same consonant
     s = s.replace(/([\u09BE-\u09CC\u09D7])\1+/g, '$1');
     return s;
   }
 
-  function cleanAndConvertPdfRun(str, fontHint) {
+  function cleanAndConvertPdfRun(str, fontHint, forceBijoy) {
     if (!str) return '';
     var s = normalizeC1ToCp1252(str)
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
     if (!s) return '';
 
-    var eng = window.BijoyEngine;
+    var bijoyMode = !!(forceBijoy || isBijoyFontName(fontHint) || hasBijoyGlyphSignature(s));
     var hasBanglaUnicode = /[\u0980-\u09FF]/.test(s);
-    var bijoyFont = isBijoyFontName(fontHint);
-    var hasBijoyHighChars = /[†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿À-ÿ]/.test(s);
 
-    if (eng && typeof eng.bijoyToUnicode === 'function' && !hasBanglaUnicode) {
-      var detected = typeof eng.detect === 'function' ? eng.detect(s) : 'unknown';
-      if (bijoyFont || detected === 'bijoy' || hasBijoyHighChars) {
-        try {
-          s = eng.bijoyToUnicode(s);
-        } catch (e) {}
+    if (!hasBanglaUnicode) {
+      if (bijoyMode) {
+        s = convertBijoyPreserveRoman(s);
       }
+    } else {
+      // Mixed string containing BOTH Unicode Bangla and embedded Bijoy fragments (e.g. "আµাšÍ।", "প্রকৃ Zi", "1. 'সুখী মানুষ' bvwUKvq")
+      s = s.replace(/[^\u0980-\u09FF\u0964\u0965]+/g, function (frag) {
+        if (!/[A-Za-z0-9\u00A1-\u00FF\u03BC\u0152\u0153\u0160\u0161\u0178\u0192\u02C6\u02DC\u2013-\u203A\u2122`|~_]/.test(frag)) {
+          return frag;
+        }
+        if (bijoyMode || hasBijoyGlyphSignature(frag) || /[`|~_\u03BC]/.test(frag)) {
+          return convertBijoyPreserveRoman(frag);
+        }
+        return frag;
+      });
     }
 
     if (/[\u0980-\u09FF]/.test(s)) {
@@ -2119,156 +2213,305 @@
 
     // PUA or Unicode replacement characters indicate missing/broken ToUnicode CMap
     var puaMatches = trimmed.match(/[\uE000-\uF8FF\uFFFD]/g);
-    if (puaMatches && puaMatches.length / trimmed.length > 0.06) return true;
+    if (puaMatches && puaMatches.length / trimmed.length > 0.05) return true;
 
     // Count legitimate readable characters (Bangla, Latin, digits, common punctuation)
-    var validMatches = trimmed.match(/[\u0980-\u09FFa-zA-Z0-9.,;:!?"'()\[\]{}\-\/\\+@#$%&*=<>|_~`^৳₹$€£¥°•–—‘’“”…]/g);
+    var validMatches = trimmed.match(/[\u0980-\u09FF\u0964\u0965a-zA-Z0-9.,;:!?"'()\[\]{}\-\/\\+@#$%&*=<>|_~`^৳₹$€£¥°•–—‘’“”…]/g);
     var validCount = validMatches ? validMatches.length : 0;
-    if (validCount / trimmed.length < 0.72) return true;
+    if (validCount / trimmed.length < 0.75) return true;
 
-    // Detect unconverted legacy glyph-index gibberish (e.g. strings full of random symbols inside words)
+    // Detect remaining broken Bangla sequences (consecutive vowel signs, vowel sign after halant, or leftover CP1252 Bijoy glyphs)
+    var doubleKars = (text.match(/[\u09BE-\u09CC\u09D7]{2,}|\u09CD[\u09BE-\u09CC\u09D7]|(?:^|\s)[\u09BE-\u09CC\u09CD\u09D7]/g) || []).length;
+    if (doubleKars >= 3) return true;
+
+    var leftoverBijoy = (text.match(/[†‡ˆ‰Š‹ŒŽ•˜™š›œžŸ¡-ÿ\u03BC]/g) || []).length;
+    if (leftoverBijoy >= 3) return true;
+
+    // Detect unconverted legacy glyph-index gibberish
     var weirdInsideWord = trimmed.match(/[a-zA-Z][~`|\\^<>]+[a-zA-Z]/g);
     if (weirdInsideWord && weirdInsideWord.length >= 3) return true;
 
     return false;
   }
 
+  function isSubscriptOrCombiningBijoy(str) {
+    if (!str) return false;
+    var s = normalizeC1ToCp1252(str).trim();
+    return /^[\u201C\u2013\u00E6\u201A\u0192\u201E\u2026\u00A8\u00A9\u00AA\u00AB\u00D6\u00A1-\u00AD\u00F8\u00FA\u0153\u0178yz~^u\u09BC\u09BE-\u09CD\u09D7]+$/.test(s);
+  }
+
+  function extractColumnLines(colItems, pageBijoy, allowTabs) {
+    if (!colItems.length) return [];
+    var rows = [];
+    colItems.forEach(function (it) {
+      var bestRow = null;
+      var bestDist = Infinity;
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        var tol = Math.max(4.2, Math.min(r.h, it.h) * 0.52);
+        var dist = Math.abs(r.y - it.y);
+        if (dist <= tol && dist < bestDist) {
+          bestDist = dist;
+          bestRow = r;
+        }
+      }
+      if (bestRow) {
+        bestRow.items.push(it);
+        bestRow.y = (bestRow.y * (bestRow.items.length - 1) + it.y) / bestRow.items.length;
+        bestRow.h = Math.max(bestRow.h, it.h);
+      } else {
+        rows.push({ y: it.y, h: it.h, items: [it] });
+      }
+    });
+
+    rows.sort(function (a, b) { return b.y - a.y; });
+
+    var outLines = [];
+    var prevRow = null;
+
+    rows.forEach(function (r) {
+      // Group consecutive stream items that belong to the same word/phrase BEFORE sorting across columns,
+      // so zero-width backspacing subscripts (y, z, ~, „, …, Ö) are never swapped with the next consonant!
+      r.items.sort(function (a, b) {
+        var ax = a.isSub ? (a.x - a.h * 0.42) : a.x;
+        var bx = b.isSub ? (b.x - b.h * 0.42) : b.x;
+        var diff = ax - bx;
+        var tol = Math.max(a.h, b.h, 8) * 0.55;
+        if (Math.abs(diff) <= tol) {
+          return a.streamIdx - b.streamIdx;
+        }
+        return diff;
+      });
+
+      var rowForceBijoy = pageBijoy || r.items.some(function (it) {
+        return it.bijoyFont || hasBijoyGlyphSignature(it.str);
+      });
+
+      var wordRuns = [];
+      r.items.forEach(function (cur) {
+        var curEndX = cur.x + (cur.isSub ? 0 : cur.w);
+        if (!wordRuns.length) {
+          wordRuns.push({
+            str: cur.str,
+            x: cur.x,
+            endX: Math.max(cur.x, curEndX),
+            h: cur.h,
+            fontHint: cur.fontHint,
+            bijoyFont: cur.bijoyFont || rowForceBijoy
+          });
+          return;
+        }
+        var prev = wordRuns[wordRuns.length - 1];
+        var gap = cur.x - prev.endX;
+        var refH = Math.max(prev.h, cur.h, 8);
+        // Skip exact duplicate overlaid text (bold shadow effect in some PDFs)
+        if (gap < -refH * 0.45 && cur.str === prev.str) {
+          return;
+        }
+        if (cur.isSub || (gap <= refH * 0.22 && (prev.bijoyFont === (cur.bijoyFont || rowForceBijoy)))) {
+          prev.str += cur.str;
+          prev.endX = Math.max(prev.endX, curEndX);
+          prev.h = Math.max(prev.h, cur.h);
+        } else {
+          wordRuns.push({
+            str: cur.str,
+            x: cur.x,
+            endX: Math.max(cur.x, curEndX),
+            h: cur.h,
+            fontHint: cur.fontHint,
+            bijoyFont: cur.bijoyFont || rowForceBijoy
+          });
+        }
+      });
+
+      var lineStr = '';
+      for (var i = 0; i < wordRuns.length; i++) {
+        var seg = wordRuns[i];
+        var converted = cleanAndConvertPdfRun(seg.str, seg.fontHint, seg.bijoyFont || rowForceBijoy);
+        if (!converted) continue;
+        if (i > 0 && lineStr.length > 0) {
+          var prevSeg = wordRuns[i - 1];
+          var gap2 = seg.x - prevSeg.endX;
+          var refH2 = Math.max(prevSeg.h, seg.h, 8);
+          if (allowTabs && gap2 > refH2 * 2.2) {
+            lineStr += '\t';
+          } else if (gap2 > refH2 * 0.14) {
+            lineStr += ' ';
+          }
+        }
+        lineStr += converted;
+      }
+
+      lineStr = cleanAndConvertPdfRun(lineStr, '', rowForceBijoy)
+        .replace(/ +/g, ' ')
+        .replace(/ *\t */g, '\t')
+        .trim();
+
+      if (lineStr) {
+        if (prevRow && (prevRow.y - r.y) > Math.max(prevRow.h, r.h) * 2.15) {
+          outLines.push('');
+        }
+        outLines.push(lineStr);
+        prevRow = r;
+      }
+    });
+
+    return outLines;
+  }
+
+  function detectTwoColumnSplit(items, pageWidth) {
+    if (items.length < 14) return null;
+    var minX = Infinity, maxX = -Infinity;
+    items.forEach(function (it) {
+      if (it.x < minX) minX = it.x;
+      if (it.x + it.w > maxX) maxX = it.x + it.w;
+    });
+    var spanW = maxX - minX;
+    var refW = Math.max(pageWidth || 0, spanW);
+    if (spanW < 240 || refW < 280) return null;
+
+    var centerMin = minX + spanW * 0.42;
+    var centerMax = minX + spanW * 0.58;
+    var bestX = null;
+    var bestCross = Infinity;
+    var bestBalance = 0;
+
+    for (var frac = 0.44; frac <= 0.56; frac += 0.015) {
+      var candX = minX + spanW * frac;
+      var leftN = 0, rightN = 0, crossN = 0;
+      var leftChars = 0, rightChars = 0;
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var endX = it.x + Math.max(2, it.w);
+        if (endX <= candX + 5) {
+          leftN++;
+          leftChars += it.str.length;
+        } else if (it.x >= candX - 5) {
+          rightN++;
+          rightChars += it.str.length;
+        } else {
+          crossN++;
+        }
+      }
+      if (leftN >= 6 && rightN >= 6 && leftChars >= 45 && rightChars >= 45) {
+        var balance = Math.min(leftN, rightN) / Math.max(leftN, rightN);
+        if (crossN < bestCross || (crossN === bestCross && balance > bestBalance)) {
+          bestCross = crossN;
+          bestBalance = balance;
+          bestX = candX;
+        }
+      }
+    }
+
+    if (bestX === null || bestCross > Math.max(2, items.length * 0.06)) return null;
+
+    // Distinguish a 2-column exam/article page from a 2-column key-value form (like Admit Card):
+    // In a 2-column exam/article page, BOTH left and right columns contain multi-word sentences or numbered items.
+    var leftLong = 0, rightLong = 0;
+    items.forEach(function (it) {
+      if (it.x + it.w <= bestX + 5) {
+        if (it.w > spanW * 0.22 || it.str.length > 14) leftLong++;
+      } else if (it.x >= bestX - 5) {
+        if (it.w > spanW * 0.22 || it.str.length > 14) rightLong++;
+      }
+    });
+    if (leftLong < 2 && rightLong < 2) {
+      // Check if numbered questions exist on both sides
+      var leftNum = items.some(function (it) { return it.x < bestX && /^\s*[0-9০-৯]+\./.test(it.str); });
+      var rightNum = items.some(function (it) { return it.x >= bestX - 5 && /^\s*[0-9০-৯]+\./.test(it.str); });
+      if (!(leftNum && rightNum)) return null;
+    }
+
+    return bestX;
+  }
+
   function extractPageTextSmart(page) {
+    var vp = page.getViewport ? page.getViewport({ scale: 1 }) : { width: 595 };
     return page.getTextContent({ normalizeWhitespace: false, disableCombineTextItems: false }).then(function (tc) {
       var styles = tc.styles || {};
       var rawItems = tc.items || [];
-      var items = [];
+      var fontConcat = {};
+      var allConcat = '';
 
       rawItems.forEach(function (it) {
         var raw = it.str || '';
         if (!raw.trim()) return;
+        var fn = it.fontName || '_default';
+        fontConcat[fn] = (fontConcat[fn] || '') + ' ' + raw;
+        allConcat += ' ' + raw;
+      });
+
+      var fontIsBijoy = {};
+      var anyBijoyFont = false;
+      Object.keys(fontConcat).forEach(function (fn) {
+        var stObj = styles[fn] || {};
+        var hint = fn + ' ' + (stObj.fontFamily || '');
+        var sample = fontConcat[fn];
+        var isBj = isBijoyFontName(hint) || (!/[\u0980-\u09FF]/.test(sample) && hasBijoyGlyphSignature(sample));
+        fontIsBijoy[fn] = isBj;
+        if (isBj) anyBijoyFont = true;
+      });
+
+      var pageBijoy = anyBijoyFont || hasBijoyGlyphSignature(allConcat);
+      var items = [];
+
+      rawItems.forEach(function (it, idx) {
+        var raw = it.str || '';
+        if (!raw || !raw.trim()) return;
         var tr = it.transform || [1, 0, 0, 1, 0, 0];
         var x = tr[4] || 0;
         var y = tr[5] || 0;
         var h = Math.max(6, Math.abs(tr[3]) || Math.abs(tr[0]) || it.height || 10);
-        var w = Math.max(0, it.width || (raw.length * h * 0.48));
-        var stObj = styles[it.fontName] || {};
-        var fontHint = (it.fontName || '') + ' ' + (stObj.fontFamily || '');
+        var w = (typeof it.width === 'number' && !isNaN(it.width))
+          ? Math.max(0, it.width)
+          : (raw.length * h * 0.48);
+        var fn = it.fontName || '_default';
+        var stObj = styles[fn] || {};
+        var fontHint = fn + ' ' + (stObj.fontFamily || '');
+        var isSub = isSubscriptOrCombiningBijoy(raw) && w < h * 0.35;
         items.push({
           str: raw,
           x: x,
           y: y,
           w: w,
           h: h,
+          streamIdx: idx,
+          isSub: isSub,
           fontHint: fontHint,
-          bijoyFont: isBijoyFontName(fontHint)
+          bijoyFont: !!(fontIsBijoy[fn] || isBijoyFontName(fontHint))
         });
       });
 
       if (!items.length) {
-        return { text: '', rawCount: rawItems.length, garbled: true };
+        return { text: '', columns: null, rawCount: rawItems.length, garbled: true };
       }
 
-      // 1. Group items into horizontal rows using adaptive Y tolerance
-      var rows = [];
-      items.forEach(function (it) {
-        var bestRow = null;
-        var bestDist = Infinity;
-        for (var i = 0; i < rows.length; i++) {
-          var r = rows[i];
-          var tol = Math.max(4, Math.min(r.h, it.h) * 0.48);
-          var dist = Math.abs(r.y - it.y);
-          if (dist <= tol && dist < bestDist) {
-            bestDist = dist;
-            bestRow = r;
-          }
-        }
-        if (bestRow) {
-          bestRow.items.push(it);
-          bestRow.y = (bestRow.y * (bestRow.items.length - 1) + it.y) / bestRow.items.length;
-          bestRow.h = Math.max(bestRow.h, it.h);
-        } else {
-          rows.push({ y: it.y, h: it.h, items: [it] });
-        }
-      });
-
-      // 2. Sort rows top-to-bottom (higher PDF Y is higher on the page)
-      rows.sort(function (a, b) { return b.y - a.y; });
-
-      // 3. Sort items left-to-right within each row and merge intra-word runs before font conversion
-      var outLines = [];
-      var prevRow = null;
-
-      rows.forEach(function (r) {
-        r.items.sort(function (a, b) { return a.x - b.x; });
-
-        // Merge tightly-spaced adjacent runs that belong to the same word/font
-        var wordRuns = [];
-        r.items.forEach(function (cur) {
-          if (!wordRuns.length) {
-            wordRuns.push({
-              str: cur.str,
-              x: cur.x,
-              endX: cur.x + cur.w,
-              h: cur.h,
-              fontHint: cur.fontHint,
-              bijoyFont: cur.bijoyFont
-            });
-            return;
-          }
-          var prev = wordRuns[wordRuns.length - 1];
-          var gap = cur.x - prev.endX;
-          var refH = Math.max(prev.h, cur.h, 8);
-          // Skip exact duplicate overlaid text (bold shadow effect in some PDFs)
-          if (gap < -refH * 0.45 && cur.str === prev.str) {
-            return;
-          }
-          if (gap <= refH * 0.16 && prev.bijoyFont === cur.bijoyFont) {
-            prev.str += cur.str;
-            prev.endX = Math.max(prev.endX, cur.x + cur.w);
-            prev.h = Math.max(prev.h, cur.h);
-          } else {
-            wordRuns.push({
-              str: cur.str,
-              x: cur.x,
-              endX: cur.x + cur.w,
-              h: cur.h,
-              fontHint: cur.fontHint,
-              bijoyFont: cur.bijoyFont
-            });
-          }
+      var splitX = detectTwoColumnSplit(items, vp.width);
+      if (splitX !== null) {
+        var leftItems = [];
+        var rightItems = [];
+        items.forEach(function (it) {
+          if (it.x + it.w * 0.35 < splitX) leftItems.push(it);
+          else rightItems.push(it);
         });
+        var leftLines = extractColumnLines(leftItems, pageBijoy, false);
+        var rightLines = extractColumnLines(rightItems, pageBijoy, false);
+        var col1Text = leftLines.join('\n').trim();
+        var col2Text = rightLines.join('\n').trim();
+        var combined = [col1Text, col2Text].filter(Boolean).join('\n\n');
+        return {
+          text: combined,
+          columns: [col1Text, col2Text],
+          rawCount: rawItems.length,
+          garbled: isTextGarbledOrEmpty(combined, rawItems.length)
+        };
+      }
 
-        var lineStr = '';
-        for (var i = 0; i < wordRuns.length; i++) {
-          var seg = wordRuns[i];
-          var converted = cleanAndConvertPdfRun(seg.str, seg.fontHint);
-          if (!converted) continue;
-          if (i > 0 && lineStr.length > 0) {
-            var prevSeg = wordRuns[i - 1];
-            var gap2 = seg.x - prevSeg.endX;
-            var refH2 = Math.max(prevSeg.h, seg.h, 8);
-            if (gap2 > refH2 * 2.1) {
-              lineStr += '\t';
-            } else if (gap2 > refH2 * 0.14) {
-              lineStr += ' ';
-            }
-          }
-          lineStr += converted;
-        }
-
-        lineStr = repairUnicodeBangla(lineStr)
-          .replace(/ +/g, ' ')
-          .replace(/ *\t */g, '\t')
-          .trim();
-
-        if (lineStr) {
-          if (prevRow && (prevRow.y - r.y) > Math.max(prevRow.h, r.h) * 2.15) {
-            outLines.push('');
-          }
-          outLines.push(lineStr);
-          prevRow = r;
-        }
-      });
-
+      var outLines = extractColumnLines(items, pageBijoy, true);
       var finalTxt = outLines.join('\n').trim();
       return {
         text: finalTxt,
+        columns: null,
         rawCount: rawItems.length,
         garbled: isTextGarbledOrEmpty(finalTxt, rawItems.length)
       };
@@ -2388,58 +2631,72 @@
     $('#pdfToOtherSummary').textContent = toBn(st.pages.length) + ' পৃষ্ঠা রূপান্তরের জন্য প্রস্তুত';
   }
 
-  function buildWordDocHtml(pageTexts, title) {
-    var fontStack = "'Nirmala UI','Kalpurush','Noto Sans Bengali','Calibri',sans-serif";
-    var pageHtmls = pageTexts.map(function (pageText) {
-      var lines = String(pageText || '').split(/\r?\n/);
-      var blocks = [];
-      var tableRows = [];
+  function renderColumnBlocksHtml(colText, fontStack) {
+    var lines = String(colText || '').split(/\r?\n/);
+    var blocks = [];
+    var tableRows = [];
 
-      function flushTable() {
-        if (!tableRows.length) return;
-        var maxCols = 1;
-        tableRows.forEach(function (cols) { if (cols.length > maxCols) maxCols = cols.length; });
-        var trs = tableRows.map(function (cols) {
-          var tds = [];
-          for (var c = 0; c < maxCols; c++) {
-            var val = cols[c] !== undefined ? cols[c] : '';
-            var isFirst = (c === 0 && maxCols === 2 && val.length < 36);
-            tds.push(
-              '<td style="padding:3pt 8pt 3pt 0;vertical-align:top;font-family:' + fontStack + ';font-size:11.5pt;line-height:1.45;' +
-              (isFirst ? 'font-weight:bold;width:34%;' : '') + '">' + esc(val) + '</td>'
-            );
-          }
-          return '<tr>' + tds.join('') + '</tr>';
-        }).join('');
-        blocks.push('<table style="width:100%;border-collapse:collapse;margin:4pt 0 8pt 0;">' + trs + '</table>');
-        tableRows = [];
-      }
-
-      lines.forEach(function (line) {
-        var trimmed = line.trim();
-        if (!trimmed) {
-          flushTable();
-          blocks.push('<p style="margin:0 0 6pt 0;font-size:6pt;">&nbsp;</p>');
-          return;
-        }
-        if (trimmed.indexOf('\t') !== -1) {
-          tableRows.push(trimmed.split('\t'));
-        } else {
-          flushTable();
-          blocks.push(
-            '<p style="font-family:' + fontStack + ';font-size:11.5pt;line-height:1.5;margin:0 0 6pt 0;color:#0f172a;">' +
-            esc(trimmed) +
-            '</p>'
+    function flushTable() {
+      if (!tableRows.length) return;
+      var maxCols = 1;
+      tableRows.forEach(function (cols) { if (cols.length > maxCols) maxCols = cols.length; });
+      var trs = tableRows.map(function (cols) {
+        var tds = [];
+        for (var c = 0; c < maxCols; c++) {
+          var val = cols[c] !== undefined ? cols[c] : '';
+          var isFirst = (c === 0 && maxCols === 2 && val.length < 36);
+          tds.push(
+            '<td style="padding:3pt 8pt 3pt 0;vertical-align:top;font-family:' + fontStack + ';font-size:11.5pt;line-height:1.45;' +
+            (isFirst ? 'font-weight:bold;width:34%;' : '') + '">' + esc(val) + '</td>'
           );
         }
-      });
-      flushTable();
-      return '<div class="SectionPage">' + blocks.join('') + '</div>';
+        return '<tr>' + tds.join('') + '</tr>';
+      }).join('');
+      blocks.push('<table style="width:100%;border-collapse:collapse;margin:4pt 0 8pt 0;">' + trs + '</table>');
+      tableRows = [];
+    }
+
+    lines.forEach(function (line) {
+      var trimmed = line.trim();
+      if (!trimmed) {
+        flushTable();
+        blocks.push('<p style="margin:0 0 6pt 0;font-size:6pt;">&nbsp;</p>');
+        return;
+      }
+      if (trimmed.indexOf('\t') !== -1) {
+        tableRows.push(trimmed.split('\t'));
+      } else {
+        flushTable();
+        blocks.push(
+          '<p style="font-family:' + fontStack + ';font-size:11.5pt;line-height:1.5;margin:0 0 6pt 0;color:#0f172a;">' +
+          esc(trimmed) +
+          '</p>'
+        );
+      }
+    });
+    flushTable();
+    return blocks.join('');
+  }
+
+  function buildWordDocHtml(pageTexts, title, pageColumns) {
+    var fontStack = "'Nirmala UI','Kalpurush','Noto Sans Bengali','Calibri',sans-serif";
+    var pageHtmls = pageTexts.map(function (pageText, idx) {
+      var cols = pageColumns && pageColumns[idx];
+      if (cols && cols.length === 2 && (cols[0] || cols[1])) {
+        var leftHtml = renderColumnBlocksHtml(cols[0], fontStack);
+        var rightHtml = renderColumnBlocksHtml(cols[1], fontStack);
+        return '<div class="SectionPage"><table style="width:100%;border-collapse:collapse;table-layout:fixed;"><tr>' +
+          '<td style="width:48.5%;vertical-align:top;padding-right:10pt;">' + leftHtml + '</td>' +
+          '<td style="width:3%;vertical-align:top;">&nbsp;</td>' +
+          '<td style="width:48.5%;vertical-align:top;padding-left:10pt;">' + rightHtml + '</td>' +
+          '</tr></table></div>';
+      }
+      return '<div class="SectionPage">' + renderColumnBlocksHtml(pageText, fontStack) + '</div>';
     });
 
     return '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
       '<head><meta charset="utf-8"><title>' + esc(title) + '</title>' +
-      '<style>@page { size: 21cm 29.7cm; margin: 2cm; } body { font-family: ' + fontStack + '; font-size: 11.5pt; }</style>' +
+      '<style>@page { size: 21cm 29.7cm; margin: 1.8cm; } body { font-family: ' + fontStack + '; font-size: 11.5pt; }</style>' +
       '</head><body>' +
       pageHtmls.join('<br clear="all" style="page-break-before:always" />') +
       '</body></html>';
@@ -2496,11 +2753,12 @@
       }
 
       var texts = [];
+      var pageColumns = [];
       var usedOcrCount = 0;
       var chainT = Promise.resolve();
       st.pages.forEach(function (p, i) {
         chainT = chainT.then(function () {
-          if (p.isBlank) { texts.push(''); return; }
+          if (p.isBlank) { texts.push(''); pageColumns.push(null); return; }
           var basePct = 5 + (i / total) * 85;
           var stepPct = 85 / total;
 
@@ -2512,6 +2770,7 @@
             }).then(function (ocrTxt) {
               usedOcrCount++;
               texts.push(ocrTxt);
+              pageColumns.push(null);
             });
           }
 
@@ -2525,11 +2784,14 @@
               }).then(function (ocrTxt) {
                 usedOcrCount++;
                 texts.push(ocrTxt || res.text);
+                pageColumns.push(null);
               }).catch(function () {
                 texts.push(res.text);
+                pageColumns.push(res.columns || null);
               });
             }
             texts.push(res.text);
+            pageColumns.push(res.columns || null);
           });
         });
       });
@@ -2567,7 +2829,8 @@
             showToast('টেক্সট (.txt) ফাইল ডাউনলোড হয়েছে!');
           } else {
             var pagesForDoc = useRawPages ? texts : [area.value];
-            var html = buildWordDocHtml(pagesForDoc, base);
+            var colsForDoc = useRawPages ? pageColumns : null;
+            var html = buildWordDocHtml(pagesForDoc, base, colsForDoc);
             downloadBlob(new Blob(['\ufeff' + html], { type: 'application/msword;charset=utf-8' }), base + '.doc');
             showToast('Word (.doc) ফাইল ডাউনলোড হয়েছে!');
           }
