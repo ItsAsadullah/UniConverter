@@ -3,5 +3,7 @@ tests/node_modules/
 .astro/
 dist/
 local-data/crop-dataset/
+.agents/
+.taste-skill/
 .DS_Store
 Thumbs.db

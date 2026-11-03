@@ -319,131 +319,265 @@
         </div>
 
       <!-- ========================================== 5. PDF TO OTHERS WORKSPACE -->
-        <div class="pdf-pane space-y-3.5" id="pdf-pane-pdf2other" hidden={initialTab !== 'pdf2other'}>
-          <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-2.5">
-            <h1 class="pdf-ws-title text-base sm:text-lg font-bold text-slate-900 dark:text-studio-text m-0" data-i18n-bn="PDF কনভার্টার (JPG / PNG / Word / Text)" data-i18n-en="Convert PDF to JPG / PNG / Word / Text">PDF কনভার্টার (JPG / PNG / Word / Text)</h1>
+        <div class="pdf-pane space-y-4" id="pdf-pane-pdf2other" hidden={initialTab !== 'pdf2other'}>
+          <!-- Top Bar: Title + Quick File Actions -->
+          <div class="pdf-ws-head flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-slate-200/80 dark:border-studio-border">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-studio-primary flex items-center justify-center shrink-0">
+                <svg class="w-4.5 h-4.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="m12 12 3 3-3 3"/></svg>
+              </div>
+              <div class="min-w-0">
+                <h1 class="pdf-ws-title text-base sm:text-lg font-bold text-slate-900 dark:text-studio-text m-0 leading-tight" data-i18n-bn="PDF কনভার্টার স্টুডিও" data-i18n-en="PDF Converter Studio">PDF কনভার্টার স্টুডিও</h1>
+                <p class="text-xs text-slate-500 dark:text-studio-muted m-0 mt-0.5 truncate" data-i18n-bn="২ডি কলাম লেআউট, বিজয়/ইউনিকোড ফন্ট ফিক্স ও AI OCR সহ Word, Text এবং HD ছবিতে রূপান্তর" data-i18n-en="Convert PDF to editable Word, clean Unicode Text, or HD Images with 2D layout & AI OCR">২ডি কলাম লেআউট, বিজয়/ইউনিকোড ফন্ট ফিক্স ও AI OCR সহ Word, Text এবং HD ছবিতে রূপান্তর</p>
+              </div>
+            </div>
             <div class="pdf-ws-actions flex items-center flex-wrap gap-1.5" id="pdfToOtherTopActions" hidden>
-              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfToOtherRotLeftAll" title="সব পৃষ্ঠা বামে ঘোরান">
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none transition-colors" id="pdfToOtherSelectAllBtn">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+                <span data-i18n-bn="সব পৃষ্ঠা সিলেক্ট" data-i18n-en="Select All Pages">সব পৃষ্ঠা সিলেক্ট</span>
+              </button>
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none transition-colors" id="pdfToOtherRotLeftAll" title="সব পৃষ্ঠা বামে ঘোরান" aria-label="সব পৃষ্ঠা বামে ঘোরান">
                 <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                <span data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
+                <span class="hidden sm:inline" data-i18n-bn="সব বামে" data-i18n-en="Rotate Left">সব বামে</span>
               </button>
-              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 transition-colors" id="pdfToOtherRotRightAll" title="সব পৃষ্ঠা ডানে ঘোরান">
+              <button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none transition-colors" id="pdfToOtherRotRightAll" title="সব পৃষ্ঠা ডানে ঘোরান" aria-label="সব পৃষ্ঠা ডানে ঘোরান">
                 <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-                <span data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
+                <span class="hidden sm:inline" data-i18n-bn="সব ডানে" data-i18n-en="Rotate Right">সব ডানে</span>
               </button>
-              <button type="button" class="chip-btn chip-btn--danger h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer" id="pdfToOtherResetBtn" data-i18n-bn="অন্য ফাইল নিন" data-i18n-en="Choose Another File">অন্য ফাইল নিন</button>
+              <button type="button" class="chip-btn chip-btn--danger inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold text-rose-600 dark:text-rose-400 cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-500/20 focus-visible:ring-2 focus-visible:ring-rose-500 outline-none transition-colors" id="pdfToOtherResetBtn">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span data-i18n-bn="অন্য ফাইল নিন" data-i18n-en="Choose Another File">অন্য ফাইল নিন</span>
+              </button>
             </div>
           </div>
 
-          <label class="pdf-dropzone flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 hover:border-emerald-500 dark:hover:border-studio-primary cursor-pointer transition-colors" id="pdfToOtherDropzone" for="pdfToOtherInput">
-            <input type="file" id="pdfToOtherInput" accept=".pdf,application/pdf" class="visually-hidden sr-only" />
-            <div class="pdf-dropzone__icon w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-3">
-              <svg class="w-6 h-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m10 15 2 2 4-4"/></svg>
+          <!-- Always-Visible Target Format Switcher Bar -->
+          <fieldset class="pdf-fieldset border-0 p-0 m-0" aria-label="আউটপুট ফরম্যাট নির্বাচন">
+            <legend class="sr-only" data-i18n-bn="কোন ফরম্যাটে রূপান্তর করতে চান?" data-i18n-en="Select Output Format">কোন ফরম্যাটে রূপান্তর করতে চান?</legend>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+              <!-- Format 1: Word (.doc) -->
+              <label class="group relative flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 dark:bg-studio-panel/50 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-white dark:hover:bg-studio-panel hover:border-slate-300 dark:hover:border-slate-600 has-[:checked]:bg-white dark:has-[:checked]:bg-studio-sidebar has-[:checked]:border-emerald-600 dark:has-[:checked]:border-studio-primary has-[:checked]:ring-1 has-[:checked]:ring-emerald-600/30 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                <input type="radio" name="pdfToOtherFmt" value="doc" checked class="sr-only" />
+                <div class="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-4.5 h-4.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/><path d="M8 9h2"/></svg>
+                </div>
+                <span class="flex flex-col min-w-0 flex-1">
+                  <span class="flex items-center justify-between gap-1.5">
+                    <strong class="text-xs sm:text-sm font-bold text-slate-900 dark:text-studio-text truncate" data-i18n-bn="Word ডকুমেন্ট" data-i18n-en="Word Document">Word ডকুমেন্ট</strong>
+                    <span translate="no" class="px-1.5 py-0.5 rounded text-[10px] font-extrabold tracking-wide bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 shrink-0">.DOC</span>
+                  </span>
+                  <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5 leading-snug line-clamp-2" data-i18n-bn="২ডি কলাম লেআউট, টেবিল ও বিজয়/ইউনিকোড ফিক্স" data-i18n-en="2D column layout, tables & Bijoy/Unicode fix">২ডি কলাম লেআউট, টেবিল ও বিজয়/ইউনিকোড ফিক্স</small>
+                </span>
+              </label>
+
+              <!-- Format 2: Text (.txt) -->
+              <label class="group relative flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 dark:bg-studio-panel/50 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-white dark:hover:bg-studio-panel hover:border-slate-300 dark:hover:border-slate-600 has-[:checked]:bg-white dark:has-[:checked]:bg-studio-sidebar has-[:checked]:border-emerald-600 dark:has-[:checked]:border-studio-primary has-[:checked]:ring-1 has-[:checked]:ring-emerald-600/30 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                <input type="radio" name="pdfToOtherFmt" value="txt" class="sr-only" />
+                <div class="w-9 h-9 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-4.5 h-4.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>
+                </div>
+                <span class="flex flex-col min-w-0 flex-1">
+                  <span class="flex items-center justify-between gap-1.5">
+                    <strong class="text-xs sm:text-sm font-bold text-slate-900 dark:text-studio-text truncate" data-i18n-bn="টেক্সট ফাইল" data-i18n-en="Plain Text">টেক্সট ফাইল</strong>
+                    <span translate="no" class="px-1.5 py-0.5 rounded text-[10px] font-extrabold tracking-wide bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-500/20 shrink-0">.TXT</span>
+                  </span>
+                  <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5 leading-snug line-clamp-2" data-i18n-bn="নির্ভুল ইউনিকোড বাংলা ও ইংরেজি প্লেইন টেক্সট" data-i18n-en="Clean Unicode Bangla & English plain text">নির্ভুল ইউনিকোড বাংলা ও ইংরেজি প্লেইন টেক্সট</small>
+                </span>
+              </label>
+
+              <!-- Format 3: JPG Images -->
+              <label class="group relative flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 dark:bg-studio-panel/50 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-white dark:hover:bg-studio-panel hover:border-slate-300 dark:hover:border-slate-600 has-[:checked]:bg-white dark:has-[:checked]:bg-studio-sidebar has-[:checked]:border-emerald-600 dark:has-[:checked]:border-studio-primary has-[:checked]:ring-1 has-[:checked]:ring-emerald-600/30 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                <input type="radio" name="pdfToOtherFmt" value="jpg" class="sr-only" />
+                <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-4.5 h-4.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                </div>
+                <span class="flex flex-col min-w-0 flex-1">
+                  <span class="flex items-center justify-between gap-1.5">
+                    <strong class="text-xs sm:text-sm font-bold text-slate-900 dark:text-studio-text truncate" data-i18n-bn="JPG ইমেজ" data-i18n-en="JPG Images">JPG ইমেজ</strong>
+                    <span translate="no" class="px-1.5 py-0.5 rounded text-[10px] font-extrabold tracking-wide bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 shrink-0">.JPG</span>
+                  </span>
+                  <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5 leading-snug line-clamp-2" data-i18n-bn="প্রতিটি পৃষ্ঠা আলাদা হাই-রেজোলিউশন ছবি" data-i18n-en="Each page exported as high-resolution JPG">প্রতিটি পৃষ্ঠা আলাদা হাই-রেজোলিউশন ছবি</small>
+                </span>
+              </label>
+
+              <!-- Format 4: PNG Images -->
+              <label class="group relative flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 dark:bg-studio-panel/50 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-white dark:hover:bg-studio-panel hover:border-slate-300 dark:hover:border-slate-600 has-[:checked]:bg-white dark:has-[:checked]:bg-studio-sidebar has-[:checked]:border-emerald-600 dark:has-[:checked]:border-studio-primary has-[:checked]:ring-1 has-[:checked]:ring-emerald-600/30 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                <input type="radio" name="pdfToOtherFmt" value="png" class="sr-only" />
+                <div class="w-9 h-9 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-4.5 h-4.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 16l5-5 4 4 5-6 4 5"/></svg>
+                </div>
+                <span class="flex flex-col min-w-0 flex-1">
+                  <span class="flex items-center justify-between gap-1.5">
+                    <strong class="text-xs sm:text-sm font-bold text-slate-900 dark:text-studio-text truncate" data-i18n-bn="PNG ইমেজ" data-i18n-en="PNG Images">PNG ইমেজ</strong>
+                    <span translate="no" class="px-1.5 py-0.5 rounded text-[10px] font-extrabold tracking-wide bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 shrink-0">.PNG</span>
+                  </span>
+                  <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5 leading-snug line-clamp-2" data-i18n-bn="শার্প টেক্সট ও লসলেস প্রিন্ট কোয়ালিটি ছবি" data-i18n-en="Sharp lossless PNG graphics per page">শার্প টেক্সট ও লসলেস প্রিন্ট কোয়ালিটি ছবি</small>
+                </span>
+              </label>
             </div>
-            <div class="pdf-dropzone__title text-sm font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="কনভার্ট করার জন্য PDF ফাইল ছাড়ুন বা সিলেক্ট করুন" data-i18n-en="Drop a PDF file here or click to browse">কনভার্ট করার জন্য PDF ফাইল ছাড়ুন বা <span class="link-ish text-emerald-600 dark:text-studio-primary underline">সিলেক্ট করুন</span></div>
+          </fieldset>
+
+          <!-- Empty State Dropzone -->
+          <label class="pdf-dropzone group flex flex-col items-center justify-center text-center py-10 px-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/60 dark:bg-studio-panel/40 hover:border-emerald-500 dark:hover:border-studio-primary hover:bg-emerald-500/[0.02] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 cursor-pointer transition-colors" id="pdfToOtherDropzone" for="pdfToOtherInput">
+            <input type="file" id="pdfToOtherInput" accept=".pdf,application/pdf" class="visually-hidden sr-only" />
+            <div class="pdf-dropzone__icon w-13 h-13 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-studio-primary flex items-center justify-center mb-3.5">
+              <svg class="w-6.5 h-6.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M20 16.7A4.5 4.5 0 0 0 17.5 8h-1.1A7 7 0 1 0 4 14.9"/></svg>
+            </div>
+            <div class="pdf-dropzone__title text-base font-bold text-slate-900 dark:text-studio-text mb-1.5" id="pdfToOtherDropTitle" data-i18n-bn="কনভার্ট করার জন্য PDF ফাইল এখানে ছাড়ুন অথবা ব্রাউজ করুন" data-i18n-en="Drop a PDF file here or click to browse">কনভার্ট করার জন্য PDF ফাইল এখানে ছাড়ুন অথবা <span class="link-ish text-emerald-600 dark:text-studio-primary underline">ব্রাউজ করুন</span></div>
+            <p class="text-xs text-slate-500 dark:text-studio-muted m-0 mb-3.5 max-w-xl" id="pdfToOtherDropSub" data-i18n-bn="বিজয় (SutonnyMJ) ও ইউনিকোড বাংলা ফন্ট, ২-কলাম প্রশ্নপত্র, টেবিল এবং স্ক্যান করা PDF স্বয়ংক্রিয়ভাবে শনাক্ত হবে" data-i18n-en="Automatically detects Bijoy & Unicode Bangla fonts, 2-column layouts, tables, and scanned PDFs">বিজয় (SutonnyMJ) ও ইউনিকোড বাংলা ফন্ট, ২-কলাম প্রশ্নপত্র, টেবিল এবং স্ক্যান করা PDF স্বয়ংক্রিয়ভাবে শনাক্ত হবে</p>
+            <div class="flex items-center justify-center flex-wrap gap-1.5" aria-hidden="true">
+              <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20">PDF → Word (.doc)</span>
+              <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-500/20">PDF → Text (.txt)</span>
+              <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">PDF → JPG / PNG</span>
+              <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">২ডি লেআউট + AI OCR</span>
+            </div>
           </label>
 
-          <div class="pdf-workspace-stage space-y-4" id="pdfToOtherStage" hidden>
-            <div class="pdf-file-banner p-3 rounded-xl bg-slate-100 dark:bg-studio-panel text-xs font-semibold text-slate-700 dark:text-studio-text" id="pdfToOtherFileInfo"></div>
+          <!-- 2-Column Studio Workspace Stage -->
+          <div class="pdf-workspace-stage" id="pdfToOtherStage" hidden>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
-            <div class="pdf-options-box p-4 rounded-xl bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border space-y-3">
-              <fieldset class="pdf-fieldset border-0 p-0 m-0">
-                <legend class="pdf-legend text-xs font-bold text-slate-700 dark:text-studio-text mb-2" data-i18n-bn="কোন ফরম্যাটে রূপান্তর করতে চান?" data-i18n-en="Select Output Format">কোন ফরম্যাটে রূপান্তর করতে চান?</legend>
-                <div class="pdf-radio-cards pdf-radio-cards--4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                  <label class="pdf-radio-card flex items-start gap-2.5 p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
-                    <input type="radio" name="pdfToOtherFmt" value="jpg" checked class="mt-1 accent-emerald-600" />
-                    <span class="pdf-radio-card__body flex flex-col">
-                      <strong class="text-xs font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="PDF → JPG ইমেজ" data-i18n-en="PDF → JPG Images">PDF → JPG ইমেজ</strong>
-                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="প্রতিটি পৃষ্ঠা আলাদা JPG ছবি (ZIP)" data-i18n-en="Each page as a JPG image (ZIP)">প্রতিটি পৃষ্ঠা আলাদা JPG ছবি (ZIP)</small>
-                    </span>
-                  </label>
-                  <label class="pdf-radio-card flex items-start gap-2.5 p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
-                    <input type="radio" name="pdfToOtherFmt" value="png" class="mt-1 accent-emerald-600" />
-                    <span class="pdf-radio-card__body flex flex-col">
-                      <strong class="text-xs font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="PDF → PNG ইমেজ" data-i18n-en="PDF → PNG Images">PDF → PNG ইমেজ</strong>
-                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="শার্প ও লসলেস PNG ছবি (ZIP)" data-i18n-en="Sharp lossless PNG images (ZIP)">শার্প ও লসলেস PNG ছবি (ZIP)</small>
-                    </span>
-                  </label>
-                  <label class="pdf-radio-card flex items-start gap-2.5 p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
-                    <input type="radio" name="pdfToOtherFmt" value="doc" class="mt-1 accent-emerald-600" />
-                    <span class="pdf-radio-card__body flex flex-col">
-                      <strong class="text-xs font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="PDF → Word (.doc)" data-i18n-en="PDF → Word (.doc)">PDF → Word (.doc)</strong>
-                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="এডিটেবল Word (OCR ও বিজয়/ইউনিকোড ফিক্স সহ)" data-i18n-en="Editable Word (with OCR & Bijoy/Unicode Fix)">এডিটেবল Word (OCR ও বিজয়/ইউনিকোড ফিক্স সহ)</small>
-                    </span>
-                  </label>
-                  <label class="pdf-radio-card flex items-start gap-2.5 p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
-                    <input type="radio" name="pdfToOtherFmt" value="txt" class="mt-1 accent-emerald-600" />
-                    <span class="pdf-radio-card__body flex flex-col">
-                      <strong class="text-xs font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="PDF → টেক্সট (.txt)" data-i18n-en="PDF → Text (.txt)">PDF → টেক্সট (.txt)</strong>
-                      <small class="text-xs text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="নির্ভুল ইউনিকোড টেক্সট (OCR ও ফন্ট ফিক্স সহ)" data-i18n-en="Clean Unicode text (with OCR & Font Fix)">নির্ভুল ইউনিকোড টেক্সট (OCR ও ফন্ট ফিক্স সহ)</small>
-                    </span>
-                  </label>
+              <!-- LEFT COLUMN (8 cols): Framed Canvas for Pages & Live Output Preview -->
+              <div class="lg:col-span-8 rounded-2xl bg-slate-50/70 dark:bg-studio-panel/40 border border-slate-200 dark:border-studio-border overflow-hidden">
+                <!-- Canvas Header Bar: File Info + View Mode Switcher -->
+                <div class="flex items-center justify-between flex-wrap gap-2.5 px-3.5 py-2.5 bg-white dark:bg-studio-sidebar border-b border-slate-200 dark:border-studio-border">
+                  <div class="flex items-center gap-2.5 min-w-0 flex-1" id="pdfToOtherFileInfo"></div>
+
+                  <!-- Canvas View Switcher (Pages vs Converted Output) -->
+                  <div class="inline-flex items-center p-0.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200/80 dark:border-studio-border" id="pdfToOtherCanvasTabs" hidden role="tablist">
+                    <button type="button" role="tab" aria-selected="false" class="px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 dark:text-studio-muted cursor-pointer transition-colors" id="pdfToOtherTabPagesBtn" data-p2o-view="pages">
+                      <span data-i18n-bn="মূল পৃষ্ঠাসমূহ" data-i18n-en="Source Pages">মূল পৃষ্ঠাসমূহ</span>
+                    </button>
+                    <button type="button" role="tab" aria-selected="true" class="px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-studio-sidebar text-emerald-600 dark:text-studio-primary shadow-2xs cursor-pointer transition-colors" id="pdfToOtherTabOutputBtn" data-p2o-view="output">
+                      <span data-i18n-bn="কনভার্ট প্রিভিউ ও এডিটর" data-i18n-en="Converted Output">কনভার্ট প্রিভিউ ও এডিটর</span>
+                    </button>
+                  </div>
                 </div>
-              </fieldset>
 
-              <div class="pdf-sub-controls pt-2 border-t border-slate-200 dark:border-studio-border" id="pdfToImgDpiWrap">
-                <fieldset class="pdf-fieldset border-0 p-0 m-0">
-                  <legend class="pdf-legend text-xs font-bold text-slate-700 dark:text-studio-text mb-1.5" data-i18n-bn="ছবির রেজোলিউশন (Image Quality)" data-i18n-en="Image Resolution (DPI)">ছবির রেজোলিউশন (Image Quality)</legend>
-                  <div class="pdf-radio-inline flex items-center flex-wrap gap-4 text-xs text-slate-700 dark:text-studio-text">
-                    <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfImgScale" value="1.5" class="accent-emerald-600" /> <span data-i18n-bn="স্ট্যান্ডার্ড (150 DPI)" data-i18n-en="Standard (150 DPI)">স্ট্যান্ডার্ড (150 DPI)</span></label>
-                    <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfImgScale" value="2.2" checked class="accent-emerald-600" /> <span data-i18n-bn="হাই এইচডি (220 DPI)" data-i18n-en="High HD (220 DPI)">হাই এইচডি (220 DPI)</span></label>
-                    <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfImgScale" value="3.0" class="accent-emerald-600" /> <span data-i18n-bn="আল্ট্রা প্রিন্ট (300 DPI)" data-i18n-en="Ultra Print (300 DPI)">আল্ট্রা প্রিন্ট (300 DPI)</span></label>
+                <!-- View 1: Selectable Source PDF Pages Grid -->
+                <div id="pdfToOtherPagesWrap" class="p-3.5 space-y-3">
+                  <div class="flex items-center justify-between flex-wrap gap-2 text-xs text-slate-600 dark:text-studio-muted px-0.5">
+                    <span data-i18n-bn="যে পৃষ্ঠাগুলো কনভার্ট করতে চান সেগুলোতে টিক দিন (ডিফল্টভাবে সব পৃষ্ঠা নির্বাচিত):" data-i18n-en="Click pages to select or deselect for conversion (all pages selected by default):">যে পৃষ্ঠাগুলো কনভার্ট করতে চান সেগুলোতে টিক দিন (ডিফল্টভাবে সব পৃষ্ঠা নির্বাচিত):</span>
+                    <span class="font-bold text-slate-800 dark:text-studio-text tabular-nums" id="pdfToOtherSelBadge"></span>
                   </div>
-                </fieldset>
+                  <div class="pdf-pages-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" id="pdfToOtherPagesGrid"></div>
+                </div>
+
+                <!-- View 2: Converted Output Preview / Rich Document Editor / Split Compare -->
+                <div class="pdf-convert-preview p-3.5 text-xs" id="pdfToOtherPreview" hidden></div>
               </div>
 
-              <div class="pdf-sub-controls pt-3 border-t border-slate-200 dark:border-studio-border space-y-3" id="pdfToTextOcrWrap" hidden>
-                <fieldset class="pdf-fieldset border-0 p-0 m-0">
-                  <legend class="pdf-legend text-xs font-bold text-slate-700 dark:text-studio-text mb-1.5 flex items-center gap-1.5">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold uppercase tracking-wide">AI OCR + Smart Fix</span>
-                    <span data-i18n-bn="লেখা উদ্ধারের মোড (হিজিবিজি লেখা ও স্ক্যান PDF ফিক্স)" data-i18n-en="Text Recovery & OCR Mode (Fix Garbled & Scanned PDFs)">লেখা উদ্ধারের মোড (হিজিবিজি লেখা ও স্ক্যান PDF ফিক্স)</span>
-                  </legend>
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                    <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
-                      <input type="radio" name="pdfOcrMode" value="auto" checked class="mt-0.5 accent-emerald-600" />
-                      <span class="flex flex-col">
-                        <strong class="font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="স্মার্ট অটো + অটো OCR (প্রস্তাবিত)" data-i18n-en="Smart Auto + Auto OCR (Recommended)">স্মার্ট অটো + অটো OCR (প্রস্তাবিত)</strong>
-                        <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="বিজয়/ইউনিকোড ফন্ট ঠিক করবে এবং স্ক্যান বা ভাঙা ফন্ট হলে স্বয়ংক্রিয়ভাবে OCR চালাবে" data-i18n-en="Fixes Bijoy/Unicode fonts & auto-runs OCR on scanned or broken pages">বিজয়/ইউনিকোড ফন্ট ঠিক করবে এবং স্ক্যান বা ভাঙা ফন্ট হলে স্বয়ংক্রিয়ভাবে OCR চালাবে</small>
-                      </span>
-                    </label>
-                    <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
-                      <input type="radio" name="pdfOcrMode" value="force" class="mt-0.5 accent-emerald-600" />
-                      <span class="flex flex-col">
-                        <strong class="font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="সব পৃষ্ঠায় OCR চালু করুন (Force OCR)" data-i18n-en="Force OCR on All Pages">সব পৃষ্ঠায় OCR চালু করুন (Force OCR)</strong>
-                        <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="স্ক্যান করা ছবি বা কাস্টম ফন্টের হিজিবিজি PDF থেকে সরাসরি ছবি পড়ে নির্ভুল লেখা তুলবে" data-i18n-en="Reads every page visually with OCR — best for scanned or severely garbled PDFs">স্ক্যান করা ছবি বা কাস্টম ফন্টের হিজিবিজি PDF থেকে সরাসরি ছবি পড়ে নির্ভুল লেখা তুলবে</small>
-                      </span>
-                    </label>
-                    <label class="flex items-start gap-2 p-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer has-[:checked]:border-emerald-500">
-                      <input type="radio" name="pdfOcrMode" value="fast" class="mt-0.5 accent-emerald-600" />
-                      <span class="flex flex-col">
-                        <strong class="font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="শুধু টেক্সট ও ফন্ট ফিক্স (দ্রুত)" data-i18n-en="Text Layer & Font Fix Only (Fast)">শুধু টেক্সট ও ফন্ট ফিক্স (দ্রুত)</strong>
-                        <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="২ডি লেআউট ও বিজয়/ইউনিকোড ফিক্স সহ দ্রুত টেক্সট এক্সট্র্যাক্ট (OCR ছাড়া)" data-i18n-en="Fast 2D layout & Bijoy/Unicode repair without OCR">২ডি লেআউট ও বিজয়/ইউনিকোড ফিক্স সহ দ্রুত টেক্সট এক্সট্র্যাক্ট (OCR ছাড়া)</small>
-                      </span>
-                    </label>
+              <!-- RIGHT COLUMN (4 cols): Sticky Inspector & Action Panel -->
+              <aside class="lg:col-span-4 lg:sticky lg:top-20 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border divide-y divide-slate-200 dark:divide-studio-border shadow-2xs" aria-label="কনভার্সন সেটিংস">
+
+                <!-- Inspector Header: Active Format & Scope -->
+                <div class="p-3.5 flex items-center justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="text-[11px] font-semibold text-slate-500 dark:text-studio-muted" data-i18n-bn="টার্গেট আউটপুট ফরম্যাট" data-i18n-en="Target Output Format">টার্গেট আউটপুট ফরম্যাট</div>
+                    <div class="text-sm font-bold text-slate-900 dark:text-studio-text mt-0.5 flex items-center gap-1.5" id="pdfToOtherActiveFmtLabel">Word ডকুমেন্ট (.doc)</div>
                   </div>
-                </fieldset>
+                  <span translate="no" class="px-2 py-1 rounded-md text-xs font-extrabold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 tabular-nums" id="pdfToOtherActiveFmtBadge">.DOC</span>
+                </div>
 
-                <fieldset class="pdf-fieldset border-0 p-0 m-0">
-                  <legend class="pdf-legend text-xs font-bold text-slate-700 dark:text-studio-text mb-1.5" data-i18n-bn="OCR ভাষা (OCR Language)" data-i18n-en="OCR Language">OCR ভাষা (OCR Language)</legend>
-                  <div class="pdf-radio-inline flex items-center flex-wrap gap-4 text-xs text-slate-700 dark:text-studio-text">
-                    <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfOcrLang" value="ben+eng" checked class="accent-emerald-600" /> <span data-i18n-bn="বাংলা + ইংরেজি (Bangla + English)" data-i18n-en="Bangla + English (ben+eng)">বাংলা + ইংরেজি (Bangla + English)</span></label>
-                    <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfOcrLang" value="ben" class="accent-emerald-600" /> <span data-i18n-bn="শুধু বাংলা (Bangla)" data-i18n-en="Bangla Only (ben)">শুধু বাংলা (Bangla)</span></label>
-                    <label class="dc-radio inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="pdfOcrLang" value="eng" class="accent-emerald-600" /> <span data-i18n-bn="শুধু ইংরেজি (English)" data-i18n-en="English Only (eng)">শুধু ইংরেজি (English)</span></label>
+                <!-- Contextual Settings A: Image DPI (Only for JPG / PNG) -->
+                <div class="p-3.5 space-y-2.5" id="pdfToImgDpiWrap" hidden>
+                  <fieldset class="pdf-fieldset border-0 p-0 m-0">
+                    <legend class="text-xs font-bold text-slate-800 dark:text-studio-text mb-2" data-i18n-bn="ছবির রেজোলিউশন (Image DPI)" data-i18n-en="Image Resolution (DPI)">ছবির রেজোলিউশন (Image DPI)</legend>
+                    <div class="grid grid-cols-3 gap-1.5">
+                      <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border cursor-pointer text-center hover:border-slate-300 has-[:checked]:bg-emerald-500/10 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                        <input type="radio" name="pdfImgScale" value="1.5" class="sr-only" />
+                        <strong translate="no" class="text-xs font-extrabold tabular-nums">150 DPI</strong>
+                        <span class="text-[10px] text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="ওয়েব / দ্রুত" data-i18n-en="Standard">ওয়েব / দ্রুত</span>
+                      </label>
+                      <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border cursor-pointer text-center hover:border-slate-300 has-[:checked]:bg-emerald-500/10 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                        <input type="radio" name="pdfImgScale" value="2.2" checked class="sr-only" />
+                        <strong translate="no" class="text-xs font-extrabold tabular-nums">220 DPI</strong>
+                        <span class="text-[10px] text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="হাই এইচডি" data-i18n-en="High HD">হাই এইচডি</span>
+                      </label>
+                      <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border cursor-pointer text-center hover:border-slate-300 has-[:checked]:bg-emerald-500/10 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                        <input type="radio" name="pdfImgScale" value="3.0" class="sr-only" />
+                        <strong translate="no" class="text-xs font-extrabold tabular-nums">300 DPI</strong>
+                        <span class="text-[10px] text-slate-500 dark:text-studio-muted mt-0.5" data-i18n-bn="আল্ট্রা প্রিন্ট" data-i18n-en="Ultra Print">আল্ট্রা প্রিন্ট</span>
+                      </label>
+                    </div>
+                  </fieldset>
+                </div>
+
+                <!-- Contextual Settings B: Smart 2D Layout & OCR Engine (Only for Word / Text) -->
+                <div class="p-3.5 space-y-3.5" id="pdfToTextOcrWrap">
+                  <fieldset class="pdf-fieldset border-0 p-0 m-0">
+                    <legend class="text-xs font-bold text-slate-800 dark:text-studio-text mb-2 flex items-center justify-between w-full">
+                      <span data-i18n-bn="লেখা ও ফন্ট উদ্ধারের ইঞ্জিন" data-i18n-en="Text & Font Recovery Engine">লেখা ও ফন্ট উদ্ধারের ইঞ্জিন</span>
+                      <span translate="no" class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold">2D + AI OCR</span>
+                    </legend>
+                    <div class="space-y-1.5 text-xs">
+                      <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50/70 dark:bg-studio-panel/50 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-slate-50 has-[:checked]:bg-emerald-500/[0.06] has-[:checked]:border-emerald-600 dark:has-[:checked]:border-studio-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                        <input type="radio" name="pdfOcrMode" value="auto" checked class="mt-0.5 accent-emerald-600 shrink-0" />
+                        <span class="flex flex-col min-w-0">
+                          <span class="flex items-center gap-1.5 flex-wrap">
+                            <strong class="font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="স্মার্ট অটো + ২ডি লেআউট" data-i18n-en="Smart Auto + 2D Layout">স্মার্ট অটো + ২ডি লেআউট</strong>
+                            <span class="px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold" data-i18n-bn="প্রস্তাবিত" data-i18n-en="Recommended">প্রস্তাবিত</span>
+                          </span>
+                          <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5 leading-snug" data-i18n-bn="বিজয়/ইউনিকোড ফন্ট ও কলাম ঠিক রাখবে এবং স্ক্যান পেজে অটো OCR চালাবে" data-i18n-en="Fixes Bijoy/Unicode fonts & 2-col layout; auto-runs OCR on scanned pages">বিজয়/ইউনিকোড ফন্ট ও কলাম ঠিক রাখবে এবং স্ক্যান পেজে অটো OCR চালাবে</small>
+                        </span>
+                      </label>
+
+                      <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50/70 dark:bg-studio-panel/50 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-slate-50 has-[:checked]:bg-emerald-500/[0.06] has-[:checked]:border-emerald-600 dark:has-[:checked]:border-studio-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                        <input type="radio" name="pdfOcrMode" value="force" class="mt-0.5 accent-emerald-600 shrink-0" />
+                        <span class="flex flex-col min-w-0">
+                          <strong class="font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="সব পৃষ্ঠায় ফোর্স AI OCR" data-i18n-en="Force AI OCR on All Pages">সব পৃষ্ঠায় ফোর্স AI OCR</strong>
+                          <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5 leading-snug" data-i18n-bn="স্ক্যান করা ছবি বা ভাঙা ফন্টের PDF থেকে সরাসরি ছবি পড়ে লেখা তুলবে" data-i18n-en="Reads every page visually with AI OCR — best for scanned PDFs">স্ক্যান করা ছবি বা ভাঙা ফন্টের PDF থেকে সরাসরি ছবি পড়ে লেখা তুলবে</small>
+                        </span>
+                      </label>
+
+                      <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50/70 dark:bg-studio-panel/50 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-slate-50 has-[:checked]:bg-emerald-500/[0.06] has-[:checked]:border-emerald-600 dark:has-[:checked]:border-studio-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                        <input type="radio" name="pdfOcrMode" value="fast" class="mt-0.5 accent-emerald-600 shrink-0" />
+                        <span class="flex flex-col min-w-0">
+                          <strong class="font-bold text-slate-900 dark:text-studio-text" data-i18n-bn="শুধু টেক্সট ও ফন্ট ফিক্স (দ্রুত)" data-i18n-en="Fast Text & Font Fix Only">শুধু টেক্সট ও ফন্ট ফিক্স (দ্রুত)</strong>
+                          <small class="text-[11px] text-slate-500 dark:text-studio-muted mt-0.5 leading-snug" data-i18n-bn="OCR ছাড়া তাৎক্ষণিক ২ডি লেআউট ও বিজয়/ইউনিকোড কনভার্সন" data-i18n-en="Instant 2D layout & Bijoy/Unicode repair without OCR">OCR ছাড়া তাৎক্ষণিক ২ডি লেআউট ও বিজয়/ইউনিকোড কনভার্সন</small>
+                        </span>
+                      </label>
+                    </div>
+                  </fieldset>
+
+                  <fieldset class="pdf-fieldset border-0 p-0 m-0" id="pdfOcrLangFieldset">
+                    <legend class="text-xs font-bold text-slate-800 dark:text-studio-text mb-1.5" data-i18n-bn="ডকুমেন্টের ভাষা (OCR Language)" data-i18n-en="Document OCR Language">ডকুমেন্টের ভাষা (OCR Language)</legend>
+                    <div class="grid grid-cols-3 gap-1.5 text-xs">
+                      <label class="flex items-center justify-center py-1.5 px-2 rounded-lg bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border cursor-pointer text-center font-semibold text-slate-700 dark:text-studio-text hover:border-slate-300 has-[:checked]:bg-emerald-500/10 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                        <input type="radio" name="pdfOcrLang" value="ben+eng" checked class="sr-only" />
+                        <span data-i18n-bn="বাংলা + ইং" data-i18n-en="Ban + Eng">বাংলা + ইং</span>
+                      </label>
+                      <label class="flex items-center justify-center py-1.5 px-2 rounded-lg bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border cursor-pointer text-center font-semibold text-slate-700 dark:text-studio-text hover:border-slate-300 has-[:checked]:bg-emerald-500/10 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                        <input type="radio" name="pdfOcrLang" value="ben" class="sr-only" />
+                        <span data-i18n-bn="শুধু বাংলা" data-i18n-en="Bangla">শুধু বাংলা</span>
+                      </label>
+                      <label class="flex items-center justify-center py-1.5 px-2 rounded-lg bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border cursor-pointer text-center font-semibold text-slate-700 dark:text-studio-text hover:border-slate-300 has-[:checked]:bg-emerald-500/10 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-500 transition-colors">
+                        <input type="radio" name="pdfOcrLang" value="eng" class="sr-only" />
+                        <span data-i18n-bn="শুধু ইংরেজি" data-i18n-en="English">শুধু ইংরেজি</span>
+                      </label>
+                    </div>
+                  </fieldset>
+                </div>
+
+                <!-- Primary Action & Status Footer -->
+                <div class="p-3.5 space-y-3 bg-slate-50/50 dark:bg-studio-panel/30 rounded-b-2xl">
+                  <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-600 dark:text-studio-muted select-none">
+                    <input type="checkbox" id="pdfToOtherAutoDl" checked class="accent-emerald-600 rounded" />
+                    <span data-i18n-bn="কনভার্ট শেষে স্বয়ংক্রিয়ভাবে ফাইল ডাউনলোড করুন" data-i18n-en="Auto-download file when conversion finishes">কনভার্ট শেষে স্বয়ংক্রিয়ভাবে ফাইল ডাউনলোড করুন</span>
+                  </label>
+
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-500 dark:text-studio-muted" data-i18n-bn="স্ট্যাটাস:" data-i18n-en="Status:">স্ট্যাটাস:</span>
+                    <span class="pdf-summary-pill font-bold text-slate-800 dark:text-studio-text tabular-nums" id="pdfToOtherSummary" aria-live="polite" data-i18n-bn="প্রস্তুত" data-i18n-en="Ready">প্রস্তুত</span>
                   </div>
-                </fieldset>
-              </div>
-            </div>
 
-            <div class="pdf-pages-grid pdf-pages-grid--compact grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5" id="pdfToOtherPagesGrid"></div>
+                  <button type="button" class="btn btn--primary pdf-main-action w-full inline-flex items-center justify-center gap-2 h-10.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold border-0 shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none transition-colors" id="pdfToOtherRunBtn">
+                    <svg class="w-4 h-4 fill-none stroke-current stroke-[2.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
+                    <span id="pdfToOtherRunBtnLabel" data-i18n-bn="কনভার্ট ও প্রিভিউ দেখুন" data-i18n-en="Convert & Preview">কনভার্ট ও প্রিভিউ দেখুন</span>
+                  </button>
+                </div>
 
-            <div class="pdf-convert-preview p-3 rounded-xl bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs" id="pdfToOtherPreview" hidden></div>
-
-            <div class="pdf-action-bar flex items-center justify-between flex-wrap gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border">
-              <div class="pdf-summary-pill text-xs font-bold text-slate-700 dark:text-studio-text" id="pdfToOtherSummary" data-i18n-bn="প্রস্তুত" data-i18n-en="Ready">প্রস্তুত</div>
-              <button type="button" class="btn btn--primary pdf-main-action inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border-0 cursor-pointer transition-colors" id="pdfToOtherRunBtn">
-                <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-                <span data-i18n-bn="কনভার্ট ও ডাউনলোড করুন" data-i18n-en="Convert & Download">কনভার্ট ও ডাউনলোড করুন</span>
-              </button>
+              </aside>
             </div>
           </div>
         </div>

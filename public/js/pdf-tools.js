@@ -2876,17 +2876,89 @@
     });
   }
 
+  function switchPdf2OtherCanvasView(view) {
+    var pagesWrap = $('#pdfToOtherPagesWrap');
+    var prev = $('#pdfToOtherPreview');
+    var tabPages = $('#pdfToOtherTabPagesBtn');
+    var tabOutput = $('#pdfToOtherTabOutputBtn');
+    var isOut = (view === 'output');
+    if (pagesWrap) pagesWrap.hidden = isOut;
+    if (prev) prev.hidden = !isOut;
+    if (tabPages) {
+      tabPages.setAttribute('aria-selected', isOut ? 'false' : 'true');
+      tabPages.className = isOut
+        ? 'px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 dark:text-studio-muted cursor-pointer transition-colors'
+        : 'px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-studio-sidebar text-emerald-600 dark:text-studio-primary shadow-2xs cursor-pointer transition-colors';
+    }
+    if (tabOutput) {
+      tabOutput.setAttribute('aria-selected', isOut ? 'true' : 'false');
+      tabOutput.className = isOut
+        ? 'px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-studio-sidebar text-emerald-600 dark:text-studio-primary shadow-2xs cursor-pointer transition-colors'
+        : 'px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 dark:text-studio-muted cursor-pointer transition-colors';
+    }
+  }
+
+  function updatePdf2OtherSummary() {
+    var sumEl = $('#pdfToOtherSummary');
+    var selBadge = $('#pdfToOtherSelBadge');
+    if (!p2oState) {
+      if (sumEl) sumEl.textContent = tr('প্রস্তুত', 'Ready');
+      return;
+    }
+    var total = p2oState.pages.length;
+    var selCount = p2oState.selected ? p2oState.selected.size : total;
+    if (selBadge) {
+      selBadge.textContent = tr(
+        'নির্বাচিত: ' + toBn(selCount) + ' / ' + toBn(total) + ' পৃষ্ঠা',
+        'Selected: ' + selCount + ' / ' + total + ' pages'
+      );
+    }
+    if (sumEl) {
+      sumEl.textContent = tr(
+        toBn(selCount) + 'টি পৃষ্ঠা প্রস্তুত',
+        selCount + ' page(s) ready'
+      );
+    }
+    var selBtn = $('#pdfToOtherSelectAllBtn span');
+    if (selBtn) {
+      selBtn.textContent = (selCount === total)
+        ? tr('সব আনসিলেক্ট', 'Deselect All')
+        : tr('সব পৃষ্ঠা সিলেক্ট', 'Select All Pages');
+    }
+  }
+
   function syncPdf2OtherFormatControls() {
-    var fmt = ($('input[name="pdfToOtherFmt"]:checked') || {}).value || 'jpg';
+    var fmt = ($('input[name="pdfToOtherFmt"]:checked') || {}).value || 'doc';
     var isImg = (fmt === 'jpg' || fmt === 'png');
     var dpiWrap = $('#pdfToImgDpiWrap');
     var ocrWrap = $('#pdfToTextOcrWrap');
     if (dpiWrap) dpiWrap.hidden = !isImg;
     if (ocrWrap) ocrWrap.hidden = isImg;
+
+    var ocrMode = ($('input[name="pdfOcrMode"]:checked') || {}).value || 'auto';
+    var langFs = $('#pdfOcrLangFieldset');
+    if (langFs) langFs.hidden = (ocrMode === 'fast');
+
+    var fmtMeta = {
+      doc: { bn: 'Word ডকুমেন্ট (.doc)', en: 'Word Document (.doc)', badge: '.DOC', btnBn: 'Word (.doc) তৈরি করুন', btnEn: 'Convert to Word (.doc)' },
+      txt: { bn: 'টেক্সট ফাইল (.txt)', en: 'Plain Text (.txt)', badge: '.TXT', btnBn: 'টেক্সট (.txt) তৈরি করুন', btnEn: 'Convert to Text (.txt)' },
+      jpg: { bn: 'JPG ইমেজ (.jpg)', en: 'JPG Images (.jpg)', badge: '.JPG', btnBn: 'JPG ছবি তৈরি করুন', btnEn: 'Convert to JPG Images' },
+      png: { bn: 'PNG ইমেজ (.png)', en: 'PNG Images (.png)', badge: '.PNG', btnBn: 'PNG ছবি তৈরি করুন', btnEn: 'Convert to PNG Images' }
+    }[fmt] || { bn: 'Word ডকুমেন্ট (.doc)', en: 'Word Document (.doc)', badge: '.DOC', btnBn: 'কনভার্ট করুন', btnEn: 'Convert Now' };
+
+    var activeLbl = $('#pdfToOtherActiveFmtLabel');
+    var activeBdg = $('#pdfToOtherActiveFmtBadge');
+    var runLbl = $('#pdfToOtherRunBtnLabel');
+    if (activeLbl) activeLbl.textContent = tr(fmtMeta.bn, fmtMeta.en);
+    if (activeBdg) activeBdg.textContent = fmtMeta.badge;
+    if (runLbl) runLbl.textContent = tr(fmtMeta.btnBn, fmtMeta.btnEn);
   }
 
   function loadPdf2OtherFile(files) {
     loadSinglePdf(files).then(function (st) {
+      var sel = new Set();
+      for (var i = 1; i <= st.pages.length; i++) sel.add(i);
+      st.selected = sel;
       p2oState = st;
       renderPdf2OtherUI();
     }).catch(function () {});
@@ -2897,21 +2969,37 @@
     syncPdf2OtherFormatControls();
     if (!p2oState) return;
     var st = p2oState;
+    if (!st.selected) {
+      st.selected = new Set();
+      for (var k = 1; k <= st.pages.length; k++) st.selected.add(k);
+    }
     var prev = $('#pdfToOtherPreview');
-    prev.hidden = true;
-    prev.innerHTML = '';
+    var tabs = $('#pdfToOtherCanvasTabs');
+    if (prev && !st.hasOutput) {
+      prev.hidden = true;
+      prev.innerHTML = '';
+      if (tabs) tabs.hidden = true;
+      switchPdf2OtherCanvasView('pages');
+    }
     fileBanner($('#pdfToOtherFileInfo'), st);
     renderGrid($('#pdfToOtherPagesGrid'), {
       items: st.pages,
       label: function (p) { return 'পৃষ্ঠা ' + toBn(p.idx + 1); },
       actions: function () { return ['rotL', 'rotR', 'zoom']; },
+      selectable: true,
+      isSelected: function (p) { return st.selected.has(p.idx + 1); },
+      onSelect: function (i) {
+        var n = i + 1;
+        if (st.selected.has(n)) st.selected.delete(n); else st.selected.add(n);
+        renderPdf2OtherUI();
+      },
       onAction: function (act, i) {
         if (act === 'zoom') { previewPages(st.pages, st.name, i); return; }
         rotatePage(st.pages[i], act === 'rotL' ? -90 : 90);
         renderPdf2OtherUI();
       }
     });
-    $('#pdfToOtherSummary').textContent = toBn(st.pages.length) + ' পৃষ্ঠা রূপান্তরের জন্য প্রস্তুত';
+    updatePdf2OtherSummary();
   }
 
   function formatBlockHtmlContent(text) {
@@ -3107,68 +3195,110 @@
   function runPdf2Other() {
     var st = p2oState;
     if (!st) return;
-    var fmt = ($('input[name="pdfToOtherFmt"]:checked') || {}).value || 'jpg';
+    var activePages = st.pages.filter(function (p) {
+      return !st.selected || st.selected.has(p.idx + 1);
+    });
+    if (!activePages.length) {
+      showToast(tr('অনুগ্রহ করে অন্তত ১টি পৃষ্ঠা নির্বাচন করুন।', 'Please select at least 1 page to convert.'));
+      return;
+    }
+
+    var fmt = ($('input[name="pdfToOtherFmt"]:checked') || {}).value || 'doc';
     var scale = parseFloat(($('input[name="pdfImgScale"]:checked') || {}).value || '2.2');
     var ocrMode = ($('input[name="pdfOcrMode"]:checked') || {}).value || 'auto';
     var ocrLang = ($('input[name="pdfOcrLang"]:checked') || {}).value || 'ben+eng';
+    var autoDlEl = $('#pdfToOtherAutoDl');
+    var shouldAutoDl = !autoDlEl || autoDlEl.checked;
     var btn = $('#pdfToOtherRunBtn');
     var prev = $('#pdfToOtherPreview');
+    var tabs = $('#pdfToOtherCanvasTabs');
     var base = baseName(st.name);
     btn.disabled = true;
 
     ensurePdfLibs().then(function () {
-      var total = st.pages.length;
+      var total = activePages.length;
       if (fmt === 'jpg' || fmt === 'png') {
         var mime = fmt === 'png' ? 'image/png' : 'image/jpeg';
         var rendered = [];
         var chain = Promise.resolve();
-        st.pages.forEach(function (p, i) {
+        activePages.forEach(function (p, i) {
+          var pageNo = p.idx + 1;
           chain = chain.then(function () {
-            setProgress(5 + ((i + 1) / total) * 85, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' ছবিতে রূপান্তর হচ্ছে…');
-            return renderPageCanvas(p.doc, p.idx + 1, { scale: scale, rotation: p.rotation }).then(function (r) {
+            setProgress(5 + ((i + 1) / total) * 85, 'পৃষ্ঠা ' + toBn(pageNo) + ' (' + toBn(i + 1) + '/' + toBn(total) + ') ছবিতে রূপান্তর হচ্ছে…');
+            return renderPageCanvas(p.doc, pageNo, { scale: scale, rotation: p.rotation }).then(function (r) {
               var url = r.canvas.toDataURL(mime, 0.92);
-              rendered.push({ n: i + 1, url: url });
+              rendered.push({ n: pageNo, url: url });
             });
           });
         });
         return chain.then(function () {
-          prev.hidden = false;
-          prev.innerHTML = '<div class="pdf-pages-grid pdf-pages-grid--compact grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">' + rendered.map(function (r) {
-            var dl = base + '-page-' + r.n + '.' + fmt;
-            return '<div class="pdf-page-card relative flex flex-col rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border p-2.5 shadow-2xs"><div class="pdf-page-card__badge absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded bg-slate-900/75 text-white text-[10px] font-bold">পৃষ্ঠা ' + toBn(r.n) + '</div>' +
-              '<div class="pdf-page-card__thumb-wrap relative aspect-[3/4] rounded-lg bg-slate-100 dark:bg-studio-panel overflow-hidden flex items-center justify-center mb-2"><img src="' + r.url + '" class="pdf-page-card__thumb max-w-full max-h-full object-contain rounded" alt="পৃষ্ঠা ' + r.n + '"></div>' +
-              '<a href="' + r.url + '" download="' + esc(dl) + '" class="chip-btn pdf-dl-chip mt-2 w-full inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 no-underline transition-colors">⬇ ' + fmt.toUpperCase() + '</a></div>';
-          }).join('') + '</div>';
+          st.hasOutput = true;
+          if (tabs) tabs.hidden = false;
+          switchPdf2OtherCanvasView('output');
+
+          var dlSvg = '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>';
+          prev.innerHTML =
+            '<div class="space-y-3">' +
+              '<div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-200 dark:border-studio-border">' +
+                '<div class="flex items-center gap-2">' +
+                  '<strong class="text-xs font-bold text-slate-900 dark:text-studio-text">' + tr('কনভার্ট করা ছবি (' + toBn(rendered.length) + 'টি পৃষ্ঠা)', 'Converted Images (' + rendered.length + ' pages)') + '</strong>' +
+                  '<span translate="no" class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold">' + fmt.toUpperCase() + '</span>' +
+                '</div>' +
+                (rendered.length > 1 ? '<button type="button" class="chip-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border-0 cursor-pointer transition-colors" id="pdfRedownloadImgZipBtn">' + dlSvg + '<span>' + tr('সব ছবি ডাউনলোড (ZIP)', 'Download All (ZIP)') + '</span></button>' : '') +
+              '</div>' +
+              '<div class="pdf-pages-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">' + rendered.map(function (r) {
+                var dl = base + '-page-' + r.n + '.' + fmt;
+                return '<div class="pdf-page-card relative flex flex-col rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border p-2.5 shadow-2xs">' +
+                  '<div class="pdf-page-card__badge absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded bg-slate-900/75 text-white text-[10px] font-bold tabular-nums">পৃষ্ঠা ' + toBn(r.n) + '</div>' +
+                  '<div class="pdf-page-card__thumb-wrap relative aspect-[3/4] rounded-lg bg-slate-100 dark:bg-studio-panel overflow-hidden flex items-center justify-center mb-2"><img src="' + r.url + '" width="300" height="400" loading="lazy" class="pdf-page-card__thumb max-w-full max-h-full object-contain rounded" alt="পৃষ্ঠা ' + r.n + '"></div>' +
+                  '<a href="' + r.url + '" download="' + esc(dl) + '" class="chip-btn pdf-dl-chip mt-auto w-full inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 no-underline transition-colors">' + dlSvg + '<span translate="no">' + fmt.toUpperCase() + '</span></a></div>';
+              }).join('') + '</div>' +
+            '</div>';
+
+          function downloadZipNow() {
+            var zip = new window.JSZip();
+            rendered.forEach(function (r) { zip.file(base + '-page-' + r.n + '.' + fmt, dataUrlToUint8(r.url)); });
+            return zip.generateAsync({ type: 'blob' }).then(function (blob) {
+              downloadBlob(blob, base + '-' + fmt + '-images.zip');
+              showToast(toBn(rendered.length) + 'টি পৃষ্ঠার ছবি ZIP আকারে ডাউনলোড হয়েছে!');
+            });
+          }
+
+          var zipBtn = $('#pdfRedownloadImgZipBtn');
+          if (zipBtn) zipBtn.addEventListener('click', downloadZipNow);
+
+          if (!shouldAutoDl) {
+            showToast(tr('ছবি তৈরি সম্পন্ন! প্রিভিউ থেকে ডাউনলোড করুন।', 'Images ready! Download from the preview panel.'));
+            return;
+          }
           if (rendered.length === 1) {
-            downloadBlob(new Blob([dataUrlToUint8(rendered[0].url)], { type: mime }), base + '-page-1.' + fmt);
+            downloadBlob(new Blob([dataUrlToUint8(rendered[0].url)], { type: mime }), base + '-page-' + rendered[0].n + '.' + fmt);
             showToast('ছবি ডাউনলোড সম্পন্ন হয়েছে!');
             return;
           }
           setProgress(95, 'ZIP আর্কাইভ তৈরি হচ্ছে…');
-          var zip = new window.JSZip();
-          rendered.forEach(function (r) { zip.file(base + '-page-' + r.n + '.' + fmt, dataUrlToUint8(r.url)); });
-          return zip.generateAsync({ type: 'blob' }).then(function (blob) {
-            downloadBlob(blob, base + '-' + fmt + '-images.zip');
-            showToast(toBn(rendered.length) + 'টি পৃষ্ঠার ছবি ZIP আকারে ডাউনলোড হয়েছে!');
-          });
+          return downloadZipNow();
         });
       }
 
       var texts = [];
       var pageLayouts = [];
+      var pageNums = [];
       var usedOcrCount = 0;
       var chainT = Promise.resolve();
-      st.pages.forEach(function (p, i) {
+      activePages.forEach(function (p, i) {
+        var pageNo = p.idx + 1;
+        pageNums.push(pageNo);
         chainT = chainT.then(function () {
           if (p.isBlank) { texts.push(''); pageLayouts.push(null); return; }
           var basePct = 5 + (i / total) * 85;
           var stepPct = 85 / total;
 
           if (ocrMode === 'force') {
-            setProgress(basePct + 2, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' — AI OCR চলছে (বাংলা + ইংরেজি)…');
-            return ocrPageCanvas(p.doc, p.idx + 1, p.rotation, ocrLang, function (prog) {
+            setProgress(basePct + 2, 'পৃষ্ঠা ' + toBn(pageNo) + ' (' + toBn(i + 1) + '/' + toBn(total) + ') — AI OCR চলছে…');
+            return ocrPageCanvas(p.doc, pageNo, p.rotation, ocrLang, function (prog) {
               var pct = Math.min(94, Math.round(basePct + prog * stepPct));
-              setProgress(pct, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' — OCR চলছে (' + toBn(Math.round(prog * 100)) + '%)…');
+              setProgress(pct, 'পৃষ্ঠা ' + toBn(pageNo) + ' — OCR চলছে (' + toBn(Math.round(prog * 100)) + '%)…');
             }).then(function (ocrRes) {
               usedOcrCount++;
               texts.push(ocrRes.text || '');
@@ -3176,13 +3306,13 @@
             });
           }
 
-          setProgress(basePct + 2, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' থেকে স্মার্ট লেআউট ও ফন্ট পড়া হচ্ছে…');
-          return p.doc.pdfjs.getPage(p.idx + 1).then(extractPageTextSmart).then(function (res) {
+          setProgress(basePct + 2, 'পৃষ্ঠা ' + toBn(pageNo) + ' (' + toBn(i + 1) + '/' + toBn(total) + ') থেকে স্মার্ট ২ডি লেআউট ও ফন্ট পড়া হচ্ছে…');
+          return p.doc.pdfjs.getPage(pageNo).then(extractPageTextSmart).then(function (res) {
             if (ocrMode === 'auto' && res.garbled) {
-              setProgress(basePct + 5, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' স্ক্যান/হিজিবিজি শনাক্ত হয়েছে — অটো OCR চলছে…');
-              return ocrPageCanvas(p.doc, p.idx + 1, p.rotation, ocrLang, function (prog) {
+              setProgress(basePct + 5, 'পৃষ্ঠা ' + toBn(pageNo) + ' স্ক্যান/হিজিবিজি শনাক্ত হয়েছে — অটো OCR চলছে…');
+              return ocrPageCanvas(p.doc, pageNo, p.rotation, ocrLang, function (prog) {
                 var pct = Math.min(94, Math.round(basePct + prog * stepPct));
-                setProgress(pct, 'পৃষ্ঠা ' + toBn(i + 1) + '/' + toBn(total) + ' — অটো OCR চলছে (' + toBn(Math.round(prog * 100)) + '%)…');
+                setProgress(pct, 'পৃষ্ঠা ' + toBn(pageNo) + ' — অটো OCR চলছে (' + toBn(Math.round(prog * 100)) + '%)…');
               }).then(function (ocrRes) {
                 usedOcrCount++;
                 texts.push((ocrRes && ocrRes.text) || res.text);
@@ -3199,54 +3329,79 @@
       });
 
       return chainT.then(function () {
+        st.hasOutput = true;
+        if (tabs) tabs.hidden = false;
+        switchPdf2OtherCanvasView('output');
+
         var full = texts.map(function (t, i) {
           var cleanT = String(t || '').replace(/\t/g, '    ');
-          return (total > 1 ? '=== পৃষ্ঠা ' + toBn(i + 1) + ' ===\n' : '') +
+          return (total > 1 ? '=== পৃষ্ঠা ' + toBn(pageNums[i]) + ' ===\n' : '') +
             (cleanT || '(এই পৃষ্ঠায় কোনো লেখা পাওয়া যায়নি)');
         }).join('\n\n');
 
         var fontStack = "'Nirmala UI','Kalpurush','Siyam Rupali','Noto Sans Bengali','Calibri',sans-serif";
         var richPreviewPagesHtml = texts.map(function (t, idx) {
-          var pageHead = total > 1
-            ? '<div style="font-size:9pt;color:#64748b;border-bottom:1px dashed #cbd5e1;padding-bottom:4px;margin-bottom:10px;font-weight:bold;">পৃষ্ঠা ' + toBn(idx + 1) + '</div>'
-            : '';
+          var pageHead = '<div style="font-size:9pt;color:#64748b;border-bottom:1px dashed #cbd5e1;padding-bottom:4px;margin-bottom:10px;font-weight:bold;display:flex;justify-content:space-between;"><span>পৃষ্ঠা ' + toBn(pageNums[idx]) + '</span><span>A4 প্রিন্ট ভিউ (এডিটেবল)</span></div>';
           var bodyH = renderPageLayoutBodyHtml(t, pageLayouts[idx], fontStack);
-          return '<div class="pdf-doc-sheet" style="background:#ffffff;color:#0f172a;padding:22px 26px;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 2px 8px rgba(15,23,42,0.06);margin-bottom:12px;">' +
+          return '<div class="pdf-doc-sheet" style="background:#ffffff;color:#0f172a;padding:22px 26px;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 1px 4px rgba(15,23,42,0.05);margin-bottom:12px;">' +
             pageHead +
             (bodyH || '<p style="color:#94a3b8;">(এই পৃষ্ঠায় কোনো লেখা পাওয়া যায়নি)</p>') +
             '</div>';
         }).join('');
 
         var modeBadge = usedOcrCount > 0
-          ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold">AI OCR (' + toBn(usedOcrCount) + ' পৃষ্ঠা) + ২ডি লেআউট</span>'
-          : '<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 text-[11px] font-bold">হুবহু ২ডি লেআউট + বিজয়/ইউনিকোড ফিক্স</span>';
+          ? '<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold">AI OCR (' + toBn(usedOcrCount) + ' পৃষ্ঠা) + ২ডি লেআউট</span>'
+          : '<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-700 dark:text-blue-300 text-[11px] font-bold">২ডি কলাম লেআউট + বিজয়/ইউনিকোড ফিক্স</span>';
 
         var showRichDefault = (fmt !== 'txt');
+        var iconTxt = '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>';
+        var iconDoc = '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>';
+        var iconSplit = '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/></svg>';
+        var iconCopy = '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+        var iconDl = '<svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>';
 
-        prev.hidden = false;
-        prev.innerHTML = '<div class="pdf-extracted-box space-y-2.5">' +
-          '<div class="pdf-extracted-head flex items-center justify-between flex-wrap gap-2">' +
-            '<div class="flex items-center gap-2 flex-wrap"><strong>কনভার্ট করা ডকুমেন্ট (সম্পাদনাযোগ্য প্রিভিউ):</strong>' + modeBadge + '</div>' +
+        prev.innerHTML = '<div class="pdf-extracted-box space-y-3">' +
+          '<div class="pdf-extracted-head flex items-center justify-between flex-wrap gap-2 pb-2.5 border-b border-slate-200 dark:border-studio-border">' +
             '<div class="flex items-center gap-2 flex-wrap">' +
-              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 cursor-pointer transition-colors" id="pdfToggleViewModeBtn">' +
-                (showRichDefault ? '📝 প্লেইন টেক্সট ভিউ' : '📄 ফরম্যাটেড পেজ ভিউ') +
+              '<strong class="text-xs sm:text-sm font-bold text-slate-900 dark:text-studio-text">' + tr('আউটপুট প্রিভিউ (সরাসরি এডিটযোগ্য)', 'Output Preview (Directly Editable)') + '</strong>' +
+              modeBadge +
+            '</div>' +
+            '<div class="flex items-center gap-1.5 flex-wrap">' +
+              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none cursor-pointer transition-colors" id="pdfToggleSplitCompareBtn">' +
+                iconSplit + '<span>' + tr('পাশাপাশি মূল PDF', 'Compare PDF') + '</span>' +
               '</button>' +
-              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 cursor-pointer transition-colors" id="pdfCopyExtTxtBtn">কপি করুন</button>' +
-              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border-0 cursor-pointer transition-colors" id="pdfRedownloadExtBtn">⬇ আবার ডাউনলোড (' + (fmt === 'txt' ? '.txt' : '.doc') + ')</button>' +
+              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none cursor-pointer transition-colors" id="pdfToggleViewModeBtn">' +
+                (showRichDefault ? (iconTxt + '<span>প্লেইন টেক্সট</span>') : (iconDoc + '<span>ফরম্যাটেড পেজ</span>')) +
+              '</button>' +
+              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text hover:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none cursor-pointer transition-colors" id="pdfCopyExtTxtBtn">' +
+                iconCopy + '<span>' + tr('কপি', 'Copy') + '</span>' +
+              '</button>' +
+              '<button type="button" class="chip-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border-0 focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none cursor-pointer transition-colors" id="pdfRedownloadExtBtn">' +
+                iconDl + '<span>' + tr('ডাউনলোড (' + (fmt === 'txt' ? '.txt' : '.doc') + ')', 'Download (' + (fmt === 'txt' ? '.txt' : '.doc') + ')') + '</span>' +
+              '</button>' +
             '</div>' +
           '</div>' +
-          '<div id="pdfDocRichPreview" contenteditable="true" spellcheck="false" class="w-full max-h-[540px] overflow-y-auto p-3 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border outline-none"' + (showRichDefault ? '' : ' hidden') + '>' +
-            richPreviewPagesHtml +
+          '<div id="pdfSplitCompareGrid" class="grid grid-cols-1 gap-3 items-start">' +
+            '<div id="pdfSourceCompareCol" class="max-h-[580px] overflow-y-auto p-2.5 rounded-xl bg-slate-200/60 dark:bg-studio-panel border border-slate-200 dark:border-studio-border space-y-2.5" hidden></div>' +
+            '<div id="pdfOutputEditorCol" class="min-w-0">' +
+              '<div id="pdfDocRichPreview" contenteditable="true" spellcheck="false" class="w-full max-h-[580px] overflow-y-auto p-3 rounded-xl bg-slate-200/50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border outline-none focus:border-emerald-500"' + (showRichDefault ? '' : ' hidden') + '>' +
+                richPreviewPagesHtml +
+              '</div>' +
+              '<textarea class="textbox w-full p-3.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-sans text-slate-800 dark:text-studio-text outline-none focus:border-emerald-500 leading-relaxed" rows="16" id="pdfExtTxtArea" aria-label="এক্সট্র্যাক্ট করা লেখা"' + (showRichDefault ? ' hidden' : '') + '></textarea>' +
+            '</div>' +
           '</div>' +
-          '<textarea class="textbox w-full p-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-sans text-slate-800 dark:text-studio-text outline-none leading-relaxed" rows="12" id="pdfExtTxtArea" aria-label="এক্সট্র্যাক্ট করা লেখা"' + (showRichDefault ? ' hidden' : '') + '></textarea>' +
         '</div>';
 
         var area = $('#pdfExtTxtArea');
         var richBox = $('#pdfDocRichPreview');
         var toggleBtn = $('#pdfToggleViewModeBtn');
+        var splitBtn = $('#pdfToggleSplitCompareBtn');
+        var splitGrid = $('#pdfSplitCompareGrid');
+        var srcCol = $('#pdfSourceCompareCol');
         area.value = full;
         var richEdited = false;
         var plainEdited = false;
+        var splitLoaded = false;
 
         if (richBox) {
           richBox.addEventListener('input', function () { richEdited = true; });
@@ -3259,7 +3414,32 @@
             var isRichVisible = !richBox.hidden;
             richBox.hidden = isRichVisible;
             area.hidden = !isRichVisible;
-            toggleBtn.textContent = isRichVisible ? '📄 ফরম্যাটেড পেজ ভিউ' : '📝 প্লেইন টেক্সট ভিউ';
+            toggleBtn.innerHTML = isRichVisible
+              ? (iconDoc + '<span>ফরম্যাটেড পেজ</span>')
+              : (iconTxt + '<span>প্লেইন টেক্সট</span>');
+          });
+        }
+        if (splitBtn && splitGrid && srcCol) {
+          splitBtn.addEventListener('click', function () {
+            var showSplit = srcCol.hidden;
+            srcCol.hidden = !showSplit;
+            splitGrid.className = showSplit ? 'grid grid-cols-1 xl:grid-cols-2 gap-3 items-start' : 'grid grid-cols-1 gap-3 items-start';
+            splitBtn.classList.toggle('border-emerald-600', showSplit);
+            splitBtn.classList.toggle('text-emerald-600', showSplit);
+            if (showSplit && !splitLoaded) {
+              splitLoaded = true;
+              srcCol.innerHTML = '<div class="text-center py-6 text-xs text-slate-500">মূল PDF পৃষ্ঠা লোড হচ্ছে…</div>';
+              Promise.all(activePages.map(function (p) {
+                return pageImageUrl(p, 820).then(function (u) { return { n: p.idx + 1, url: u }; });
+              })).then(function (imgs) {
+                srcCol.innerHTML = imgs.map(function (im) {
+                  return '<div class="rounded-lg bg-white p-2 border border-slate-300 shadow-2xs">' +
+                    '<div class="text-[11px] font-bold text-slate-500 mb-1.5 pb-1 border-b border-dashed border-slate-200">মূল PDF — পৃষ্ঠা ' + toBn(im.n) + '</div>' +
+                    '<img src="' + im.url + '" width="595" height="842" class="w-full h-auto rounded block" alt="মূল পৃষ্ঠা ' + im.n + '">' +
+                  '</div>';
+                }).join('');
+              });
+            }
           });
         }
 
@@ -3271,7 +3451,7 @@
           } else {
             var html;
             if (!initialAuto && richEdited && richBox) {
-              var sheets = $all('.pdf-doc-sheet', richBox);
+              var sheets = $$('.pdf-doc-sheet', richBox);
               var customBody = sheets.length
                 ? sheets.map(function (sh) { return sh.innerHTML; }).join('<br clear="all" style="page-break-before:always;mso-break-type:section-break" />')
                 : richBox.innerHTML;
@@ -3294,7 +3474,12 @@
           triggerDocOrTxtDownload(false);
         });
 
-        triggerDocOrTxtDownload(true);
+        updatePdf2OtherSummary();
+        if (shouldAutoDl) {
+          triggerDocOrTxtDownload(true);
+        } else {
+          showToast(tr('কনভার্ট সম্পন্ন! প্রিভিউ দেখে ডাউনলোড করুন।', 'Conversion complete! Review the preview and click Download.'));
+        }
       });
     }).then(function () { setProgress(null); btn.disabled = false; }, function (err) {
       setProgress(null);
@@ -3917,7 +4102,19 @@
     $$('input[name="pdfToOtherFmt"]').forEach(function (r) {
       r.addEventListener('change', syncPdf2OtherFormatControls);
     });
+    $$('input[name="pdfOcrMode"]').forEach(function (r) {
+      r.addEventListener('change', syncPdf2OtherFormatControls);
+    });
     syncPdf2OtherFormatControls();
+    on('pdfToOtherSelectAllBtn', 'click', function () {
+      if (!p2oState) return;
+      if (!p2oState.selected) p2oState.selected = new Set();
+      if (p2oState.selected.size === p2oState.pages.length) p2oState.selected.clear();
+      else for (var i = 1; i <= p2oState.pages.length; i++) p2oState.selected.add(i);
+      renderPdf2OtherUI();
+    });
+    on('pdfToOtherTabPagesBtn', 'click', function () { switchPdf2OtherCanvasView('pages'); });
+    on('pdfToOtherTabOutputBtn', 'click', function () { switchPdf2OtherCanvasView('output'); });
     on('pdfToOtherRotLeftAll', 'click', function () { if (p2oState) { rotateAll(p2oState.pages, -90); renderPdf2OtherUI(); } });
     on('pdfToOtherRotRightAll', 'click', function () { if (p2oState) { rotateAll(p2oState.pages, 90); renderPdf2OtherUI(); } });
     on('pdfToOtherResetBtn', 'click', function () { p2oState = null; renderPdf2OtherUI(); });
