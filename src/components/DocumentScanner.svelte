@@ -513,13 +513,13 @@
             <svg viewBox="0 0 200 150" class="w-full h-full overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
                 <linearGradient id="dsHeroGlow" x1="65" y1="65" x2="105" y2="138" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.28" />
-                  <stop offset="65%" stop-color="#99f6e4" stop-opacity="0.16" />
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.28" />
+                  <stop offset="65%" stop-color="#93c5fd" stop-opacity="0.16" />
                   <stop offset="100%" stop-color="#f4f5f7" stop-opacity="0" />
                 </linearGradient>
                 <linearGradient id="dsHeroCamStroke" x1="126" y1="12" x2="156" y2="62" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#5eead4" stop-opacity="0.55" />
-                  <stop offset="100%" stop-color="#99f6e4" stop-opacity="0.1" />
+                  <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.55" />
+                  <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.1" />
                 </linearGradient>
                 <linearGradient id="dsHeroBlueCard" x1="42" y1="24" x2="96" y2="70" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stop-color="#0055ff" />
@@ -527,14 +527,14 @@
                   <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.72" />
                 </linearGradient>
                 <linearGradient id="dsHeroPlusGrad" x1="126" y1="90" x2="162" y2="128" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#10b981" />
-                  <stop offset="100%" stop-color="#0d9488" />
+                  <stop offset="0%" stop-color="#3b82f6" />
+                  <stop offset="100%" stop-color="#2563eb" />
                 </linearGradient>
                 <filter id="dsHeroCardShadow" x="-15%" y="-15%" width="130%" height="135%">
                   <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#1e3a8a" flood-opacity="0.18" />
                 </filter>
                 <filter id="dsHeroPlusShadow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0d9488" flood-opacity="0.28" />
+                  <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#2563eb" flood-opacity="0.28" />
                 </filter>
               </defs>
 
@@ -600,9 +600,9 @@
               class="group/btn min-h-[54px] px-5 py-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/85 dark:border-studio-border shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_22px_rgba(16,185,129,0.12)] hover:border-emerald-400/80 dark:hover:border-emerald-500/70 hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer text-slate-800 dark:text-white text-[14px] font-medium"
             >
               <svg class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.38a1.5 1.5 0 0 0 1.25-.67l.74-1.11A1.5 1.5 0 0 1 11.12 3.5h1.76a1.5 1.5 0 0 1 1.25.67l.74 1.11a1.5 1.5 0 0 0 1.25.67h1.38A2.5 2.5 0 0 1 20 8.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-9Z" fill="#10b981" />
+                <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.38a1.5 1.5 0 0 0 1.25-.67l.74-1.11A1.5 1.5 0 0 1 11.12 3.5h1.76a1.5 1.5 0 0 1 1.25.67l.74 1.11a1.5 1.5 0 0 0 1.25.67h1.38A2.5 2.5 0 0 1 20 8.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-9Z" fill="#3b82f6" />
                 <circle cx="12" cy="13" r="4.2" fill="#ffffff" />
-                <circle cx="12" cy="13" r="2.3" fill="#059669" />
+                <circle cx="12" cy="13" r="2.3" fill="#2563eb" />
                 <circle cx="16.8" cy="8.8" r="1" fill="#ffffff" />
               </svg>
               <span data-i18n="smartScanBtn">{t.smartScanBtn}</span>
@@ -1995,8 +1995,8 @@
       opacity 0.2s ease;
   }
   .ds-sat-ring-1 {
-    border-top-color: #10b981;
-    border-right-color: rgba(16, 185, 129, 0.38);
+    border-top-color: #3b82f6;
+    border-right-color: rgba(59, 130, 246, 0.38);
     animation: dsGyroOrbit1 1.05s linear infinite;
   }
   .ds-sat-ring-2 {
@@ -2011,8 +2011,8 @@
   }
   .ds-sat-blob {
     border-radius: 42% 58% 62% 38% / 45% 55% 45% 55%;
-    background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #6366f1 100%);
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.55);
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #6366f1 100%);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.55);
     will-change: transform, opacity;
     animation: dsLiquidBlob 1.5s linear infinite;
     transition: opacity 0.16s ease;

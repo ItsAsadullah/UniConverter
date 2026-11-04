@@ -93,7 +93,7 @@ const matchedCatalogTool = aliasToolId
   </script>
   <title>{pageTitle}</title>
   <meta name="description" content={pageDesc}>
-  <meta name="theme-color" content="#0B1120">
+  <meta name="theme-color" content="#0e0e10">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
   <link rel="apple-touch-icon" href="/icons/icon-180.png">
@@ -131,7 +131,7 @@ const matchedCatalogTool = aliasToolId
                 href={cat.href}
                 data-nav-cat={cat.id}
                 class:list={[
-                  'th-nav-link inline-flex items-center gap-2 h-10 px-3.5 rounded-xl text-sm font-bold no-underline whitespace-nowrap transition-colors text-slate-700 dark:text-studio-muted hover:bg-slate-100 dark:hover:bg-studio-panel hover:text-slate-950 dark:hover:text-studio-text [&.is-active]:bg-emerald-500/12 [&.is-active]:text-emerald-600 dark:[&.is-active]:text-studio-primary [&.is-active]:hover:bg-emerald-500/15 [&.is-active]:hover:text-emerald-600 dark:[&.is-active]:hover:text-studio-primary',
+                  'th-nav-link inline-flex items-center gap-2 h-10 px-3.5 rounded-xl text-sm font-bold no-underline whitespace-nowrap transition-colors text-slate-700 dark:text-studio-muted hover:bg-slate-100 dark:hover:bg-studio-panel hover:text-slate-950 dark:hover:text-studio-text [&.is-active]:bg-emerald-500/12 dark:[&.is-active]:bg-studio-surface [&.is-active]:text-emerald-600 dark:[&.is-active]:text-studio-text dark:[&.is-active]:border dark:[&.is-active]:border-studio-border [&.is-active]:hover:bg-emerald-500/15 dark:[&.is-active]:hover:bg-studio-surface',
                   isActive && 'is-active'
                 ]}
               >
