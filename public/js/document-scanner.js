@@ -2154,7 +2154,7 @@
     var pod=e.target.closest('[data-ds-adj-pod]');
     var inp=pod?pod.querySelector('input[type="range"]'):e.target.closest('input.ds-btn-slider');
     if(!inp){
-      var retWrap=e.target.closest('#dsEraserBar .relative');
+      var retWrap=e.target.closest('#dsEraserBar .relative, #dsEraserBar label');
       if(retWrap)inp=retWrap.querySelector('input.ds-btn-slider');
     }
     if(!inp||inp.disabled||busy)return;
@@ -2261,6 +2261,10 @@
     $$('[data-i18n]').forEach(function(el){
       var k=el.getAttribute('data-i18n');
       if(k&&typeof dict[k]==='string')el.textContent=dict[k];
+    });
+    $$('[data-i18n-bn][data-i18n-en]').forEach(function(el){
+      var t=el.getAttribute(clean==='bn'?'data-i18n-bn':'data-i18n-en');
+      if(t)el.textContent=t;
     });
     $$('[data-i18n-title]').forEach(function(el){
       var k=el.getAttribute('data-i18n-title');

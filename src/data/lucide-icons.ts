@@ -1,5 +1,6 @@
 // Colorful modern duotone & multi-tone SVG icon set for TechHat Studio
 export const LUCIDE_ICONS: Record<string, string> = {
+  "pencil": '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" fill="#34d399" fill-opacity="0.22"/><path d="m15 5 4 4" stroke="#10b981"/></g>',
   "layer-mask": '<rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/>',
   "layer-adjustment": '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor" stroke="none"/>',
 
