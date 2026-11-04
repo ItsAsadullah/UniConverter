@@ -792,51 +792,52 @@
                 class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain rounded-xs bg-white shadow-[0_16px_40px_rgba(15,23,42,0.28)] select-none transition-[filter,transform] duration-200"
               ></canvas>
 
-              <!-- SATISFYING 3D KINETIC GYROSCOPE & MORPHING LIQUID ORB PRELOADER WITH COMPLETION STATE -->
+              <!-- SATISFYING 3D KINETIC GYROSCOPE & GPU-ACCELERATED PRELOADER WITH COMPLETION STATE -->
               <div
                 id="dsPreviewLoader"
                 data-state="loading"
-                class="ds-sat-loader absolute inset-0 rounded-xs overflow-hidden pointer-events-none z-22 flex items-center justify-center bg-slate-900/12 dark:bg-slate-950/35 backdrop-blur-[2px] transition-[background-color,backdrop-filter,opacity] duration-300"
+                class="ds-sat-loader absolute inset-0 rounded-xs overflow-hidden pointer-events-none z-22 flex items-center justify-center bg-slate-900/10 dark:bg-slate-950/30 transition-opacity duration-200 will-change-[opacity]"
                 hidden
                 aria-live="polite"
                 aria-label="Updating preview"
               >
-                <!-- Top Smooth Gradient Progress Ribbon -->
-                <div class="ds-sat-toptrack absolute inset-x-0 top-0 h-[3px] bg-slate-200/40 dark:bg-slate-800/50 overflow-hidden transition-opacity duration-300">
-                  <div class="ds-sat-topbar h-full w-1/2 bg-gradient-to-r from-transparent via-emerald-400 to-violet-500 rounded-full"></div>
+                <!-- Top Smooth Gradient Progress Ribbon (Pure Transform ScaleX/TranslateX) -->
+                <div class="ds-sat-toptrack absolute inset-x-0 top-0 h-[3px] bg-slate-200/40 dark:bg-slate-800/50 overflow-hidden transition-opacity duration-200">
+                  <div class="ds-sat-topbar h-full w-full origin-left bg-gradient-to-r from-emerald-400 via-cyan-400 to-violet-500 will-change-transform"></div>
                 </div>
 
-                <!-- Center Satisfying Kinetic Glass Pod -->
-                <div class="ds-sat-pod relative w-21 h-21 rounded-2xl bg-white/94 dark:bg-slate-900/94 backdrop-blur-xl border border-white/80 dark:border-slate-700/80 shadow-[0_20px_50px_rgba(16,185,129,0.24),0_6px_20px_rgba(15,23,42,0.14)] flex flex-col items-center justify-center gap-2 transition-[transform,opacity,box-shadow,border-color] duration-300">
+                <!-- Center Satisfying Kinetic Pod (Pure Transform & Opacity Compositor Layer) -->
+                <div class="ds-sat-pod relative w-21 h-21 rounded-2xl bg-white/96 dark:bg-slate-900/96 border border-slate-200/85 dark:border-slate-700/85 shadow-[0_18px_42px_rgba(16,185,129,0.22),0_4px_14px_rgba(15,23,42,0.12)] flex flex-col items-center justify-center gap-2 transition-[transform,opacity] duration-240 will-change-[transform,opacity]">
                   <!-- Expanding Soft Ripple (Loading) & Completion Burst Ring (Done) -->
-                  <span class="ds-sat-ripple absolute w-12 h-12 rounded-full border border-emerald-400/50 pointer-events-none"></span>
-                  <span class="ds-sat-done-burst absolute w-11 h-11 rounded-full border-2 border-emerald-400 opacity-0 pointer-events-none"></span>
+                  <span class="ds-sat-ripple absolute w-11 h-11 rounded-full border border-emerald-400/55 pointer-events-none will-change-[transform,opacity]"></span>
+                  <span class="ds-sat-done-burst absolute w-11 h-11 rounded-full border-2 border-emerald-400 opacity-0 pointer-events-none will-change-[transform,opacity]"></span>
 
-                  <!-- 3D Gyroscope Orbits + Morphing Liquid Core / Checkmark Orb -->
+                  <!-- 3D Gyroscope Orbits + Core Orb / Checkmark Badge (100% GPU Transform/Opacity) -->
                   <div class="ds-sat-gyro relative w-11 h-11 flex items-center justify-center">
                     <span class="ds-sat-ring ds-sat-ring-1 absolute inset-0 rounded-full"></span>
                     <span class="ds-sat-ring ds-sat-ring-2 absolute inset-0.5 rounded-full"></span>
                     <span class="ds-sat-ring ds-sat-ring-3 absolute inset-1 rounded-full"></span>
-                    <span class="ds-sat-blob relative w-5 h-5 flex items-center justify-center transition-[width,height,border-radius,transform,background,box-shadow] duration-300">
-                      <svg class="ds-sat-check w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <span class="ds-sat-blob relative w-5 h-5 rounded-full"></span>
+                    <span class="ds-sat-done-orb absolute w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-[0_4px_14px_rgba(16,185,129,0.55)] flex items-center justify-center opacity-0 scale-50 transition-[transform,opacity] duration-220 will-change-[transform,opacity]">
+                      <svg class="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M5 12.5L9.5 17L19 7.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                     </span>
                   </div>
 
-                  <!-- Synchronized 5-Bar Sine Wave Equalizer / Done Label -->
+                  <!-- Synchronized 5-Bar Sine Wave Equalizer (Pure ScaleY) / Done Label -->
                   <div class="relative h-3.5 w-full flex items-center justify-center">
-                    <div class="ds-sat-bars flex items-center justify-center gap-1 h-2.5 transition-[opacity,transform] duration-200">
-                      <span class="ds-sat-bar w-1 rounded-full bg-emerald-500" style="animation-delay:0s"></span>
-                      <span class="ds-sat-bar w-1 rounded-full bg-teal-400" style="animation-delay:0.12s"></span>
-                      <span class="ds-sat-bar w-1 rounded-full bg-cyan-500" style="animation-delay:0.24s"></span>
-                      <span class="ds-sat-bar w-1 rounded-full bg-indigo-500" style="animation-delay:0.36s"></span>
-                      <span class="ds-sat-bar w-1 rounded-full bg-violet-500" style="animation-delay:0.48s"></span>
+                    <div class="ds-sat-bars flex items-center justify-center gap-1 h-2.5 transition-[opacity,transform] duration-180 will-change-[transform,opacity]">
+                      <span class="ds-sat-bar w-1 h-2.5 rounded-full bg-emerald-500" style="animation-delay:0s"></span>
+                      <span class="ds-sat-bar w-1 h-2.5 rounded-full bg-teal-400" style="animation-delay:0.1s"></span>
+                      <span class="ds-sat-bar w-1 h-2.5 rounded-full bg-cyan-500" style="animation-delay:0.2s"></span>
+                      <span class="ds-sat-bar w-1 h-2.5 rounded-full bg-indigo-500" style="animation-delay:0.3s"></span>
+                      <span class="ds-sat-bar w-1 h-2.5 rounded-full bg-violet-500" style="animation-delay:0.4s"></span>
                     </div>
                     <span
-                      class="ds-sat-done-text absolute inset-0 flex items-center justify-center text-[9.5px] font-extrabold tracking-wide text-emerald-600 dark:text-emerald-400 opacity-0 scale-90 transition-[opacity,transform] duration-200"
+                      class="ds-sat-done-text absolute inset-0 flex items-center justify-center text-[9.5px] font-extrabold tracking-wide text-emerald-600 dark:text-emerald-400 opacity-0 scale-90 transition-[opacity,transform] duration-180 will-change-[transform,opacity]"
                       data-i18n="previewDoneLbl"
-                    >Ready</span>
+                    >✓ Ready</span>
                   </div>
                 </div>
               </div>
@@ -1353,64 +1354,61 @@
   @keyframes dsLiquidBlob {
     0%,
     100% {
-      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-      transform: scale(0.92) rotate(0deg);
+      transform: scale3d(0.88, 1.08, 1) rotate(0deg);
     }
     33% {
-      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-      transform: scale(1.12) rotate(120deg);
+      transform: scale3d(1.12, 0.9, 1) rotate(120deg);
     }
     66% {
-      border-radius: 50% 60% 30% 60% / 30% 40% 70% 60%;
-      transform: scale(0.98) rotate(240deg);
+      transform: scale3d(0.95, 1.1, 1) rotate(240deg);
     }
   }
   @keyframes dsSatRipple {
     0% {
-      transform: scale(0.65);
-      opacity: 0.75;
+      transform: scale3d(0.65, 0.65, 1);
+      opacity: 0.7;
     }
     100% {
-      transform: scale(1.48);
+      transform: scale3d(1.48, 1.48, 1);
       opacity: 0;
     }
   }
   @keyframes dsSineBar {
     0%,
     100% {
-      height: 3.5px;
+      transform: scaleY(0.35);
       opacity: 0.55;
     }
     50% {
-      height: 10px;
+      transform: scaleY(1);
       opacity: 1;
     }
   }
   @keyframes dsSatTopbar {
     0% {
-      transform: translateX(-110%);
+      transform: translate3d(-100%, 0, 0) scaleX(0.45);
     }
     100% {
-      transform: translateX(220%);
+      transform: translate3d(110%, 0, 0) scaleX(0.45);
     }
   }
   @keyframes dsSatReveal {
     0% {
-      opacity: 0.84;
-      transform: scale(0.994);
+      opacity: 0.88;
+      transform: scale3d(0.996, 0.996, 1);
     }
     100% {
       opacity: 1;
-      transform: scale(1);
+      transform: scale3d(1, 1, 1);
     }
   }
   @keyframes dsDoneBurst {
     0% {
-      transform: scale(0.75);
-      opacity: 0.95;
+      transform: scale3d(0.75, 0.75, 1);
+      opacity: 0.92;
     }
     100% {
-      transform: scale(1.75);
+      transform: scale3d(1.72, 1.72, 1);
       opacity: 0;
     }
   }
@@ -1420,131 +1418,98 @@
   }
   .ds-sat-ring {
     border: 2.2px solid transparent;
-    will-change: transform;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
     transition:
-      transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 0.28s ease,
-      opacity 0.28s ease;
+      transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.2s ease;
   }
   .ds-sat-ring-1 {
     border-top-color: #10b981;
-    border-right-color: rgba(16, 185, 129, 0.35);
-    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.55));
-    animation: dsGyroOrbit1 1.15s linear infinite;
+    border-right-color: rgba(16, 185, 129, 0.38);
+    animation: dsGyroOrbit1 1.05s linear infinite;
   }
   .ds-sat-ring-2 {
     border-bottom-color: #6366f1;
-    border-left-color: rgba(99, 102, 241, 0.35);
-    filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.55));
-    animation: dsGyroOrbit2 1.35s linear infinite;
+    border-left-color: rgba(99, 102, 241, 0.38);
+    animation: dsGyroOrbit2 1.25s linear infinite;
   }
   .ds-sat-ring-3 {
     border-top-color: #06b6d4;
-    border-left-color: rgba(6, 182, 212, 0.35);
-    filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.55));
-    animation: dsGyroOrbit3 1.55s linear infinite;
+    border-left-color: rgba(6, 182, 212, 0.38);
+    animation: dsGyroOrbit3 1.45s linear infinite;
   }
   .ds-sat-blob {
+    border-radius: 42% 58% 62% 38% / 45% 55% 45% 55%;
     background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #6366f1 100%);
-    box-shadow:
-      0 0 14px rgba(16, 185, 129, 0.65),
-      inset 2px 2px 4px rgba(255, 255, 255, 0.65);
-    animation: dsLiquidBlob 1.8s ease-in-out infinite;
-  }
-  .ds-sat-check path {
-    stroke-dasharray: 24;
-    stroke-dashoffset: 24;
-    opacity: 0;
-    transition:
-      stroke-dashoffset 0.28s cubic-bezier(0.22, 1, 0.36, 1) 0.04s,
-      opacity 0.15s ease;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.55);
+    will-change: transform, opacity;
+    animation: dsLiquidBlob 1.5s linear infinite;
+    transition: opacity 0.16s ease;
   }
   .ds-sat-ripple {
-    animation: dsSatRipple 1.3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    animation: dsSatRipple 1.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   }
   .ds-sat-bar {
-    animation: dsSineBar 0.75s ease-in-out infinite;
+    will-change: transform, opacity;
+    animation: dsSineBar 0.7s ease-in-out infinite;
   }
   .ds-sat-topbar {
-    animation: dsSatTopbar 0.95s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation: dsSatTopbar 0.85s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 
-  /* COMPLETED STATE ("done" & "exiting") */
+  /* COMPLETED STATE ("done" & "exiting") — 100% GPU Transform & Opacity */
   :global(#dsPreviewLoader[data-state='done']),
   :global(#dsPreviewLoader[data-state='exiting']) {
     background-color: transparent;
-    backdrop-filter: blur(0px);
   }
   :global(#dsPreviewLoader[data-state='done'] .ds-sat-topbar),
   :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-topbar) {
     animation: none;
-    width: 100%;
-    transform: translateX(0);
-    background: #10b981;
-    transition: width 0.22s ease, opacity 0.25s ease;
+    transform: translate3d(0, 0, 0) scaleX(1);
+    transition: transform 0.18s ease, opacity 0.2s ease;
   }
   :global(#dsPreviewLoader[data-state='done'] .ds-sat-ring),
-  :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-ring) {
-    animation: none;
-    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1.04);
-    border-color: rgba(16, 185, 129, 0.38);
-  }
-  :global(#dsPreviewLoader[data-state='done'] .ds-sat-ring-2),
-  :global(#dsPreviewLoader[data-state='done'] .ds-sat-ring-3),
-  :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-ring-2),
-  :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-ring-3) {
-    opacity: 0;
-  }
+  :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-ring),
   :global(#dsPreviewLoader[data-state='done'] .ds-sat-blob),
-  :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-blob) {
-    animation: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 9999px;
-    transform: scale(1) rotate(0deg);
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    box-shadow:
-      0 0 22px rgba(16, 185, 129, 0.75),
-      inset 1px 1px 3px rgba(255, 255, 255, 0.55);
-  }
-  :global(#dsPreviewLoader[data-state='done'] .ds-sat-check path),
-  :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-check path) {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-  :global(#dsPreviewLoader[data-state='done'] .ds-sat-done-burst) {
-    animation: dsDoneBurst 0.48s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
+  :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-blob),
   :global(#dsPreviewLoader[data-state='done'] .ds-sat-ripple),
   :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-ripple) {
     opacity: 0;
     animation: none;
   }
+  :global(#dsPreviewLoader[data-state='done'] .ds-sat-done-orb),
+  :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-done-orb) {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+  :global(#dsPreviewLoader[data-state='done'] .ds-sat-done-burst) {
+    animation: dsDoneBurst 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
   :global(#dsPreviewLoader[data-state='done'] .ds-sat-bars),
   :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-bars) {
     opacity: 0;
-    transform: translateY(-4px) scale(0.85);
+    transform: translate3d(0, -3px, 0) scale3d(0.85, 0.85, 1);
   }
   :global(#dsPreviewLoader[data-state='done'] .ds-sat-done-text),
   :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-done-text) {
     opacity: 1;
-    transform: scale(1);
+    transform: scale3d(1, 1, 1);
   }
   :global(#dsPreviewLoader[data-state='done'] .ds-sat-pod) {
-    border-color: rgba(16, 185, 129, 0.55);
-    transform: scale(1.03);
+    transform: scale3d(1.03, 1.03, 1);
   }
   :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-pod) {
     opacity: 0;
-    transform: scale(0.88) translateY(4px);
+    transform: scale3d(0.88, 0.88, 1) translate3d(0, 4px, 0);
   }
   :global(#dsPreviewLoader[data-state='exiting'] .ds-sat-toptrack) {
     opacity: 0;
   }
   :global(#dsPreviewWrap.is-generating #dsPreview) {
-    opacity: 0.85;
+    opacity: 0.88;
   }
   :global(#dsPreview.is-revealing) {
-    animation: dsSatReveal 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: dsSatReveal 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   }
 </style>
