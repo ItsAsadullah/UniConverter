@@ -671,20 +671,12 @@
           aria-label={t.cropCaption}
         >
           <div
-            class="ds-canvas-caption min-h-[34px] px-3 py-1 border-b border-slate-200 dark:border-studio-border flex items-center justify-between gap-2 text-[13px] font-bold text-slate-800 dark:text-studio-text bg-slate-50/90 dark:bg-studio-panel shrink-0"
-          >
-            <span class="inline-flex items-center gap-2 min-w-0">
-              <i class="w-2 h-2 rounded-full bg-emerald-500 inline-block shrink-0"></i>
-              <em class="not-italic truncate" data-i18n="cropCaption">{t.cropCaption}</em>
-            </span>
-          </div>
-          <div
             class="ds-viewport relative flex-1 min-h-0 overflow-hidden bg-[#dcdcdc] dark:bg-[#252526] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_24px)] touch-none cursor-grab [&.is-panning]:cursor-grabbing focus-visible:outline-2 focus-visible:outline-emerald-500"
             id="dsViewport"
             tabindex="0"
             aria-label={t.cropCaption}
           >
-            <div class="ds-image-plane absolute left-1/2 top-1/2 origin-top-left select-none shadow-[0_12px_32px_rgba(0,0,0,0.45)]" id="dsPlane">
+            <div class="ds-image-plane absolute left-1/2 top-1/2 origin-top-left select-none shadow-none" id="dsPlane">
               <canvas id="dsSource" class="block w-full h-full rounded-xs bg-white select-none pointer-events-none"></canvas>
               <svg id="dsQuad" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible" aria-hidden="true">
                 <defs>

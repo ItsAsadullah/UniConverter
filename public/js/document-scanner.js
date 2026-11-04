@@ -333,7 +333,8 @@
     var customRow=$('#dsCustomScaleRow'),manualPosRow=$('#dsManualPosRow');
     if(customRow)customRow.style.opacity=paper==='original'?'.45':'1';
     if(manualPosRow)manualPosRow.style.opacity=paper==='original'?'.45':'1';
-    var sheetMode=!!(p&&!eraserActive&&!compare&&paper!=='original'&&canvas.width>2&&canvas.height>2&&stage&&stage.clientWidth>40&&stage.clientHeight>40);
+    var isPreviewOnly=root.dataset.view==='preview';
+    var sheetMode=!!(p&&isPreviewOnly&&!eraserActive&&!compare&&paper!=='original'&&canvas.width>2&&canvas.height>2&&stage&&stage.clientWidth>40&&stage.clientHeight>40);
     if(!sheetMode){
       sheet.dataset.sheetActive='false';
       sheet.style.cssText='';
