@@ -1211,7 +1211,7 @@
               var wt=255;
               if(dSq>rInnerSq){
                 var t=(Math.sqrt(dSq)-rInner)/rSpan;
-                wt=Math.round(127.5*(1+Math.cos(Math.PI*t)));
+                wt=Math.round(255*Math.pow(.5*(1+Math.cos(Math.PI*t)),.78));
               }
               var mIdx=rowOff+x;
               if(wt>mask[mIdx])mask[mIdx]=wt;

@@ -850,36 +850,30 @@
               <div
                 id="dsEraserCursor"
                 data-hud="false"
+                data-hud-flip="false"
                 class="ds-eraser-cursor group/cursor absolute w-6 h-6 rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 z-30 flex items-center justify-center"
                 hidden
               >
-                <!-- Contrast Checkerboard Lens Backdrop (Shown when adjusting Size / Hardness / Opacity sliders) -->
-                <span
-                  id="dsEraserCursorBackdrop"
-                  class="absolute -inset-4 rounded-2xl bg-slate-900/82 border border-white/25 shadow-[0_14px_34px_rgba(15,23,42,0.45)] backdrop-blur-[2px] opacity-0 scale-95 transition-[opacity,transform] duration-150 group-data-[hud=true]/cursor:opacity-100 group-data-[hud=true]/cursor:scale-100 pointer-events-none [background-image:linear-gradient(45deg,rgba(255,255,255,0.08)_25%,transparent_25%),linear-gradient(-45deg,rgba(255,255,255,0.08)_25%,transparent_25%),linear-gradient(45deg,transparent_75%,rgba(255,255,255,0.08)_75%),linear-gradient(-45deg,transparent_75%,rgba(255,255,255,0.08)_75%)] [background-size:12px_12px] [background-position:0_0,0_6px,6px_-6px,-6px_0]"
-                ></span>
                 <!-- Real-Time Feathered Brush Preview Canvas (Shows Live Size, Hardness Falloff & Opacity) -->
                 <canvas
                   id="dsBrushPreviewCanvas"
-                  width="128"
-                  height="128"
+                  width="160"
+                  height="160"
                   class="relative z-10 w-full h-full rounded-full block pointer-events-none"
                 ></canvas>
-                <!-- Outer Full-Size Brush Boundary Ring -->
+                <!-- Photoshop-Style Crisp 1px Circular Brush Outline -->
                 <span
-                  class="absolute inset-0 z-20 rounded-full border-[1.75px] border-slate-900/90 shadow-[0_0_0_1.5px_rgba(255,255,255,0.95)] pointer-events-none"
+                  class="absolute inset-0 z-20 rounded-full border border-neutral-800/85 shadow-[0_0_0_1px_rgba(255,255,255,0.45)] pointer-events-none"
                 ></span>
-                <!-- Inner Hardness Core Indicator Ring (Scales Live with Hardness %) -->
-                <span
-                  id="dsEraserCursorInner"
-                  class="absolute z-20 rounded-full border border-dashed border-emerald-400/90 shadow-[0_0_0_1px_rgba(15,23,42,0.45)] pointer-events-none transition-[width,height,opacity] duration-75"
-                  style="width:80%;height:80%"
-                ></span>
-                <!-- Live Floating Parameter Badge (Shown when adjusting Size / Hardness / Opacity) -->
-                <span
+                <!-- Photoshop-Style Live Brush HUD Card (Diameter / Hardness / Opacity) -->
+                <div
                   id="dsEraserCursorBadge"
-                  class="absolute top-[calc(100%+20px)] left-1/2 -translate-x-1/2 z-30 px-2.5 py-0.5 rounded-full bg-slate-900/95 border border-emerald-400/40 text-white text-[11px] font-bold tabular-nums whitespace-nowrap shadow-lg opacity-0 scale-95 transition-[opacity,transform] duration-150 group-data-[hud=true]/cursor:opacity-100 group-data-[hud=true]/cursor:scale-100 pointer-events-none"
-                >24px · H 80% · O 100%</span>
+                  class="absolute left-[calc(76%+6px)] top-[14%] group-data-[hud-flip=true]/cursor:left-auto group-data-[hud-flip=true]/cursor:right-[calc(76%+6px)] z-30 px-2.5 py-1.5 rounded-[5px] bg-[#585858]/90 border border-white/15 text-white text-[11.5px] leading-[1.35] font-normal tabular-nums whitespace-nowrap shadow-[0_2px_8px_rgba(0,0,0,0.28)] backdrop-blur-[1.5px] opacity-0 transition-opacity duration-100 group-data-[hud=true]/cursor:opacity-100 pointer-events-none grid grid-cols-[auto_auto] gap-x-2 text-right"
+                >
+                  <span>Diameter :</span><span id="dsHudDiameter">24 px</span>
+                  <span>Hardness :</span><span id="dsHudHardness">80%</span>
+                  <span>Opacity :</span><span id="dsHudOpacity">100%</span>
+                </div>
               </div>
               <div
                 id="dsPickerLoupe"

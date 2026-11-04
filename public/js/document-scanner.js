@@ -36,7 +36,7 @@
   function historyAction(redo){var p=current();if(!p)return;var from=redo?p.redo:p.undo,to=redo?p.undo:p.redo;if(!from.length)return;to.push(snapshot(p));var st=from.pop();p.pts=st.pts;p.rot=st.rot;p.settings=st.settings;p.erases=copy(st.erases||[]);p.revision++;sourcePage=null;updateControls();drawSource();schedulePreview();}
   function setBusy(value,text){busy=value;root.setAttribute('aria-busy',String(value));$$('button,input,select').forEach(function(el){if(value){el.dataset.dsWasDisabled=el.disabled?'1':'0';el.disabled=true;}else if('dsWasDisabled' in el.dataset){el.disabled=el.dataset.dsWasDisabled==='1';delete el.dataset.dsWasDisabled;}});if(text)status(text);if(!value){renderList();updateControls();}}
   function workerJob(kind,image,options){
-    var backup=new Uint8ClampedArray(image.data),w=image.width,h=image.height;function runMain(){return kind==='detect'?C.detect(backup,w,h):C.process(backup,w,h,options);}if(!worker){try{worker=new Worker('/js/document-scan-worker.js?v=24');worker.onmessage=function(e){var job=jobs.get(e.data.id);if(!job)return;jobs.delete(e.data.id);if(e.data.error){try{job.resolve(job.fallback());}catch(err){job.reject(new Error(e.data.error));}}else job.resolve(e.data.result||{data:new Uint8ClampedArray(e.data.buffer),info:e.data.info});};worker.onerror=function(ev){if(ev&&ev.preventDefault)ev.preventDefault();var pending=Array.from(jobs.values());jobs.clear();try{worker.terminate();}catch(e){}worker=null;pending.forEach(function(j){try{j.resolve(j.fallback());}catch(err){j.reject(err);}});};}catch(e){worker=null;}}
+    var backup=new Uint8ClampedArray(image.data),w=image.width,h=image.height;function runMain(){return kind==='detect'?C.detect(backup,w,h):C.process(backup,w,h,options);}if(!worker){try{worker=new Worker('/js/document-scan-worker.js?v=25');worker.onmessage=function(e){var job=jobs.get(e.data.id);if(!job)return;jobs.delete(e.data.id);if(e.data.error){try{job.resolve(job.fallback());}catch(err){job.reject(new Error(e.data.error));}}else job.resolve(e.data.result||{data:new Uint8ClampedArray(e.data.buffer),info:e.data.info});};worker.onerror=function(ev){if(ev&&ev.preventDefault)ev.preventDefault();var pending=Array.from(jobs.values());jobs.clear();try{worker.terminate();}catch(e){}worker=null;pending.forEach(function(j){try{j.resolve(j.fallback());}catch(err){j.reject(err);}});};}catch(e){worker=null;}}
     if(!worker)return Promise.resolve(kind==='detect'?C.detect(image.data,image.width,image.height):C.process(image.data,image.width,image.height,options));
     return new Promise(function(resolve,reject){var id=++jobId;jobs.set(id,{resolve:resolve,reject:reject,fallback:runMain});try{worker.postMessage({id:id,kind:kind,width:w,height:h,buffer:image.data.buffer,options:options},[image.data.buffer]);}catch(e){jobs.delete(id);worker=null;try{resolve(runMain());}catch(err){reject(err);}}});
   }
@@ -379,21 +379,17 @@
   function renderBrushPreviewCanvas(hudMode){
     var pCanvas=$('#dsBrushPreviewCanvas');
     if(!pCanvas)return;
-    var cw=72,ch=72;
+    var cw=160,ch=160;
     if(pCanvas.width!==cw)pCanvas.width=cw;
     if(pCanvas.height!==ch)pCanvas.height=ch;
     var ctx=pCanvas.getContext('2d');
     ctx.clearRect(0,0,cw,ch);
-    if(eraserStroke&&!hudMode)return;
     var im=ctx.createImageData(cw,ch),d=im.data;
-    var R=cw/2,rInner=R*Math.min(.99,Math.max(0,eraserHardness/100)),rSpan=Math.max(.001,R-rInner),rSq=R*R,rInnerSq=rInner*rInner;
-    var op=Math.max(.08,Math.min(1,eraserOpacity/100));
-    var rgb=eraserTool==='heal'?[16,185,129]:(C.parseRgb?C.parseRgb(eraserColor):[255,255,255]);
+    var R=cw/2,hard=Math.max(0,Math.min(1,eraserHardness/100));
+    var rInner=R*Math.min(.98,hard),rSpan=Math.max(.001,R-rInner),rSq=R*R,rInnerSq=rInner*rInner;
+    var op=Math.max(.05,Math.min(1,eraserOpacity/100));
+    var rgb=hudMode?[248,105,105]:(C.parseRgb?C.parseRgb(eraserColor):[255,255,255]);
     var cr=rgb[0],cg=rgb[1],cb=rgb[2];
-    if(!hudMode&&eraserTool!=='heal'){
-      var lum=cr*.299+cg*.587+cb*.114;
-      if(lum>230){cr=Math.round(cr*.84+16*.16);cg=Math.round(cg*.92+185*.08);cb=Math.round(cb*.90+129*.10);}
-    }
     for(var y=0;y<ch;y++){
       var dy=y+.5-R,dySq=dy*dy;
       for(var x=0;x<cw;x++){
@@ -402,9 +398,9 @@
         var wt=1;
         if(dSq>rInnerSq){
           var t=(Math.sqrt(dSq)-rInner)/rSpan;
-          wt=.5*(1+Math.cos(Math.PI*t));
+          wt=Math.pow(.5*(1+Math.cos(Math.PI*t)),.78);
         }
-        var a=wt*op*(hudMode?.96:.58);
+        var a=wt*op;
         var idx=(y*cw+x)*4;
         d[idx]=cr;d[idx+1]=cg;d[idx+2]=cb;
         d[idx+3]=Math.round(a*255);
@@ -413,7 +409,8 @@
     ctx.putImageData(im,0,0);
   }
   function updateEraserCursor(showHud){
-    var cur=$('#dsEraserCursor'),wrap=$('#dsPreviewWrap'),canvas=$('#dsPreview'),loupe=$('#dsPickerLoupe'),innerRing=$('#dsEraserCursorInner'),badge=$('#dsEraserCursorBadge');
+    var cur=$('#dsEraserCursor'),wrap=$('#dsPreviewWrap'),canvas=$('#dsPreview'),loupe=$('#dsPickerLoupe');
+    var dEl=$('#dsHudDiameter'),hEl=$('#dsHudHardness'),oEl=$('#dsHudOpacity');
     if(!cur||!wrap)return;
     var showCircle=eraserActive&&(eraserTool==='brush'||eraserTool==='heal');
     if(!showCircle){cur.hidden=true;cur.dataset.hud='false';return;}
@@ -424,20 +421,16 @@
     var pxSize=Math.max(6,(eraserSize/1000)*minDim);
     cur.style.width=pxSize+'px';
     cur.style.height=pxSize+'px';
-    if(innerRing){
-      var hardPct=Math.max(4,Math.min(98,eraserHardness));
-      innerRing.style.width=hardPct+'%';
-      innerRing.style.height=hardPct+'%';
-      innerRing.style.opacity=eraserStroke?'0.25':'0.9';
-    }
-    if(badge){
-      badge.textContent=eraserSize+'px · '+tr('হার্ডনেস ','H ')+eraserHardness+'% · '+tr('অপাসিটি ','O ')+eraserOpacity+'%';
-    }
+    if(dEl)dEl.textContent=eraserSize+' px';
+    if(hEl)hEl.textContent=eraserHardness+'%';
+    if(oEl)oEl.textContent=eraserOpacity+'%';
+    cur.dataset.hudFlip=(pointerInPreview&&lastCursorRel.x>.68)?'true':'false';
     if(showHud){
       clearTimeout(cursorHudTimer);
       if(!pointerInPreview){
         cur.style.left='50%';
         cur.style.top='50%';
+        cur.dataset.hudFlip='false';
       }
       cur.hidden=false;
       cur.dataset.hud='true';
@@ -446,7 +439,7 @@
         cur.dataset.hud='false';
         renderBrushPreviewCanvas(false);
         if(!pointerInPreview&&!eraserStroke)cur.hidden=true;
-      },1250);
+      },1200);
     }else{
       renderBrushPreviewCanvas(cur.dataset.hud==='true');
     }
@@ -511,7 +504,7 @@
             var wt=255;
             if(dSq>rInnerSq){
               var tf=(Math.sqrt(dSq)-rInner)/rSpan;
-              wt=Math.round(127.5*(1+Math.cos(Math.PI*tf)));
+              wt=Math.round(255*Math.pow(.5*(1+Math.cos(Math.PI*tf)),.78));
             }
             var mIdx=rowOff+x;
             if(wt>mask[mIdx])mask[mIdx]=wt;
@@ -847,7 +840,7 @@
     $$('[data-i18n-title]').forEach(function(el){
       var k=el.getAttribute('data-i18n-title');
       if(k&&typeof dict[k]==='string'){
-        el.title=dict[k];el.dataset.dsTip=dict[k];
+        el.dataset.dsTip=dict[k];el.removeAttribute('title');
         if(el.hasAttribute('aria-label'))el.setAttribute('aria-label',dict[k]);
       }
     });
@@ -858,7 +851,7 @@
     $$('[data-ds-tool]').forEach(function(el){
       var k=el.getAttribute('data-ds-tool');
       var sc={brush:'B',heal:'J',wand:'W',rect:'M',picker:'I',hand:'H'}[k];
-      if(k&&dict.tools&&dict.tools[k]){var tl=dict.tools[k]+(sc?' ('+sc+')':'');el.title=tl;el.dataset.dsTip=tl;}
+      if(k&&dict.tools&&dict.tools[k]){var tl=dict.tools[k]+(sc?' ('+sc+')':'');el.dataset.dsTip=tl;el.removeAttribute('title');}
     });
     if(Array.isArray(dict.presets)){
       dict.presets.forEach(function(p){
@@ -898,13 +891,18 @@
     return tip;
   }
   function installHoverTooltip(){
-    var tipEl=$('#dsHoverTooltip'),activeTipTarget=null;
+    var tipEl=$('#dsHoverTooltip'),activeTipTarget=null,tipTimer=0,tipSuppressed=false;
     if(!tipEl)return;
-    function hideTip(){tipEl.hidden=true;activeTipTarget=null;}
+    $$('[title]').forEach(function(el){
+      var raw=el.getAttribute('title');
+      if(raw)el.dataset.dsTip=raw;
+      el.removeAttribute('title');
+    });
+    function hideTip(){clearTimeout(tipTimer);tipEl.hidden=true;}
     function showTipFor(target){
+      if(!target||tipSuppressed||!document.body.contains(target)){hideTip();return;}
       var label=getTipLabel(target);
       if(!label){hideTip();return;}
-      activeTipTarget=target;
       tipEl.textContent=label;
       tipEl.hidden=false;
       var r=target.getBoundingClientRect(),trRect=tipEl.getBoundingClientRect();
@@ -915,23 +913,40 @@
       tipEl.style.left=Math.round(left)+'px';
       tipEl.style.top=Math.round(top)+'px';
     }
+    function queueTip(target){
+      clearTimeout(tipTimer);
+      tipEl.hidden=true;
+      if(!target||tipSuppressed)return;
+      tipTimer=setTimeout(function(){
+        if(activeTipTarget===target&&!tipSuppressed)showTipFor(target);
+      },1500);
+    }
     root.addEventListener('pointerover',function(e){
       var t=e.target.closest('button,[title],[data-ds-tip],[data-i18n-title]');
-      if(!t||!root.contains(t)){hideTip();return;}
-      showTipFor(t);
+      if(!t||!root.contains(t)){activeTipTarget=null;hideTip();return;}
+      if(t.hasAttribute('title')){var raw=t.getAttribute('title');if(raw)t.dataset.dsTip=raw;t.removeAttribute('title');}
+      if(activeTipTarget!==t){
+        activeTipTarget=t;
+        tipSuppressed=false;
+        queueTip(t);
+      }
+    });
+    root.addEventListener('pointermove',function(e){
+      if(!activeTipTarget||tipSuppressed)return;
+      if(tipEl.hidden)queueTip(activeTipTarget);
     });
     root.addEventListener('pointerout',function(e){
       if(!activeTipTarget)return;
       var rel=e.relatedTarget;
       if(rel&&activeTipTarget.contains(rel))return;
+      activeTipTarget=null;
+      tipSuppressed=false;
       hideTip();
     });
-    root.addEventListener('focusin',function(e){
-      var t=e.target.closest('button,[title],[data-ds-tip],[data-i18n-title]');
-      if(t&&root.contains(t))showTipFor(t);
-    });
+    root.addEventListener('pointerdown',function(){tipSuppressed=true;hideTip();});
+    root.addEventListener('input',function(){tipSuppressed=true;hideTip();},true);
+    root.addEventListener('wheel',function(){tipSuppressed=true;hideTip();},{passive:true,capture:true});
     root.addEventListener('focusout',hideTip);
-    root.addEventListener('pointerdown',hideTip);
     window.addEventListener('scroll',hideTip,true);
   }
   installEraser();
