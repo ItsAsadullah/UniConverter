@@ -92,6 +92,8 @@
     'inline-flex items-center justify-center gap-1.5 min-h-[28px] px-3 py-1 rounded-lg border border-emerald-600 dark:border-emerald-500 bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 text-[11px] font-bold leading-none whitespace-nowrap cursor-pointer shadow-2xs transition-colors duration-100 hover:enabled:bg-emerald-700 dark:hover:enabled:bg-emerald-400 hover:enabled:border-emerald-700 dark:hover:enabled:border-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-500';
   const btnPrimarySoft =
     'inline-flex items-center justify-center gap-1 min-h-[25px] px-2 py-0.5 rounded-md border border-emerald-500/35 dark:border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold leading-none whitespace-nowrap cursor-pointer transition-colors duration-100 hover:enabled:bg-emerald-500/20 dark:hover:enabled:bg-emerald-500/25 hover:enabled:border-emerald-500/50 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-500';
+  const btnIcon =
+    'inline-flex items-center justify-center w-7 h-7 min-w-[28px] min-h-[28px] p-0 rounded-md border border-transparent bg-transparent text-slate-700 dark:text-studio-text cursor-pointer transition-all duration-100 hover:enabled:bg-slate-100 dark:hover:enabled:bg-studio-surface hover:enabled:border-slate-200/80 dark:hover:enabled:border-studio-border hover:enabled:text-slate-950 dark:hover:enabled:text-white disabled:opacity-35 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-500';
 </script>
 
 <section
@@ -107,23 +109,29 @@
   <input id="dsFiles" type="file" accept="image/jpeg,image/png,image/webp,image/bmp,image/avif" multiple hidden />
   <input id="dsDocFiles" type="file" accept=".pdf,application/pdf,image/jpeg,image/png,image/webp,image/bmp,image/avif" multiple hidden />
   <input id="dsCameraFallback" type="file" accept="image/*" capture="environment" hidden />
+  <div
+    id="dsHoverTooltip"
+    role="tooltip"
+    hidden
+    class="fixed z-[160] pointer-events-none px-2.5 py-1 rounded-md bg-slate-900/95 dark:bg-slate-800 text-white text-[11px] font-semibold leading-tight shadow-lg border border-white/15 whitespace-nowrap transition-opacity duration-75"
+  ></div>
 
   <!-- COMPACT MOBILE/TABLET QUICK ACCESS BAR -->
   <nav
     class="ds-mobile-nav group-data-[has-pages=false]/ds:!hidden sticky top-0 z-40 hidden max-lg:grid max-lg:grid-cols-3 border-b border-slate-200 dark:border-studio-border bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-xs px-2 py-1 gap-1 shrink-0"
     aria-label="Workspace Navigation"
   >
-    <button type="button" data-ds="toggle-sidebar" class={btnBase}>
-      <Icon name="lucide:layers" class="w-3.5 h-3.5 shrink-0" />
-      <span data-i18n="navPages">{t.navPages}</span>
+    <button type="button" data-ds="toggle-sidebar" class={btnBase} data-i18n-title="navPages" title={t.navPages}>
+      <Icon name="lucide:layers" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+      <span class="sr-only" data-i18n="navPages">{t.navPages}</span>
     </button>
-    <button type="button" data-ds-jump=".ds-main" class={btnBase}>
-      <Icon name="lucide:crop" class="w-3.5 h-3.5 shrink-0" />
-      <span data-i18n="navCanvas">{t.navCanvas}</span>
+    <button type="button" data-ds-jump=".ds-main" class={btnBase} data-i18n-title="navCanvas" title={t.navCanvas}>
+      <Icon name="lucide:crop" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+      <span class="sr-only" data-i18n="navCanvas">{t.navCanvas}</span>
     </button>
-    <button type="button" data-ds="toggle-inspector" class={btnBase}>
-      <Icon name="lucide:sliders-horizontal" class="w-3.5 h-3.5 shrink-0" />
-      <span data-i18n="navInspector">{t.navInspector}</span>
+    <button type="button" data-ds="toggle-inspector" class={btnBase} data-i18n-title="navInspector" title={t.navInspector}>
+      <Icon name="lucide:sliders-horizontal" class="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" />
+      <span class="sr-only" data-i18n="navInspector">{t.navInspector}</span>
     </button>
   </nav>
 
@@ -206,107 +214,123 @@
 
     <!-- CENTER PANEL: NATIVE STUDIO COMMAND BAR & DUAL/SINGLE CANVAS -->
     <div class="ds-main min-w-0 min-h-0 flex flex-col bg-slate-100 dark:bg-studio-bg group-data-[has-pages=false]/ds:bg-transparent overflow-hidden">
-      <!-- STICKY COMPACT NATIVE DESKTOP COMMAND RIBBON -->
+      <!-- STICKY COMPACT NATIVE DESKTOP ICON RIBBON (HOVER FOR TOOLTIP NAME) -->
       <div
-        class="ds-toolbar group-data-[has-pages=false]/ds:!hidden sticky top-0 z-30 min-h-[34px] px-2 py-0.5 border-b border-slate-200 dark:border-studio-border bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-xs flex items-center gap-1 flex-wrap shrink-0"
+        class="ds-toolbar group-data-[has-pages=false]/ds:!hidden sticky top-0 z-30 min-h-[38px] px-3 py-1 border-b border-slate-200 dark:border-studio-border bg-white/98 dark:bg-studio-sidebar/98 backdrop-blur-xs flex items-center gap-1 flex-wrap shrink-0"
         role="toolbar"
         aria-label="Document Editing Toolbar"
       >
-        <!-- Group 1: File & Pages -->
-        <div class="ds-toolbar-group inline-flex items-center gap-0.5 p-0.5 rounded-md bg-slate-100/90 dark:bg-studio-panel border border-slate-200/80 dark:border-studio-border" role="group" aria-label="Pages & Input">
+        <!-- Group 1: Sidebar, Add Page, Camera, New Scan -->
+        <div class="ds-toolbar-group inline-flex items-center gap-1" role="group" aria-label="Pages & Input">
           <button
             type="button"
             data-ds="toggle-sidebar"
             id="dsSidebarToggleBtn"
-            class="{btnBase} w-6 min-w-[24px] min-h-[22px] px-0 border-0 bg-transparent max-lg:hidden aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs"
+            class="{btnIcon} max-lg:hidden aria-pressed:bg-slate-100 dark:aria-pressed:bg-studio-surface aria-pressed:text-indigo-600 dark:aria-pressed:text-indigo-400"
             aria-pressed="true"
             data-i18n-title="sidebarToggleTip"
             title={t.sidebarToggleTip}
           >
-            <Icon name="lucide:panel-left" class="w-3.5 h-3.5 shrink-0" />
+            <Icon name="lucide:panel-left" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <span class="sr-only" data-i18n="pagesTitle">{t.pagesTitle}</span>
           </button>
-          <button type="button" data-ds="add" class="{btnPrimary} min-h-[22px] px-2 py-0.5 text-[10px] rounded" data-i18n-title="addPageTip" title={t.addPageTip}>
-            <Icon name="lucide:plus" class="w-3 h-3 shrink-0" />
-            <span data-i18n="addPageBtn">{t.addPageBtn}</span>
+          <button
+            type="button"
+            data-ds="add"
+            class="{btnIcon} bg-emerald-500/12 border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:enabled:bg-emerald-500/20"
+            data-i18n-title="addPageTip"
+            title={t.addPageTip}
+          >
+            <Icon name="lucide:plus" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span class="sr-only" data-i18n="addPageBtn">{t.addPageBtn}</span>
           </button>
-          <button type="button" data-ds="camera" class="{btnBase} min-h-[22px] px-1.5 py-0.5 text-[10px] border-0 bg-transparent" data-i18n-title="cameraTip" title={t.cameraTip}>
-            <Icon name="lucide:camera" class="w-3 h-3 shrink-0" />
-            <span data-i18n="cameraBtn">{t.cameraBtn}</span>
+          <button type="button" data-ds="camera" class={btnIcon} data-i18n-title="cameraTip" title={t.cameraTip}>
+            <Icon name="lucide:camera" class="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+            <span class="sr-only" data-i18n="cameraBtn">{t.cameraBtn}</span>
           </button>
-          <button type="button" data-ds="reset" class="{btnBase} min-h-[22px] px-1.5 py-0.5 text-[10px] border-0 bg-transparent" data-i18n-title="newScanTip" title={t.newScanTip}>
-            <Icon name="lucide:file-plus-2" class="w-3 h-3 shrink-0" />
-            <span data-i18n="newScanBtn">{t.newScanBtn}</span>
+          <button type="button" data-ds="reset" class={btnIcon} data-i18n-title="newScanTip" title={t.newScanTip}>
+            <Icon name="lucide:file-plus-2" class="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+            <span class="sr-only" data-i18n="newScanBtn">{t.newScanBtn}</span>
           </button>
         </div>
 
-        <!-- Group 2: Crop & Rotation -->
-        <div class="ds-toolbar-group inline-flex items-center gap-0.5 p-0.5 rounded-md bg-slate-100/90 dark:bg-studio-panel border border-slate-200/80 dark:border-studio-border" role="group" aria-label="Crop & Rotation">
+        <span class="w-px h-4 bg-slate-200 dark:bg-studio-border mx-1 shrink-0" aria-hidden="true"></span>
+
+        <!-- Group 2: Undo & Redo -->
+        <div class="ds-toolbar-group inline-flex items-center gap-1" role="group" aria-label="History">
+          <button type="button" data-ds="undo" class={btnIcon} disabled data-i18n-title="undoTip" title={t.undoTip}>
+            <Icon name="lucide:undo-2" class="w-4 h-4 text-slate-700 dark:text-slate-300 shrink-0" />
+            <span class="sr-only" data-i18n="undoBtn">{t.undoBtn}</span>
+          </button>
+          <button type="button" data-ds="redo" class={btnIcon} disabled data-i18n-title="redoTip" title={t.redoTip}>
+            <Icon name="lucide:redo-2" class="w-4 h-4 text-slate-700 dark:text-slate-300 shrink-0" />
+            <span class="sr-only" data-i18n="redoBtn">{t.redoBtn}</span>
+          </button>
+        </div>
+
+        <span class="w-px h-4 bg-slate-200 dark:bg-studio-border mx-1 shrink-0" aria-hidden="true"></span>
+
+        <!-- Group 3: Crop & Rotation -->
+        <div class="ds-toolbar-group inline-flex items-center gap-1" role="group" aria-label="Crop & Rotation">
           <button
             type="button"
             data-ds="detect"
-            class="{btnPrimarySoft} min-h-[22px] px-1.5 py-0.5 text-[10px] rounded"
+            class={btnIcon}
             disabled
             data-i18n-title="autoDetectTip"
             title={t.autoDetectTip}
           >
-            <Icon name="lucide:scan-line" class="w-3 h-3 shrink-0" />
-            <span data-i18n="autoDetectBtn">{t.autoDetectBtn}</span>
+            <Icon name="lucide:scan-line" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span class="sr-only" data-i18n="autoDetectBtn">{t.autoDetectBtn}</span>
           </button>
-          <button type="button" data-ds="full" class="{btnBase} min-h-[22px] px-1.5 py-0.5 text-[10px] border-0 bg-transparent" disabled data-i18n-title="fullImageTip" title={t.fullImageTip}>
-            <Icon name="lucide:maximize-2" class="w-3 h-3 shrink-0" />
-            <span data-i18n="fullImageBtn">{t.fullImageBtn}</span>
+          <button type="button" data-ds="full" class={btnIcon} disabled data-i18n-title="fullImageTip" title={t.fullImageTip}>
+            <Icon name="lucide:maximize-2" class="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+            <span class="sr-only" data-i18n="fullImageBtn">{t.fullImageBtn}</span>
           </button>
-          <button type="button" data-ds="left" class="{btnBase} min-h-[22px] px-1.5 py-0.5 text-[10px] border-0 bg-transparent" disabled data-i18n-title="rotateLeftTip" title={t.rotateLeftTip}>
-            <Icon name="lucide:rotate-ccw" class="w-3 h-3 shrink-0" />
-            <span data-i18n="rotateLeftBtn">{t.rotateLeftBtn}</span>
+          <button type="button" data-ds="left" class={btnIcon} disabled data-i18n-title="rotateLeftTip" title={t.rotateLeftTip}>
+            <Icon name="lucide:rotate-ccw" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <span class="sr-only" data-i18n="rotateLeftBtn">{t.rotateLeftBtn}</span>
           </button>
-          <button type="button" data-ds="right" class="{btnBase} min-h-[22px] px-1.5 py-0.5 text-[10px] border-0 bg-transparent" disabled data-i18n-title="rotateRightTip" title={t.rotateRightTip}>
-            <Icon name="lucide:rotate-cw" class="w-3 h-3 shrink-0" />
-            <span data-i18n="rotateRightBtn">{t.rotateRightBtn}</span>
+          <button type="button" data-ds="right" class={btnIcon} disabled data-i18n-title="rotateRightTip" title={t.rotateRightTip}>
+            <Icon name="lucide:rotate-cw" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <span class="sr-only" data-i18n="rotateRightBtn">{t.rotateRightBtn}</span>
           </button>
         </div>
 
-        <!-- Group 3: Retouch, Border Clean & History -->
-        <div class="ds-toolbar-group inline-flex items-center gap-0.5 p-0.5 rounded-md bg-slate-100/90 dark:bg-studio-panel border border-slate-200/80 dark:border-studio-border" role="group" aria-label="Retouch & History">
+        <span class="w-px h-4 bg-slate-200 dark:bg-studio-border mx-1 shrink-0" aria-hidden="true"></span>
+
+        <!-- Group 4: Retouch & Border Trim -->
+        <div class="ds-toolbar-group inline-flex items-center gap-1" role="group" aria-label="Retouch & Cleanup">
           <button
             type="button"
             data-ds="toggle-eraser"
             id="dsToolbarEraser"
-            class="{btnBase} min-h-[22px] px-1.5 py-0.5 text-[10px] border-0 bg-transparent aria-pressed:bg-emerald-600 dark:aria-pressed:bg-emerald-500 aria-pressed:text-white dark:aria-pressed:text-slate-950 aria-pressed:font-bold"
+            class="{btnIcon} aria-pressed:bg-emerald-600 dark:aria-pressed:bg-emerald-500 aria-pressed:text-white dark:aria-pressed:text-slate-950 aria-pressed:[&_svg]:!text-white"
             disabled
             aria-pressed="false"
             data-i18n-title="retouchTip"
             title={t.retouchTip}
           >
-            <Icon name="lucide:wand-2" class="w-3 h-3 shrink-0" />
-            <span data-i18n="retouchShortBtn">{t.retouchShortBtn}</span>
+            <Icon name="lucide:wand-2" class="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" />
+            <span class="sr-only" data-i18n="retouchShortBtn">{t.retouchShortBtn}</span>
           </button>
           <button
             type="button"
             data-ds="erase-borders"
-            class="{btnBase} min-h-[22px] px-1.5 py-0.5 text-[10px] border-0 bg-transparent"
+            class={btnIcon}
             disabled
             data-i18n-title="borderTrimBtn"
             title={t.borderTrimBtn}
           >
-            <Icon name="lucide:scan" class="w-3 h-3 shrink-0" />
-            <span data-i18n="borderTrimBtn">{t.borderTrimBtn}</span>
-          </button>
-          <button type="button" data-ds="undo" class="{btnBase} min-h-[22px] px-1.5 py-0.5 text-[10px] border-0 bg-transparent" disabled data-i18n-title="undoTip" title={t.undoTip}>
-            <Icon name="lucide:undo-2" class="w-3 h-3 shrink-0" />
-            <span class="max-2xl:hidden" data-i18n="undoBtn">{t.undoBtn}</span>
-          </button>
-          <button type="button" data-ds="redo" class="{btnBase} min-h-[22px] px-1.5 py-0.5 text-[10px] border-0 bg-transparent" disabled data-i18n-title="redoTip" title={t.redoTip}>
-            <Icon name="lucide:redo-2" class="w-3 h-3 shrink-0" />
-            <span class="max-2xl:hidden" data-i18n="redoBtn">{t.redoBtn}</span>
+            <Icon name="lucide:scan" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span class="sr-only" data-i18n="borderTrimBtn">{t.borderTrimBtn}</span>
           </button>
         </div>
 
-        <!-- Group 4: View Switcher -->
-        <div class="ds-toolbar-right ml-auto inline-flex items-center gap-1 max-sm:w-full max-sm:justify-between max-sm:ml-0">
+        <!-- Group 5: View Switcher (Icon-Only with Hover Tooltip) -->
+        <div class="ds-toolbar-right ml-auto inline-flex items-center gap-1">
           <div
-            class="ds-view-switch inline-flex p-0.5 rounded-md bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border gap-0.5"
+            class="ds-view-switch inline-flex p-0.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border gap-0.5"
             role="group"
             aria-label="Canvas View Mode"
           >
@@ -316,10 +340,10 @@
               aria-pressed="false"
               data-i18n-title="viewCrop"
               title={t.viewCrop}
-              class="inline-flex items-center gap-1 min-h-[22px] px-2 py-0.5 rounded border-0 bg-transparent text-slate-600 dark:text-studio-muted text-[10px] font-semibold cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:font-bold aria-pressed:shadow-2xs"
+              class="inline-flex items-center justify-center w-7 h-6.5 rounded-md border-0 bg-transparent text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
             >
-              <Icon name="lucide:crop" class="w-3 h-3 shrink-0" />
-              <span data-i18n="viewCrop">{t.viewCrop}</span>
+              <Icon name="lucide:crop" class="w-3.5 h-3.5 shrink-0" />
+              <span class="sr-only" data-i18n="viewCrop">{t.viewCrop}</span>
             </button>
             <button
               type="button"
@@ -327,10 +351,10 @@
               aria-pressed="true"
               data-i18n-title="viewSplit"
               title={t.viewSplit}
-              class="inline-flex items-center gap-1 min-h-[22px] px-2 py-0.5 rounded border-0 bg-transparent text-slate-600 dark:text-studio-muted text-[10px] font-semibold cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:font-bold aria-pressed:shadow-2xs"
+              class="inline-flex items-center justify-center w-7 h-6.5 rounded-md border-0 bg-transparent text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
             >
-              <Icon name="lucide:columns-2" class="w-3 h-3 shrink-0" />
-              <span data-i18n="viewSplit">{t.viewSplit}</span>
+              <Icon name="lucide:columns-2" class="w-3.5 h-3.5 shrink-0" />
+              <span class="sr-only" data-i18n="viewSplit">{t.viewSplit}</span>
             </button>
             <button
               type="button"
@@ -338,21 +362,21 @@
               aria-pressed="false"
               data-i18n-title="viewPreview"
               title={t.viewPreview}
-              class="inline-flex items-center gap-1 min-h-[22px] px-2 py-0.5 rounded border-0 bg-transparent text-slate-600 dark:text-studio-muted text-[10px] font-semibold cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:font-bold aria-pressed:shadow-2xs"
+              class="inline-flex items-center justify-center w-7 h-6.5 rounded-md border-0 bg-transparent text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
             >
-              <Icon name="lucide:eye" class="w-3 h-3 shrink-0" />
-              <span data-i18n="viewPreview">{t.viewPreview}</span>
+              <Icon name="lucide:eye" class="w-3.5 h-3.5 shrink-0" />
+              <span class="sr-only" data-i18n="viewPreview">{t.viewPreview}</span>
             </button>
           </div>
           <button
             type="button"
             data-ds="toggle-inspector"
-            class="ds-inspector-toggle hidden max-lg:inline-flex items-center gap-1 min-h-[24px] px-2 py-0.5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-[10px] font-semibold cursor-pointer"
+            class="ds-inspector-toggle hidden max-lg:inline-flex items-center justify-center w-7 h-7 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel cursor-pointer"
             data-i18n-title="inspectorTitle"
             title={t.inspectorTitle}
           >
-            <Icon name="lucide:sliders-horizontal" class="w-3 h-3 shrink-0" />
-            <span data-i18n="inspectorBtn">{t.inspectorBtn}</span>
+            <Icon name="lucide:sliders-horizontal" class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
+            <span class="sr-only" data-i18n="inspectorBtn">{t.inspectorBtn}</span>
           </button>
         </div>
       </div>
@@ -549,12 +573,25 @@
               <em class="not-italic truncate" data-i18n="cropCaption">{t.cropCaption}</em>
             </span>
             <div class="inline-flex items-center gap-1 shrink-0">
-              <button type="button" data-ds="detect" class="inline-flex items-center gap-1 min-h-[20px] px-1.5 py-0 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-bold cursor-pointer hover:bg-emerald-500/20" data-i18n-title="autoDetectTip" title={t.autoDetectTip}>
-                <Icon name="lucide:scan-line" class="w-2.5 h-2.5 shrink-0" />
-                <span data-i18n="autoDetectBtn">{t.autoDetectBtn}</span>
+              <button
+                type="button"
+                data-ds="detect"
+                class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 cursor-pointer hover:bg-emerald-500/20"
+                data-i18n-title="autoDetectTip"
+                title={t.autoDetectTip}
+              >
+                <Icon name="lucide:scan-line" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span class="sr-only" data-i18n="autoDetectBtn">{t.autoDetectBtn}</span>
               </button>
-              <button type="button" data-ds="full" class="inline-flex items-center gap-1 min-h-[20px] px-1.5 py-0 rounded bg-white dark:bg-studio-surface text-slate-700 dark:text-studio-text border border-slate-200 dark:border-studio-border text-[10px] font-semibold cursor-pointer hover:bg-slate-100" data-i18n-title="fullImageTip" title={t.fullImageTip}>
-                <span data-i18n="fullImageBtn">{t.fullImageBtn}</span>
+              <button
+                type="button"
+                data-ds="full"
+                class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white dark:bg-studio-surface text-sky-600 dark:text-sky-400 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-slate-100"
+                data-i18n-title="fullImageTip"
+                title={t.fullImageTip}
+              >
+                <Icon name="lucide:maximize-2" class="w-3.5 h-3.5 shrink-0" />
+                <span class="sr-only" data-i18n="fullImageBtn">{t.fullImageBtn}</span>
               </button>
               <small class="sr-only" data-i18n="cropSubCaption">{t.cropSubCaption}</small>
             </div>
@@ -627,14 +664,14 @@
               <button
                 type="button"
                 id="dsEraserToggle"
-                class="ds-caption-btn inline-flex items-center gap-1 min-h-[20px] px-1.5 py-0 rounded text-[10px] font-bold bg-slate-100 dark:bg-studio-surface border border-slate-200 dark:border-studio-border text-slate-700 dark:text-studio-text cursor-pointer aria-pressed:bg-emerald-600 dark:aria-pressed:bg-emerald-500 aria-pressed:border-emerald-600 dark:aria-pressed:border-emerald-500 aria-pressed:text-white dark:aria-pressed:text-slate-950 disabled:opacity-40 disabled:cursor-not-allowed"
+                class="ds-caption-btn inline-flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-studio-surface border border-slate-200 dark:border-studio-border text-violet-600 dark:text-violet-400 cursor-pointer aria-pressed:bg-emerald-600 dark:aria-pressed:bg-emerald-500 aria-pressed:border-emerald-600 dark:aria-pressed:border-emerald-500 aria-pressed:text-white dark:aria-pressed:text-slate-950 disabled:opacity-40 disabled:cursor-not-allowed"
                 data-ds="toggle-eraser"
                 aria-pressed="false"
                 data-i18n-title="retouchTip"
                 title={t.retouchTip}
               >
-                <Icon name="lucide:eraser" class="w-2.5 h-2.5 shrink-0" />
-                <span data-i18n="retouchShortBtn">{t.retouchShortBtn}</span>
+                <Icon name="lucide:wand-2" class="w-3.5 h-3.5 shrink-0" />
+                <span class="sr-only" data-i18n="retouchShortBtn">{t.retouchShortBtn}</span>
               </button>
             </div>
           </div>
@@ -645,13 +682,14 @@
             id="dsEraserBar"
             hidden
           >
-            <!-- Active Tool Pill -->
+            <!-- Active Tool Pill (Icon-Only, Hover for Tool Name) -->
             <span
-              class="ds-eraser-title inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/25 shrink-0"
+              class="ds-eraser-title inline-flex items-center justify-center w-6 h-6 rounded-md bg-emerald-500/10 border border-emerald-500/25 shrink-0"
               id="dsPsActiveToolLabel"
+              title={t.tools.brush}
             >
-              <Icon name="lucide:paintbrush" class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-              <b>{t.tools.brush}</b>
+              <Icon name="lucide:paintbrush" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <b class="sr-only">{t.tools.brush}</b>
             </span>
 
             <!-- Compact Swatch & Eyedropper Group -->
@@ -681,20 +719,22 @@
               <button
                 type="button"
                 data-ds-tool="picker"
-                class="{btnBase} min-h-[20px] px-1.5 py-0 text-[10px] border-0 bg-transparent [&.is-active]:bg-emerald-600 [&.is-active]:text-white"
-                title="Pick background color from document (I or Alt+Click)"
+                class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px] [&.is-active]:bg-emerald-600 [&.is-active]:text-white"
+                data-i18n-title="pickerBtn"
+                title={t.pickerBtn}
               >
-                <Icon name="lucide:pipette" class="w-3 h-3 shrink-0" />
-                <span class="max-xl:hidden" data-i18n="pickerBtn">{t.pickerBtn}</span>
+                <Icon name="lucide:pipette" class="w-3.5 h-3.5 text-fuchsia-600 dark:text-fuchsia-400 shrink-0" />
+                <span class="sr-only" data-i18n="pickerBtn">{t.pickerBtn}</span>
               </button>
               <button
                 type="button"
                 data-ds="auto-paper-color"
-                class="{btnBase} min-h-[20px] px-1.5 py-0 text-[10px] border-0 bg-transparent"
-                title="Auto-detect document paper background color"
+                class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]"
+                data-i18n-title="autoPaperBtn"
+                title={t.autoPaperBtn}
               >
-                <Icon name="lucide:sparkles" class="w-3 h-3 shrink-0" />
-                <span class="max-2xl:hidden" data-i18n="autoPaperBtn">{t.autoPaperBtn}</span>
+                <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+                <span class="sr-only" data-i18n="autoPaperBtn">{t.autoPaperBtn}</span>
               </button>
               <div class="ds-ps-swatches inline-flex items-center gap-0.5 pl-1 border-l border-slate-200 dark:border-studio-border" role="group" aria-label="Quick Color Swatches">
                 <button
@@ -829,26 +869,30 @@
               </div>
             </div>
 
-            <!-- Quick Retouch Actions -->
+            <!-- Quick Retouch Actions (Icon-Only with Hover Tooltip) -->
             <div class="inline-flex items-center gap-0.5 ml-auto">
-              <button type="button" data-ds="erase-borders" class="{btnBase} min-h-[22px] px-1.5 py-0 text-[10px]" data-i18n-title="borderTrimBtn" title={t.borderTrimBtn}>
-                <Icon name="lucide:scan" class="w-3 h-3 shrink-0" />
-                <span class="max-2xl:hidden" data-i18n="borderTrimBtn">{t.borderTrimBtn}</span>
+              <button type="button" data-ds="erase-borders" class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]" data-i18n-title="borderTrimBtn" title={t.borderTrimBtn}>
+                <Icon name="lucide:scan" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span class="sr-only" data-i18n="borderTrimBtn">{t.borderTrimBtn}</span>
               </button>
-              <button type="button" data-ds="undo-erase" class="{btnBase} min-h-[22px] px-1.5 py-0 text-[10px]" data-i18n-title="undoTip" title={t.undoTip}>
-                <Icon name="lucide:undo-2" class="w-3 h-3 shrink-0" />
+              <button type="button" data-ds="undo-erase" class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]" data-i18n-title="undoTip" title={t.undoTip}>
+                <Icon name="lucide:undo-2" class="w-3.5 h-3.5 shrink-0" />
+                <span class="sr-only" data-i18n="undoBtn">{t.undoBtn}</span>
               </button>
-              <button type="button" data-ds="clear-erases" class="{btnBase} min-h-[22px] px-1.5 py-0 text-[10px]" data-i18n-title="resetAllRetouchBtn" title={t.resetAllRetouchBtn}>
-                <Icon name="lucide:rotate-ccw" class="w-3 h-3 shrink-0" />
+              <button type="button" data-ds="clear-erases" class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]" data-i18n-title="resetAllRetouchBtn" title={t.resetAllRetouchBtn}>
+                <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400 shrink-0" />
+                <span class="sr-only" data-i18n="resetAllRetouchBtn">{t.resetAllRetouchBtn}</span>
               </button>
               <button
                 type="button"
                 data-ds="close-eraser"
-                class="ds-eraser-close min-h-[22px] px-2 py-0 rounded bg-emerald-600 dark:bg-emerald-500 border border-emerald-600 dark:border-emerald-500 text-white dark:text-slate-950 text-[10px] font-bold cursor-pointer"
-                data-i18n="doneBtn"
+                class="ds-eraser-close inline-flex items-center justify-center w-6 h-6 rounded-md bg-emerald-600 dark:bg-emerald-500 border border-emerald-600 dark:border-emerald-500 text-white dark:text-slate-950 text-[11px] font-bold cursor-pointer"
+                data-i18n-title="doneBtn"
+                title={t.doneBtn}
                 aria-label={t.doneBtn}
               >
-                {t.doneBtn}
+                ✓
+                <span class="sr-only" data-i18n="doneBtn">{t.doneBtn}</span>
               </button>
             </div>
             <small class="sr-only" id="dsEraserHint" data-i18n="eraserHint">{t.eraserHint}</small>
@@ -865,12 +909,12 @@
               aria-label="Photoshop Retouch Dock"
             >
               {#each [
-                { id: 'brush', icon: 'lucide:paintbrush', title: `${t.tools.brush} (B)`, label: t.dockLabels.brush },
-                { id: 'heal', icon: 'lucide:bandage', title: `${t.tools.heal} (J)`, label: t.dockLabels.heal },
-                { id: 'wand', icon: 'lucide:wand', title: `${t.tools.wand} (W)`, label: t.dockLabels.wand },
-                { id: 'rect', icon: 'lucide:square-dashed', title: `${t.tools.rect} (M)`, label: t.dockLabels.rect },
-                { id: 'picker', icon: 'lucide:pipette', title: `${t.tools.picker} (I)`, label: t.dockLabels.picker },
-                { id: 'hand', icon: 'lucide:hand', title: `${t.tools.hand} (H)`, label: t.dockLabels.hand }
+                { id: 'brush', icon: 'lucide:paintbrush', color: 'text-emerald-600 dark:text-emerald-400', title: `${t.tools.brush} (B)`, label: t.dockLabels.brush },
+                { id: 'heal', icon: 'lucide:bandage', color: 'text-amber-500 dark:text-amber-400', title: `${t.tools.heal} (J)`, label: t.dockLabels.heal },
+                { id: 'wand', icon: 'lucide:wand', color: 'text-violet-600 dark:text-violet-400', title: `${t.tools.wand} (W)`, label: t.dockLabels.wand },
+                { id: 'rect', icon: 'lucide:square-dashed', color: 'text-blue-600 dark:text-blue-400', title: `${t.tools.rect} (M)`, label: t.dockLabels.rect },
+                { id: 'picker', icon: 'lucide:pipette', color: 'text-fuchsia-600 dark:text-fuchsia-400', title: `${t.tools.picker} (I)`, label: t.dockLabels.picker },
+                { id: 'hand', icon: 'lucide:hand', color: 'text-cyan-600 dark:text-cyan-400', title: `${t.tools.hand} (H)`, label: t.dockLabels.hand }
               ] as tool}
                 <button
                   type="button"
@@ -879,7 +923,7 @@
                   aria-pressed="false"
                   title={tool.title}
                 >
-                  <Icon name={tool.icon} class="w-3.5 h-3.5 shrink-0" />
+                  <Icon name={tool.icon} class="w-3.5 h-3.5 {tool.color} shrink-0" />
                   <span class="sr-only" data-i18n-dock={tool.id}>{tool.label}</span>
                 </button>
               {/each}
@@ -999,14 +1043,14 @@
           <button
             type="button"
             id="dsCompare"
-            class="{btnBase} min-h-[20px] px-2 py-0 text-[10px] aria-pressed:bg-emerald-500/15 aria-pressed:border-emerald-500 aria-pressed:text-emerald-700 dark:aria-pressed:text-emerald-300"
+            class="inline-flex items-center justify-center w-6 h-5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-indigo-600 dark:text-indigo-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-studio-surface disabled:opacity-40 disabled:cursor-not-allowed aria-pressed:bg-emerald-500/15 aria-pressed:border-emerald-500 aria-pressed:text-emerald-700 dark:aria-pressed:text-emerald-300"
             aria-pressed="false"
             disabled
             data-i18n-title="compareTip"
             title={t.compareTip}
           >
-            <Icon name="lucide:split-square-horizontal" class="w-3 h-3 shrink-0" />
-            <span data-i18n="compareBtn">{t.compareBtn}</span>
+            <Icon name="lucide:split-square-horizontal" class="w-3.5 h-3.5 shrink-0" />
+            <span class="sr-only" data-i18n="compareBtn">{t.compareBtn}</span>
           </button>
           <small class="ds-shortcuts text-[10px] text-slate-400 dark:text-slate-500 max-xl:hidden" data-i18n="shortcutsHint"
             >{t.shortcutsHint}</small
@@ -1033,22 +1077,22 @@
           <button
             type="button"
             data-ds="apply-all"
-            class="min-h-[22px] px-1.5 py-0 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-700 dark:text-studio-text text-[10px] font-bold cursor-pointer hover:bg-slate-100 dark:hover:bg-studio-surface disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1"
+            class="inline-flex items-center justify-center w-6 h-6 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-emerald-600 dark:text-emerald-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-studio-surface disabled:opacity-40 disabled:cursor-not-allowed"
             disabled
             title={t.applyAllBtn}
           >
-            <Icon name="lucide:copy-check" class="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span data-i18n="applyAllBtn">{t.applyAllBtn}</span>
+            <Icon name="lucide:copy-check" class="w-3.5 h-3.5 shrink-0" />
+            <span class="sr-only" data-i18n="applyAllBtn">{t.applyAllBtn}</span>
           </button>
           <button
             type="button"
             data-ds="reset-color"
-            class="min-h-[22px] px-1.5 py-0 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-600 dark:text-studio-muted text-[10px] font-bold cursor-pointer hover:bg-slate-100 dark:hover:bg-studio-surface hover:text-slate-900 dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+            class="inline-flex items-center justify-center w-6 h-6 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-studio-surface disabled:opacity-40 disabled:cursor-not-allowed"
             disabled
-            data-i18n="resetBtn"
             title={t.resetBtn}
           >
-            {t.resetBtn}
+            <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 shrink-0" />
+            <span class="sr-only" data-i18n="resetBtn">{t.resetBtn}</span>
           </button>
           <button
             type="button"
@@ -1323,19 +1367,19 @@
 
         <div class="ds-export-sub grid grid-cols-4 gap-1">
           <button type="button" data-ds="jpg" class="{btnBase} w-full min-h-[25px] px-1 justify-center text-[10px] rounded-md" disabled title="Download Current Page as JPG">
-            <Icon name="lucide:image-down" class="w-3 h-3 shrink-0" />
+            <Icon name="lucide:image-down" class="w-3 h-3 text-sky-600 dark:text-sky-400 shrink-0" />
             <span data-i18n="downloadJpgBtn">{t.downloadJpgBtn}</span>
           </button>
           <button type="button" data-ds="png" class="{btnBase} w-full min-h-[25px] px-1 justify-center text-[10px] rounded-md" disabled title="Download Current Page as Lossless PNG">
-            <Icon name="lucide:file-image" class="w-3 h-3 shrink-0" />
+            <Icon name="lucide:file-image" class="w-3 h-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <span data-i18n="downloadPngBtn">{t.downloadPngBtn}</span>
           </button>
           <button type="button" data-ds="zip" class="{btnBase} w-full min-h-[25px] px-1 justify-center text-[10px] rounded-md" disabled title="Download All Pages as ZIP">
-            <Icon name="lucide:archive" class="w-3 h-3 shrink-0" />
+            <Icon name="lucide:archive" class="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
             <span data-i18n="downloadZipBtn">{t.downloadZipBtn}</span>
           </button>
           <button type="button" data-ds="print" class="{btnBase} w-full min-h-[25px] px-1 justify-center text-[10px] rounded-md" disabled data-i18n-title="printTip" title={t.printTip}>
-            <Icon name="lucide:printer" class="w-3 h-3 shrink-0" />
+            <Icon name="lucide:printer" class="w-3 h-3 text-violet-600 dark:text-violet-400 shrink-0" />
             <span data-i18n="printBtn">{t.printBtn}</span>
           </button>
         </div>

@@ -600,7 +600,7 @@
     $$('[data-i18n-title]').forEach(function(el){
       var k=el.getAttribute('data-i18n-title');
       if(k&&typeof dict[k]==='string'){
-        el.title=dict[k];
+        el.title=dict[k];el.dataset.dsTip=dict[k];
         if(el.hasAttribute('aria-label'))el.setAttribute('aria-label',dict[k]);
       }
     });
@@ -611,7 +611,7 @@
     $$('[data-ds-tool]').forEach(function(el){
       var k=el.getAttribute('data-ds-tool');
       var sc={brush:'B',heal:'J',wand:'W',rect:'M',picker:'I',hand:'H'}[k];
-      if(k&&dict.tools&&dict.tools[k])el.title=dict.tools[k]+(sc?' ('+sc+')':'');
+      if(k&&dict.tools&&dict.tools[k]){var tl=dict.tools[k]+(sc?' ('+sc+')':'');el.title=tl;el.dataset.dsTip=tl;}
     });
     if(Array.isArray(dict.presets)){
       dict.presets.forEach(function(p){
@@ -637,7 +637,58 @@
     var l=e&&e.detail&&e.detail.lang;
     if(l==='en'||l==='bn')applyScannerLang(l);
   });
+  function getTipLabel(el){
+    if(!el)return '';
+    if(el.hasAttribute('title')){var raw=el.getAttribute('title');if(raw)el.dataset.dsTip=raw;el.removeAttribute('title');}
+    var tip=el.dataset.dsTip||'';
+    var sr=el.querySelector(':scope > .sr-only');
+    var srText=sr&&sr.textContent?sr.textContent.trim():'';
+    if(srText){
+      var scMatch=tip.match(/\(([^)]+)\)\s*$/);
+      if(scMatch&&srText.indexOf(scMatch[0])===-1)return srText+' '+scMatch[0];
+      return srText;
+    }
+    return tip;
+  }
+  function installHoverTooltip(){
+    var tipEl=$('#dsHoverTooltip'),activeTipTarget=null;
+    if(!tipEl)return;
+    function hideTip(){tipEl.hidden=true;activeTipTarget=null;}
+    function showTipFor(target){
+      var label=getTipLabel(target);
+      if(!label){hideTip();return;}
+      activeTipTarget=target;
+      tipEl.textContent=label;
+      tipEl.hidden=false;
+      var r=target.getBoundingClientRect(),trRect=tipEl.getBoundingClientRect();
+      var left=r.left+(r.width-trRect.width)/2;
+      left=Math.max(8,Math.min(window.innerWidth-trRect.width-8,left));
+      var top=r.bottom+7;
+      if(top+trRect.height>window.innerHeight-8)top=Math.max(8,r.top-trRect.height-7);
+      tipEl.style.left=Math.round(left)+'px';
+      tipEl.style.top=Math.round(top)+'px';
+    }
+    root.addEventListener('pointerover',function(e){
+      var t=e.target.closest('button,[title],[data-ds-tip],[data-i18n-title]');
+      if(!t||!root.contains(t)){hideTip();return;}
+      showTipFor(t);
+    });
+    root.addEventListener('pointerout',function(e){
+      if(!activeTipTarget)return;
+      var rel=e.relatedTarget;
+      if(rel&&activeTipTarget.contains(rel))return;
+      hideTip();
+    });
+    root.addEventListener('focusin',function(e){
+      var t=e.target.closest('button,[title],[data-ds-tip],[data-i18n-title]');
+      if(t&&root.contains(t))showTipFor(t);
+    });
+    root.addEventListener('focusout',hideTip);
+    root.addEventListener('pointerdown',hideTip);
+    window.addEventListener('scroll',hideTip,true);
+  }
   installEraser();
+  installHoverTooltip();
   try{
     var initLang=document.documentElement.getAttribute('data-lang')||localStorage.getItem('thbc-lang')||localStorage.getItem('thbc-scan-lang')||'en';
     applyScannerLang(initLang);
