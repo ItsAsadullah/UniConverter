@@ -259,6 +259,8 @@
     if(layerVisBtn&&!busy){toggleLayerVisibility(layerVisBtn.dataset.dsLayerVis);return;}
     var layerLockEl=e.target.closest('[data-ds-layer-lock]');
     if(layerLockEl&&!busy){toggleLayerLock(layerLockEl.dataset.dsLayerLock);return;}
+    var layerDelEl=e.target.closest('[data-ds-layer-del]');
+    if(layerDelEl&&!busy){selectLayerById(layerDelEl.dataset.dsLayerDel);handleLayerAction('del');return;}
     var layerRowBtn=e.target.closest('[data-ds-layer-row]');
     if(layerRowBtn&&!busy){selectLayerById(layerRowBtn.dataset.dsLayerRow);return;}
     var layerActBtn=e.target.closest('[data-ds-layer-act]');
@@ -277,6 +279,7 @@
     if(action==='open-color-picker'){($('#dsEraserColor')||$('#dsDockColor'))?.click();return;}
     if(action==='auto-paper-color'){autoDetectPaperColor();return;}
     if(action==='edit-page'){setEraserMode(true);return;}
+    if(action==='delete-active'){deleteActiveTarget();return;}
     if(action==='finish-crop'){view('preview');return;}
     if(action==='toggle-eraser'){setEraserMode(!eraserActive);return;}
     if(action==='close-eraser'){setEraserMode(false);return;}
@@ -835,8 +838,29 @@
     var fields=[['enabled','Enable mask','checkbox'],['invert','Invert mask','checkbox'],['feather','Feather (px)','number',0,100]];if(selValid(p))fields.push(['selection','Use current selection','checkbox']);fields.push(['remove','Remove mask','checkbox']);
     settingsDialog('Layer Mask',fields,v,preview,function(v){restore();remember(p);preview(v);},function(){restore();refreshCanvasFromLayers(p);});
   }
+  function deleteActiveTarget(){
+    var p=current();if(!p||busy)return;
+    if(txtEdit)commitTextEdit();
+    normalizePageLayers(p);
+    if(selValid(p)){
+      var act=getActiveLayer(p);
+      if(act&&!act.locked&&!act.adjustment&&act.type==='layer'){
+        remember(p);clearSelected(p);refreshCanvasFromLayers(p);
+        status(tr('নির্বাচিত অংশ মুছে ফেলা হয়েছে','Selected area deleted'));
+      }else{
+        fillSelection();
+      }
+      return;
+    }
+    var cur=getActiveLayer(p);
+    if(cur){
+      handleLayerAction('del');
+      return;
+    }
+    toast(tr('ডিলিট করার জন্য একটি লেয়ার বা সিলেকশন নির্বাচন করুন','Select a layer or selection to delete'));
+  }
   function renderLayersList(){
-    var listEl=$('#dsLayerList'),cntEl=$('#dsLayerCount'),bmSel=$('#dsLayerBlendMode'),opInp=$('#dsLayerOpacity'),opVal=$('#dsLayerOpacityVal'),opFill=$('#dsLayerOpacityFill'),lockBtn=$('#dsLayerLockBtn');
+    var listEl=$('#dsLayerList'),cntEl=$('#dsLayerCount'),bmSel=$('#dsLayerBlendMode'),opInp=$('#dsLayerOpacity'),opVal=$('#dsLayerOpacityVal'),opFill=$('#dsLayerOpacityFill'),lockBtn=$('#dsLayerLockBtn'),delBtn=$('#dsLayerDelBtn'),dupBtn=$('#dsLayerDupBtn'),mergeBtn=$('#dsLayerMergeBtn');
     if(!listEl)return;
     var p=current();
     if(!p){
@@ -861,9 +885,13 @@
       lockBtn.classList.toggle('!bg-amber-500/20',isL);
       lockBtn.classList.toggle('!border-amber-500/50',isL);
     }
+    if(delBtn)delBtn.disabled=!actLayer||!!actLayer.locked;
+    if(dupBtn)dupBtn.disabled=false;
+    if(mergeBtn)mergeBtn.disabled=!actLayer||actLayer.type!=='layer'||!!actLayer.locked;
     var eyeSvg='<svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
     var eyeOffSvg='<svg viewBox="0 0 24 24" class="w-3.5 h-3.5 opacity-45" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.447 10.447 0 0 1-1.449 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>';
     var lockSvg='<svg viewBox="0 0 24 24" class="w-3 h-3 text-amber-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+    var trashSvg='<svg viewBox="0 0 24 24" class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>';
     var html=[];
     for(var i=items.length-1;i>=0;i--){
       var it=items[i];if(!it)continue;
@@ -875,6 +903,7 @@
       var badge='<span class="ds-layer-thumb"><img src="'+(thumbs[it.id]||'')+'" alt="'+escapeHtml(title)+' thumbnail" /></span>';
       if(it.mask)badge+='<button type="button" class="ds-layer-thumb ds-mask-thumb'+(it.maskDisabled?' is-disabled':'')+'" data-ds-layer-mask="'+escapeHtml(it.id)+'" title="Edit layer mask" aria-label="Edit layer mask"><img src="'+(thumbs[it.id+'-mask']||'')+'" alt="Layer mask" /></button>';
       var rowLockBtn=it.locked?'<button type="button" data-ds-layer-lock="'+escapeHtml(it.id)+'" class="w-5 h-5 inline-flex items-center justify-center rounded hover:bg-black/10 dark:hover:bg-white/10 shrink-0 cursor-pointer" title="Click to unlock layer" aria-label="Unlock layer">'+lockSvg+'</button>':'';
+      var rowDelBtn=!it.locked?'<button type="button" data-ds-layer-del="'+escapeHtml(it.id)+'" class="w-5 h-5 inline-flex items-center justify-center rounded text-slate-400 hover:text-rose-500 hover:bg-rose-500/15 shrink-0 cursor-pointer" title="Delete layer" aria-label="Delete layer">'+trashSvg+'</button>':'';
       html.push(
         '<div class="flex items-center gap-1.5 px-1.5 py-1 rounded-[3px] border transition-colors cursor-pointer select-none '+(sel?'border-slate-400 dark:border-[#5a5a5a] bg-slate-300/75 dark:bg-[#3d3d3d] text-slate-900 dark:text-white':'border-transparent hover:bg-white/70 dark:hover:bg-[#2d2d2d] text-slate-700 dark:text-[#d4d4d4]')+'" data-ds-layer-row="'+escapeHtml(it.id)+'">'+
           '<button type="button" data-ds-layer-vis="'+escapeHtml(it.id)+'" class="w-5 h-5 inline-flex items-center justify-center rounded hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 shrink-0 cursor-pointer" title="Toggle Layer Visibility">'+(vis?eyeSvg:eyeOffSvg)+'</button>'+
@@ -883,7 +912,7 @@
             '<div class="text-[11.5px] font-bold truncate">'+escapeHtml(title)+'</div>'+
             '<div class="text-[9.5px] text-slate-500 dark:text-[#9e9e9e] truncate">'+escapeHtml(sub)+' · '+Math.round((it.opacity!=null?it.opacity:1)*100)+'%</div>'+
           '</div>'+
-          rowLockBtn+
+          rowLockBtn+rowDelBtn+
         '</div>'
       );
       var enabledEffects=Object.keys(it.effects||{}).filter(function(k){return it.effects[k].enabled!==false;});
@@ -2130,9 +2159,7 @@
       if(e.key==='Delete'||e.key==='Backspace'){
         e.preventDefault();e.stopPropagation();
         if(eraserTool==='lasso-poly'&&polyDraft&&e.key==='Backspace'){polyDraft.pts.pop();if(!polyDraft.pts.length)polyDraft=null;renderSelection();return;}
-        var pd=current();
-        if(selValid(pd)){fillSelection();return;}
-        if(eraserTool==='move'&&pd&&pd.activeLayerId&&pd.activeLayerId!=='bg'){handleLayerAction('del');}
+        deleteActiveTarget();
         return;
       }
       if(e.key==='Escape'){if(polyDraft){cancelPolyDraft();e.preventDefault();}else if(toolDrag&&toolDrag.kind==='marquee'){selDraft=null;toolDrag=null;renderSelection();}return;}

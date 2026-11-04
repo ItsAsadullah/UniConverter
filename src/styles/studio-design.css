@@ -591,6 +591,28 @@
 :root:not([data-theme="dark"]) #img-pane-scan #dsViewport {
   background-image: repeating-linear-gradient(0deg, rgba(15, 23, 42, 0.06) 0 1px, transparent 1px 24px), repeating-linear-gradient(90deg, rgba(15, 23, 42, 0.06) 0 1px, transparent 1px 24px) !important;
 }
+:root:not([data-theme="dark"]) #dsPsDock {
+  background-color: #f3f4f6 !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12) !important;
+}
+:root:not([data-theme="dark"]) #dsPsDock .ds-ps-tool {
+  color: #334155 !important;
+}
+:root:not([data-theme="dark"]) #dsPsDock .ds-ps-tool:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+:root:not([data-theme="dark"]) #dsPsDock .ds-ps-tool[aria-pressed="true"] {
+  background-color: #cbd5e1 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+[data-theme="dark"] #dsPsDock {
+  background-color: #2b2b2b !important;
+  border-color: #454545 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+}
 #img-pane-scan:not([data-editing="true"]) #dsLayersSection,
 #img-pane-scan:not([data-editing="true"]) [data-ds-insp-tab="smart"],
 #img-pane-scan:not([data-editing="true"]) [data-ds-insp-tab="manual"],

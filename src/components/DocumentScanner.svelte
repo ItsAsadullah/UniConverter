@@ -1053,8 +1053,18 @@
               <button type="button" data-ds-pz="fit" class={psBtn} data-ds-tip="Fit Screen (Ctrl+0)">Fit Screen</button>
             </div>
 
-            <!-- Right side: Reset All & Done -->
+            <!-- Right side: Delete, Reset All & Done -->
             <div class="inline-flex items-center gap-1 ml-auto pl-2 shrink-0">
+              <button
+                type="button"
+                data-ds="delete-active"
+                class="{psBtn} !px-2 !text-rose-600 dark:!text-rose-400"
+                data-ds-tip="Delete Active Layer or Selection (Delete)"
+                title="Delete Active Layer or Selection (Delete)"
+              >
+                <Icon name="lucide:trash-2" class="w-3.5 h-3.5 shrink-0" />
+                <span>Delete</span>
+              </button>
               <button type="button" data-ds="clear-erases" class="{psBtn} !px-1.5" data-i18n-title="resetAllRetouchBtn" title={t.resetAllRetouchBtn}>
                 <Icon name="lucide:rotate-ccw" class="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" />
                 <span class="sr-only" data-i18n="resetAllRetouchBtn">{t.resetAllRetouchBtn}</span>
@@ -1077,15 +1087,15 @@
           <div class="relative flex-1 min-h-0 flex flex-col overflow-clip">
             <!-- PHOTOSHOP-STYLE TOOLS PANEL (PINNED OUTSIDE STAGE SO TEXT TYPING NEVER SCROLLS IT) -->
             <aside
-              class="ds-ps-dock absolute left-1.5 top-2 w-[38px] rounded-md bg-[#2b2b2b] border border-black/60 p-[3px] flex flex-col items-center gap-[2px] z-[60] shrink-0 select-none shadow-[0_8px_22px_rgba(0,0,0,0.38)]"
+              class="ds-ps-dock absolute left-1.5 top-2 w-[38px] rounded-md bg-[#f0f0f0] dark:bg-[#2b2b2b] border border-slate-300 dark:border-[#3c3c3c] p-[3px] flex flex-col items-center gap-[2px] z-[60] shrink-0 select-none shadow-[0_2px_10px_rgba(0,0,0,0.16)]"
               id="dsPsDock"
               hidden
               aria-label="Tools"
             >
-              <span class="w-5 h-[3px] my-[2px] rounded-full bg-white/15" aria-hidden="true"></span>
+              <span class="w-5 h-[3px] my-[2px] rounded-full bg-slate-400/50 dark:bg-white/15" aria-hidden="true"></span>
               {#each dockGroups as g}
                 {#if g.sep}
-                  <span class="w-6 h-px bg-white/12 my-[3px]" aria-hidden="true"></span>
+                  <span class="w-6 h-px bg-slate-300 dark:bg-white/12 my-[3px]" aria-hidden="true"></span>
                 {/if}
                 <div class="relative" data-ds-group={g.id}>
                   <button
@@ -1094,7 +1104,7 @@
                     data-ds-cur={g.tools[0].id}
                     aria-pressed="false"
                     data-ds-tip={`${g.tools[0].name} (${g.tools[0].key})`}
-                    class="ds-ps-tool relative w-8 h-8 p-0 rounded-[4px] border border-transparent bg-transparent text-[#d4d4d4] flex items-center justify-center cursor-pointer hover:bg-white/10 hover:text-white aria-pressed:bg-[#505050] aria-pressed:border-white/10 aria-pressed:text-white"
+                    class="ds-ps-tool relative w-8 h-8 p-0 rounded-[4px] border border-transparent bg-transparent text-slate-700 dark:text-[#d4d4d4] flex items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-950 dark:hover:text-white aria-pressed:bg-slate-300 dark:aria-pressed:bg-[#484848] aria-pressed:border-slate-400/50 dark:aria-pressed:border-white/15 aria-pressed:text-slate-950 dark:aria-pressed:text-white"
                   >
                     {#each g.tools as tl, ti}
                       <span data-ds-icon-for={tl.id} hidden={ti !== 0} class="inline-flex">
@@ -1103,7 +1113,7 @@
                     {/each}
                     {#if g.tools.length > 1}
                       <span
-                        class="absolute right-[2px] bottom-[2px] w-0 h-0 border-l-[4px] border-l-transparent border-b-[4px] border-b-[#bdbdbd]"
+                        class="absolute right-[2px] bottom-[2px] w-0 h-0 border-l-[4px] border-l-transparent border-b-[4px] border-b-slate-500 dark:border-b-[#bdbdbd]"
                         aria-hidden="true"
                       ></span>
                     {/if}
@@ -1112,32 +1122,41 @@
                     <div
                       data-ds-flyout={g.id}
                       hidden
-                      class="absolute left-[calc(100%+7px)] top-0 min-w-[232px] py-1 rounded-md bg-[#323232] border border-black/70 shadow-[0_10px_28px_rgba(0,0,0,0.5)] z-50"
+                      class="absolute left-[calc(100%+7px)] top-0 min-w-[232px] py-1 rounded-md bg-white dark:bg-[#323232] border border-slate-300 dark:border-[#484848] shadow-[0_8px_24px_rgba(0,0,0,0.28)] z-50"
                     >
                       {#each g.tools as tl}
                         <button
                           type="button"
                           data-ds-tool={tl.id}
-                          class="w-full flex items-center gap-2.5 px-2.5 py-1.5 bg-transparent border-0 text-left text-[12.5px] text-[#e5e5e5] hover:bg-[#1473e6] hover:text-white cursor-pointer"
+                          class="w-full flex items-center gap-2.5 px-2.5 py-1.5 bg-transparent border-0 text-left text-[12.5px] text-slate-800 dark:text-[#e5e5e5] hover:bg-[#1473e6] hover:text-white cursor-pointer"
                         >
                           <span data-ds-fly-check={tl.id} class="w-2 h-2 rounded-[1px] bg-current shrink-0" style="visibility:hidden"></span>
                           <Icon name={tl.icon} class="w-[17px] h-[17px] shrink-0" />
                           <span class="flex-1 whitespace-nowrap">{tl.name}</span>
-                          <span class="text-[#9ca3af] text-[11.5px] font-semibold">{tl.key}</span>
+                          <span class="text-slate-400 dark:text-[#9ca3af] text-[11.5px] font-semibold">{tl.key}</span>
                         </button>
                       {/each}
                     </div>
                   {/if}
                 </div>
               {/each}
-              <span class="w-6 h-px bg-white/12 my-[3px]" aria-hidden="true"></span>
+              <span class="w-6 h-px bg-slate-300 dark:bg-white/12 my-[3px]" aria-hidden="true"></span>
               <label
-                class="relative w-8 h-8 p-0 rounded-[4px] border-0 bg-transparent flex items-center justify-center cursor-pointer hover:bg-white/10"
+                class="relative w-8 h-8 p-0 rounded-[4px] border-0 bg-transparent flex items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-white/10"
                 data-ds-tip="Set Foreground Color"
               >
                 <input type="color" id="dsDockColor" value="#ffffff" aria-label="Foreground Color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer border-0 p-0" />
-                <span id="dsDockSwatch" class="w-5 h-5 rounded-[2px] border border-white/70 shadow-[0_0_0_1px_rgba(0,0,0,0.6)] pointer-events-none" style="background:#ffffff"></span>
+                <span id="dsDockSwatch" class="w-5 h-5 rounded-[2px] border border-slate-500 dark:border-white/70 shadow-2xs pointer-events-none" style="background:#ffffff"></span>
               </label>
+              <button
+                type="button"
+                data-ds="delete-active"
+                aria-label="Delete Active Layer or Selection"
+                data-ds-tip="Delete Active Layer or Selection (Delete)"
+                class="relative w-8 h-8 p-0 rounded-[4px] border border-transparent bg-transparent text-rose-600 dark:text-rose-400 flex items-center justify-center cursor-pointer hover:bg-rose-500/15 hover:text-rose-500"
+              >
+                <Icon name="lucide:trash-2" class="w-[17px] h-[17px] shrink-0" />
+              </button>
             </aside>
 
             <div
