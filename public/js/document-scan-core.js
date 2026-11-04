@@ -1186,26 +1186,37 @@
     }
     return lut;
   }
-  function selectionMask(sel,w,h){
-    var m=new Uint8Array(w*h),x,y;
-    if(!sel)return m;
-    if(sel.kind==='rect'){
-      var rx0=Math.max(0,Math.min(w,Math.round(Math.min(sel.x0,sel.x1)*w))),rx1=Math.max(0,Math.min(w,Math.round(Math.max(sel.x0,sel.x1)*w)));
-      var ry0=Math.max(0,Math.min(h,Math.round(Math.min(sel.y0,sel.y1)*h))),ry1=Math.max(0,Math.min(h,Math.round(Math.max(sel.y0,sel.y1)*h)));
+  /* ---------- Selections: rect / ellipse / polygon shapes, combine modes, anti-alias, feather ---------- */
+  function fillSpan(m,row,xs,xe,w,aa){
+    if(xe<=xs)return;
+    if(!aa){var a=Math.max(0,Math.round(xs)),b=Math.min(w,Math.round(xe));if(b>a)m.fill(255,row+a,row+b);return;}
+    var cs=Math.max(0,xs),ce=Math.min(w,xe);if(ce<=cs)return;
+    var fa=Math.floor(cs),fb=Math.floor(ce);
+    if(fa===fb){var v0=Math.round((ce-cs)*255);if(v0>m[row+fa])m[row+fa]=v0;return;}
+    var va=Math.round((fa+1-cs)*255);if(va>m[row+fa])m[row+fa]=va;
+    if(fb>fa+1)m.fill(255,row+fa+1,row+fb);
+    if(fb<w){var vb=Math.round((ce-fb)*255);if(vb>m[row+fb])m[row+fb]=vb;}
+  }
+  function shapeMask(sh,w,h,aa){
+    var m=new Uint8Array(w*h),y;
+    if(!sh)return m;
+    if(sh.kind==='rect'){
+      var rx0=Math.max(0,Math.min(w,Math.round(Math.min(sh.x0,sh.x1)*w))),rx1=Math.max(0,Math.min(w,Math.round(Math.max(sh.x0,sh.x1)*w)));
+      var ry0=Math.max(0,Math.min(h,Math.round(Math.min(sh.y0,sh.y1)*h))),ry1=Math.max(0,Math.min(h,Math.round(Math.max(sh.y0,sh.y1)*h)));
       if(rx1>rx0)for(y=ry0;y<ry1;y++)m.fill(255,y*w+rx0,y*w+rx1);
-    }else if(sel.kind==='ellipse'){
-      var cx=(sel.x0+sel.x1)/2*w,cy=(sel.y0+sel.y1)/2*h,erx=Math.abs(sel.x1-sel.x0)/2*w,ery=Math.abs(sel.y1-sel.y0)/2*h;
+    }else if(sh.kind==='ellipse'){
+      var cx=(sh.x0+sh.x1)/2*w,cy=(sh.y0+sh.y1)/2*h,erx=Math.abs(sh.x1-sh.x0)/2*w,ery=Math.abs(sh.y1-sh.y0)/2*h;
       if(erx>=.5&&ery>=.5){
         var ys=Math.max(0,Math.floor(cy-ery)),ye=Math.min(h-1,Math.ceil(cy+ery));
         for(y=ys;y<=ye;y++){
           var dy=(y+.5-cy)/ery;if(dy*dy>1)continue;
-          var half=erx*Math.sqrt(1-dy*dy),xs=Math.max(0,Math.round(cx-half)),xe=Math.min(w,Math.round(cx+half));
-          if(xe>xs)m.fill(255,y*w+xs,y*w+xe);
+          var half=erx*Math.sqrt(1-dy*dy);
+          fillSpan(m,y*w,cx-half,cx+half,w,aa);
         }
       }
-    }else if(sel.kind==='poly'&&sel.pts&&sel.pts.length>2){
-      var n=sel.pts.length,P=new Float64Array(n*2),minY=h,maxY=0;
-      for(var i=0;i<n;i++){P[i*2]=sel.pts[i].x*w;P[i*2+1]=sel.pts[i].y*h;if(P[i*2+1]<minY)minY=P[i*2+1];if(P[i*2+1]>maxY)maxY=P[i*2+1];}
+    }else if(sh.kind==='poly'&&sh.pts&&sh.pts.length>2){
+      var n=sh.pts.length,P=new Float64Array(n*2),minY=h,maxY=0;
+      for(var i=0;i<n;i++){P[i*2]=sh.pts[i].x*w;P[i*2+1]=sh.pts[i].y*h;if(P[i*2+1]<minY)minY=P[i*2+1];if(P[i*2+1]>maxY)maxY=P[i*2+1];}
       var y0=Math.max(0,Math.floor(minY)),y1=Math.min(h-1,Math.ceil(maxY)),xsArr=[];
       for(y=y0;y<=y1;y++){
         var yc=y+.5;xsArr.length=0;
@@ -1215,229 +1226,379 @@
         }
         if(xsArr.length<2)continue;
         xsArr.sort(function(a,b){return a-b;});
-        for(var k=0;k+1<xsArr.length;k+=2){
-          var fx0=Math.max(0,Math.round(xsArr[k])),fx1=Math.min(w,Math.round(xsArr[k+1]));
-          if(fx1>fx0)m.fill(255,y*w+fx0,y*w+fx1);
-        }
+        for(var k=0;k+1<xsArr.length;k+=2)fillSpan(m,y*w,xsArr[k],xsArr[k+1],w,aa);
       }
     }
-    if(sel.inv){for(var q=0;q<m.length;q++)m[q]=255-m[q];}
     return m;
   }
-  function toneBlend(src,dst,at,a,isDodge,range){
-    var l=(src[at]*.299+src[at+1]*.587+src[at+2]*.114)/255;
-    var wg=range==='shadows'?Math.pow(1-l,1.5):range==='highlights'?Math.pow(l,1.5):1-(2*l-1)*(2*l-1);
-    var k=a*.6*wg;
-    if(k<=0){dst[at]=src[at];dst[at+1]=src[at+1];dst[at+2]=src[at+2];return;}
-    for(var c=0;c<3;c++){var v=src[at+c];dst[at+c]=Math.round(isDodge?v+(255-v)*k:v-v*k);}
+  function blurMask(m,w,h,rad){
+    var tmp=new Float32Array(w*h),src=new Float32Array(w*h),i,x,y,acc,win=rad*2+1;
+    for(i=0;i<m.length;i++)src[i]=m[i];
+    for(var pass=0;pass<2;pass++){
+      for(y=0;y<h;y++){
+        var ro=y*w;acc=0;
+        for(x=-rad;x<=rad;x++)acc+=src[ro+Math.max(0,Math.min(w-1,x))];
+        for(x=0;x<w;x++){tmp[ro+x]=acc/win;acc+=src[ro+Math.min(w-1,x+rad+1)]-src[ro+Math.max(0,x-rad)];}
+      }
+      for(x=0;x<w;x++){
+        acc=0;
+        for(y=-rad;y<=rad;y++)acc+=tmp[Math.max(0,Math.min(h-1,y))*w+x];
+        for(y=0;y<h;y++){src[y*w+x]=acc/win;acc+=tmp[Math.min(h-1,y+rad+1)*w+x]-tmp[Math.max(0,y-rad)*w+x];}
+      }
+    }
+    for(i=0;i<m.length;i++)m[i]=Math.round(src[i]);
   }
-  function strokeMask(item,w,h){
-    var r=Math.max(1,Math.round((item.size||.014)*Math.min(w,h)));
-    var hard=item.hardness!==undefined?Math.max(0,Math.min(1,Number(item.hardness))):(item.type==='heal'?.45:.85);
-    var rSq=r*r,lut=brushLut(r,hard);
+  function selectionMask(sel,w,h){
+    if(!sel)return new Uint8Array(w*h);
+    var shapes=sel.shapes||[sel],m=null,aa=sel.aa!==false;
+    for(var i=0;i<shapes.length;i++){
+      var sh=shapes[i],sm=shapeMask(sh,w,h,aa&&sh.kind!=='rect'),mode=i===0?'new':(sh.mode||'add'),q;
+      if(!m||mode==='new'){m=sm;continue;}
+      if(mode==='add'){for(q=0;q<m.length;q++)if(sm[q]>m[q])m[q]=sm[q];}
+      else if(mode==='sub'){for(q=0;q<m.length;q++)if(sm[q])m[q]=Math.round(m[q]*(255-sm[q])/255);}
+      else if(mode==='int'){for(q=0;q<m.length;q++)if(sm[q]<m[q])m[q]=sm[q];}
+    }
+    if(!m)m=new Uint8Array(w*h);
+    if(sel.inv){for(var qq=0;qq<m.length;qq++)m[qq]=255-m[qq];}
+    var f=Number(sel.feather)||0;
+    if(f>0){var rad=Math.round(f*Math.max(w,h)/1100);if(rad>=1)blurMask(m,w,h,rad);}
+    return m;
+  }
+  /* ---------- Blend modes & tone ---------- */
+  function lum3(r,g,b){return r*.299+g*.587+b*.114;}
+  function blendRGB(mode,s0,s1,s2,p0,p1,p2,o){
+    var d;
+    switch(mode){
+      case 'multiply':o[0]=s0*p0/255;o[1]=s1*p1/255;o[2]=s2*p2/255;break;
+      case 'screen':o[0]=255-(255-s0)*(255-p0)/255;o[1]=255-(255-s1)*(255-p1)/255;o[2]=255-(255-s2)*(255-p2)/255;break;
+      case 'darken':o[0]=Math.min(s0,p0);o[1]=Math.min(s1,p1);o[2]=Math.min(s2,p2);break;
+      case 'lighten':o[0]=Math.max(s0,p0);o[1]=Math.max(s1,p1);o[2]=Math.max(s2,p2);break;
+      case 'overlay':o[0]=s0<128?2*s0*p0/255:255-2*(255-s0)*(255-p0)/255;o[1]=s1<128?2*s1*p1/255:255-2*(255-s1)*(255-p1)/255;o[2]=s2<128?2*s2*p2/255:255-2*(255-s2)*(255-p2)/255;break;
+      case 'color':d=lum3(s0,s1,s2)-lum3(p0,p1,p2);o[0]=Math.max(0,Math.min(255,p0+d));o[1]=Math.max(0,Math.min(255,p1+d));o[2]=Math.max(0,Math.min(255,p2+d));break;
+      case 'luminosity':d=lum3(p0,p1,p2)-lum3(s0,s1,s2);o[0]=Math.max(0,Math.min(255,s0+d));o[1]=Math.max(0,Math.min(255,s1+d));o[2]=Math.max(0,Math.min(255,s2+d));break;
+      default:o[0]=p0;o[1]=p1;o[2]=p2;
+    }
+  }
+  function toneRGB(s0,s1,s2,isDodge,range,o){
+    var l=lum3(s0,s1,s2)/255;
+    var wg=range==='shadows'?Math.pow(1-l,1.5):range==='highlights'?Math.pow(l,1.5):1-(2*l-1)*(2*l-1);
+    var k=.6*wg;
+    if(isDodge){o[0]=s0+(255-s0)*k;o[1]=s1+(255-s1)*k;o[2]=s2+(255-s2)*k;}
+    else{o[0]=s0-s0*k;o[1]=s1-s1*k;o[2]=s2-s2*k;}
+  }
+  function toneBlend(src,dst,at,a,isDodge,range){
+    var o=[0,0,0];toneRGB(src[at],src[at+1],src[at+2],isDodge,range,o);
+    dst[at]=Math.round(src[at]+(o[0]-src[at])*a);dst[at+1]=Math.round(src[at+1]+(o[1]-src[at+1])*a);dst[at+2]=Math.round(src[at+2]+(o[2]-src[at+2])*a);
+  }
+  /* Layer pixel helpers (straight alpha RGBA) */
+  function overPixel(buf,i,c0,c1,c2,a){
+    if(a<=0)return;
+    var A=buf[i+3]/255,na=a+A*(1-a);
+    if(na<=0)return;
+    buf[i]=Math.round((c0*a+buf[i]*A*(1-a))/na);
+    buf[i+1]=Math.round((c1*a+buf[i+1]*A*(1-a))/na);
+    buf[i+2]=Math.round((c2*a+buf[i+2]*A*(1-a))/na);
+    buf[i+3]=Math.round(na*255);
+  }
+  function overComposite(data,buf,w,h,opacity,x0,y0,x1,y1){
+    var o=opacity==null?1:Math.max(0,Math.min(1,opacity));if(o<=0||!buf)return;
+    if(x0==null){x0=0;y0=0;x1=w-1;y1=h-1;}
+    for(var y=y0;y<=y1;y++){
+      for(var x=x0;x<=x1;x++){
+        var i=(y*w+x)*4,ba=buf[i+3];if(!ba)continue;
+        var a=ba/255*o;
+        data[i]=Math.round(data[i]*(1-a)+buf[i]*a);
+        data[i+1]=Math.round(data[i+1]*(1-a)+buf[i+1]*a);
+        data[i+2]=Math.round(data[i+2]*(1-a)+buf[i+2]*a);
+      }
+    }
+  }
+  /* ---------- Painter: one engine for Brush / Healing / Clone / Dodge / Burn (live and final) ---------- */
+  function strokeBox(item,w,h,r){
     var minPx=w-1,maxPx=0,minPy=h-1,maxPy=0;
     for(var pi=0;pi<item.pts.length;pi++){
       var ptx=Math.round(item.pts[pi].x*w),pty=Math.round(item.pts[pi].y*h);
-      if(ptx<minPx)minPx=ptx;if(ptx>maxPx)maxPx=ptx;
-      if(pty<minPy)minPy=pty;if(pty>maxPy)maxPy=pty;
+      if(ptx<minPx)minPx=ptx;if(ptx>maxPx)maxPx=ptx;if(pty<minPy)minPy=pty;if(pty>maxPy)maxPy=pty;
     }
-    var bx0=Math.max(0,minPx-r-1),bx1=Math.min(w-1,maxPx+r+1);
-    var by0=Math.max(0,minPy-r-1),by1=Math.min(h-1,maxPy+r+1);
-    var bw=bx1-bx0+1,bh=by1-by0+1;
-    if(bw<=0||bh<=0)return null;
-    var mask=new Uint8Array(bw*bh),lastSx=-99999,lastSy=-99999;
+    var x0=Math.max(0,minPx-r-1),x1=Math.min(w-1,maxPx+r+1),y0=Math.max(0,minPy-r-1),y1=Math.min(h-1,maxPy+r+1);
+    if(x1<x0||y1<y0)return null;
+    return {x0:x0,y0:y0,w:x1-x0+1,h:y1-y0+1};
+  }
+  function makePainter(item,w,h,data,buf,box,oneShot){
+    var r=Math.max(1,Math.round((item.size||.014)*Math.min(w,h)));
+    var hard=item.hardness!==undefined?Math.max(0,Math.min(1,Number(item.hardness))):(item.type==='heal'?.45:.85);
+    var lut=brushLut(r,hard),rSq=r*r;
+    var flow=item.flow!=null?Math.max(.01,Math.min(1,Number(item.flow))):1;
+    var op=item.opacity!==undefined?Math.max(.05,Math.min(1,Number(item.opacity))):1;
+    var type=item.type==='stroke'?'stroke':item.type,mode=item.mode||'normal',sample=item.sample||'below',isL=!!buf;
+    if(!box)box=strokeBox(item,w,h,r);
+    if(!box)return null;
+    var bx0=box.x0,by0=box.y0,bw=box.w,bh=box.h,bx1=bx0+bw-1,by1=by0+bh-1;
+    var mask=new Float32Array(bw*bh),lastX=-99999,lastY=-99999;
+    var needSnap=!oneShot||type==='clone';
+    var snapB=isL?(needSnap?new Uint8ClampedArray(buf):buf):null;
+    var snapD=isL?data:(needSnap?new Uint8ClampedArray(data):data);
+    var selM=item.__selMask||(item.sel?selectionMask(item.sel,w,h):null);
+    var rgb=parseRgb(item.color),oxp=Math.round((item.ox||0)*w),oyp=Math.round((item.oy||0)*h);
+    var S=[0,0,0,1],Q=[0,0,0,1],B=[0,0,0],dirty=null;
     function stamp(cx,cy){
-      if(cx===lastSx&&cy===lastSy)return;
-      lastSx=cx;lastSy=cy;
-      var sx0=Math.max(bx0,cx-r),sx1=Math.min(bx1,cx+r);
-      var sy0=Math.max(by0,cy-r),sy1=Math.min(by1,cy+r);
+      if(cx===lastX&&cy===lastY)return;
+      lastX=cx;lastY=cy;
+      var sx0=Math.max(bx0,cx-r),sx1=Math.min(bx1,cx+r),sy0=Math.max(by0,cy-r),sy1=Math.min(by1,cy+r);
+      if(sx1<sx0||sy1<sy0)return;
       for(var y=sy0;y<=sy1;y++){
-        var dy=y-cy,dySq=dy*dy,rowOff=(y-by0)*bw-bx0;
+        var dy=y-cy,dySq=dy*dy,ro=(y-by0)*bw-bx0;
         for(var x=sx0;x<=sx1;x++){
           var dx=x-cx,dSq=dx*dx+dySq;
           if(dSq>rSq)continue;
-          var wt=lut[dSq],mIdx=rowOff+x;
-          if(wt>mask[mIdx])mask[mIdx]=wt;
+          var wt=lut[dSq]/255,mi=ro+x;
+          if(flow>=.999){if(wt>mask[mi])mask[mi]=wt;}
+          else mask[mi]+=wt*flow*(1-mask[mi]);
+        }
+      }
+      if(!dirty)dirty={x0:sx0,y0:sy0,x1:sx1,y1:sy1};
+      else{if(sx0<dirty.x0)dirty.x0=sx0;if(sy0<dirty.y0)dirty.y0=sy0;if(sx1>dirty.x1)dirty.x1=sx1;if(sy1>dirty.y1)dirty.y1=sy1;}
+    }
+    function segment(p0,p1){
+      dirty=null;
+      var x0=Math.round(p0.x*w),y0=Math.round(p0.y*h),x1=Math.round(p1.x*w),y1=Math.round(p1.y*h);
+      var steps=Math.max(1,Math.ceil(Math.hypot(x1-x0,y1-y0)/Math.max(1,r*.3)));
+      for(var s=0;s<=steps;s++)stamp(Math.round(x0+(x1-x0)*(s/steps)),Math.round(y0+(y1-y0)*(s/steps)));
+      return dirty;
+    }
+    function runAll(){
+      var pts=item.pts;dirty=null;
+      if(!pts||!pts.length)return;
+      var px=Math.round(pts[0].x*w),py=Math.round(pts[0].y*h);stamp(px,py);
+      for(var i=1;i<pts.length;i++){
+        var cx=Math.round(pts[i].x*w),cy=Math.round(pts[i].y*h);
+        var steps=Math.max(1,Math.ceil(Math.hypot(cx-px,cy-py)/Math.max(1,r*.3)));
+        for(var s=0;s<=steps;s++)stamp(Math.round(px+(cx-px)*(s/steps)),Math.round(py+(cy-py)*(s/steps)));
+        px=cx;py=cy;
+      }
+    }
+    function sampleS(x,y,o){
+      var i=(y*w+x)*4;
+      if(!isL){o[0]=snapD[i];o[1]=snapD[i+1];o[2]=snapD[i+2];o[3]=1;return;}
+      var A=snapB[i+3]/255;
+      if(sample==='current'){o[0]=snapB[i];o[1]=snapB[i+1];o[2]=snapB[i+2];o[3]=A;return;}
+      o[0]=snapD[i]*(1-A)+snapB[i]*A;o[1]=snapD[i+1]*(1-A)+snapB[i+1]*A;o[2]=snapD[i+2]*(1-A)+snapB[i+2]*A;o[3]=1;
+    }
+    function healSamples(x0,y0,x1,y1){
+      var rw=x1-x0+1,rh=y1-y0+1,pad=Math.max(3,Math.min(14,Math.round(r*.55)));
+      var hx0=Math.max(0,x0-pad),hx1=Math.min(w-1,x1+pad),hy0=Math.max(0,y0-pad),hy1=Math.min(h-1,y1+pad);
+      var samples=[],st=Math.max(1,Math.round(Math.max(rw,rh)/28)),T=[0,0,0,1];
+      for(var sy=hy0;sy<=hy1;sy+=st){
+        for(var sx=hx0;sx<=hx1;sx+=st){
+          if(sx>=bx0&&sx<=bx1&&sy>=by0&&sy<=by1&&mask[(sy-by0)*bw+(sx-bx0)]>.05)continue;
+          sampleS(sx,sy,T);if(T[3]<.5)continue;
+          samples.push({x:sx,y:sy,r:T[0],g:T[1],b:T[2],l:lum3(T[0],T[1],T[2])});
+        }
+      }
+      if(samples.length>4){
+        var sl=samples.map(function(v){return v.l;}).sort(function(a,b){return a-b;}),cut=sl[Math.floor(sl.length*.45)];
+        var clean=samples.filter(function(v){return v.l>=cut;});if(clean.length>=3)samples=clean;
+      }
+      if(samples.length>36){var stride=samples.length/36,pk=[];for(var k=0;k<36;k++)pk.push(samples[Math.floor(k*stride)]);samples=pk;}
+      return samples;
+    }
+    function render(rg){
+      if(!rg)return;
+      var x0=Math.max(bx0,rg.x0),y0=Math.max(by0,rg.y0),x1=Math.min(bx1,rg.x1),y1=Math.min(by1,rg.y1);
+      if(x1<x0||y1<y0)return;
+      var samples=type==='heal'?healSamples(x0,y0,x1,y1):null,isTone=type==='dodge'||type==='burn',isDodge=type==='dodge',range=item.range||'midtones';
+      for(var y=y0;y<=y1;y++){
+        var mo=(y-by0)*bw-bx0;
+        for(var x=x0;x<=x1;x++){
+          var m=mask[mo+x];if(m<=0)continue;
+          var idx=y*w+x;
+          if(selM){var sv=selM[idx];if(!sv)continue;m*=sv/255;}
+          var a=m*op;if(a<=0)continue;
+          sampleS(x,y,S);
+          var p0,p1,p2;
+          if(type==='clone'){
+            var sx=x+oxp,sy=y+oyp;if(sx<0||sy<0||sx>=w||sy>=h)continue;
+            sampleS(sx,sy,Q);if(Q[3]<=0)continue;a*=Q[3];p0=Q[0];p1=Q[1];p2=Q[2];
+          }else if(type==='heal'){
+            if(isL&&sample==='current'&&S[3]<=0)continue;
+            p0=rgb[0];p1=rgb[1];p2=rgb[2];
+            if(samples.length){
+              var sw=0,sr=0,sg=0,sb=0;
+              for(var k=0;k<samples.length;k++){var sp=samples[k],dd=(x-sp.x)*(x-sp.x)+(y-sp.y)*(y-sp.y)+4,ww=1/(dd*dd);sw+=ww;sr+=sp.r*ww;sg+=sp.g*ww;sb+=sp.b*ww;}
+              p0=sr/sw;p1=sg/sw;p2=sb/sw;
+            }
+          }else if(isTone){
+            if(isL&&S[3]<=0)continue;
+            toneRGB(S[0],S[1],S[2],isDodge,range,B);
+          }else{p0=rgb[0];p1=rgb[1];p2=rgb[2];}
+          if(!isTone)blendRGB(mode,S[0],S[1],S[2],p0,p1,p2,B);
+          var i4=idx*4;
+          if(!isL){
+            data[i4]=Math.round(S[0]*(1-a)+B[0]*a);data[i4+1]=Math.round(S[1]*(1-a)+B[1]*a);data[i4+2]=Math.round(S[2]*(1-a)+B[2]*a);
+          }else{
+            var A=snapB[i4+3]/255,na=a+A*(1-a);
+            buf[i4]=Math.round((B[0]*a+snapB[i4]*A*(1-a))/na);
+            buf[i4+1]=Math.round((B[1]*a+snapB[i4+1]*A*(1-a))/na);
+            buf[i4+2]=Math.round((B[2]*a+snapB[i4+2]*A*(1-a))/na);
+            buf[i4+3]=Math.round(na*255);
+          }
         }
       }
     }
-    for(var pIdx=0;pIdx<item.pts.length;pIdx++){
-      var pt=item.pts[pIdx],cx=Math.round(pt.x*w),cy=Math.round(pt.y*h);
-      if(pIdx>0){
-        var prev=item.pts[pIdx-1],px=Math.round(prev.x*w),py=Math.round(prev.y*h);
-        var dist=Math.hypot(cx-px,cy-py),steps=Math.max(1,Math.ceil(dist/Math.max(1,r*.3)));
-        for(var s=0;s<=steps;s++)stamp(Math.round(px+(cx-px)*(s/steps)),Math.round(py+(cy-py)*(s/steps)));
-      }else stamp(cx,cy);
+    return {segment:segment,runAll:runAll,render:render,box:{x0:bx0,y0:by0,x1:bx1,y1:by1},r:r,snapB:snapB,snapD:snapD};
+  }
+  function isStrokeType(t){return t==='stroke'||t==='heal'||t==='clone'||t==='dodge'||t==='burn';}
+  /* ---------- Pixel ops shared by Background and Layers ---------- */
+  function fillSel(item,w,h,data,buf){
+    var m=item.__mask||selectionMask(item.sel,w,h),rgb=parseRgb(item.color),op=item.opacity!==undefined?Math.max(.05,Math.min(1,Number(item.opacity))):1;
+    for(var q=0;q<w*h;q++){
+      if(!m[q])continue;
+      var a=(m[q]/255)*op,i=q*4;
+      if(buf)overPixel(buf,i,rgb[0],rgb[1],rgb[2],a);
+      else{data[i]=Math.round(data[i]*(1-a)+rgb[0]*a);data[i+1]=Math.round(data[i+1]*(1-a)+rgb[1]*a);data[i+2]=Math.round(data[i+2]*(1-a)+rgb[2]*a);}
     }
-    if(item.sel){
-      var sm=selectionMask(item.sel,w,h);
-      for(var yy=by0;yy<=by1;yy++){
-        var mo=(yy-by0)*bw-bx0,so=yy*w;
-        for(var xx=bx0;xx<=bx1;xx++){var mi=mo+xx;if(mask[mi])mask[mi]=Math.round(mask[mi]*sm[so+xx]/255);}
+  }
+  function transformPixels(item,w,h,target,isLayer){
+    // item: {sel?, from:{x0,y0,x1,y1}, to:{...}} or {sx0,sy0,sx1,sy1,dx0,dy0,dx1,dy1} or movesel {dx,dy} or movelayer {dx,dy}
+    var m=null,snap=new Uint8ClampedArray(target),rgb=parseRgb(item.bgColor||item.color),q,i;
+    var from=item.from,to=item.to;
+    if(!from&&item.sx0!==undefined){
+      from={x0:item.sx0,y0:item.sy0,x1:item.sx1,y1:item.sy1};
+      to={x0:item.dx0,y0:item.dy0,x1:item.dx1,y1:item.dy1};
+    }
+    if(item.sel)m=item.__mask||selectionMask(item.sel,w,h);
+    else if(from)m=selectionMask({kind:'rect',x0:Math.min(from.x0,from.x1),y0:Math.min(from.y0,from.y1),x1:Math.max(from.x0,from.x1),y1:Math.max(from.y0,from.y1)},w,h);
+    else if(!isLayer)return;
+    var pureShift=!from;
+    if(!from){var dx=item.dx||0,dy=item.dy||0;from={x0:0,y0:0,x1:1,y1:1};to={x0:dx,y0:dy,x1:1+dx,y1:1+dy};}
+    var fx0=from.x0*w,fy0=from.y0*h,fw=(from.x1-from.x0)*w,fh=(from.y1-from.y0)*h;
+    var tx0=to.x0*w,ty0=to.y0*h,tw=(to.x1-to.x0)*w,th=(to.y1-to.y0)*h;
+    if(Math.abs(tw)<.5||Math.abs(th)<.5)return;
+    var sdx=Math.round(tx0-fx0),sdy=Math.round(ty0-fy0);
+    for(q=0;q<w*h;q++){
+      var mv=m?m[q]:255;if(!mv)continue;
+      i=q*4;
+      if(isLayer)target[i+3]=Math.round(target[i+3]*(1-mv/255));
+      else{var am=mv/255;target[i]=Math.round(target[i]*(1-am)+rgb[0]*am);target[i+1]=Math.round(target[i+1]*(1-am)+rgb[1]*am);target[i+2]=Math.round(target[i+2]*(1-am)+rgb[2]*am);}
+    }
+    var ax0=Math.max(0,Math.floor(Math.min(tx0,tx0+tw))),ax1=Math.min(w-1,Math.ceil(Math.max(tx0,tx0+tw))-1);
+    var ay0=Math.max(0,Math.floor(Math.min(ty0,ty0+th))),ay1=Math.min(h-1,Math.ceil(Math.max(ty0,ty0+th))-1);
+    for(var y=ay0;y<=ay1;y++){
+      for(var x=ax0;x<=ax1;x++){
+        var sx,sy;
+        if(pureShift){sx=x-sdx;sy=y-sdy;}
+        else{sx=Math.floor(fx0+(x+.5-tx0)*fw/tw);sy=Math.floor(fy0+(y+.5-ty0)*fh/th);}
+        if(sx<0||sy<0||sx>=w||sy>=h)continue;
+        var sq=sy*w+sx,sm=m?m[sq]:255;if(!sm)continue;
+        var si=sq*4,ti=(y*w+x)*4,a=sm/255;
+        if(isLayer){a*=snap[si+3]/255;overPixel(target,ti,snap[si],snap[si+1],snap[si+2],a);}
+        else{target[ti]=Math.round(target[ti]*(1-a)+snap[si]*a);target[ti+1]=Math.round(target[ti+1]*(1-a)+snap[si+1]*a);target[ti+2]=Math.round(target[ti+2]*(1-a)+snap[si+2]*a);}
       }
     }
-    return {mask:mask,bx0:bx0,by0:by0,bx1:bx1,by1:by1,bw:bw,bh:bh,r:r};
+  }
+  function applyLayerOp(buf,below,w,h,item){
+    if(!item)return;
+    var t=item.type;
+    if(isStrokeType(t)&&item.pts&&item.pts.length){
+      var P=makePainter(item,w,h,below,buf,null,true);if(!P)return;
+      P.runAll();P.render(P.box);
+    }else if(t==='fillsel'&&item.sel)fillSel(item,w,h,null,buf);
+    else if(t==='movesel'||t==='movelayer'||t==='xform'||t==='transform')transformPixels(item,w,h,buf,true);
+    else if(t==='rect'){
+      var rgb=parseRgb(item.color),op=item.opacity!==undefined?Math.max(.05,Math.min(1,Number(item.opacity))):1;
+      var rx0=Math.max(0,Math.min(w-1,Math.round(Math.min(item.x0,item.x1)*w)));
+      var rx1=Math.max(0,Math.min(w-1,Math.round(Math.max(item.x0,item.x1)*w)));
+      var ry0=Math.max(0,Math.min(h-1,Math.round(Math.min(item.y0,item.y1)*h)));
+      var ry1=Math.max(0,Math.min(h-1,Math.round(Math.max(item.y0,item.y1)*h)));
+      for(var yy=ry0;yy<=ry1;yy++)for(var xx=rx0;xx<=rx1;xx++)overPixel(buf,(yy*w+xx)*4,rgb[0],rgb[1],rgb[2],op);
+    }
+  }
+  function composeLayers(data,w,h,erases,layers,keep){
+    var bgOps=[],byL={};
+    (erases||[]).forEach(function(e){if(!e)return;var L=e.layer;if(!L||L==='bg')bgOps.push(e);else(byL[L]=byL[L]||[]).push(e);});
+    applyErases(data,w,h,bgOps);
+    var cache=keep?{bg:new Uint8ClampedArray(data),bufs:{}}:null;
+    (layers||[]).forEach(function(L){
+      if(!L||L.kind!=='pixel')return;
+      var ops=byL[L.id];
+      if(!ops||!ops.length)return;
+      var buf=new Uint8ClampedArray(w*h*4);
+      for(var i=0;i<ops.length;i++)applyLayerOp(buf,data,w,h,ops[i]);
+      if(cache)cache.bufs[L.id]=buf;
+      if(L.visible!==false)overComposite(data,buf,w,h,L.opacity==null?1:L.opacity);
+    });
+    return cache;
   }
   function applyErases(data,w,h,erases){
     if(!erases||!erases.length)return;
     for(var i=0;i<erases.length;i++){
       var item=erases[i];
       if(!item||item.type==='text')continue;
-      var rgb=parseRgb(item.color),cr=rgb[0],cg=rgb[1],cb=rgb[2];
-      var op=item.opacity!==undefined?Math.max(.05,Math.min(1,Number(item.opacity))):1;
       var type=item.type;
-      if((type==='stroke'||type==='heal'||type==='clone'||type==='dodge'||type==='burn')&&item.pts&&item.pts.length){
-        var sk=strokeMask(item,w,h);
-        if(!sk)continue;
-        var mask=sk.mask,bx0=sk.bx0,by0=sk.by0,bx1=sk.bx1,by1=sk.by1,bw=sk.bw,bh=sk.bh,r=sk.r,my,mx,mw;
-        if(type==='heal'){
-          var pad=Math.max(3,Math.min(14,Math.round(r*.55)));
-          var hx0=Math.max(0,bx0-pad),hx1=Math.min(w-1,bx1+pad);
-          var hy0=Math.max(0,by0-pad),hy1=Math.min(h-1,by1+pad);
-          var samples=[],stepS=Math.max(1,Math.round(Math.max(bw,bh)/28));
-          for(var sy=hy0;sy<=hy1;sy+=stepS){
-            for(var sx=hx0;sx<=hx1;sx+=stepS){
-              var inBox=sx>=bx0&&sx<=bx1&&sy>=by0&&sy<=by1;
-              if(inBox&&mask[(sy-by0)*bw+(sx-bx0)]>12)continue;
-              var sa=(sy*w+sx)*4,sr=data[sa],sg=data[sa+1],sb=data[sa+2];
-              samples.push({x:sx,y:sy,r:sr,g:sg,b:sb,l:sr*.299+sg*.587+sb*.114});
-            }
-          }
-          if(samples.length>4){
-            var sortedL=samples.map(function(v){return v.l;}).sort(function(a,b){return a-b;});
-            var lCut=sortedL[Math.floor(sortedL.length*.45)];
-            var clean=samples.filter(function(v){return v.l>=lCut;});
-            if(clean.length>=3)samples=clean;
-          }
-          if(samples.length>36){
-            var stride=samples.length/36,picked=[];
-            for(var si=0;si<36;si++)picked.push(samples[Math.floor(si*stride)]);
-            samples=picked;
-          }
-          for(my=by0;my<=by1;my++){
-            for(mx=bx0;mx<=bx1;mx++){
-              mw=mask[(my-by0)*bw+(mx-bx0)];
-              if(!mw)continue;
-              var hr=cr,hg=cg,hb=cb;
-              if(samples.length){
-                var sumW=0,sumR=0,sumG=0,sumB=0;
-                for(var k=0;k<samples.length;k++){
-                  var sp=samples[k],dd=(mx-sp.x)*(mx-sp.x)+(my-sp.y)*(my-sp.y)+4;
-                  var ww=1/(dd*dd);
-                  sumW+=ww;sumR+=sp.r*ww;sumG+=sp.g*ww;sumB+=sp.b*ww;
-                }
-                hr=sumR/sumW;hg=sumG/sumW;hb=sumB/sumW;
-              }
-              var aH=(mw/255)*op,atH=(my*w+mx)*4;
-              data[atH]=Math.round(data[atH]*(1-aH)+hr*aH);
-              data[atH+1]=Math.round(data[atH+1]*(1-aH)+hg*aH);
-              data[atH+2]=Math.round(data[atH+2]*(1-aH)+hb*aH);
-            }
-          }
-        }else if(type==='clone'){
-          var oxp=Math.round((item.ox||0)*w),oyp=Math.round((item.oy||0)*h),snap=new Uint8ClampedArray(data);
-          for(my=by0;my<=by1;my++){
-            for(mx=bx0;mx<=bx1;mx++){
-              mw=mask[(my-by0)*bw+(mx-bx0)];
-              if(!mw)continue;
-              var csx=mx+oxp,csy=my+oyp;
-              if(csx<0||csy<0||csx>=w||csy>=h)continue;
-              var aC=(mw/255)*op,atC=(my*w+mx)*4,saC=(csy*w+csx)*4;
-              data[atC]=Math.round(snap[atC]*(1-aC)+snap[saC]*aC);
-              data[atC+1]=Math.round(snap[atC+1]*(1-aC)+snap[saC+1]*aC);
-              data[atC+2]=Math.round(snap[atC+2]*(1-aC)+snap[saC+2]*aC);
-            }
-          }
-        }else if(type==='dodge'||type==='burn'){
-          var isDodge=type==='dodge',range=item.range||'midtones';
-          for(my=by0;my<=by1;my++){
-            for(mx=bx0;mx<=bx1;mx++){
-              mw=mask[(my-by0)*bw+(mx-bx0)];
-              if(!mw)continue;
-              toneBlend(data,data,(my*w+mx)*4,(mw/255)*op,isDodge,range);
-            }
-          }
-        }else{
-          for(my=by0;my<=by1;my++){
-            for(mx=bx0;mx<=bx1;mx++){
-              mw=mask[(my-by0)*bw+(mx-bx0)];
-              if(!mw)continue;
-              var aS=(mw/255)*op,atS=(my*w+mx)*4;
-              data[atS]=Math.round(data[atS]*(1-aS)+cr*aS);
-              data[atS+1]=Math.round(data[atS+1]*(1-aS)+cg*aS);
-              data[atS+2]=Math.round(data[atS+2]*(1-aS)+cb*aS);
-            }
+      if(type==='layer'){
+        if(item.visible===false||!item.ops||!item.ops.length)continue;
+        var lBuf=new Uint8ClampedArray(w*h*4);
+        for(var li=0;li<item.ops.length;li++)applyLayerOp(lBuf,data,w,h,item.ops[li]);
+        var lOp=item.opacity!=null?Math.max(0,Math.min(1,Number(item.opacity))):1;
+        if(lOp<=0)continue;
+        var lMode=item.mode||'normal',lOut=[0,0,0];
+        for(var qi=0;qi<w*h*4;qi+=4){
+          var ba=lBuf[qi+3];if(!ba)continue;
+          var la=(ba/255)*lOp;
+          if(lMode==='normal'){
+            data[qi]=Math.round(data[qi]*(1-la)+lBuf[qi]*la);
+            data[qi+1]=Math.round(data[qi+1]*(1-la)+lBuf[qi+1]*la);
+            data[qi+2]=Math.round(data[qi+2]*(1-la)+lBuf[qi+2]*la);
+          }else{
+            blendRGB(lMode,data[qi],data[qi+1],data[qi+2],lBuf[qi],lBuf[qi+1],lBuf[qi+2],lOut);
+            data[qi]=Math.round(data[qi]*(1-la)+lOut[0]*la);
+            data[qi+1]=Math.round(data[qi+1]*(1-la)+lOut[1]*la);
+            data[qi+2]=Math.round(data[qi+2]*(1-la)+lOut[2]*la);
           }
         }
+      }else if(isStrokeType(type)&&item.pts&&item.pts.length){
+        var P=makePainter(item,w,h,data,null,null,true);if(!P)continue;
+        P.runAll();P.render(P.box);
       }else if(type==='fillsel'&&item.sel){
-        var fm=selectionMask(item.sel,w,h);
-        for(var fq=0;fq<w*h;fq++){
-          if(!fm[fq])continue;
-          var aF=(fm[fq]/255)*op,fa=fq*4;
-          data[fa]=Math.round(data[fa]*(1-aF)+cr*aF);
-          data[fa+1]=Math.round(data[fa+1]*(1-aF)+cg*aF);
-          data[fa+2]=Math.round(data[fa+2]*(1-aF)+cb*aF);
-        }
-      }else if(type==='movesel'&&item.sel){
-        var mm=selectionMask(item.sel,w,h),dxp=Math.round((item.dx||0)*w),dyp=Math.round((item.dy||0)*h);
-        var msnap=new Uint8ClampedArray(data),mq;
-        for(mq=0;mq<w*h;mq++){if(mm[mq]){var oa=mq*4;data[oa]=cr;data[oa+1]=cg;data[oa+2]=cb;}}
-        for(var py2=0;py2<h;py2++){
-          var ty=py2+dyp;if(ty<0||ty>=h)continue;
-          for(var px2=0;px2<w;px2++){
-            mq=py2*w+px2;if(!mm[mq])continue;
-            var tx=px2+dxp;if(tx<0||tx>=w)continue;
-            var ta=(ty*w+tx)*4,sa2=mq*4;
-            data[ta]=msnap[sa2];data[ta+1]=msnap[sa2+1];data[ta+2]=msnap[sa2+2];
-          }
-        }
+        fillSel(item,w,h,data,null);
+      }else if((type==='movesel'||type==='xform'||type==='transform')&&(item.sel||item.from||item.sx0!==undefined)){
+        transformPixels(item,w,h,data,false);
       }else if(type==='rect'){
+        var rgb=parseRgb(item.color),cr=rgb[0],cg=rgb[1],cb=rgb[2],op=item.opacity!==undefined?Math.max(.05,Math.min(1,Number(item.opacity))):1;
         var rx0=Math.max(0,Math.min(w-1,Math.round(Math.min(item.x0,item.x1)*w)));
         var rx1=Math.max(0,Math.min(w-1,Math.round(Math.max(item.x0,item.x1)*w)));
         var ry0=Math.max(0,Math.min(h-1,Math.round(Math.min(item.y0,item.y1)*h)));
         var ry1=Math.max(0,Math.min(h-1,Math.round(Math.max(item.y0,item.y1)*h)));
         for(var yy=ry0;yy<=ry1;yy++)for(var xx=rx0;xx<=rx1;xx++){
           var at=(yy*w+xx)*4;
-          data[at]=Math.round(data[at]*(1-op)+cr*op);
-          data[at+1]=Math.round(data[at+1]*(1-op)+cg*op);
-          data[at+2]=Math.round(data[at+2]*(1-op)+cb*op);
+          data[at]=Math.round(data[at]*(1-op)+cr*op);data[at+1]=Math.round(data[at+1]*(1-op)+cg*op);data[at+2]=Math.round(data[at+2]*(1-op)+cb*op);
         }
       }else if(type==='wand'){
-        var wx=Math.max(0,Math.min(w-1,Math.round((item.x||0)*(w-1))));
-        var wy=Math.max(0,Math.min(h-1,Math.round((item.y||0)*(h-1))));
+        var wrgb=parseRgb(item.color),wop=item.opacity!==undefined?Math.max(.05,Math.min(1,Number(item.opacity))):1;
+        var wx=Math.max(0,Math.min(w-1,Math.round((item.x||0)*(w-1)))),wy=Math.max(0,Math.min(h-1,Math.round((item.y||0)*(h-1))));
         var sr0=0,sg0=0,sb0=0,scnt=0;
         for(var dyW=-1;dyW<=1;dyW++)for(var dxW=-1;dxW<=1;dxW++){
           var nxW=Math.max(0,Math.min(w-1,wx+dxW)),nyW=Math.max(0,Math.min(h-1,wy+dyW)),wa=(nyW*w+nxW)*4;
           sr0+=data[wa];sg0+=data[wa+1];sb0+=data[wa+2];scnt++;
         }
         sr0/=scnt;sg0/=scnt;sb0/=scnt;
-        var tol=Math.max(2,Math.min(120,Number(item.tolerance)||28))*1.55;
-        var tolSq=tol*tol*3,fringeSq=(tol+10)*(tol+10)*3;
-        var vis=new Uint8Array(w*h),q=new Int32Array(w*h),qHead=0,qTail=0;
-        var startIdx=wy*w+wx;
-        vis[startIdx]=2;q[qTail++]=startIdx;
-        var dirs=[-1,1,-w,w];
+        var tol=Math.max(2,Math.min(120,Number(item.tolerance)||28))*1.55,tolSq=tol*tol*3,fringeSq=(tol+10)*(tol+10)*3;
+        var vis=new Uint8Array(w*h),qq=new Int32Array(w*h),qHead=0,qTail=0,startIdx=wy*w+wx,dirs=[-1,1,-w,w];
+        vis[startIdx]=2;qq[qTail++]=startIdx;
         while(qHead<qTail){
-          var cur=q[qHead++],cxW=cur%w,cyW=(cur/w)|0;
+          var cur=qq[qHead++],cxW=cur%w,cyW=(cur/w)|0;
           for(var di=0;di<4;di++){
             var nb=cur+dirs[di];
-            if(di===0&&cxW===0)continue;
-            if(di===1&&cxW===w-1)continue;
-            if(di===2&&cyW===0)continue;
-            if(di===3&&cyW===h-1)continue;
+            if(di===0&&cxW===0)continue;if(di===1&&cxW===w-1)continue;if(di===2&&cyW===0)continue;if(di===3&&cyW===h-1)continue;
             if(vis[nb])continue;
-            var na=nb*4,dr=data[na]-sr0,dg=data[na+1]-sg0,db=data[na+2]-sb0;
-            var dSqW=dr*dr+dg*dg+db*db;
-            if(dSqW<=tolSq){vis[nb]=2;q[qTail++]=nb;}
-            else if(dSqW<=fringeSq){vis[nb]=1;}
+            var na=nb*4,dr=data[na]-sr0,dg=data[na+1]-sg0,db=data[na+2]-sb0,dSqW=dr*dr+dg*dg+db*db;
+            if(dSqW<=tolSq){vis[nb]=2;qq[qTail++]=nb;}else if(dSqW<=fringeSq){vis[nb]=1;}
           }
         }
         for(var vi=0;vi<w*h;vi++){
           if(!vis[vi])continue;
-          var aW=vis[vi]===2?op:op*.45,va=vi*4;
-          data[va]=Math.round(data[va]*(1-aW)+cr*aW);
-          data[va+1]=Math.round(data[va+1]*(1-aW)+cg*aW);
-          data[va+2]=Math.round(data[va+2]*(1-aW)+cb*aW);
+          var aW=vis[vi]===2?wop:wop*.45,va=vi*4;
+          data[va]=Math.round(data[va]*(1-aW)+wrgb[0]*aW);data[va+1]=Math.round(data[va+1]*(1-aW)+wrgb[1]*aW);data[va+2]=Math.round(data[va+2]*(1-aW)+wrgb[2]*aW);
         }
       }
     }
@@ -1508,5 +1669,5 @@
       for(var c=0;c<4;c++)out[(y*w+x)*4+c]=data[(y0*w+x)*4+c]*(1-f)+data[(Math.min(h-1,y0+1)*w+x)*4+c]*f;
     }return out;
   }
-  return { detect:detect, enhance:enhance, process:process, straighten:straighten, textLineDewarp:textLineDewarp, cleanBorders:cleanBorders, lineModel:lineModel, curve:curve, applyErases:applyErases, applyTrim:applyTrim, parseRgb:parseRgb, brushLut:brushLut, selectionMask:selectionMask, toneBlend:toneBlend, validQuad:validQuad, area:area, fullQuad:full };
+  return { detect:detect, enhance:enhance, process:process, straighten:straighten, textLineDewarp:textLineDewarp, cleanBorders:cleanBorders, lineModel:lineModel, curve:curve, applyErases:applyErases, applyTrim:applyTrim, parseRgb:parseRgb, brushLut:brushLut, selectionMask:selectionMask, toneBlend:toneBlend, makePainter:makePainter, applyLayerOp:applyLayerOp, composeLayers:composeLayers, overComposite:overComposite, blendRGB:blendRGB, validQuad:validQuad, area:area, fullQuad:full };
 });

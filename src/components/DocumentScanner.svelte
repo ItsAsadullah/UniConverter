@@ -54,6 +54,10 @@
     'Courier New',
     'Inter',
     'Noto Sans Bengali',
+    'Hind Siliguri',
+    'Noto Serif Bengali',
+    'Anek Bangla',
+    'Tiro Bangla',
     'Kalpurush',
     'SolaimanLipi',
     'Nikosh',
@@ -65,6 +69,40 @@
     { id: 'left', icon: 'lucide:align-left', tip: 'Left Align Text' },
     { id: 'center', icon: 'lucide:align-center', tip: 'Center Text' },
     { id: 'right', icon: 'lucide:align-right', tip: 'Right Align Text' }
+  ];
+  const moveAligns = [
+    { id: 'top', icon: 'lucide:align-start-horizontal', tip: 'Align Top Edges' },
+    { id: 'center-y', icon: 'lucide:align-center-horizontal', tip: 'Align Vertical Centers' },
+    { id: 'bottom', icon: 'lucide:align-end-horizontal', tip: 'Align Bottom Edges' },
+    { id: 'left', icon: 'lucide:align-start-vertical', tip: 'Align Left Edges' },
+    { id: 'center-x', icon: 'lucide:align-center-vertical', tip: 'Align Horizontal Centers' },
+    { id: 'right', icon: 'lucide:align-end-vertical', tip: 'Align Right Edges' }
+  ];
+  const selModes = [
+    { id: 'new', icon: 'lucide:sel-new', tip: 'New Selection' },
+    { id: 'add', icon: 'lucide:sel-add', tip: 'Add to Selection (Shift)' },
+    { id: 'sub', icon: 'lucide:sel-sub', tip: 'Subtract from Selection (Alt)' },
+    { id: 'int', icon: 'lucide:sel-int', tip: 'Intersect with Selection (Shift+Alt)' }
+  ];
+  const blendModes = [
+    { id: 'normal', label: 'Normal' },
+    { id: 'multiply', label: 'Multiply' },
+    { id: 'screen', label: 'Screen' },
+    { id: 'darken', label: 'Darken' },
+    { id: 'lighten', label: 'Lighten' },
+    { id: 'overlay', label: 'Overlay' },
+    { id: 'color', label: 'Color' },
+    { id: 'luminosity', label: 'Luminosity' }
+  ];
+  const tfHandles = [
+    { id: 'nw', pos: 'left-0 top-0 -translate-x-1/2 -translate-y-1/2 cursor-nwse-resize' },
+    { id: 'n', pos: 'left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 cursor-ns-resize' },
+    { id: 'ne', pos: 'left-full top-0 -translate-x-1/2 -translate-y-1/2 cursor-nesw-resize' },
+    { id: 'e', pos: 'left-full top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize' },
+    { id: 'se', pos: 'left-full top-full -translate-x-1/2 -translate-y-1/2 cursor-nwse-resize' },
+    { id: 's', pos: 'left-1/2 top-full -translate-x-1/2 -translate-y-1/2 cursor-ns-resize' },
+    { id: 'sw', pos: 'left-0 top-full -translate-x-1/2 -translate-y-1/2 cursor-nesw-resize' },
+    { id: 'w', pos: 'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize' }
   ];
   const psBtn =
     'inline-flex items-center justify-center gap-1 h-7 px-2 rounded border border-slate-300 dark:border-white/10 bg-white dark:bg-[#383838] text-slate-700 dark:text-slate-200 text-[12px] font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-[#454545] disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap shrink-0';
@@ -712,8 +750,88 @@
             </div>
             <span class={psSep}></span>
 
-            <!-- Fill / Paint Color (Brush, Selection Fill, Move background) -->
-            <div class="inline-flex items-center gap-1 shrink-0" data-ds-opts="brush marquee-rect marquee-ellipse lasso lasso-poly move picker">
+            <!-- MOVE TOOL OPTIONS: Auto-Select · Show Transform Controls · 6 Alignment Buttons -->
+            <div class="inline-flex items-center gap-1.5 flex-wrap shrink-0" data-ds-opts="move">
+              <label class="inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">
+                <input id="dsAutoSelect" type="checkbox" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer" />
+                <span>Auto-Select:</span>
+              </label>
+              <select id="dsMoveSelectTarget" class="{psSel} w-[70px]">
+                <option value="layer" selected>Layer</option>
+                <option value="group">Group</option>
+              </select>
+              <label class="inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-700 dark:text-slate-200 cursor-pointer ml-0.5">
+                <input id="dsShowTransform" type="checkbox" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer" />
+                <span>Show Transform Controls</span>
+              </label>
+              <span class={psSep}></span>
+              <div class="inline-flex items-center rounded border border-slate-300 dark:border-white/10 overflow-hidden shrink-0" role="group" aria-label="Align Layers">
+                {#each moveAligns as al}
+                  <button
+                    type="button"
+                    data-ds-align={al.id}
+                    data-ds-tip={al.tip}
+                    class="w-7 h-7 inline-flex items-center justify-center bg-white dark:bg-[#383838] border-0 border-r last:border-r-0 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#454545]"
+                  >
+                    <Icon name={al.icon} class="w-4 h-4" />
+                  </button>
+                {/each}
+              </div>
+            </div>
+
+            <!-- MARQUEE & LASSO SELECTION OPTIONS: 4 Combine Modes · Feather · Anti-alias · Style (Normal / Fixed Ratio / Fixed Size) -->
+            <div class="inline-flex items-center gap-1.5 flex-wrap shrink-0" data-ds-opts="marquee-rect marquee-ellipse lasso lasso-poly">
+              <div class="inline-flex items-center rounded border border-slate-300 dark:border-white/10 overflow-hidden shrink-0" role="group" aria-label="Selection Combine Mode">
+                {#each selModes as sm}
+                  <button
+                    type="button"
+                    data-ds-sel-mode={sm.id}
+                    aria-pressed={sm.id === 'new' ? 'true' : 'false'}
+                    data-ds-tip={sm.tip}
+                    class="w-7 h-7 inline-flex items-center justify-center bg-white dark:bg-[#383838] border-0 border-r last:border-r-0 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#454545] aria-pressed:bg-emerald-600 aria-pressed:text-white dark:aria-pressed:bg-emerald-500 dark:aria-pressed:text-slate-950"
+                  >
+                    <Icon name={sm.icon} class="w-3.5 h-3.5" />
+                  </button>
+                {/each}
+              </div>
+              <span class={psSep}></span>
+              <label class="inline-flex items-center gap-1 shrink-0" data-ds-tip="Soften selection edges (0 – 100 px)">
+                <span class={psLbl}>Feather:</span>
+                <input id="dsSelFeather" type="number" min="0" max="100" step="1" value="0" class="{psSel} w-[52px] cursor-text tabular-nums" />
+                <span class={psLbl}>px</span>
+              </label>
+              <label class="inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-700 dark:text-slate-200 cursor-pointer shrink-0">
+                <input id="dsSelAA" type="checkbox" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer disabled:opacity-40" />
+                <span>Anti-alias</span>
+              </label>
+            </div>
+
+            <!-- MARQUEE STYLE OPTIONS (Normal / Fixed Ratio / Fixed Size + W ⇄ H) -->
+            <div class="inline-flex items-center gap-1 shrink-0" data-ds-opts="marquee-rect marquee-ellipse">
+              <span class={psSep}></span>
+              <label class="inline-flex items-center gap-1 shrink-0">
+                <span class={psLbl}>Style:</span>
+                <select id="dsMarqueeStyle" class="{psSel} w-[96px]">
+                  <option value="normal" selected>Normal</option>
+                  <option value="ratio">Fixed Ratio</option>
+                  <option value="size">Fixed Size</option>
+                </select>
+              </label>
+              <label class="inline-flex items-center gap-1 shrink-0">
+                <span class={psLbl}>W:</span>
+                <input id="dsMarqueeW" type="number" min="1" max="4000" value="1" disabled class="{psSel} w-[54px] cursor-text tabular-nums disabled:opacity-45" />
+              </label>
+              <button type="button" id="dsMarqueeSwap" disabled class="{psBtn} !px-1.5" data-ds-tip="Swap Width and Height">
+                <Icon name="lucide:arrow-left-right" class="w-3.5 h-3.5" />
+              </button>
+              <label class="inline-flex items-center gap-1 shrink-0">
+                <span class={psLbl}>H:</span>
+                <input id="dsMarqueeH" type="number" min="1" max="4000" value="1" disabled class="{psSel} w-[54px] cursor-text tabular-nums disabled:opacity-45" />
+              </label>
+            </div>
+
+            <!-- Fill / Paint Color (Brush, Selection Fill, Eyedropper) -->
+            <div class="inline-flex items-center gap-1 shrink-0" data-ds-opts="brush marquee-rect marquee-ellipse lasso lasso-poly picker">
               <label
                 class="relative inline-flex items-center gap-1.5 h-7 pl-1 pr-2 rounded border border-slate-300 dark:border-white/10 bg-white dark:bg-[#383838] cursor-pointer hover:bg-slate-100 dark:hover:bg-[#454545]"
                 data-ds-tip="Set Color (Brush / Selection Fill)"
@@ -727,63 +845,96 @@
               </button>
             </div>
 
-            <!-- Brush Size / Hardness / Opacity (fixed width — never resizes while scrubbing) -->
-            <div class="inline-flex items-center gap-1.5 shrink-0" id="dsPsBrushOpts" data-ds-opts="brush heal clone dodge burn">
-              <div class="{psPod} w-[124px]">
+            <!-- Brush Size / Hardness / Mode / Opacity / Flow / Sample -->
+            <div class="inline-flex items-center gap-1.5 flex-wrap shrink-0" id="dsPsBrushOpts" data-ds-opts="brush heal clone dodge burn">
+              <div class="{psPod} w-[116px]">
                 <div class="relative flex-1 min-w-0 flex items-center justify-between gap-1 px-2 select-none">
                   <span id="dsBrushSizeFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:19%"></span>
-                  <span class="relative z-10 text-[12px] font-semibold text-slate-700 dark:text-slate-200 pointer-events-none" data-i18n="sizeLbl">{t.sizeLbl}</span>
-                  <output id="dsBrushSizeVal" class="relative z-10 w-[44px] text-right font-bold text-[12px] text-emerald-700 dark:text-emerald-300 tabular-nums pointer-events-none">24px</output>
+                  <span class="relative z-10 text-[11.5px] font-semibold text-slate-700 dark:text-slate-200 pointer-events-none" data-i18n="sizeLbl">{t.sizeLbl}</span>
+                  <output id="dsBrushSizeVal" class="relative z-10 w-[40px] text-right font-bold text-[11.5px] text-emerald-700 dark:text-emerald-300 tabular-nums pointer-events-none">24px</output>
                   <input type="range" id="dsBrushSize" min="2" max="120" value="24" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0" data-ds-tip="Brush Size  ( [ / ] )" />
                 </div>
                 <button type="button" data-ds-reset-retouch="size" class={psReset} data-ds-tip="Reset to default">
                   <Icon name="lucide:rotate-ccw" class="w-3 h-3" />
                 </button>
               </div>
-              <div class="{psPod} w-[140px]">
+              <div class="{psPod} w-[132px]">
                 <div class="relative flex-1 min-w-0 flex items-center justify-between gap-1 px-2 select-none">
                   <span id="dsBrushHardnessFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:80%"></span>
-                  <span class="relative z-10 text-[12px] font-semibold text-slate-700 dark:text-slate-200 pointer-events-none" data-i18n="hardnessLbl">{t.hardnessLbl}</span>
-                  <output id="dsBrushHardnessVal" class="relative z-10 w-[40px] text-right font-bold text-[12px] text-emerald-700 dark:text-emerald-300 tabular-nums pointer-events-none">80%</output>
+                  <span class="relative z-10 text-[11.5px] font-semibold text-slate-700 dark:text-slate-200 pointer-events-none" data-i18n="hardnessLbl">{t.hardnessLbl}</span>
+                  <output id="dsBrushHardnessVal" class="relative z-10 w-[38px] text-right font-bold text-[11.5px] text-emerald-700 dark:text-emerald-300 tabular-nums pointer-events-none">80%</output>
                   <input type="range" id="dsBrushHardness" min="0" max="100" value="80" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0" data-ds-tip="Brush Hardness  ( Shift + [ / ] )" />
                 </div>
                 <button type="button" data-ds-reset-retouch="hardness" class={psReset} data-ds-tip="Reset to default">
                   <Icon name="lucide:rotate-ccw" class="w-3 h-3" />
                 </button>
               </div>
-              <div class="{psPod} w-[140px]">
+
+              <!-- Blend Mode (Brush, Spot Healing, Clone Stamp) -->
+              <label class="inline-flex items-center gap-1 shrink-0" data-ds-opts="brush heal clone">
+                <span class={psLbl}>Mode:</span>
+                <select id="dsBrushMode" class="{psSel} w-[96px]">
+                  {#each blendModes as bm}
+                    <option value={bm.id} selected={bm.id === 'normal'}>{bm.label}</option>
+                  {/each}
+                </select>
+              </label>
+
+              <!-- Dodge / Burn Range (Shadows, Midtones, Highlights) -->
+              <label class="inline-flex items-center gap-1 shrink-0" data-ds-opts="dodge burn">
+                <span class={psLbl}>Range:</span>
+                <select id="dsDodgeRange" class="{psSel} w-[98px]">
+                  <option value="shadows">Shadows</option>
+                  <option value="midtones" selected>Midtones</option>
+                  <option value="highlights">Highlights</option>
+                </select>
+              </label>
+
+              <!-- Opacity / Exposure -->
+              <div class="{psPod} w-[132px]">
                 <div class="relative flex-1 min-w-0 flex items-center justify-between gap-1 px-2 select-none">
                   <span id="dsBrushOpacityFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:100%"></span>
-                  <span id="dsBrushOpacityLbl" class="relative z-10 text-[12px] font-semibold text-slate-700 dark:text-slate-200 pointer-events-none">Opacity</span>
-                  <output id="dsBrushOpacityVal" class="relative z-10 w-[40px] text-right font-bold text-[12px] text-emerald-700 dark:text-emerald-300 tabular-nums pointer-events-none">100%</output>
+                  <span id="dsBrushOpacityLbl" class="relative z-10 text-[11.5px] font-semibold text-slate-700 dark:text-slate-200 pointer-events-none">Opacity</span>
+                  <output id="dsBrushOpacityVal" class="relative z-10 w-[38px] text-right font-bold text-[11.5px] text-emerald-700 dark:text-emerald-300 tabular-nums pointer-events-none">100%</output>
                   <input type="range" id="dsBrushOpacity" min="10" max="100" value="100" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0" data-ds-tip="Opacity / Exposure  ( 1 – 0 keys )" />
                 </div>
                 <button type="button" data-ds-reset-retouch="opacity" class={psReset} data-ds-tip="Reset to default">
                   <Icon name="lucide:rotate-ccw" class="w-3 h-3" />
                 </button>
               </div>
-            </div>
 
-            <!-- Dodge / Burn Range -->
-            <label class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="dodge burn">
-              <span class={psLbl}>Range:</span>
-              <select id="dsDodgeRange" class="{psSel} w-[110px]">
-                <option value="shadows">Shadows</option>
-                <option value="midtones" selected>Midtones</option>
-                <option value="highlights">Highlights</option>
-              </select>
-            </label>
+              <!-- Flow (Brush, Spot Healing, Clone Stamp) -->
+              <div class="{psPod} w-[114px]" data-ds-opts="brush heal clone">
+                <div class="relative flex-1 min-w-0 flex items-center justify-between gap-1 px-2 select-none">
+                  <span id="dsBrushFlowFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:100%"></span>
+                  <span class="relative z-10 text-[11.5px] font-semibold text-slate-700 dark:text-slate-200 pointer-events-none">Flow</span>
+                  <output id="dsBrushFlowVal" class="relative z-10 w-[38px] text-right font-bold text-[11.5px] text-emerald-700 dark:text-emerald-300 tabular-nums pointer-events-none">100%</output>
+                  <input type="range" id="dsBrushFlow" min="1" max="100" value="100" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0" data-ds-tip="Brush Flow Rate (1% – 100%)" />
+                </div>
+                <button type="button" data-ds-reset-retouch="flow" class={psReset} data-ds-tip="Reset Flow">
+                  <Icon name="lucide:rotate-ccw" class="w-3 h-3" />
+                </button>
+              </div>
+
+              <!-- Sample Source (Spot Healing / Clone Stamp) -->
+              <label class="inline-flex items-center gap-1 shrink-0" data-ds-opts="heal clone">
+                <span class={psLbl}>Sample:</span>
+                <select id="dsHealSample" class="{psSel} w-[118px]">
+                  <option value="below" selected>Current &amp; Below</option>
+                  <option value="current">Current Layer</option>
+                </select>
+              </label>
+            </div>
 
             <!-- Clone Stamp source info -->
             <span
               id="dsCloneSrcInfo"
-              class="inline-flex items-center h-7 px-2.5 rounded border border-dashed border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[11.5px] font-semibold whitespace-nowrap shrink-0"
+              class="inline-flex items-center h-7 px-2 rounded border border-dashed border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[11.5px] font-semibold whitespace-nowrap shrink-0"
               data-ds-opts="clone"
             >Alt + Click to set source</span>
 
-            <!-- Selection actions (Marquee / Lasso / Move) -->
-            <div class="inline-flex items-center gap-1 shrink-0" data-ds-opts="marquee-rect marquee-ellipse lasso lasso-poly move">
-              <button type="button" data-ds-sel="all" class={psBtn} data-ds-tip="Select All (Ctrl+A)">Select All</button>
+            <!-- Selection actions (Marquee / Lasso) -->
+            <div class="inline-flex items-center gap-1 shrink-0" data-ds-opts="marquee-rect marquee-ellipse lasso lasso-poly">
               <button type="button" data-ds-sel="none" class={psBtn} data-ds-tip="Deselect (Ctrl+D)">Deselect</button>
               <button type="button" data-ds-sel="invert" class={psBtn} data-ds-tip="Inverse Selection (Ctrl+Shift+I)">Inverse</button>
               <button
@@ -793,7 +944,6 @@
                 data-ds-tip="Fill selection with color (Delete)">Fill (Del)</button
               >
             </div>
-            <span class="{psLbl} !font-medium" data-ds-opts="move">Drag selection to move pixels · Click text layer to move · Arrows nudge</span>
 
             <!-- Type Tool options: Font · Style · Size · Alignment · Color -->
             <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="text">
@@ -944,14 +1094,13 @@
                 </div>
               {/each}
               <span class="w-6 h-px bg-white/12 my-[3px]" aria-hidden="true"></span>
-              <button
-                type="button"
-                data-ds="open-color-picker"
-                class="w-8 h-8 p-0 rounded-[4px] border-0 bg-transparent flex items-center justify-center cursor-pointer hover:bg-white/10"
-                data-ds-tip="Set Color"
+              <label
+                class="relative w-8 h-8 p-0 rounded-[4px] border-0 bg-transparent flex items-center justify-center cursor-pointer hover:bg-white/10"
+                data-ds-tip="Set Foreground Color"
               >
-                <span id="dsDockSwatch" class="w-5 h-5 rounded-[2px] border border-white/70 shadow-[0_0_0_1px_rgba(0,0,0,0.6)]" style="background:#ffffff"></span>
-              </button>
+                <input type="color" id="dsDockColor" value="#ffffff" aria-label="Foreground Color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer border-0 p-0" />
+                <span id="dsDockSwatch" class="w-5 h-5 rounded-[2px] border border-white/70 shadow-[0_0_0_1px_rgba(0,0,0,0.6)] pointer-events-none" style="background:#ffffff"></span>
+              </label>
             </aside>
 
             <div
@@ -1028,6 +1177,25 @@
                 <path id="dsSelPathA" fill="none" stroke="#ffffff" stroke-width="1" vector-effect="non-scaling-stroke" />
                 <path id="dsSelPathB" fill="none" stroke="#000000" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" />
               </svg>
+              <!-- Photoshop Move Tool Transform Controls Bounding Box (8 Resize Handles + Reference Point) -->
+              <div
+                id="dsTransformBox"
+                hidden
+                class="absolute pointer-events-none z-[28] border border-[#1473e6] shadow-[0_0_0_1px_rgba(255,255,255,0.65)]"
+              >
+                {#each tfHandles as h}
+                  <button
+                    type="button"
+                    data-ds-tf-handle={h.id}
+                    aria-label={`Resize ${h.id}`}
+                    class="absolute {h.pos} w-2.5 h-2.5 p-0 rounded-[1px] bg-white border border-[#1473e6] shadow-[0_1px_3px_rgba(0,0,0,0.45)] pointer-events-auto"
+                  ></button>
+                {/each}
+                <span class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 pointer-events-none">
+                  <span class="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-[#1473e6]"></span>
+                  <span class="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 bg-[#1473e6]"></span>
+                </span>
+              </div>
               <!-- In-place Type Tool editor -->
               <textarea
                 id="dsTextEditor"
@@ -1152,76 +1320,103 @@
       </footer>
     </div>
 
-    <!-- RIGHT PANEL: ULTRA-COMPACT PHOTOSHOP INSPECTOR & CLICK-TO-SHOW SLIDERS -->
+    <!-- RIGHT PANEL: PHOTOSHOP-STYLE 3-TAB INSPECTOR DOCK + LAYERS PANEL + EXPORT DOCK -->
     <aside
       class="ds-settings group-data-[has-pages=false]/ds:!hidden bg-white dark:bg-studio-sidebar border-l border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden max-lg:fixed max-lg:top-12 max-lg:right-0 max-lg:bottom-0 max-lg:w-[min(352px,94vw)] max-lg:z-90 max-lg:shadow-2xl max-lg:translate-x-[104%] max-lg:group-data-[drawer=inspector]/ds:translate-x-0 max-lg:transition-transform max-lg:duration-200"
       id="dsInspectorPanel"
       aria-label={t.inspectorTitle}
     >
-      <!-- Sticky Inspector Header -->
-      <div
-        class="ds-panel-head sticky top-0 z-20 min-h-[38px] px-3 py-1.5 flex items-center justify-between gap-1.5 border-b border-slate-200 dark:border-studio-border bg-slate-50/90 dark:bg-studio-sidebar shrink-0"
-      >
-        <strong class="inline-flex items-center gap-1.5 text-[13px] font-bold text-slate-800 dark:text-studio-text">
-          <Icon name="lucide:sliders-horizontal" class="w-4 h-4 text-emerald-600 dark:text-studio-primary shrink-0" />
-          <span data-i18n="inspectorTitle">{t.inspectorTitle}</span>
-        </strong>
-        <div class="ds-panel-head-actions inline-flex items-center gap-1">
-          <button
-            type="button"
-            data-ds="apply-all"
-            class="inline-flex items-center justify-center w-7 h-7 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-emerald-600 dark:text-emerald-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-studio-surface disabled:opacity-40 disabled:cursor-not-allowed"
-            disabled
-            title={t.applyAllBtn}
-          >
-            <Icon name="lucide:copy-check" class="w-4 h-4 shrink-0" />
-            <span class="sr-only" data-i18n="applyAllBtn">{t.applyAllBtn}</span>
-          </button>
-          <button
-            type="button"
-            data-ds="reset-color"
-            class="inline-flex items-center justify-center w-7 h-7 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-studio-surface disabled:opacity-40 disabled:cursor-not-allowed"
-            disabled
-            title={t.resetBtn}
-          >
-            <Icon name="lucide:rotate-ccw" class="w-4 h-4 shrink-0" />
-            <span class="sr-only" data-i18n="resetBtn">{t.resetBtn}</span>
-          </button>
-          <button
-            type="button"
-            class="ds-icon-only ds-drawer-close hidden max-lg:inline-flex items-center justify-center w-7 h-7 rounded border border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-studio-panel text-[12px] font-bold cursor-pointer"
-            data-ds="close-drawers"
-            data-i18n-title="closeDrawerTip"
-            aria-label={t.closeDrawerTip}
-            title={t.closeDrawerTip}
-          >
-            ✕
-          </button>
+      <!-- UPPER DOCK: PHOTOSHOP-STYLE 3-TAB PANEL (FILTERS · SMART FIX · ADJUSTMENTS) -->
+      <div class="shrink-0 border-b border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel flex flex-col">
+        <!-- Photoshop-Style Tab Header Bar -->
+        <div
+          class="ds-panel-head min-h-[36px] px-1.5 pt-1 flex items-end justify-between gap-1 border-b border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-[#252525] shrink-0"
+        >
+          <div class="inline-flex items-end gap-0.5 min-w-0" role="tablist" aria-label="Inspector Tabs">
+            <button
+              type="button"
+              role="tab"
+              data-ds-insp-tab="filters"
+              aria-selected="true"
+              class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-t-md border border-b-0 border-transparent text-[12px] font-bold text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
+            >
+              <Icon name="lucide:wand-sparkles" class="w-3.5 h-3.5 text-violet-500 shrink-0" />
+              <span>Filters</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              data-ds-insp-tab="smart"
+              aria-selected="false"
+              class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-t-md border border-b-0 border-transparent text-[12px] font-bold text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
+            >
+              <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span>Smart Fix</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              data-ds-insp-tab="manual"
+              aria-selected="false"
+              class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-t-md border border-b-0 border-transparent text-[12px] font-bold text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
+            >
+              <Icon name="lucide:sliders-horizontal" class="w-3.5 h-3.5 text-blue-500 shrink-0" />
+              <span>Adjustments</span>
+            </button>
+          </div>
+          <div class="ds-panel-head-actions inline-flex items-center gap-1 pb-1 shrink-0">
+            <button
+              type="button"
+              data-ds="apply-all"
+              class="inline-flex items-center justify-center w-6 h-6 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-emerald-600 dark:text-emerald-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-studio-surface disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled
+              title={t.applyAllBtn}
+            >
+              <Icon name="lucide:copy-check" class="w-3.5 h-3.5 shrink-0" />
+              <span class="sr-only" data-i18n="applyAllBtn">{t.applyAllBtn}</span>
+            </button>
+            <button
+              type="button"
+              data-ds="reset-color"
+              class="inline-flex items-center justify-center w-6 h-6 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-studio-surface disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled
+              title={t.resetBtn}
+            >
+              <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 shrink-0" />
+              <span class="sr-only" data-i18n="resetBtn">{t.resetBtn}</span>
+            </button>
+            <button
+              type="button"
+              class="ds-icon-only ds-drawer-close hidden max-lg:inline-flex items-center justify-center w-6 h-6 rounded border border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-studio-panel text-[11px] font-bold cursor-pointer"
+              data-ds="close-drawers"
+              data-i18n-title="closeDrawerTip"
+              aria-label={t.closeDrawerTip}
+              title={t.closeDrawerTip}
+            >
+              ✕
+            </button>
+          </div>
         </div>
-      </div>
 
-      <!-- Photoshop-Style Docked Control Panels -->
-      <div class="ds-settings-scroll flex-1 min-h-0 overflow-y-auto p-2 flex flex-col gap-2 bg-slate-100/70 dark:bg-studio-bg/60 [scrollbar-width:thin]">
-        <!-- PANEL 1: AI & SCAN FILTERS -->
-        <section class="rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel overflow-hidden shadow-2xs shrink-0">
-          <div class="px-3 py-1.5 bg-slate-50/95 dark:bg-studio-sidebar border-b border-slate-200/80 dark:border-studio-border flex items-center justify-between gap-1.5">
-            <span class="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-slate-800 dark:text-studio-text">
-              <Icon name="lucide:wand-sparkles" class="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" />
+        <!-- TAB PANE 1: AI & SCAN FILTERS -->
+        <section data-ds-insp-pane="filters" class="bg-white dark:bg-studio-panel overflow-hidden shrink-0">
+          <div class="px-2.5 py-1 bg-slate-50/70 dark:bg-studio-sidebar/60 border-b border-slate-100 dark:border-studio-border flex items-center justify-between gap-1.5">
+            <span class="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-slate-600 dark:text-studio-muted">
               <span data-i18n="accFiltersTitle">{t.accFiltersTitle}</span>
               <span
-                class="inline-flex items-center px-2 py-0.5 rounded-full bg-violet-500/12 text-violet-700 dark:text-violet-300 text-[10.5px] font-bold"
+                class="inline-flex items-center px-1.5 py-0.2 rounded-full bg-violet-500/12 text-violet-700 dark:text-violet-300 text-[10px] font-bold"
                 data-i18n="accFiltersBadge">{t.accFiltersBadge}</span
               >
             </span>
             <button
               type="button"
               data-ds-reset-section="filter"
-              class="inline-flex items-center justify-center w-6 h-6 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
+              class="inline-flex items-center justify-center w-5.5 h-5.5 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
               disabled
               data-i18n-title="resetFilterTip"
               title={t.resetFilterTip}
             >
-              <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 shrink-0" />
+              <Icon name="lucide:rotate-ccw" class="w-3 h-3 shrink-0" />
               <span class="sr-only" data-i18n="resetFilterTip">{t.resetFilterTip}</span>
             </button>
           </div>
@@ -1240,23 +1435,23 @@
               <label class="relative cursor-pointer {idx === 0 ? 'col-span-2' : ''}" title={preset.desc}>
                 <input type="radio" name="dsFilter" value={preset.value} checked={preset.value === 'magic_plus'} class="sr-only peer" />
                 <span
-                  class="min-h-[32px] px-2.5 py-1 rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/70 dark:bg-studio-sidebar flex items-center justify-between gap-1.5 transition-all hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-studio-surface peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 dark:peer-checked:bg-emerald-500/15 peer-checked:shadow-2xs peer-checked:[&_b]:text-emerald-700 dark:peer-checked:[&_b]:text-emerald-300"
+                  class="min-h-[30px] px-2 py-1 rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/70 dark:bg-studio-sidebar flex items-center justify-between gap-1.5 transition-all hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-studio-surface peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 dark:peer-checked:bg-emerald-500/15 peer-checked:shadow-2xs peer-checked:[&_b]:text-emerald-700 dark:peer-checked:[&_b]:text-emerald-300"
                 >
                   <span class="inline-flex items-center gap-1.5 min-w-0">
-                    <Icon name={`lucide:${preset.icon}`} class="w-4 h-4 {presetColors[idx % presetColors.length]} shrink-0" />
-                    <b class="text-[12.5px] font-bold text-slate-800 dark:text-studio-text truncate" data-i18n-preset-title={preset.value}
+                    <Icon name={`lucide:${preset.icon}`} class="w-3.5 h-3.5 {presetColors[idx % presetColors.length]} shrink-0" />
+                    <b class="text-[12px] font-bold text-slate-800 dark:text-studio-text truncate" data-i18n-preset-title={preset.value}
                       >{preset.title}</b
                     >
                   </span>
                   {#if idx === 0}
-                    <small class="text-[11px] text-slate-500 dark:text-studio-muted truncate ml-auto mr-1" data-i18n-preset-desc={preset.value}
+                    <small class="text-[10.5px] text-slate-500 dark:text-studio-muted truncate ml-auto mr-1" data-i18n-preset-desc={preset.value}
                       >{preset.desc}</small
                     >
                   {:else}
                     <small class="sr-only" data-i18n-preset-desc={preset.value}>{preset.desc}</small>
                   {/if}
                   {#if preset.ai}
-                    <em class="ds-ai-tag not-italic px-1.5 py-0.5 rounded bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[10px] font-extrabold tracking-wider uppercase shrink-0"
+                    <em class="ds-ai-tag not-italic px-1.5 py-0.5 rounded bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[9.5px] font-extrabold tracking-wider uppercase shrink-0"
                       >AI</em
                     >
                   {/if}
@@ -1266,26 +1461,25 @@
           </fieldset>
         </section>
 
-        <!-- PANEL 2: SMART FIX & CLEANUP -->
-        <section class="ds-section ds-smart-options rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel overflow-hidden shadow-2xs shrink-0">
-          <div class="px-3 py-1.5 bg-slate-50/95 dark:bg-studio-sidebar border-b border-slate-200/80 dark:border-studio-border flex items-center justify-between gap-1.5">
-            <span class="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-slate-800 dark:text-studio-text">
-              <Icon name="lucide:sparkles" class="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
+        <!-- TAB PANE 2: SMART FIX & CLEANUP -->
+        <section data-ds-insp-pane="smart" hidden class="ds-section ds-smart-options bg-white dark:bg-studio-panel overflow-hidden shrink-0">
+          <div class="px-2.5 py-1 bg-slate-50/70 dark:bg-studio-sidebar/60 border-b border-slate-100 dark:border-studio-border flex items-center justify-between gap-1.5">
+            <span class="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-slate-600 dark:text-studio-muted">
               <span data-i18n="accSmartTitle">{t.accSmartTitle}</span>
               <span
-                class="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-500/12 text-amber-700 dark:text-amber-300 text-[10.5px] font-bold"
+                class="inline-flex items-center px-1.5 py-0.2 rounded-full bg-amber-500/12 text-amber-700 dark:text-amber-300 text-[10px] font-bold"
                 data-i18n="accSmartBadge">{t.accSmartBadge}</span
               >
             </span>
             <button
               type="button"
               data-ds-reset-section="smart"
-              class="inline-flex items-center justify-center w-6 h-6 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
+              class="inline-flex items-center justify-center w-5.5 h-5.5 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
               disabled
               data-i18n-title="resetSmartTip"
               title={t.resetSmartTip}
             >
-              <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 shrink-0" />
+              <Icon name="lucide:rotate-ccw" class="w-3 h-3 shrink-0" />
               <span class="sr-only" data-i18n="resetSmartTip">{t.resetSmartTip}</span>
             </button>
           </div>
@@ -1298,7 +1492,7 @@
               { id: 'dsCleanMargins', icon: 'lucide:scan', color: 'text-emerald-600 dark:text-emerald-400', key: 'optCleanMargins', label: t.optCleanMargins, span: 'col-span-2' }
             ] as opt}
               <label
-                class="ds-toggle {opt.span} min-h-[32px] flex items-center justify-between gap-1 px-2 py-1 rounded-md bg-slate-50/70 dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border cursor-pointer text-[11.5px] font-semibold tracking-[-0.01em] text-slate-800 dark:text-studio-text transition-colors hover:bg-white dark:hover:bg-studio-surface hover:border-slate-300 dark:hover:border-slate-600"
+                class="ds-toggle {opt.span} min-h-[30px] flex items-center justify-between gap-1 px-2 py-1 rounded-md bg-slate-50/70 dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border cursor-pointer text-[11.5px] font-semibold tracking-[-0.01em] text-slate-800 dark:text-studio-text transition-colors hover:bg-white dark:hover:bg-studio-surface hover:border-slate-300 dark:hover:border-slate-600"
                 title={opt.key === 'optCleanMargins' ? t.cleanMarginsHint : opt.label}
               >
                 <span class="inline-flex items-center gap-1.5 min-w-0">
@@ -1312,26 +1506,25 @@
           <small class="sr-only" data-i18n="cleanMarginsHint">{t.cleanMarginsHint}</small>
         </section>
 
-        <!-- PANEL 3: PHOTOSHOP IN-BUTTON SCRUB & WHEEL SLIDERS (WITH PER-TOOL RESET) -->
-        <section class="ds-section ds-sliders rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel overflow-hidden shadow-2xs shrink-0">
-          <div class="px-3 py-1.5 bg-slate-50/95 dark:bg-studio-sidebar border-b border-slate-200/80 dark:border-studio-border flex items-center justify-between gap-1.5">
-            <span class="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-slate-800 dark:text-studio-text">
-              <Icon name="lucide:sliders-horizontal" class="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+        <!-- TAB PANE 3: MANUAL ADJUSTMENTS -->
+        <section data-ds-insp-pane="manual" hidden class="ds-section ds-sliders bg-white dark:bg-studio-panel overflow-hidden shrink-0">
+          <div class="px-2.5 py-1 bg-slate-50/70 dark:bg-studio-sidebar/60 border-b border-slate-100 dark:border-studio-border flex items-center justify-between gap-1.5">
+            <span class="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-slate-600 dark:text-studio-muted">
               <span data-i18n="accManualTitle">{t.accManualTitle}</span>
               <span
-                class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-500/12 text-blue-700 dark:text-blue-300 text-[10.5px] font-bold"
+                class="inline-flex items-center px-1.5 py-0.2 rounded-full bg-blue-500/12 text-blue-700 dark:text-blue-300 text-[10px] font-bold"
                 data-i18n="accManualBadge">{t.accManualBadge}</span
               >
             </span>
             <button
               type="button"
               data-ds-reset-section="manual"
-              class="inline-flex items-center justify-center w-6 h-6 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
+              class="inline-flex items-center justify-center w-5.5 h-5.5 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
               disabled
               data-i18n-title="resetManualTip"
               title={t.resetManualTip}
             >
-              <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 shrink-0" />
+              <Icon name="lucide:rotate-ccw" class="w-3 h-3 shrink-0" />
               <span class="sr-only" data-i18n="resetManualTip">{t.resetManualTip}</span>
             </button>
           </div>
@@ -1349,7 +1542,7 @@
               ] as adj}
                 <div
                   data-ds-adj-pod={adj.key}
-                  class="group/pod min-h-[34px] rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/80 dark:bg-studio-sidebar flex items-stretch overflow-hidden transition-all hover:border-emerald-500/60 hover:bg-white dark:hover:bg-studio-surface data-[modified=true]:border-amber-500/50"
+                  class="group/pod min-h-[32px] rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/80 dark:bg-studio-sidebar flex items-stretch overflow-hidden transition-all hover:border-emerald-500/60 hover:bg-white dark:hover:bg-studio-surface data-[modified=true]:border-amber-500/50"
                 >
                   <div class="relative flex-1 min-w-0 px-1.5 py-1 flex items-center justify-between gap-1 overflow-hidden select-none">
                     <!-- Dynamic Slider Fill Bar Inside Button -->
@@ -1390,6 +1583,98 @@
           </div>
         </section>
       </div>
+
+      <!-- LOWER DOCK: PHOTOSHOP-STYLE LAYERS PANEL (BACKGROUND + BRUSH / RETOUCH / TEXT LAYERS) -->
+      <section
+        id="dsLayersSection"
+        class="ds-layers-panel flex-1 min-h-[156px] flex flex-col bg-slate-50 dark:bg-[#252525] overflow-hidden"
+        aria-label="Layers"
+      >
+        <!-- Layers Tab Header -->
+        <div class="px-2 pt-1 bg-slate-200/75 dark:bg-[#1f1f1f] border-b border-slate-300/80 dark:border-black/50 flex items-end justify-between shrink-0">
+          <div class="inline-flex items-center gap-1.5 h-6.5 px-2.5 rounded-t border border-b-0 border-slate-300/80 dark:border-white/10 bg-slate-50 dark:bg-[#2b2b2b] text-[12px] font-bold text-slate-800 dark:text-slate-100">
+            <Icon name="lucide:layers" class="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+            <span>Layers</span>
+            <span id="dsLayerCount" class="ml-0.5 px-1.5 py-0.2 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 text-[10.5px] font-extrabold tabular-nums">1</span>
+          </div>
+          <span class="text-[10.5px] text-slate-400 dark:text-slate-500 pb-1 pr-1">Photoshop Stack</span>
+        </div>
+
+        <!-- Photoshop Blend Mode + Opacity + Lock Sub-Header -->
+        <div class="px-2 py-1 bg-slate-100 dark:bg-[#2b2b2b] border-b border-slate-200 dark:border-black/40 flex items-center gap-1.5 shrink-0">
+          <select id="dsLayerBlendMode" disabled class="{psSel} w-[96px] !h-6 !text-[11.5px] disabled:opacity-45" title="Layer Blend Mode">
+            {#each blendModes as bm}
+              <option value={bm.id}>{bm.label}</option>
+            {/each}
+          </select>
+          <label class="inline-flex items-center gap-1 ml-auto shrink-0" title="Layer Opacity">
+            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Opacity:</span>
+            <input id="dsLayerOpacity" type="number" min="0" max="100" step="1" value="100" disabled class="{psSel} w-[50px] !h-6 !text-[11.5px] tabular-nums disabled:opacity-45" />
+            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">%</span>
+          </label>
+          <button
+            type="button"
+            id="dsLayerLockBtn"
+            disabled
+            class="w-6 h-6 inline-flex items-center justify-center rounded border border-slate-300 dark:border-white/10 bg-white dark:bg-[#383838] text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#454545] aria-pressed:bg-amber-500/20 aria-pressed:text-amber-600 dark:aria-pressed:text-amber-300 disabled:opacity-40"
+            title="Lock / Unlock Active Layer"
+            aria-pressed="false"
+          >
+            <Icon name="lucide:lock" class="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <!-- Scrollable Layer Stack (#dsLayerList) -->
+        <div
+          id="dsLayerList"
+          class="flex-1 min-h-0 overflow-y-auto p-1 flex flex-col gap-0.5 bg-slate-200/55 dark:bg-[#1e1e1e] [scrollbar-width:thin]"
+          role="listbox"
+          aria-label="Document Layers"
+        ></div>
+
+        <!-- Bottom Layer Action Bar (Merge Down · Duplicate · New Layer · Delete) -->
+        <div class="px-2 py-1 bg-slate-100 dark:bg-[#2b2b2b] border-t border-slate-200 dark:border-black/50 flex items-center justify-end gap-1 shrink-0">
+          <button
+            type="button"
+            data-ds-layer-act="merge"
+            id="dsLayerMergeBtn"
+            disabled
+            class="w-6.5 h-6.5 inline-flex items-center justify-center rounded border border-transparent bg-transparent text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-200/80 dark:hover:bg-white/10 disabled:opacity-35 disabled:cursor-not-allowed"
+            title="Merge Down into Layer Below (Ctrl+E)"
+          >
+            <Icon name="lucide:merge" class="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            data-ds-layer-act="dup"
+            id="dsLayerDupBtn"
+            disabled
+            class="w-6.5 h-6.5 inline-flex items-center justify-center rounded border border-transparent bg-transparent text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-200/80 dark:hover:bg-white/10 disabled:opacity-35 disabled:cursor-not-allowed"
+            title="Duplicate Active Layer (Ctrl+J)"
+          >
+            <Icon name="lucide:copy" class="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            data-ds-layer-act="add"
+            id="dsLayerAddBtn"
+            class="w-6.5 h-6.5 inline-flex items-center justify-center rounded border border-transparent bg-transparent text-emerald-600 dark:text-emerald-400 cursor-pointer hover:bg-emerald-500/15 disabled:opacity-35 disabled:cursor-not-allowed"
+            title="Create a New Layer"
+          >
+            <Icon name="lucide:plus-square" class="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            data-ds-layer-act="del"
+            id="dsLayerDelBtn"
+            disabled
+            class="w-6.5 h-6.5 inline-flex items-center justify-center rounded border border-transparent bg-transparent text-rose-500 dark:text-rose-400 cursor-pointer hover:bg-rose-500/15 disabled:opacity-35 disabled:cursor-not-allowed"
+            title="Delete Active Layer"
+          >
+            <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </section>
 
       <!-- PANEL 4: PINNED PAGE SETUP & DIRECT 1-CLICK EXPORT DOCK -->
       <div class="ds-export ds-section ds-export-settings border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar shrink-0">
