@@ -1164,7 +1164,7 @@
               <canvas
                 id="dsPreview"
                 aria-label={t.previewCaption}
-                class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain rounded-xs bg-white shadow-[0_12px_32px_rgba(0,0,0,0.45)] select-none transition-[filter,transform] duration-200"
+                class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain bg-white shadow-none select-none transition-[filter,transform] duration-200"
               ></canvas>
 
               <!-- SATISFYING 3D KINETIC GYROSCOPE & GPU-ACCELERATED PRELOADER WITH COMPLETION STATE -->
@@ -1775,6 +1775,10 @@
               >
                 <option value="center" data-i18n-bn="মাঝখানে (Center)" data-i18n-en="Center on Page">মাঝখানে (Center)</option>
                 <option value="top" data-i18n-bn="উপরে মাঝখানে (Top)" data-i18n-en="Top Center">উপরে মাঝখানে (Top)</option>
+                <option value="bottom" data-i18n-bn="নিচে মাঝখানে (Bottom)" data-i18n-en="Bottom Center">নিচে মাঝখানে (Bottom)</option>
+                <option value="top-left" data-i18n-bn="উপরে বামে (Top Left)" data-i18n-en="Top Left">উপরে বামে (Top Left)</option>
+                <option value="top-right" data-i18n-bn="উপরে ডানে (Top Right)" data-i18n-en="Top Right">উপরে ডানে (Top Right)</option>
+                <option value="manual" data-i18n-bn="ম্যানুয়াল মুভ (Manual Move)" data-i18n-en="Manual Move (Custom X/Y)">ম্যানুয়াল মুভ (Manual Move)</option>
               </select>
             </label>
 
@@ -1788,6 +1792,59 @@
                 <span data-i18n="lblMargin">{t.lblMargin}</span>
               </label>
             </div>
+          </div>
+
+          <!-- Manual / Custom Move Controls (X & Y Position + Direct Drag on Sheet) -->
+          <div id="dsManualPosRow" class="grid gap-2 p-2.5 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200/80 dark:border-studio-border">
+            <div class="flex items-center justify-between gap-1 text-[11px] font-bold">
+              <span class="text-slate-700 dark:text-studio-text" data-i18n-bn="কাস্টম পজিশন (উপরে-নিচে / ডানে-বামে)" data-i18n-en="Custom Move (X / Y Position)">কাস্টম পজিশন (উপরে-নিচে / ডানে-বামে)</span>
+              <button
+                type="button"
+                id="dsResetDocPosBtn"
+                class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-studio-panel hover:bg-slate-200 dark:hover:bg-studio-surface text-[10px] font-bold text-slate-600 dark:text-studio-muted cursor-pointer"
+                title="Center Document on Page"
+                data-i18n-bn="মাঝখানে আনুন"
+                data-i18n-en="Center"
+              >মাঝখানে আনুন</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <label class="grid gap-1">
+                <span class="flex items-center justify-between text-[10.5px] font-semibold text-slate-500 dark:text-studio-muted">
+                  <span data-i18n-bn="ডানে-বামে (X)" data-i18n-en="Left-Right (X)">ডানে-বামে (X)</span>
+                  <span id="dsDocPosXVal" class="text-emerald-600 dark:text-emerald-400 font-bold tabular-nums">50%</span>
+                </span>
+                <input
+                  type="range"
+                  id="dsDocPosX"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="50"
+                  class="w-full cursor-pointer"
+                />
+              </label>
+
+              <label class="grid gap-1">
+                <span class="flex items-center justify-between text-[10.5px] font-semibold text-slate-500 dark:text-studio-muted">
+                  <span data-i18n-bn="উপরে-নিচে (Y)" data-i18n-en="Up-Down (Y)">উপরে-নিচে (Y)</span>
+                  <span id="dsDocPosYVal" class="text-emerald-600 dark:text-emerald-400 font-bold tabular-nums">50%</span>
+                </span>
+                <input
+                  type="range"
+                  id="dsDocPosY"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="50"
+                  class="w-full cursor-pointer"
+                />
+              </label>
+            </div>
+
+            <p class="m-0 text-[10.5px] text-slate-400 dark:text-studio-muted leading-snug" data-i18n-bn="💡 প্রিভিউ পেজের ওপর মাউস দিয়ে টেনেও ডকুমেন্ট যেকোনো স্থানে সরাতে পারবেন।" data-i18n-en="💡 Tip: Drag the document directly on the A4 preview sheet to move it anywhere.">
+              💡 প্রিভিউ পেজের ওপর মাউস দিয়ে টেনেও ডকুমেন্ট যেকোনো স্থানে সরাতে পারবেন।
+            </p>
           </div>
         </div>
       </section>
