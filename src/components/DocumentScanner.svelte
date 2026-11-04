@@ -299,17 +299,6 @@
             <Icon name="lucide:history" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span class="sr-only" data-i18n="resetCropBtn">{t.resetCropBtn}</span>
           </button>
-          <button
-            type="button"
-            data-ds="erase-borders"
-            class={btnIcon}
-            disabled
-            data-i18n-title="borderTrimBtn"
-            title={t.borderTrimBtn}
-          >
-            <Icon name="lucide:scan" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-            <span class="sr-only" data-i18n="borderTrimBtn">{t.borderTrimBtn}</span>
-          </button>
         </div>
 
         <!-- Group 4: View Switcher (Icon-Only with Hover Tooltip) -->
@@ -645,24 +634,14 @@
             id="dsEraserBar"
             hidden
           >
-            <!-- Active Tool Pill (Icon-Only, Hover for Tool Name) -->
-            <span
-              class="ds-eraser-title inline-flex items-center justify-center w-6 h-6 rounded-md bg-emerald-500/10 border border-emerald-500/25 shrink-0"
-              id="dsPsActiveToolLabel"
-              title={t.tools.brush}
-            >
-              <Icon name="lucide:paintbrush" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <b class="sr-only">{t.tools.brush}</b>
-            </span>
-
-            <!-- Compact Swatch & Eyedropper Group -->
+            <!-- Single Compact Color Swatch & Auto Paper Color -->
             <div
               class="ds-ps-color-group inline-flex items-center gap-0.5 py-0.5 px-1 rounded bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shrink-0"
               role="group"
-              aria-label="Background Color & Picker"
+              aria-label="Background Color"
             >
               <label
-                class="ds-ps-color-swatch-wrap relative inline-flex items-center gap-1 px-1 py-0 rounded cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-studio-surface"
+                class="ds-ps-color-swatch-wrap relative inline-flex items-center gap-1 p-1 rounded cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-studio-surface"
                 title="Background Color"
               >
                 <input
@@ -673,22 +652,12 @@
                   class="absolute inset-0 opacity-0 w-full h-full cursor-pointer border-0 p-0"
                 />
                 <span
-                  class="ds-ps-color-chip w-3.5 h-3.5 rounded-xs border border-slate-300 dark:border-slate-600 shadow-2xs shrink-0"
+                  class="ds-ps-color-chip w-4 h-4 rounded-xs border border-slate-300 dark:border-slate-600 shadow-2xs shrink-0"
                   id="dsEraserColorChip"
                   style="background:#ffffff"
                 ></span>
                 <code id="dsEraserHex" class="sr-only">#FFFFFF</code>
               </label>
-              <button
-                type="button"
-                data-ds-tool="picker"
-                class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px] [&.is-active]:bg-emerald-600 [&.is-active]:text-white"
-                data-i18n-title="pickerBtn"
-                title={t.pickerBtn}
-              >
-                <Icon name="lucide:pipette" class="w-3.5 h-3.5 text-fuchsia-600 dark:text-fuchsia-400 shrink-0" />
-                <span class="sr-only" data-i18n="pickerBtn">{t.pickerBtn}</span>
-              </button>
               <button
                 type="button"
                 data-ds="auto-paper-color"
@@ -699,29 +668,6 @@
                 <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
                 <span class="sr-only" data-i18n="autoPaperBtn">{t.autoPaperBtn}</span>
               </button>
-              <div class="ds-ps-swatches inline-flex items-center gap-0.5 pl-1 border-l border-slate-200 dark:border-studio-border" role="group" aria-label="Quick Color Swatches">
-                <button
-                  type="button"
-                  data-ds-swatch="#ffffff"
-                  class="ds-ps-swatch is-active w-3.5 h-3.5 p-0 rounded-xs border border-slate-300 dark:border-slate-600 cursor-pointer bg-[#ffffff] [&.is-active]:outline-1 [&.is-active]:outline-emerald-500"
-                  title="#FFFFFF"
-                  aria-label="White"
-                ></button>
-                <button
-                  type="button"
-                  data-ds-swatch="#faf6ed"
-                  class="ds-ps-swatch w-3.5 h-3.5 p-0 rounded-xs border border-slate-300 dark:border-slate-600 cursor-pointer bg-[#faf6ed] [&.is-active]:outline-1 [&.is-active]:outline-emerald-500"
-                  title="#FAF6ED"
-                  aria-label="Cream"
-                ></button>
-                <button
-                  type="button"
-                  data-ds-swatch="#f1f5f9"
-                  class="ds-ps-swatch w-3.5 h-3.5 p-0 rounded-xs border border-slate-300 dark:border-slate-600 cursor-pointer bg-[#f1f5f9] [&.is-active]:outline-1 [&.is-active]:outline-emerald-500"
-                  title="#F1F5F9"
-                  aria-label="Soft Slate"
-                ></button>
-              </div>
             </div>
 
             <!-- IN-BUTTON SCRUB SLIDERS (Brush Size & Hardness — Drag or Scroll Wheel) -->
@@ -785,18 +731,6 @@
 
             <!-- Quick Retouch Actions (Icon-Only with Hover Tooltip) -->
             <div class="inline-flex items-center gap-0.5 ml-auto">
-              <button type="button" data-ds="reset-retouch-params" class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]" data-i18n-title="resetRetouchParamsTip" title={t.resetRetouchParamsTip}>
-                <Icon name="lucide:history" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span class="sr-only" data-i18n="resetRetouchParamsTip">{t.resetRetouchParamsTip}</span>
-              </button>
-              <button type="button" data-ds="erase-borders" class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]" data-i18n-title="borderTrimBtn" title={t.borderTrimBtn}>
-                <Icon name="lucide:scan" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span class="sr-only" data-i18n="borderTrimBtn">{t.borderTrimBtn}</span>
-              </button>
-              <button type="button" data-ds="undo-erase" class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]" data-i18n-title="undoTip" title={t.undoTip}>
-                <Icon name="lucide:undo-2" class="w-3.5 h-3.5 shrink-0" />
-                <span class="sr-only" data-i18n="undoBtn">{t.undoBtn}</span>
-              </button>
               <button type="button" data-ds="clear-erases" class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]" data-i18n-title="resetAllRetouchBtn" title={t.resetAllRetouchBtn}>
                 <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400 shrink-0" />
                 <span class="sr-only" data-i18n="resetAllRetouchBtn">{t.resetAllRetouchBtn}</span>
@@ -846,36 +780,6 @@
                   <span class="sr-only" data-i18n-dock={tool.id}>{tool.label}</span>
                 </button>
               {/each}
-              <span class="ds-ps-dock-sep w-5 h-px bg-slate-200 dark:bg-studio-border my-0.5"></span>
-              <div class="ds-ps-dock-swatch-box relative w-6 h-6 my-0.5" title="Active Background Color">
-                <button
-                  type="button"
-                  class="ds-ps-dock-swatch w-5 h-5 p-0 rounded border border-slate-300 dark:border-slate-700 shadow-2xs cursor-pointer"
-                  id="dsDockSwatch"
-                  style="background:#ffffff"
-                  data-ds="open-color-picker"
-                  aria-label="Open Color Picker"
-                ></button>
-                <button
-                  type="button"
-                  class="ds-ps-dock-reset-white absolute right-0 bottom-0 w-2.5 h-2.5 p-0 rounded-xs bg-white border border-slate-400 cursor-pointer"
-                  data-ds-swatch="#ffffff"
-                  title="Reset White (#FFFFFF)"
-                  aria-label="Reset White"
-                ></button>
-              </div>
-              <span class="ds-ps-dock-sep w-5 h-px bg-slate-200 dark:bg-studio-border my-0.5"></span>
-              <div class="ds-ps-dock-zoom flex flex-col items-center gap-0.5 w-full" role="group" aria-label="Preview Zoom">
-                <button type="button" data-ds="pzoom-in" class="{btnBase} w-6.5 min-w-[26px] min-h-[18px] p-0 text-[10px] font-bold border-0 bg-transparent" title="Preview Zoom In">+</button>
-                <button
-                  type="button"
-                  data-ds="pzoom-fit"
-                  id="dsPreviewZoomLabel"
-                  class="{btnBase} w-6.5 min-w-[26px] min-h-[18px] p-0 text-[8px] font-bold tabular-nums border-0 bg-transparent"
-                  title="Reset Preview Zoom">100%</button
-                >
-                <button type="button" data-ds="pzoom-out" class="{btnBase} w-6.5 min-w-[26px] min-h-[18px] p-0 text-[10px] font-bold border-0 bg-transparent" title="Preview Zoom Out">−</button>
-              </div>
             </aside>
 
             <div
