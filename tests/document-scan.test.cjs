@@ -433,4 +433,30 @@ test('6-Point piecewise homography & mesh warp un-pinches compressed passport sp
  const botIdx=((dims.outH-4)*dims.outW+midX)*4;
  assert.ok(out[botIdx+2]>200&&out[botIdx]<60,`Bottom middle should be rectified to bottom edge: B=${out[botIdx+2]}, R=${out[botIdx]}`);
 });
+test('Horizontal 6-Point Passport detector strips bottom watermark banner and preserves portrait skin tones in Magic+',()=>{
+ const w=280,h=380;
+ const data=image(w,h,(x,y)=>{
+  // Bottom white phone watermark banner (y >= 336)
+  if(y>=336)return [252,252,252];
+  // Dark table background outside passport (x: 24..252, y: 28..330)
+  if(x<24||x>252||y<28||y>330)return [32,36,44];
+  // Horizontal fold crease at y=178
+  if(Math.abs(y-178)<=2)return [105,108,112];
+  // Portrait photo box in lower-left (x: 42..96, y: 215..285) with skin tone (150) and dark hair (65)
+  if(x>=42&&x<=96&&y>=215&&y<=285){
+   if(y<235)return [65,62,60];
+   return [152,148,144];
+  }
+  // MRZ strokes near bottom (y: 300..318)
+  if((y===304||y===314)&&x>=36&&x<=240&&(x%6)<3)return [28,28,30];
+  return [218,216,210];
+ });
+ const det=core.detectPassportSixPts(data,w,h,{});
+ assert.equal(det.foldAxis,'horizontal');
+ assert.equal(det.rotation,0);
+ assert.ok(det.pts[3].y<0.90,`Bottom-right y (${det.pts[3].y.toFixed(3)}) must exclude bottom watermark banner`);
+ const enhanced=core.process(data,w,h,{filter:'magic_plus',shadow:true,text:false,cleanSpots:false,cleanMargins:false});
+ const skinIdx=(255*w+68)*4;
+ assert.ok(enhanced.data[skinIdx]<228,`Portrait skin tone must not bleach to pure white (got ${enhanced.data[skinIdx]})`);
+});
 console.log(`${passed} document scan tests passed`);

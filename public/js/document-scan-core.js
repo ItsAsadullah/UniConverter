@@ -669,13 +669,382 @@
     }catch(e){}
     return res;
   }
+  function stripWatermarkBanner(data,w,h) {
+    var yStart=Math.round(h*.84),yEnd=Math.round(h*.96),yCut=-1;
+    for(var y=yStart;y<=yEnd;y++){
+      var whiteCnt=0,totCnt=0,leftWhite=0,rightWhite=0,edgeCnt=0;
+      for(var yy=y;yy<h;yy+=2){
+        for(var xx=0;xx<w;xx+=3){
+          var i=(yy*w+xx)*4,r=data[i],g=data[i+1],b=data[i+2];
+          var l=.299*r+.587*g+.114*b,c=Math.max(r,g,b)-Math.min(r,g,b),isW=l>240&&c<14;
+          if(isW)whiteCnt++;totCnt++;
+          if(xx<w*.05){edgeCnt++;if(isW)leftWhite++;}
+          if(xx>w*.95){if(isW)rightWhite++;}
+        }
+      }
+      if(whiteCnt/Math.max(1,totCnt)<.72||leftWhite/Math.max(1,edgeCnt)<.75||rightWhite/Math.max(1,edgeCnt)<.75)continue;
+      var darkAbove=0,cols=0,yAbove=Math.max(0,y-Math.max(3,Math.round(h*.015)));
+      for(var xx2=Math.round(w*.05);xx2<Math.round(w*.95);xx2+=3){
+        var i2=(yAbove*w+xx2)*4,l2=.299*data[i2]+.587*data[i2+1]+.114*data[i2+2];
+        cols++;if(l2<175)darkAbove++;
+      }
+      if(darkAbove/Math.max(1,cols)>=.55){yCut=y;break;}
+    }
+    if(yCut<0)return {data:data,yCut:-1};
+    var out=new Uint8ClampedArray(data),srcRow=Math.max(0,yCut-Math.max(3,Math.round(h*.012)));
+    for(var yr=yCut;yr<h;yr++){
+      for(var xr=0;xr<w;xr++){
+        var si=(srcRow*w+xr)*4,di=(yr*w+xr)*4;
+        out[di]=data[si];out[di+1]=data[si+1];out[di+2]=data[si+2];out[di+3]=255;
+      }
+    }
+    return {data:out,yCut:yCut};
+  }
+  function detectPassportOrientation(data,w,h,q) {
+    var N=200;
+    var TL={x:q[0].x*(w-1),y:q[0].y*(h-1)},TR={x:q[1].x*(w-1),y:q[1].y*(h-1)},BR={x:q[2].x*(w-1),y:q[2].y*(h-1)},BL={x:q[3].x*(w-1),y:q[3].y*(h-1)};
+    var quadW=.5*(Math.hypot(TR.x-TL.x,TR.y-TL.y)+Math.hypot(BR.x-BL.x,BR.y-BL.y));
+    var quadH=.5*(Math.hypot(BL.x-TL.x,BL.y-TL.y)+Math.hypot(BR.x-TR.x,BR.y-TR.y));
+    var L=new Float32Array(N*N);
+    for(var iy=0;iy<N;iy++){
+      var v=iy/(N-1);
+      for(var ix=0;ix<N;ix++){
+        var u=ix/(N-1);
+        var sx=clamp(Math.round((1-v)*((1-u)*TL.x+u*TR.x)+v*((1-u)*BL.x+u*BR.x)),0,w-1);
+        var sy=clamp(Math.round((1-v)*((1-u)*TL.y+u*TR.y)+v*((1-u)*BL.y+u*BR.y)),0,h-1);
+        var idx=(sy*w+sx)*4;
+        L[iy*N+ix]=.299*data[idx]+.587*data[idx+1]+.114*data[idx+2];
+      }
+    }
+    var sumGx=0,sumGy=0;
+    for(var y=Math.round(N*.12);y<Math.round(N*.88);y++){
+      for(var x=Math.round(N*.12);x<Math.round(N*.88);x++){
+        var i=y*N+x;
+        sumGx+=Math.abs(L[i+1]-L[i-1]);
+        sumGy+=Math.abs(L[i+N]-L[i-N]);
+      }
+    }
+    var hSeam=0,vSeam=0;
+    for(var s=Math.round(N*.40);s<=Math.round(N*.60);s++){
+      var hs=0,vs=0;
+      for(var t=Math.round(N*.15);t<Math.round(N*.85);t++){
+        hs+=Math.max(0,.5*(L[(s-4)*N+t]+L[(s+4)*N+t])-L[s*N+t])+.4*Math.abs(L[(s+2)*N+t]-L[(s-2)*N+t]);
+        vs+=Math.max(0,.5*(L[t*N+(s-4)]+L[t*N+(s+4)])-L[t*N+s])+.4*Math.abs(L[t*N+(s+2)]-L[t*N+(s-2)]);
+      }
+      if(hs>hSeam)hSeam=hs;
+      if(vs>vSeam)vSeam=vs;
+    }
+    var isSideways=(quadW>quadH*1.15&&vSeam>hSeam)||(vSeam>hSeam*1.45&&sumGx>sumGy);
+    function scoreHalf(isVertSplit,secondHalf){
+      var mrzBand=0,halfAct=0;
+      var d0=secondHalf?Math.round(N*.54):Math.round(N*.05),d1=secondHalf?Math.round(N*.95):Math.round(N*.46);
+      var m0=secondHalf?Math.round(N*.72):Math.round(N*.05),m1=secondHalf?Math.round(N*.95):Math.round(N*.28);
+      var t0=Math.round(N*.12),t1=Math.round(N*.88);
+      for(var d=d0;d<=d1;d++){
+        var rowChar=0;
+        for(var t=t0;t<=t1;t++){
+          var idx2=isVertSplit?(t*N+d):(d*N+t);
+          var du=isVertSplit?Math.abs(L[idx2+N]-L[idx2-N]):Math.abs(L[idx2+1]-L[idx2-1]);
+          var dv=isVertSplit?Math.abs(L[idx2+1]-L[idx2-1]):Math.abs(L[idx2+N]-L[idx2-N]);
+          halfAct+=du+dv;
+          if(du>10)rowChar+=du;
+        }
+        if(d>=m0&&d<=m1)mrzBand+=rowChar;
+      }
+      return mrzBand*1.8+halfAct*.35;
+    }
+    if(isSideways){
+      var leftScore=scoreHalf(true,false),rightScore=scoreHalf(true,true);
+      return rightScore>leftScore?90:270;
+    }
+    var topScore=scoreHalf(false,false),botScore=scoreHalf(false,true);
+    return topScore>botScore*1.38?180:0;
+  }
+  function detectPassportOnWhiteBg(data,w,h) {
+    var sc=Math.min(1,380/Math.max(w,h)),aw=Math.max(40,Math.round(w*sc)),ah=Math.max(40,Math.round(h*sc));
+    var L=new Float32Array(aw*ah),C=new Float32Array(aw*ah),GX=new Float32Array(aw*ah),GY=new Float32Array(aw*ah),G=new Float32Array(aw*ah);
+    for(var y=0;y<ah;y++){
+      var sy=Math.min(h-1,Math.floor((y+.5)*h/ah));
+      for(var x=0;x<aw;x++){
+        var sx=Math.min(w-1,Math.floor((x+.5)*w/aw)),i=(sy*w+sx)*4,r=data[i],g=data[i+1],b=data[i+2];
+        L[y*aw+x]=.299*r+.587*g+.114*b;
+        C[y*aw+x]=Math.max(r,g,b)-Math.min(r,g,b);
+      }
+    }
+    for(var y2=1;y2<ah-1;y2++){
+      for(var x2=1;x2<aw-1;x2++){
+        var i2=y2*aw+x2;
+        GX[i2]=Math.abs(L[i2+1]-L[i2-1]);
+        GY[i2]=Math.abs(L[i2+aw]-L[i2-aw]);
+        G[i2]=GX[i2]+GY[i2];
+      }
+    }
+    var Ls=new Float32Array(aw*ah),Gs=new Float32Array(aw*ah);
+    for(var y3=0;y3<ah;y3++){
+      for(var x3=0;x3<aw;x3++){
+        var sl=0,sg=0,cnt=0;
+        for(var dy=-2;dy<=2;dy++){
+          var yy=clamp(y3+dy,0,ah-1);
+          for(var dx=-2;dx<=2;dx++){
+            var xx=clamp(x3+dx,0,aw-1);
+            sl+=L[yy*aw+xx];sg+=G[yy*aw+xx];cnt++;
+          }
+        }
+        Ls[y3*aw+x3]=sl/cnt;Gs[y3*aw+x3]=sg/cnt;
+      }
+    }
+    var rad=Math.max(4,Math.round(Math.min(aw,ah)*.024)),Lc=closePaper(L,aw,ah,rad);
+    function marginStats(side,yLimitFrac){
+      var horiz=side==='top'||side==='bottom',len=horiz?aw:Math.round(ah*(yLimitFrac||.9));
+      var startT=horiz?Math.round(aw*.1):Math.round(ah*.08),depth=horiz?ah:aw,band=Math.max(4,Math.round(depth*.045));
+      var sumL=0,sumG=0,quiet=0,n=0;
+      for(var t=startT;t<len;t+=2){
+        for(var d=2;d<band;d+=2){
+          var p=(side==='top'||side==='left')?d:(depth-1-d),idx=horiz?(p*aw+t):(t*aw+p);
+          sumL+=Ls[idx];sumG+=Gs[idx];
+          if(Ls[idx]>148&&Gs[idx]<4.2)quiet++;
+          n++;
+        }
+      }
+      return {L:sumL/Math.max(1,n),G:sumG/Math.max(1,n),quietFrac:quiet/Math.max(1,n)};
+    }
+    var mTop=marginStats('top'),mBot=marginStats('bottom'),mLeft=marginStats('left',.62),mRight=marginStats('right',.62);
+    var quietSides=[mTop,mBot,mLeft,mRight].filter(function(m){return m.quietFrac>.45;}).length;
+    if(quietSides<2)return null;
+    var isPureWhite=mTop.L>248&&mBot.L>248&&mLeft.L>248&&mRight.L>248;
+    if(isPureWhite){
+      var wx0=aw,wx1=0,wy0=ah,wy1=0;
+      for(var wy=2;wy<ah-2;wy++){
+        for(var wx=2;wx<aw-2;wx++){
+          var wi=wy*aw+wx;
+          if(Ls[wi]<248||C[wi]>4||Gs[wi]>2){
+            if(wx<wx0)wx0=wx;if(wx>wx1)wx1=wx;
+            if(wy<wy0)wy0=wy;if(wy>wy1)wy1=wy;
+          }
+        }
+      }
+      if(wx1-wx0>aw*.3&&wy1-wy0>ah*.3){
+        return [
+          {x:wx0/(aw-1),y:wy0/(ah-1)},
+          {x:wx1/(aw-1),y:wy0/(ah-1)},
+          {x:wx1/(aw-1),y:wy1/(ah-1)},
+          {x:wx0/(aw-1),y:wy1/(ah-1)}
+        ];
+      }
+    }
+    var rowLc=new Float32Array(ah),rowGs=new Float32Array(ah);
+    for(var ry=0;ry<ah;ry++){
+      var rsl=0,rsg=0,rn=0;
+      for(var rx=Math.round(aw*.25);rx<=Math.round(aw*.80);rx++){
+        rsl+=Lc[ry*aw+rx];rsg+=Gs[ry*aw+rx];rn++;
+      }
+      rowLc[ry]=rsl/rn;rowGs[ry]=rsg/rn;
+    }
+    var sumMidG=0,cntMidG=0;
+    for(var my=Math.round(ah*.18);my<=Math.round(ah*.55);my++){sumMidG+=rowGs[my];cntMidG++;}
+    var refRowG=Math.max(8,sumMidG/Math.max(1,cntMidG)),inkRowThr=Math.max(4.5,refRowG*.42);
+    var y0=Math.round(ah*.01);
+    if(mTop.quietFrac>.45){
+      var firstInkY=Math.round(ah*.04);
+      while(firstInkY<ah*.38&&rowGs[firstInkY]<inkRowThr)firstInkY++;
+      var bestY=Math.max(2,firstInkY-Math.round(ah*.02)),bestDrop=0;
+      var minSearchY=Math.max(3,firstInkY-Math.round(ah*.026));
+      for(var sy0=minSearchY;sy0<=firstInkY;sy0++){
+        var drop=rowLc[Math.max(1,sy0-3)]-rowLc[Math.min(ah-2,sy0+3)];
+        if(drop>bestDrop){bestDrop=drop;bestY=sy0;}
+      }
+      y0=bestDrop>4.5?bestY:Math.max(2,firstInkY-Math.round(ah*.02));
+    }
+    var y1=Math.round(ah*.985),foundSubBoxBot=false;
+    if(mLeft.quietFrac>.50&&mRight.quietFrac>.50&&mBot.quietFrac<.38){
+      for(var by=Math.round(y0+ah*.42);by<=Math.round(Math.min(ah*.66,y0+ah*.58));by++){
+        if(rowGs[by]<Math.max(5.5,refRowG*.25)&&rowGs[by-6]>Math.max(12,refRowG*.55)){
+          y1=by-Math.round(ah*.008);foundSubBoxBot=true;break;
+        }
+      }
+    }
+    if(!foundSubBoxBot){
+      var lastInkY=Math.round(ah*.96);
+      while(lastInkY>y0+ah*.45&&rowGs[lastInkY]<inkRowThr)lastInkY--;
+      var maxSearchY=Math.min(ah-3,lastInkY+Math.round((lastInkY-y0)*.048));
+      var bestY1=Math.min(ah-2,lastInkY+Math.round((lastInkY-y0)*.032)),bestRise=0;
+      for(var sy1=lastInkY+2;sy1<=maxSearchY;sy1++){
+        var diff=Math.abs(rowLc[Math.min(ah-2,sy1+3)]-rowLc[Math.max(1,sy1-3)]);
+        if(diff>bestRise&&rowGs[sy1]<inkRowThr){bestRise=diff;bestY1=sy1;}
+      }
+      y1=bestRise>4.5?bestY1:Math.min(ah-2,lastInkY+Math.round((lastInkY-y0)*.032));
+    }
+    var colLc=new Float32Array(aw),colGs=new Float32Array(aw);
+    for(var cx=0;cx<aw;cx++){
+      var csl=0,csg=0,cn=0;
+      for(var cy=Math.round(y0+(y1-y0)*.08);cy<=Math.round(y1-(y1-y0)*.08);cy++){
+        csl+=Lc[cy*aw+cx];csg+=Gs[cy*aw+cx];cn++;
+      }
+      colLc[cx]=csl/Math.max(1,cn);colGs[cx]=csg/Math.max(1,cn);
+    }
+    var sumMidColG=0,cntMidColG=0;
+    for(var mcx=Math.round(aw*.28);mcx<=Math.round(aw*.72);mcx++){sumMidColG+=colGs[mcx];cntMidColG++;}
+    var refColG=Math.max(8,sumMidColG/Math.max(1,cntMidColG)),inkColThr=Math.max(3.8,refColG*.46);
+    var x0=Math.round(aw*.015),x1=Math.round(aw*.985);
+    if(mLeft.quietFrac>.35||colGs[Math.round(aw*.03)]<inkColThr*.85){
+      var firstInkX=Math.round(aw*.03);
+      while(firstInkX<aw*.40&&colGs[firstInkX]<inkColThr)firstInkX++;
+      var minSearchX=Math.max(2,firstInkX-Math.round(aw*.022));
+      var bestX0=Math.max(2,firstInkX-Math.round(aw*.016)),bestStep0=0;
+      for(var sx0=minSearchX;sx0<=firstInkX;sx0++){
+        var step0=Math.abs(colLc[Math.max(1,sx0-3)]-colLc[Math.min(aw-2,sx0+3)]);
+        if(step0>bestStep0){bestStep0=step0;bestX0=sx0;}
+      }
+      x0=bestStep0>4.5?bestX0:Math.max(2,firstInkX-Math.round(aw*.016));
+    }
+    if(mRight.quietFrac>.35||colGs[Math.round(aw*.97)]<inkColThr*.85){
+      var lastInkX=Math.round(aw*.97);
+      while(lastInkX>x0+aw*.40&&colGs[lastInkX]<inkColThr)lastInkX--;
+      var maxSearchX=Math.min(aw-3,lastInkX+Math.round(aw*.026));
+      var bestX1=Math.min(aw-2,lastInkX+Math.round(aw*.016)),bestStep1=0;
+      for(var sx1=lastInkX;sx1<=maxSearchX;sx1++){
+        var step1=Math.abs(colLc[Math.min(aw-2,sx1+3)]-colLc[Math.max(1,sx1-3)]);
+        if(step1>bestStep1){bestStep1=step1;bestX1=sx1;}
+      }
+      x1=bestStep1>4.5?bestX1:Math.min(aw-2,lastInkX+Math.round(aw*.016));
+    }
+    function fitClosedEdge(side,nom,tStart,tEnd){
+      var horiz=side==='top'||side==='bottom',fwd=side==='top'||side==='left',dir=fwd?1:-1,depth=horiz?ah:aw;
+      if(nom<=4||nom>=depth-5)return {slope:0,offset:nom};
+      var rSearch=Math.round(depth*.032),pts=[];
+      for(var t=Math.round(tStart+(tEnd-tStart)*.1);t<=Math.round(tStart+(tEnd-tStart)*.9);t+=2){
+        var bestP=nom,bestS=-1;
+        for(var d=-rSearch;d<=rSearch;d++){
+          var p=clamp(nom+d,4,depth-5),pOut=clamp(p-dir*4,1,depth-2),pIn=clamp(p+dir*4,1,depth-2);
+          var idxOut=horiz?(pOut*aw+t):(t*aw+pOut),idxIn=horiz?(pIn*aw+t):(t*aw+pIn),idx=horiz?(p*aw+t):(t*aw+p);
+          if(Gs[idxOut]>(horiz?inkRowThr:inkColThr)*1.15)continue;
+          var lStep=Math.abs(Lc[idxOut]-Lc[idxIn])+.5*Math.abs(L[idxOut]-L[idxIn]),gEdge=horiz?GY[idx]:GX[idx];
+          var s=(lStep*1.5+gEdge)*(1-Math.abs(d)/(rSearch*1.5));
+          if(s>bestS){bestS=s;bestP=p;}
+        }
+        if(bestS>4)pts.push({t:t,v:bestP,w:bestS});
+      }
+      if(pts.length<6)return {slope:0,offset:nom};
+      var slope=0,offset=nom;
+      for(var it=0;it<4;it++){
+        var sx=0,sy=0,sxx=0,sxy=0,sw=0;
+        for(var pi=0;pi<pts.length;pi++){
+          var pt=pts[pi],err=Math.abs(pt.v-(offset+slope*pt.t)),wt=it===0?pt.w:pt.w/(1+(err/2.5)*(err/2.5));
+          sx+=pt.t*wt;sy+=pt.v*wt;sxx+=pt.t*pt.t*wt;sxy+=pt.t*pt.v*wt;sw+=wt;
+        }
+        var den=sw*sxx-sx*sx;
+        if(Math.abs(den)>1e-3){
+          slope=clamp((sw*sxy-sx*sy)/den,-.14,.14);
+          offset=(sy-slope*sx)/sw;
+        }
+      }
+      return {slope:slope,offset:offset};
+    }
+    var tL=fitClosedEdge('top',y0,x0,x1),bL=fitClosedEdge('bottom',y1,x0,x1),lL=fitClosedEdge('left',x0,y0,y1),rL=fitClosedEdge('right',x1,y0,y1);
+    function intersectHV(hLine,vLine){
+      var det=1-hLine.slope*vLine.slope,ix=(vLine.offset+vLine.slope*hLine.offset)/det,iy=hLine.offset+hLine.slope*ix;
+      return {x:clamp(ix/(aw-1),0,1),y:clamp(iy/(ah-1),0,1)};
+    }
+    return [intersectHV(tL,lL),intersectHV(tL,rL),intersectHV(bL,rL),intersectHV(bL,lL)];
+  }
   function detectPassportSixPts(data,w,h,options) {
-    var opt=options||{},axis=opt.foldAxis==='horizontal'?'horizontal':'vertical';
-    var base=detect(data,w,h);
-    var q=(base&&base.pts&&base.pts.length===4)?base.pts:full();
+    var opt=options||{},axis=opt.foldAxis==='vertical'?'vertical':'horizontal';
+    var stripped=stripWatermarkBanner(data,w,h),workData=stripped.data;
+    var base=detect(workData,w,h);
+    var q=(base&&base.pts&&base.pts.length===4)?base.pts.map(function(p){return {x:p.x,y:p.y};}):full();
+    var rot=detectPassportOrientation(workData,w,h,q);
+    var pinnedBorders=(Math.min(q[0].x,q[3].x)<.015?1:0)+(Math.max(q[1].x,q[2].x)>.985?1:0)+(Math.min(q[0].y,q[1].y)<.015?1:0)+(Math.max(q[2].y,q[3].y)>.985?1:0);
+    if(pinnedBorders>=3){
+      var whiteQ=detectPassportOnWhiteBg(workData,w,h);
+      if(whiteQ&&validQuad(whiteQ)&&area(whiteQ)>.25){q=whiteQ;if(base)base.auto=true;}
+    }else{
+      var whiteQ2=detectPassportOnWhiteBg(workData,w,h);
+      if(whiteQ2&&validQuad(whiteQ2)){
+        var aBase=area(q),aWhite=area(whiteQ2);
+        if(aBase>.78&&aWhite>.28&&aWhite<aBase*.75){q=whiteQ2;if(base)base.auto=true;}
+      }
+    }
+    var sc=Math.min(1,360/Math.max(w,h)),aw=Math.max(40,Math.round(w*sc)),ah=Math.max(40,Math.round(h*sc));
+    var L=new Float32Array(aw*ah),P=new Float32Array(aw*ah),G=new Float32Array(aw*ah);
+    for(var y=0;y<ah;y++){
+      var sy=Math.min(h-1,Math.floor((y+.5)*h/ah));
+      for(var x=0;x<aw;x++){
+        var sx=Math.min(w-1,Math.floor((x+.5)*w/aw)),idx0=(sy*w+sx)*4,r0=workData[idx0],g0=workData[idx0+1],b0=workData[idx0+2];
+        var l0=.299*r0+.587*g0+.114*b0,c0=Math.max(r0,g0,b0)-Math.min(r0,g0,b0);
+        L[y*aw+x]=l0;P[y*aw+x]=clamp(l0-c0*1.1,0,255);
+      }
+    }
+    for(var y1=1;y1<ah-1;y1++){
+      for(var x1=1;x1<aw-1;x1++){
+        var idx1=y1*aw+x1;
+        G[idx1]=Math.abs(L[idx1+1]-L[idx1-1])+Math.abs(L[idx1+aw]-L[idx1-aw]);
+      }
+    }
+    var rad=Math.max(4,Math.round(Math.min(aw,ah)*.026)),Lc=closePaper(L,aw,ah,rad),Pc=closePaper(P,aw,ah,rad);
+    var yTop=.5*(q[0].y+q[1].y),yBot=.5*(q[2].y+q[3].y),xLeft=.5*(q[0].x+q[3].x),xRight=.5*(q[1].x+q[2].x);
+    if(yTop<.08&&yBot>.62&&yBot<.84){
+      var gBelow=0,lBelow=0,cntBelow=0;
+      for(var yb=Math.round(yBot*ah);yb<Math.round(ah*.96);yb++){
+        for(var xb=Math.round((xLeft+.15*(xRight-xLeft))*aw);xb<=Math.round((xRight-.15*(xRight-xLeft))*aw);xb++){
+          gBelow+=G[yb*aw+xb];lBelow+=Lc[yb*aw+xb];cntBelow++;
+        }
+      }
+      if(cntBelow>0&&gBelow/cntBelow>12&&lBelow/cntBelow>125){
+        q[2].y=Math.max(q[2].y,.992);q[3].y=Math.max(q[3].y,.992);
+      }
+    }
+    var hPx=(.5*(q[2].y+q[3].y)-.5*(q[0].y+q[1].y))*ah,wPx=(.5*(q[1].x+q[2].x)-.5*(q[0].x+q[3].x))*aw;
+    if(yTop>.04&&yBot<.94&&hPx>ah*.45&&wPx/hPx>.94){
+      var minW=.58*hPx,maxW=.86*hPx,xL=Math.round(xLeft*aw);
+      var searchX0=clamp(Math.round(xL+minW),10,aw-6),searchX1=clamp(Math.round(xL+maxW),10,aw-6);
+      var yA=Math.round((yTop+.08*(yBot-yTop))*ah),yB=Math.round((yBot-.08*(yBot-yTop))*ah);
+      var bestXR=-1,bestDropR=0;
+      for(var xr=searchX0;xr<=searchX1;xr++){
+        var dropSum=0,nR=0;
+        for(var yr=yA;yr<=yB;yr+=2){
+          var dP=Pc[yr*aw+Math.max(1,xr-4)]-Pc[yr*aw+Math.min(aw-2,xr+4)];
+          var dL=Lc[yr*aw+Math.max(1,xr-4)]-Lc[yr*aw+Math.min(aw-2,xr+4)];
+          dropSum+=Math.max(dP,dL);nR++;
+        }
+        if(dropSum/Math.max(1,nR)>bestDropR){bestDropR=dropSum/Math.max(1,nR);bestXR=xr;}
+      }
+      if(bestXR>0&&bestDropR>28){
+        var sxR=0,syR=0,sxxR=0,sxyR=0,swR=0;
+        for(var yr2=yA;yr2<=yB;yr2+=2){
+          var locX=bestXR,locS=-1;
+          for(var dxR=-8;dxR<=8;dxR++){
+            var xxR=clamp(bestXR+dxR,4,aw-5);
+            var sR=Math.max(Pc[yr2*aw+xxR-3]-Pc[yr2*aw+xxR+3],Lc[yr2*aw+xxR-3]-Lc[yr2*aw+xxR+3]);
+            if(sR>locS){locS=sR;locX=xxR;}
+          }
+          if(locS>15){sxR+=yr2*locS;syR+=locX*locS;sxxR+=yr2*yr2*locS;sxyR+=yr2*locX*locS;swR+=locS;}
+        }
+        var denR=swR*sxxR-sxR*sxR,slopeR=Math.abs(denR)>1e-3?clamp((swR*sxyR-sxR*syR)/denR,-.18,.18):0;
+        var offR=swR>0?(syR-slopeR*sxR)/swR:bestXR;
+        q[1].x=clamp((offR+slopeR*(q[1].y*(ah-1)))/(aw-1),.1,.995);
+        q[2].x=clamp((offR+slopeR*(q[2].y*(ah-1)))/(aw-1),.1,.995);
+      }
+    }
+    if(q[1].x-q[2].x>.08&&q[0].x-q[3].x>.07){
+      q[2].x=clamp(q[1].x-.025,.2,.992);
+      q[3].x=clamp(q[0].x-.045,.01,.9);
+      var yBotR=Math.round(q[2].y*(ah-1)),bestYBot=Math.round((q[2].y-.035)*(ah-1)),bestBotStep=0;
+      for(var ybC=Math.max(10,yBotR-Math.round(ah*.06));ybC<=Math.min(ah-4,yBotR);ybC++){
+        var stepSumC=0,nBC=0;
+        for(var xbC=Math.round((q[3].x+.15*(q[2].x-q[3].x))*aw);xbC<=Math.round((q[2].x-.15*(q[2].x-q[3].x))*aw);xbC+=2){
+          stepSumC+=Math.max(0,Lc[Math.min(ah-2,ybC+3)*aw+xbC]-Lc[Math.max(1,ybC-3)*aw+xbC])+Math.abs(Pc[Math.max(1,ybC-3)*aw+xbC]-Pc[Math.min(ah-2,ybC+3)*aw+xbC]);
+          nBC++;
+        }
+        if(stepSumC/Math.max(1,nBC)>bestBotStep){bestBotStep=stepSumC/Math.max(1,nBC);bestYBot=ybC;}
+      }
+      if(bestBotStep>8){
+        q[2].y=clamp(bestYBot/(ah-1),.2,.995);
+        q[3].y=clamp((bestYBot-2)/(ah-1),.2,.995);
+      }
+    }
     var pts=quadToSixPts(q,axis);
     try{
-      var g=lumaPlane(data,w,h);
+      var g=lumaPlane(workData,w,h);
       var TL={x:q[0].x*(w-1),y:q[0].y*(h-1)},TR={x:q[1].x*(w-1),y:q[1].y*(h-1)},BR={x:q[2].x*(w-1),y:q[2].y*(h-1)},BL={x:q[3].x*(w-1),y:q[3].y*(h-1)};
       function bilerpPt(u,v){
         return {
@@ -733,7 +1102,16 @@
               var vIn2=sampleBil(g,w,h,px+nx*stepR,py+ny*stepR),vOut2=sampleBil(g,w,h,px-nx*stepR,py-ny*stepR);
               var vFarOut=sampleBil(g,w,h,px-nx*stepR*3,py-ny*stepR*3);
               if(sign>0&&vFarOut>vOut2+18&&vFarOut>135&&Math.abs(vIn2-vFarOut)<30)continue;
-              sumStep+=(vIn2-vOut2)*sign;validSamples++;
+              if(axis==='horizontal'){
+                var axIn=(px+nx*stepR*1.5)*(aw-1)/(w-1),ayIn=(py+ny*stepR*1.5)*(ah-1)/(h-1);
+                var axOut=(px-nx*stepR*1.5)*(aw-1)/(w-1),ayOut=(py-ny*stepR*1.5)*(ah-1)/(h-1);
+                var lcStep=(sampleBil(Lc,aw,ah,axIn,ayIn)-sampleBil(Lc,aw,ah,axOut,ayOut))*sign;
+                if(lcStep<6)continue;
+                sumStep+=.65*lcStep+.35*(vIn2-vOut2)*sign;
+              }else{
+                sumStep+=(vIn2-vOut2)*sign;
+              }
+              validSamples++;
             }
             if(validSamples>=3){
               var avgStep=(sumStep/validSamples)*(1-Math.abs(off)/(span*.40));
@@ -742,12 +1120,12 @@
           }
           return bestScore>11?bestOff:0;
         }
-        var maxSearch=Math.round(span*.16);
-        var offStart=findLocalOff(.07,-maxSearch,Math.round(span*.06));
-        var offEnd=findLocalOff(.93,-maxSearch,Math.round(span*.06));
-        var offMid=findLocalOff(sFold,-Math.round(span*.08),maxSearch);
+        var maxSearch=Math.round(span*(axis==='horizontal'?.07:.16));
+        var offStart=axis==='horizontal'?0:findLocalOff(.07,-maxSearch,Math.round(span*.06));
+        var offEnd=axis==='horizontal'?0:findLocalOff(.93,-maxSearch,Math.round(span*.06));
+        var offMid=findLocalOff(sFold,-Math.round(span*(axis==='horizontal'?.06:.08)),maxSearch);
         var archDelta=offMid-.5*(offStart+offEnd);
-        if(archDelta>2){
+        if(axis!=='horizontal'&&archDelta>2){
           offStart-=.22*archDelta;
           offEnd-=.22*archDelta;
         }
@@ -773,7 +1151,7 @@
       pts:pts,
       auto:!!(base&&base.auto),
       confidence:(base&&base.confidence)||0,
-      rotation:(base&&base.rotation)||0,
+      rotation:rot,
       flatbed:!!(base&&base.flatbed),
       foldAxis:axis
     };
@@ -801,6 +1179,7 @@
       natW=Math.max(60,Math.max(wT,wB,wM));
       natH=Math.max(40,hTop+hBot);
       var rawSplitH=hTop/Math.max(1,hTop+hBot);
+      if(rawSplitH>=.34&&rawSplitH<=.66&&natH>natW*.82&&natH<natW*1.34)natH=Math.max(natH,Math.round(natW*1.36));
       split=(rawSplitH>=.34&&rawSplitH<=.66)?(.5+.25*(rawSplitH-.5)):clamp(rawSplitH,.15,.85);
     }else{
       var wTL=Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),wBL=Math.hypot(p[4].x-p[5].x,p[4].y-p[5].y);
@@ -945,11 +1324,28 @@
   function magicEnhance(data,w,h,opt){
     var n=w*h,out=new Uint8ClampedArray(data.length),gray=new Float32Array(n);
     var radius=Math.max(5,Math.round(Math.min(w,h)*.027));
+    var gw=Math.max(20,Math.round(w/4)),gh=Math.max(20,Math.round(h/4)),gRad=Math.max(4,Math.round(Math.min(gw,gh)*.16));
     var channels=[],shadow=opt.shadow!==false;
     for(var c=0;c<3;c++){
       var input=new Float32Array(n);
       for(var i=0;i<n;i++){var alpha=data[i*4+3]/255;input[i]=data[i*4+c]*alpha+255*(1-alpha);}
       var paper=shadow?blurBox(closePaper(input,w,h,radius),w,h,Math.max(1,Math.round(radius*.18))):null;
+      if(shadow&&paper){
+        var small=new Float32Array(gw*gh);
+        for(var gy=0;gy<gh;gy++){
+          var sy=Math.min(h-1,Math.floor((gy+.5)*h/gh))*w;
+          for(var gx=0;gx<gw;gx++)small[gy*gw+gx]=paper[sy+Math.min(w-1,Math.floor((gx+.5)*w/gw))];
+        }
+        var coarse=blurBox(closePaper(small,gw,gh,gRad),gw,gh,Math.max(2,Math.round(gRad*.35)));
+        for(var y0=0;y0<h;y0++){
+          var fy=y0*(gh-1)/Math.max(1,h-1),rowOff=y0*w;
+          for(var x0=0;x0<w;x0++){
+            var fx=x0*(gw-1)/Math.max(1,w-1);
+            var env=sampleBil(coarse,gw,gh,fx,fy)*.94;
+            if(paper[rowOff+x0]<env)paper[rowOff+x0]=env;
+          }
+        }
+      }
       var normalized=new Float32Array(n);
       for(i=0;i<n;i++)normalized[i]=shadow?clamp(input[i]*255/Math.max(38,paper[i]),0,255):input[i];
       channels.push(normalized);
@@ -960,19 +1356,19 @@
     for(i=0;i<n;i++){
       var r=channels[0][i],g=channels[1][i],b=channels[2][i];
       var l=r*.299+g*.587+b*.114,chroma=Math.max(r,g,b)-Math.min(r,g,b);
-      var whitePoint=strong?(opt.text===false?226:205):248,blackPoint=strong?48:0;
+      var whitePoint=strong?(opt.text===false?236:205):248,blackPoint=strong?(opt.text===false?24:48):0;
       var x=i%w,y=(i/w)|0,ridge=0;
       if(opt.text&&x>3&&x<w-4&&y>3&&y<h-4){
         ridge=Math.max(0,Math.max(Math.min(normL[i-2],normL[i+2]),Math.min(normL[i-3],normL[i+3]))-l,Math.max(Math.min(normL[i-w*2],normL[i+w*2]),Math.min(normL[i-w*3],normL[i+w*3]))-l);
       }
       var inkL=l-Math.min(56,ridge*(strong?1.95:.6));
-      var ink=255*Math.pow(clamp((inkL-blackPoint)/(whitePoint-blackPoint),0,1),strong?1.35:1);
+      var ink=255*Math.pow(clamp((inkL-blackPoint)/(whitePoint-blackPoint),0,1),strong?(opt.text===false?1.14:1.35):1);
       var rawR=data[i*4],rawG=data[i*4+1],rawB=data[i*4+2];
       var coloredInk=rawB>Math.min(rawR,rawG)+5||rawR>rawG+18||(rawG>rawR+15&&(l<205||chroma>22));
       var colorWeight=clamp((chroma-3)/14,0,1)*(coloredInk?1:0);
       if(colorWeight){var colorL=strong?clamp(255*Math.pow(clamp(l/255,0,1),1.08),0,248):l;ink=ink*(1-colorWeight)+colorL*colorWeight;}
       ink=clamp((ink*brightness-128)*contrast+128,0,255);gray[i]=ink;
-      var saturation=1+colorWeight*(strong?2.1:0);
+      var saturation=1+colorWeight*(strong?(opt.text===false?.35:2.1):0);
       out[i*4]=ink+(r-l)*saturation*colorWeight;
       out[i*4+1]=ink+(g-l)*saturation*colorWeight;
       out[i*4+2]=ink+(b-l)*saturation*colorWeight;
