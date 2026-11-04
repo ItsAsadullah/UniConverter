@@ -1407,7 +1407,7 @@
       if(!rg)return;
       var x0=Math.max(bx0,rg.x0),y0=Math.max(by0,rg.y0),x1=Math.min(bx1,rg.x1),y1=Math.min(by1,rg.y1);
       if(x1<x0||y1<y0)return;
-      var samples=type==='heal'?healSamples(x0,y0,x1,y1):null,isTone=type==='dodge'||type==='burn',isDodge=type==='dodge',range=item.range||'midtones';
+      var samples=type==='heal'?healSamples(x0,y0,x1,y1):null,isTone=type==='dodge'||type==='burn',isDodge=type==='dodge',isErase=type==='erase',range=item.range||'midtones';
       for(var y=y0;y<=y1;y++){
         var mo=(y-by0)*bw-bx0;
         for(var x=x0;x<=x1;x++){
@@ -1415,6 +1415,12 @@
           var idx=y*w+x;
           if(selM){var sv=selM[idx];if(!sv)continue;m*=sv/255;}
           var a=m*op;if(a<=0)continue;
+          var i4=idx*4;
+          if(isL&&isErase&&item.eraseAlpha){
+            buf[i4]=snapB[i4];buf[i4+1]=snapB[i4+1];buf[i4+2]=snapB[i4+2];
+            buf[i4+3]=Math.round(snapB[i4+3]*(1-a));
+            continue;
+          }
           sampleS(x,y,S);
           var p0,p1,p2;
           if(type==='clone'){
@@ -1432,8 +1438,7 @@
             if(isL&&S[3]<=0)continue;
             toneRGB(S[0],S[1],S[2],isDodge,range,B);
           }else{p0=rgb[0];p1=rgb[1];p2=rgb[2];}
-          if(!isTone)blendRGB(mode,S[0],S[1],S[2],p0,p1,p2,B);
-          var i4=idx*4;
+          if(!isTone)blendRGB(isErase?'normal':mode,S[0],S[1],S[2],p0,p1,p2,B);
           if(!isL){
             data[i4]=Math.round(S[0]*(1-a)+B[0]*a);data[i4+1]=Math.round(S[1]*(1-a)+B[1]*a);data[i4+2]=Math.round(S[2]*(1-a)+B[2]*a);
           }else{
@@ -1448,7 +1453,7 @@
     }
     return {segment:segment,runAll:runAll,render:render,box:{x0:bx0,y0:by0,x1:bx1,y1:by1},r:r,snapB:snapB,snapD:snapD};
   }
-  function isStrokeType(t){return t==='stroke'||t==='heal'||t==='clone'||t==='dodge'||t==='burn';}
+  function isStrokeType(t){return t==='stroke'||t==='erase'||t==='heal'||t==='clone'||t==='dodge'||t==='burn';}
   /* ---------- Pixel ops shared by Background and Layers ---------- */
   function fillSel(item,w,h,data,buf){
     var m=item.__mask||selectionMask(item.sel,w,h),rgb=parseRgb(item.color),op=item.opacity!==undefined?Math.max(.05,Math.min(1,Number(item.opacity))):1;
@@ -1635,13 +1640,15 @@
     return true;
   }
   function applyErases(data,w,h,erases,opt){
-    if(!erases||!erases.length)return;
     var original=new Uint8ClampedArray(data),skipSimple=!!(opt&&opt.skipSimpleText);
+    if(opt&&opt.bgHidden)data.fill(255);
+    if(!erases||!erases.length)return;
     for(var i=0;i<erases.length;i++){
       var item=erases[i];
       if(!item)continue;
       var type=item.type;
       if(type==='layer'||type==='text'){
+        if(type==='layer'&&item.backgroundEdit)data.fill(255);
         if(item.visible===false)continue;
         if(skipSimple&&type==='text'&&isSimpleTextItem(item,erases,i))continue;
         var lBuf=item.adjustment?adjustPixels(data,w,h,item.adjustment):renderLayerPixels(item,original,w,h,data);

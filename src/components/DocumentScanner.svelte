@@ -29,6 +29,7 @@
     { id: 'picker', sep: true, tools: [{ id: 'picker', name: 'Eyedropper Tool', key: 'I', icon: 'lucide:pipette' }] },
     { id: 'heal', tools: [{ id: 'heal', name: 'Spot Healing Brush Tool', key: 'J', icon: 'lucide:bandage' }] },
     { id: 'brush', tools: [{ id: 'brush', name: 'Brush Tool', key: 'B', icon: 'lucide:paintbrush' }] },
+    { id: 'eraser', tools: [{ id: 'eraser', name: 'Eraser Tool', key: 'E', icon: 'lucide:eraser' }] },
     { id: 'clone', tools: [{ id: 'clone', name: 'Clone Stamp Tool', key: 'S', icon: 'lucide:stamp' }] },
     {
       id: 'dodge',
@@ -822,8 +823,8 @@
               </label>
             </div>
 
-            <!-- Fill / Paint Color (Brush, Selection Fill, Eyedropper) -->
-            <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="brush marquee-rect marquee-ellipse lasso lasso-poly picker">
+            <!-- Fill / Paint Color (Brush, Eraser, Selection Fill, Eyedropper) -->
+            <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="brush eraser marquee-rect marquee-ellipse lasso lasso-poly picker">
               <label
                 class="relative inline-flex items-center gap-1.5 h-[25px] pl-1 pr-2 rounded-[3px] border border-slate-300 dark:border-[#141414] bg-white dark:bg-[#1f1f1f] cursor-pointer hover:border-slate-400 dark:hover:border-white/25"
                 data-ds-tip="Set Color (Brush / Selection Fill)"
@@ -838,7 +839,7 @@
             </div>
 
             <!-- Brush Size / Hardness / Mode / Opacity / Flow / Sample (Photoshop Options Bar Layout) -->
-            <div class="inline-flex items-center gap-2 flex-wrap shrink-0" id="dsPsBrushOpts" data-ds-opts="brush heal clone dodge burn">
+            <div class="inline-flex items-center gap-2 flex-wrap shrink-0" id="dsPsBrushOpts" data-ds-opts="brush eraser heal clone dodge burn">
               <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-tip="Brush Size ( [ / ] )">
                 <span class="{psLbl} cursor-ew-resize"><span data-i18n="sizeLbl">{t.sizeLbl}</span>:</span>
                 <div class="inline-flex items-center gap-1.5 h-[26px] px-2 rounded-[4px] bg-white dark:bg-[#1e1e22] border border-slate-300 dark:border-[#323238] hover:border-slate-400 dark:hover:border-blue-500/50 transition-colors">
@@ -896,8 +897,8 @@
                 <button type="button" data-ds-reset-retouch="opacity" class={psReset} aria-hidden="true"></button>
               </div>
 
-              <!-- Flow (Brush, Spot Healing, Clone Stamp) -->
-              <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="brush heal clone" data-ds-tip="Brush Flow Rate (1% – 100%)">
+              <!-- Flow (Brush, Eraser, Spot Healing, Clone Stamp) -->
+              <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="brush eraser heal clone" data-ds-tip="Brush Flow Rate (1% – 100%)">
                 <span class="{psLbl} cursor-ew-resize">Flow:</span>
                 <div class="inline-flex items-center gap-1.5 h-[26px] px-2 rounded-[4px] bg-white dark:bg-[#1e1e22] border border-slate-300 dark:border-[#323238] hover:border-slate-400 dark:hover:border-blue-500/50 transition-colors">
                   <input type="range" id="dsBrushFlow" min="1" max="100" value="100" class="ds-btn-slider w-[48px] h-1 cursor-pointer m-0" aria-label="Flow Slider" />
@@ -1024,7 +1025,7 @@
               <button type="button" data-ds-pz="fit" class={psBtn} data-ds-tip="Fit Screen (Ctrl+0)">Fit Screen</button>
             </div>
 
-            <!-- Right side: Delete, Reset All & Done -->
+            <!-- Right side: Delete & Reset All -->
             <div class="inline-flex items-center gap-1 ml-auto pl-2 shrink-0">
               <button
                 type="button"
@@ -1039,17 +1040,6 @@
               <button type="button" data-ds="clear-erases" class="{psBtn} !px-1.5" data-i18n-title="resetAllRetouchBtn" title={t.resetAllRetouchBtn}>
                 <Icon name="lucide:rotate-ccw" class="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" />
                 <span class="sr-only" data-i18n="resetAllRetouchBtn">{t.resetAllRetouchBtn}</span>
-              </button>
-              <button
-                type="button"
-                data-ds="close-eraser"
-                class="ds-eraser-close inline-flex items-center justify-center w-7 h-7 rounded-md bg-emerald-600 dark:bg-emerald-500 border border-emerald-600 dark:border-emerald-500 text-white dark:text-slate-950 text-[12.5px] font-bold cursor-pointer"
-                data-i18n-title="doneBtn"
-                title={t.doneBtn}
-                aria-label={t.doneBtn}
-              >
-                ✓
-                <span class="sr-only" data-i18n="doneBtn">{t.doneBtn}</span>
               </button>
             </div>
             <small class="sr-only" id="dsEraserHint" data-i18n="eraserHint">{t.eraserHint}</small>
@@ -1119,15 +1109,6 @@
                 <input type="color" id="dsDockColor" value="#ffffff" aria-label="Foreground Color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer border-0 p-0" />
                 <span id="dsDockSwatch" class="w-5 h-5 rounded-[2px] border border-slate-500 dark:border-white/70 shadow-2xs pointer-events-none" style="background:#ffffff"></span>
               </label>
-              <button
-                type="button"
-                data-ds="delete-active"
-                aria-label="Delete Active Layer or Selection"
-                data-ds-tip="Delete Active Layer or Selection (Delete)"
-                class="relative w-8 h-8 p-0 rounded-[4px] border border-transparent bg-transparent text-rose-600 dark:text-rose-400 flex items-center justify-center cursor-pointer hover:bg-rose-500/15 hover:text-rose-500"
-              >
-                <Icon name="lucide:trash-2" class="w-[17px] h-[17px] shrink-0" />
-              </button>
             </aside>
 
             <div
