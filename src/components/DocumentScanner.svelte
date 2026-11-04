@@ -732,7 +732,7 @@
                   <span id="dsBrushSizeFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:19%"></span>
                   <span class="relative z-10 text-[10px] font-semibold text-slate-700 dark:text-studio-text pointer-events-none" data-i18n="sizeLbl">{t.sizeLbl}</span>
                   <output id="dsBrushSizeVal" class="relative z-10 font-bold text-[10px] text-emerald-600 dark:text-emerald-400 tabular-nums pointer-events-none">24px</output>
-                  <input type="range" id="dsBrushSize" min="2" max="120" value="24" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" title="Drag or Scroll Wheel to adjust Brush Size ([ and ])" />
+                  <input type="range" id="dsBrushSize" min="2" max="120" value="24" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0" title="Drag or Scroll Wheel to adjust Brush Size ([ and ])" />
                 </div>
                 <button type="button" data-ds-reset-retouch="size" class="w-4 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer z-30" data-i18n-title="resetToolTip" title={t.resetToolTip}>
                   <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
@@ -745,7 +745,7 @@
                   <span id="dsBrushHardnessFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:80%"></span>
                   <span class="relative z-10 text-[10px] font-semibold text-slate-700 dark:text-studio-text pointer-events-none" data-i18n="hardnessLbl">{t.hardnessLbl}</span>
                   <output id="dsBrushHardnessVal" class="relative z-10 font-bold text-[10px] text-emerald-600 dark:text-emerald-400 tabular-nums pointer-events-none">80%</output>
-                  <input type="range" id="dsBrushHardness" min="0" max="100" value="80" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" title="Drag or Scroll Wheel to adjust Brush Hardness" />
+                  <input type="range" id="dsBrushHardness" min="0" max="100" value="80" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0" title="Drag or Scroll Wheel to adjust Brush Hardness" />
                 </div>
                 <button type="button" data-ds-reset-retouch="hardness" class="w-4 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer z-30" data-i18n-title="resetToolTip" title={t.resetToolTip}>
                   <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
@@ -760,7 +760,7 @@
                   <span id="dsWandToleranceFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:29%"></span>
                   <span class="relative z-10 text-[10px] font-semibold text-slate-700 dark:text-studio-text pointer-events-none" data-i18n="toleranceLbl">{t.toleranceLbl}</span>
                   <output id="dsWandToleranceVal" class="relative z-10 font-bold text-[10px] text-emerald-600 dark:text-emerald-400 tabular-nums pointer-events-none">28</output>
-                  <input type="range" id="dsWandTolerance" min="5" max="85" value="28" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" title="Drag or Scroll Wheel to adjust Magic Eraser Tolerance" />
+                  <input type="range" id="dsWandTolerance" min="5" max="85" value="28" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0" title="Drag or Scroll Wheel to adjust Magic Eraser Tolerance" />
                 </div>
                 <button type="button" data-ds-reset-retouch="tolerance" class="w-4 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer z-30" data-i18n-title="resetToolTip" title={t.resetToolTip}>
                   <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
@@ -775,7 +775,7 @@
                   <span id="dsBrushOpacityFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:100%"></span>
                   <span class="relative z-10 text-[10px] font-semibold text-slate-700 dark:text-studio-text pointer-events-none" data-i18n="opacityLbl">{t.opacityLbl}</span>
                   <output id="dsBrushOpacityVal" class="relative z-10 font-bold text-[10px] text-emerald-600 dark:text-emerald-400 tabular-nums pointer-events-none">100%</output>
-                  <input type="range" id="dsBrushOpacity" min="10" max="100" value="100" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" title="Drag or Scroll Wheel to adjust Stroke Opacity" />
+                  <input type="range" id="dsBrushOpacity" min="10" max="100" value="100" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0" title="Drag or Scroll Wheel to adjust Stroke Opacity" />
                 </div>
                 <button type="button" data-ds-reset-retouch="opacity" class="w-4 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer z-30" data-i18n-title="resetToolTip" title={t.resetToolTip}>
                   <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
@@ -1197,7 +1197,7 @@
                       max={adj.max}
                       step={adj.step}
                       value={adj.val}
-                      class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0 disabled:cursor-not-allowed"
+                      class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 disabled:cursor-not-allowed"
                     />
                   </div>
                   <button
