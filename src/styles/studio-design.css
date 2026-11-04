@@ -574,13 +574,22 @@
 
 /* Progressive scanner workflow: scan first, opt into the full editor. */
 #img-pane-scan {
-  --color-studio-bg: #181818;
+  --color-studio-bg: #252526;
   --color-studio-sidebar: #252526;
   --color-studio-panel: #2b2b2b;
   --color-studio-surface: #383838;
   --color-studio-border: #383838;
   --color-studio-text: #e6e6e6;
   --color-studio-muted: #a0a0a0;
+}
+[data-theme="dark"] #img-pane-scan #dsPreviewStage,
+[data-theme="dark"] #img-pane-scan #dsViewport {
+  background-color: #252526 !important;
+  background-image: none !important;
+}
+#img-pane-scan #dsPreviewStage,
+#img-pane-scan #dsViewport {
+  background-image: none !important;
 }
 #img-pane-scan:not([data-editing="true"]) #dsLayersSection,
 #img-pane-scan:not([data-editing="true"]) [data-ds-insp-tab="smart"],

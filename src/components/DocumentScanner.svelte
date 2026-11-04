@@ -679,7 +679,7 @@
             </span>
           </div>
           <div
-            class="ds-viewport relative flex-1 min-h-0 overflow-hidden bg-[#dcdcdc] dark:bg-[#181818] touch-none cursor-grab [&.is-panning]:cursor-grabbing focus-visible:outline-2 focus-visible:outline-emerald-500"
+            class="ds-viewport relative flex-1 min-h-0 overflow-hidden bg-[#dcdcdc] dark:bg-[#252526] touch-none cursor-grab [&.is-panning]:cursor-grabbing focus-visible:outline-2 focus-visible:outline-emerald-500"
             id="dsViewport"
             tabindex="0"
             aria-label={t.cropCaption}
@@ -1141,7 +1141,7 @@
             </aside>
 
             <div
-              class="ds-preview-stage flex-1 min-h-0 flex items-center justify-center overflow-clip relative p-3 bg-[#dcdcdc] dark:bg-[#181818] [container-type:size]"
+              class="ds-preview-stage flex-1 min-h-0 flex items-center justify-center overflow-clip relative p-3 bg-[#dcdcdc] dark:bg-[#252526] [container-type:size]"
               id="dsPreviewStage"
             >
 
