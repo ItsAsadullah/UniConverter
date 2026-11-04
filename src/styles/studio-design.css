@@ -673,6 +673,7 @@
 [data-theme="dark"] #img-pane-scan[data-editing="true"] { background:#0e0e10; }
 #img-pane-scan[data-editing="true"] #dsWorkspace { padding:0 !important; gap:0 !important; }
 #img-pane-scan[data-editing="true"] .ds-preview-panel { border:0 !important; border-radius:0 !important; box-shadow:none !important; }
+#img-pane-scan[data-editing="true"] #dsPropertiesSection,
 #img-pane-scan[data-editing="true"] .ds-preview-panel > .ds-canvas-caption,
 #img-pane-scan[data-editing="true"] .ds-view-switch,
 #img-pane-scan[data-editing="true"] [data-ds="finish-crop"],

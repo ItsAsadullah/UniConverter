@@ -1142,9 +1142,23 @@
               class="ds-preview-stage flex-1 min-h-0 flex items-center justify-center overflow-clip relative p-3 bg-[#dcdcdc] dark:bg-[#252526] [container-type:size] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_24px)]"
               id="dsPreviewStage"
             >
+            <div
+              class="ds-paper-sheet relative inline-flex items-center justify-center origin-center select-none"
+              id="dsPaperSheet"
+            >
+              <span
+                id="dsPaperMarginGuide"
+                hidden
+                class="pointer-events-none absolute inset-[3.8%] border border-dashed border-blue-500/35 rounded-[2px] z-[5]"
+              ></span>
+              <span
+                id="dsPaperSheetBadge"
+                hidden
+                class="pointer-events-none absolute top-1.5 right-2 px-1.5 py-0.5 rounded bg-slate-900/65 text-white text-[10px] font-semibold tracking-wide z-[25] tabular-nums"
+              >A4</span>
 
             <div
-              class="ds-preview-wrap relative inline-flex items-center justify-center origin-center select-none leading-none touch-none"
+              class="ds-preview-wrap relative inline-flex items-center justify-center origin-center select-none leading-none touch-none z-[10]"
               id="dsPreviewWrap"
             >
               <canvas
@@ -1290,6 +1304,7 @@
               </div>
             </div>
             </div>
+            </div>
           </div>
         </section>
       </div>
@@ -1298,7 +1313,7 @@
       <footer
         class="ds-status group-data-[has-pages=false]/ds:!hidden min-h-[34px] px-3 py-1 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-2 max-sm:flex-wrap text-[12.5px] text-slate-600 dark:text-studio-muted shrink-0"
       >
-        <div class="ds-status-left inline-flex items-center gap-2">
+        <div class="ds-status-left inline-flex items-center gap-2 flex-wrap">
           <div
             class="ds-zoom inline-flex items-center gap-0.5 p-0.5 rounded-md bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border"
             role="group"
@@ -1345,6 +1360,55 @@
             class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-slate-600 dark:text-studio-muted font-semibold text-[11.5px] tabular-nums whitespace-nowrap"
             >—</small
           >
+
+          <!-- Bottom Bar Page Setup Quick Popover -->
+          <div class="relative inline-flex items-center" data-ds-pop-wrap>
+            <button
+              type="button"
+              data-ds-pop-btn="page-setup"
+              id="dsBottomPageBtn"
+              aria-expanded="false"
+              class="inline-flex items-center gap-1.5 h-[24px] px-2.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11.5px] font-bold cursor-pointer transition-colors whitespace-nowrap"
+              title="Page Setup & Document Size on Page"
+            >
+              <Icon name="lucide:file-check-2" class="w-3.5 h-3.5 shrink-0" />
+              <span id="dsBottomPageLabel">A4 • Auto Size</span>
+              <span class="text-[9px] opacity-75">▴</span>
+            </button>
+
+            <div
+              data-ds-pop-panel="page-setup"
+              id="dsBottomPagePopover"
+              hidden
+              class="absolute bottom-[calc(100%+8px)] left-0 w-[290px] p-3 rounded-xl bg-white dark:bg-studio-panel border border-slate-200 dark:border-studio-border shadow-2xl z-[85] grid gap-2.5 text-left"
+            >
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-studio-border pb-1.5">
+                <strong class="text-[12px] font-extrabold text-slate-800 dark:text-studio-text" data-i18n-bn="পেজ সেটআপ (Page Setup)" data-i18n-en="Page Setup">পেজ সেটআপ (Page Setup)</strong>
+                <span class="text-[10.5px] text-emerald-600 dark:text-emerald-400 font-bold">Live Preview</span>
+              </div>
+              <label class="grid gap-1 text-[11.5px] font-semibold text-slate-700 dark:text-studio-text">
+                <span data-i18n-bn="পেপার সাইজ (Paper Size)" data-i18n-en="Paper Size">পেপার সাইজ (Paper Size)</span>
+                <select id="dsPaperQuick" class="w-full min-h-[30px] px-2 py-1 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[12px] font-semibold outline-none cursor-pointer">
+                  <option value="a4">A4 (210 × 297 mm)</option>
+                  <option value="letter">Letter (216 × 279 mm)</option>
+                  <option value="legal">Legal (216 × 356 mm)</option>
+                  <option value="a5">A5 (148 × 210 mm)</option>
+                  <option value="original">Fit to Scan (Original)</option>
+                </select>
+              </label>
+              <label class="grid gap-1 text-[11.5px] font-semibold text-slate-700 dark:text-studio-text">
+                <span data-i18n-bn="পেজে ডকুমেন্টের সাইজ" data-i18n-en="Document Size on Page">পেজে ডকুমেন্টের সাইজ</span>
+                <select id="dsDocScaleQuick" class="w-full min-h-[30px] px-2 py-1 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[12px] font-semibold outline-none cursor-pointer">
+                  <option value="auto" selected>Auto (আসল অনুপাত / Real Size)</option>
+                  <option value="fit">Full Page Fit (পুরো পেজ জুড়ে)</option>
+                  <option value="passport">Passport Full (125 × 176 mm)</option>
+                  <option value="passport-single">Passport Single (125 × 88 mm)</option>
+                  <option value="id-card">ID / NID Card (86 × 54 mm)</option>
+                  <option value="custom">Custom Scale (%)</option>
+                </select>
+              </label>
+            </div>
+          </div>
         </div>
         <span id="dsStatus" role="status" class="text-slate-800 dark:text-studio-text font-semibold text-[12.5px] truncate">{t.statusInitial}</span>
         <div class="ds-status-right inline-flex items-center gap-2">
@@ -1631,6 +1695,103 @@
         </section>
       </div>
 
+      <!-- PROPERTIES & FILE SETTINGS PANEL (VISIBLE IN SCAN / PREVIEW MODE) -->
+      <section
+        id="dsPropertiesSection"
+        class="ds-properties-panel flex-1 min-h-0 flex flex-col bg-slate-50/60 dark:bg-studio-panel border-t border-slate-200 dark:border-studio-border overflow-y-auto [scrollbar-width:thin]"
+        aria-label="Properties and File Settings"
+      >
+        <div class="px-3 py-2 bg-slate-100/90 dark:bg-studio-sidebar border-b border-slate-200 dark:border-studio-border flex items-center justify-between gap-2 shrink-0">
+          <div class="inline-flex items-center gap-1.5 text-[12px] font-extrabold text-slate-800 dark:text-studio-text">
+            <Icon name="lucide:sliders-horizontal" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            <span data-i18n-bn="প্রপার্টিজ • ফাইল ও পেজ সেটিংস" data-i18n-en="Properties • Page & File Setup">প্রপার্টিজ • ফাইল ও পেজ সেটিংস</span>
+          </div>
+          <span id="dsPropBadge" class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 text-[10px] font-bold">A4 • Auto</span>
+        </div>
+
+        <div class="p-3 grid gap-2.5 text-[12px]">
+          <label class="grid gap-1 font-semibold text-slate-700 dark:text-studio-text">
+            <span class="flex items-center justify-between">
+              <span data-i18n-bn="পেপার সাইজ (Paper Size)" data-i18n-en="Paper Size">পেপার সাইজ (Paper Size)</span>
+              <span class="text-[10.5px] font-normal text-slate-400 dark:text-studio-muted">PDF / Print</span>
+            </span>
+            <select
+              id="dsPaper"
+              aria-label={t.lblPaperSize}
+              title={t.lblPaperSize}
+              class="w-full min-h-[34px] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[12px] font-semibold outline-none focus:border-emerald-500 cursor-pointer"
+            >
+              <option value="a4" data-i18n="paperA4">{t.paperA4}</option>
+              <option value="letter" data-i18n="paperLetter">{t.paperLetter}</option>
+              <option value="legal" data-i18n-bn="Legal (216 × 356 মিমি)" data-i18n-en="Legal (216 × 356 mm)">Legal (216 × 356 mm)</option>
+              <option value="a5" data-i18n-bn="A5 (148 × 210 মিমি)" data-i18n-en="A5 (148 × 210 mm)">A5 (148 × 210 mm)</option>
+              <option value="original" data-i18n="paperOrig">{t.paperOrig}</option>
+            </select>
+          </label>
+
+          <label class="grid gap-1 font-semibold text-slate-700 dark:text-studio-text">
+            <span class="flex items-center justify-between">
+              <span data-i18n-bn="ডকুমেন্ট স্কেল / সাইজ" data-i18n-en="Document Size on Page">ডকুমেন্ট স্কেল / সাইজ</span>
+              <span id="dsDocScaleHint" class="text-[10.5px] font-bold text-emerald-600 dark:text-emerald-400">Real Ratio</span>
+            </span>
+            <select
+              id="dsDocScale"
+              aria-label="Document Size on Page"
+              class="w-full min-h-[34px] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[12px] font-semibold outline-none focus:border-emerald-500 cursor-pointer"
+            >
+              <option value="auto" data-i18n-bn="Auto (আসল অনুপাত — পাসপোর্ট/আইডি বড় হবে না)" data-i18n-en="Auto (Real Scan Proportion)">Auto (আসল অনুপাত — পাসপোর্ট/আইডি বড় হবে না)</option>
+              <option value="fit" data-i18n-bn="Full Page Fit (পুরো পেজ জুড়ে ১০০%)" data-i18n-en="Full Page Fit (100% Fill)">Full Page Fit (পুরো পেজ জুড়ে ১০০%)</option>
+              <option value="passport" data-i18n-bn="Passport Full (125 × 176 mm)" data-i18n-en="Passport Booklet (125 × 176 mm)">Passport Full (125 × 176 mm)</option>
+              <option value="passport-single" data-i18n-bn="Passport Single Page (125 × 88 mm)" data-i18n-en="Passport Single Page (125 × 88 mm)">Passport Single Page (125 × 88 mm)</option>
+              <option value="id-card" data-i18n-bn="NID / ID Card (86 × 54 mm)" data-i18n-en="NID / ID Card (86 × 54 mm)">NID / ID Card (86 × 54 mm)</option>
+              <option value="custom" data-i18n-bn="Custom Scale (% স্কেল)" data-i18n-en="Custom Scale (%)">Custom Scale (% স্কেল)</option>
+            </select>
+          </label>
+
+          <!-- Custom Scale Slider (shown or usable anytime) -->
+          <div id="dsCustomScaleRow" class="grid gap-1 p-2 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200/80 dark:border-studio-border">
+            <div class="flex items-center justify-between text-[11px] font-bold">
+              <span class="text-slate-600 dark:text-studio-muted" data-i18n-bn="পেজের ভেতর ডকুমেন্ট সাইজ" data-i18n-en="Size on Sheet">পেজের ভেতর ডকুমেন্ট সাইজ</span>
+              <span id="dsDocScalePctVal" class="text-emerald-600 dark:text-emerald-400 tabular-nums">60%</span>
+            </div>
+            <input
+              type="range"
+              id="dsDocScalePct"
+              min="20"
+              max="100"
+              step="1"
+              value="60"
+              class="w-full cursor-pointer"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <label class="grid gap-1 font-semibold text-slate-700 dark:text-studio-text">
+              <span class="text-[11px] text-slate-500 dark:text-studio-muted" data-i18n-bn="পজিশন (Position)" data-i18n-en="Position on Page">পজিশন (Position)</span>
+              <select
+                id="dsDocPos"
+                aria-label="Position on Page"
+                class="w-full min-h-[32px] px-2 py-1 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[11.5px] font-semibold outline-none focus:border-emerald-500 cursor-pointer"
+              >
+                <option value="center" data-i18n-bn="মাঝখানে (Center)" data-i18n-en="Center on Page">মাঝখানে (Center)</option>
+                <option value="top" data-i18n-bn="উপরে মাঝখানে (Top)" data-i18n-en="Top Center">উপরে মাঝখানে (Top)</option>
+              </select>
+            </label>
+
+            <div class="grid gap-1">
+              <span class="text-[11px] font-semibold text-slate-500 dark:text-studio-muted" data-i18n-bn="মার্জিন (Margins)" data-i18n-en="Print Margins">মার্জিন (Margins)</span>
+              <label
+                class="inline-flex items-center gap-1.5 min-h-[32px] px-2.5 py-1 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer text-[11.5px] font-semibold text-slate-700 dark:text-studio-text whitespace-nowrap"
+                title={t.lblMargin}
+              >
+                <input type="checkbox" id="dsMargin" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer shrink-0" />
+                <span data-i18n="lblMargin">{t.lblMargin}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- LOWER DOCK: PHOTOSHOP-STYLE LAYERS PANEL (BACKGROUND + BRUSH / RETOUCH / TEXT LAYERS) -->
       <section
         id="dsLayersSection"
@@ -1786,45 +1947,27 @@
     </div>
 
     <div class="p-5 grid gap-4">
-      <!-- Page Setup Section -->
+      <!-- Export File & Quality Settings -->
       <div class="grid gap-3 p-3.5 rounded-xl bg-slate-50/80 dark:bg-studio-panel border border-slate-200 dark:border-studio-border">
         <div class="flex items-center justify-between gap-2">
           <span class="text-[12px] font-bold uppercase tracking-wider text-slate-500 dark:text-studio-muted" data-i18n="accExportTitle">{t.accExportTitle}</span>
-          <label
-            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer text-[12px] font-semibold text-slate-700 dark:text-studio-text whitespace-nowrap"
-            title={t.lblMargin}
-          >
-            <input type="checkbox" id="dsMargin" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer shrink-0" />
-            <span data-i18n="lblMargin">{t.lblMargin}</span>
-          </label>
+          <span id="dsModalPageSummary" class="px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-[11.5px] font-bold">
+            A4 (210 × 297 mm) • Auto Scale
+          </span>
         </div>
-
-        <label class="grid gap-1 text-[12px] font-semibold text-slate-700 dark:text-studio-text">
-          <span data-i18n="lblFilename">{t.lblFilename}</span>
-          <input
-            type="text"
-            id="dsFilename"
-            value="TechHat-document"
-            maxlength="100"
-            aria-label={t.lblFilename}
-            placeholder={t.lblFilename}
-            class="min-w-0 w-full min-h-[36px] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[13px] font-semibold outline-none focus:border-emerald-500"
-          />
-        </label>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <label class="grid gap-1 text-[12px] font-semibold text-slate-700 dark:text-studio-text">
-            <span data-i18n="lblPaperSize">{t.lblPaperSize}</span>
-            <select
-              id="dsPaper"
-              aria-label={t.lblPaperSize}
-              title={t.lblPaperSize}
-              class="w-full min-h-[36px] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[12.5px] font-semibold outline-none focus:border-emerald-500 cursor-pointer"
-            >
-              <option value="a4" data-i18n="paperA4">{t.paperA4}</option>
-              <option value="letter" data-i18n="paperLetter">{t.paperLetter}</option>
-              <option value="original" data-i18n="paperOrig">{t.paperOrig}</option>
-            </select>
+            <span data-i18n="lblFilename">{t.lblFilename}</span>
+            <input
+              type="text"
+              id="dsFilename"
+              value="TechHat-document"
+              maxlength="100"
+              aria-label={t.lblFilename}
+              placeholder={t.lblFilename}
+              class="min-w-0 w-full min-h-[36px] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[13px] font-semibold outline-none focus:border-emerald-500"
+            />
           </label>
           <label class="grid gap-1 text-[12px] font-semibold text-slate-700 dark:text-studio-text">
             <span data-i18n="lblQuality">{t.lblQuality}</span>
