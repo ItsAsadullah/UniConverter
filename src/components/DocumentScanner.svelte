@@ -789,8 +789,38 @@
               <canvas
                 id="dsPreview"
                 aria-label={t.previewCaption}
-                class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain rounded-xs bg-white shadow-[0_16px_40px_rgba(15,23,42,0.28)] select-none"
+                class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain rounded-xs bg-white shadow-[0_16px_40px_rgba(15,23,42,0.28)] select-none transition-[filter,transform] duration-200"
               ></canvas>
+
+              <!-- MAGIC GENERATE / LASER SCAN PRELOADER OVERLAY -->
+              <div
+                id="dsPreviewLoader"
+                class="ds-magic-loader absolute inset-0 rounded-xs overflow-hidden pointer-events-none z-22 flex items-center justify-center"
+                hidden
+                aria-live="polite"
+              >
+                <div class="ds-magic-shimmer absolute inset-0"></div>
+                <div class="ds-magic-beam absolute inset-x-0 top-0 h-20 pointer-events-none">
+                  <div class="w-full h-[2.5px] bg-gradient-to-r from-violet-500 via-emerald-400 to-cyan-400 shadow-[0_0_18px_3px_rgba(16,185,129,0.85)]"></div>
+                  <div class="w-full h-16 bg-gradient-to-b from-emerald-400/28 via-violet-500/12 to-transparent"></div>
+                </div>
+                <div class="ds-magic-badge relative z-10 px-3.5 py-1.5 rounded-full bg-slate-900/88 dark:bg-slate-950/92 border border-emerald-400/45 shadow-[0_10px_30px_rgba(16,185,129,0.38)] backdrop-blur-md inline-flex items-center gap-2 text-white text-[11px] font-bold tracking-wide">
+                  <svg class="ds-magic-sparkle w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#dsMagicGrad)" />
+                    <circle cx="19" cy="5" r="1.5" fill="#a78bfa" />
+                    <circle cx="5" cy="19" r="1.2" fill="#34d399" />
+                    <defs>
+                      <linearGradient id="dsMagicGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#34d399" />
+                        <stop offset="0.5" stop-color="#a78bfa" />
+                        <stop offset="1" stop-color="#38bdf8" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <span data-i18n="magicGenLbl">Generating Magic Preview…</span>
+                </div>
+              </div>
+
               <div
                 id="dsRectSelection"
                 class="ds-rect-selection absolute border-2 border-dashed border-emerald-500 bg-emerald-500/15 shadow-[0_0_0_1px_rgba(255,255,255,0.85)] pointer-events-none z-25"
@@ -1274,3 +1304,73 @@
     </form>
   </dialog>
 </section>
+
+<style>
+  @keyframes dsMagicSweep {
+    0% {
+      top: -12%;
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      top: 100%;
+      opacity: 0.35;
+    }
+  }
+  @keyframes dsMagicShimmer {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  @keyframes dsSparkleSpin {
+    0% {
+      transform: rotate(0deg) scale(0.92);
+    }
+    50% {
+      transform: rotate(180deg) scale(1.14);
+    }
+    100% {
+      transform: rotate(360deg) scale(0.92);
+    }
+  }
+  @keyframes dsPreviewReveal {
+    0% {
+      filter: brightness(1.08) contrast(0.96) blur(1.5px);
+    }
+    100% {
+      filter: brightness(1) contrast(1) blur(0px);
+    }
+  }
+  .ds-magic-shimmer {
+    background: linear-gradient(
+      125deg,
+      rgba(139, 92, 246, 0.14),
+      rgba(16, 185, 129, 0.22),
+      rgba(56, 189, 248, 0.14),
+      rgba(16, 185, 129, 0.18)
+    );
+    background-size: 240% 240%;
+    backdrop-filter: blur(1.5px);
+    animation: dsMagicShimmer 1.6s ease-in-out infinite;
+  }
+  .ds-magic-beam {
+    animation: dsMagicSweep 1.05s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  .ds-magic-sparkle {
+    animation: dsSparkleSpin 2s ease-in-out infinite;
+  }
+  :global(#dsPreviewWrap.is-generating #dsPreview) {
+    filter: brightness(0.97) saturate(0.92);
+  }
+  :global(#dsPreview.is-revealing) {
+    animation: dsPreviewReveal 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+</style>
