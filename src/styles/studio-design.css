@@ -662,8 +662,6 @@
 #img-pane-scan:not([data-editing="true"]) #dsLayersSection,
 #img-pane-scan:not([data-view="preview"]) #dsPropertiesSection,
 #img-pane-scan:not([data-editing="true"]) .ds-save-edit { display:none !important; }
-#img-pane-scan:not([data-view="preview"]):not([data-editing="true"]) [data-ds-insp-pane="smart"],
-#img-pane-scan:not([data-view="preview"]):not([data-editing="true"]) [data-ds-insp-pane="manual"] { display:block !important; }
 #img-pane-scan:not([data-editing="true"]) #dsInspectorPanel { justify-content:space-between; }
 #img-pane-scan[data-view="preview"] [data-ds="finish-crop"] { display:none; }
 [data-theme="dark"] .theme-toggle__moon,
@@ -690,8 +688,8 @@
 #img-pane-scan [data-ds-view="split"] { display:none; }
 #img-pane-scan .ds-view-switch button { width:auto; padding:0 7px; gap:4px; font-size:12px; }
 @media (min-width:1024px) {
-  #img-pane-scan:not([data-editing="true"])[data-has-pages="true"] .ds-body { grid-template-columns:188px minmax(0,1fr) 292px; }
-  #img-pane-scan:not([data-editing="true"])[data-has-pages="true"][data-sidebar-collapsed="true"] .ds-body { grid-template-columns:0 minmax(0,1fr) 292px; }
+  #img-pane-scan:not([data-editing="true"])[data-has-pages="true"] .ds-body { grid-template-columns:188px minmax(0,1fr) 348px; }
+  #img-pane-scan:not([data-editing="true"])[data-has-pages="true"][data-sidebar-collapsed="true"] .ds-body { grid-template-columns:0 minmax(0,1fr) 348px; }
 }
 
 /* Layer Style: effect list, active controls, preview and confirmation. */

@@ -1025,18 +1025,8 @@
               <button type="button" data-ds-pz="fit" class={psBtn} data-ds-tip="Fit Screen (Ctrl+0)">Fit Screen</button>
             </div>
 
-            <!-- Right side: Delete & Reset All -->
+            <!-- Right side: Reset All -->
             <div class="inline-flex items-center gap-1 ml-auto pl-2 shrink-0">
-              <button
-                type="button"
-                data-ds="delete-active"
-                class="{psBtn} !px-2 !text-rose-600 dark:!text-rose-400"
-                data-ds-tip="Delete Active Layer or Selection (Delete)"
-                title="Delete Active Layer or Selection (Delete)"
-              >
-                <Icon name="lucide:trash-2" class="w-3.5 h-3.5 shrink-0" />
-                <span>Delete</span>
-              </button>
               <button type="button" data-ds="clear-erases" class="{psBtn} !px-1.5" data-i18n-title="resetAllRetouchBtn" title={t.resetAllRetouchBtn}>
                 <Icon name="lucide:rotate-ccw" class="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" />
                 <span class="sr-only" data-i18n="resetAllRetouchBtn">{t.resetAllRetouchBtn}</span>
@@ -1416,13 +1406,13 @@
         <div
           class="ds-panel-head min-h-[36px] px-1.5 pt-1 flex items-end justify-between gap-1 border-b border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-[#252525] shrink-0"
         >
-          <div class="inline-flex items-end gap-0.5 min-w-0" role="tablist" aria-label="Inspector Tabs">
+          <div class="inline-flex items-end gap-0.5 min-w-0 flex-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Inspector Tabs">
             <button
               type="button"
               role="tab"
               data-ds-insp-tab="filters"
               aria-selected="true"
-              class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-t-md border border-b-0 border-transparent text-[12px] font-bold text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
+              class="inline-flex items-center gap-1 h-7 px-2 rounded-t-md border border-b-0 border-transparent text-[11.5px] font-bold whitespace-nowrap shrink-0 text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
             >
               <Icon name="lucide:wand-sparkles" class="w-3.5 h-3.5 text-violet-500 shrink-0" />
               <span>Filters</span>
@@ -1432,7 +1422,7 @@
               role="tab"
               data-ds-insp-tab="smart"
               aria-selected="false"
-              class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-t-md border border-b-0 border-transparent text-[12px] font-bold text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
+              class="inline-flex items-center gap-1 h-7 px-2 rounded-t-md border border-b-0 border-transparent text-[11.5px] font-bold whitespace-nowrap shrink-0 text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
             >
               <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span>Smart Fix</span>
@@ -1442,7 +1432,7 @@
               role="tab"
               data-ds-insp-tab="manual"
               aria-selected="false"
-              class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-t-md border border-b-0 border-transparent text-[12px] font-bold text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
+              class="inline-flex items-center gap-1 h-7 px-2 rounded-t-md border border-b-0 border-transparent text-[11.5px] font-bold whitespace-nowrap shrink-0 text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
             >
               <Icon name="lucide:sliders-horizontal" class="w-3.5 h-3.5 text-blue-500 shrink-0" />
               <span>Adjustments</span>
