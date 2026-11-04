@@ -1,4 +1,4 @@
-importScripts('/js/document-scan-core.js?v=23');
+importScripts('/js/document-scan-core.js?v=24');
 self.onmessage = function (event) {
   var m = event.data;
   try {

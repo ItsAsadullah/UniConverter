@@ -144,7 +144,7 @@
 
   <!-- NATIVE DESKTOP THREE-PANEL WORKSPACE -->
   <div
-    class="ds-body flex-1 min-h-0 grid grid-cols-[204px_minmax(0,1fr)_348px] group-data-[sidebar-collapsed=true]/ds:grid-cols-[0px_minmax(0,1fr)_348px] max-xl:grid-cols-[188px_minmax(0,1fr)_328px] max-xl:group-data-[sidebar-collapsed=true]/ds:grid-cols-[0px_minmax(0,1fr)_328px] max-lg:grid-cols-1 max-lg:group-data-[sidebar-collapsed=true]/ds:grid-cols-1 group-data-[has-pages=false]/ds:!grid-cols-1 overflow-hidden"
+    class="ds-body flex-1 min-h-0 grid grid-cols-[204px_minmax(0,1fr)_372px] group-data-[sidebar-collapsed=true]/ds:grid-cols-[0px_minmax(0,1fr)_372px] max-xl:grid-cols-[188px_minmax(0,1fr)_354px] max-xl:group-data-[sidebar-collapsed=true]/ds:grid-cols-[0px_minmax(0,1fr)_354px] max-lg:grid-cols-1 max-lg:group-data-[sidebar-collapsed=true]/ds:grid-cols-1 group-data-[has-pages=false]/ds:!grid-cols-1 overflow-hidden"
   >
     <!-- LEFT PANEL: NATIVE PAGE FILMSTRIP -->
     <aside
@@ -849,9 +849,38 @@
               ></div>
               <div
                 id="dsEraserCursor"
-                class="ds-eraser-cursor absolute w-6 h-6 rounded-full border-2 border-slate-900/90 shadow-[0_0_0_1.5px_rgba(255,255,255,0.95)] pointer-events-none -translate-x-1/2 -translate-y-1/2 z-30 [background:radial-gradient(circle,var(--cursor-bg,rgba(255,255,255,0.35))_var(--cursor-hard,75%),transparent_100%)]"
+                data-hud="false"
+                class="ds-eraser-cursor group/cursor absolute w-6 h-6 rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 z-30 flex items-center justify-center"
                 hidden
-              ></div>
+              >
+                <!-- Contrast Checkerboard Lens Backdrop (Shown when adjusting Size / Hardness / Opacity sliders) -->
+                <span
+                  id="dsEraserCursorBackdrop"
+                  class="absolute -inset-4 rounded-2xl bg-slate-900/82 border border-white/25 shadow-[0_14px_34px_rgba(15,23,42,0.45)] backdrop-blur-[2px] opacity-0 scale-95 transition-[opacity,transform] duration-150 group-data-[hud=true]/cursor:opacity-100 group-data-[hud=true]/cursor:scale-100 pointer-events-none [background-image:linear-gradient(45deg,rgba(255,255,255,0.08)_25%,transparent_25%),linear-gradient(-45deg,rgba(255,255,255,0.08)_25%,transparent_25%),linear-gradient(45deg,transparent_75%,rgba(255,255,255,0.08)_75%),linear-gradient(-45deg,transparent_75%,rgba(255,255,255,0.08)_75%)] [background-size:12px_12px] [background-position:0_0,0_6px,6px_-6px,-6px_0]"
+                ></span>
+                <!-- Real-Time Feathered Brush Preview Canvas (Shows Live Size, Hardness Falloff & Opacity) -->
+                <canvas
+                  id="dsBrushPreviewCanvas"
+                  width="128"
+                  height="128"
+                  class="relative z-10 w-full h-full rounded-full block pointer-events-none"
+                ></canvas>
+                <!-- Outer Full-Size Brush Boundary Ring -->
+                <span
+                  class="absolute inset-0 z-20 rounded-full border-[1.75px] border-slate-900/90 shadow-[0_0_0_1.5px_rgba(255,255,255,0.95)] pointer-events-none"
+                ></span>
+                <!-- Inner Hardness Core Indicator Ring (Scales Live with Hardness %) -->
+                <span
+                  id="dsEraserCursorInner"
+                  class="absolute z-20 rounded-full border border-dashed border-emerald-400/90 shadow-[0_0_0_1px_rgba(15,23,42,0.45)] pointer-events-none transition-[width,height,opacity] duration-75"
+                  style="width:80%;height:80%"
+                ></span>
+                <!-- Live Floating Parameter Badge (Shown when adjusting Size / Hardness / Opacity) -->
+                <span
+                  id="dsEraserCursorBadge"
+                  class="absolute top-[calc(100%+20px)] left-1/2 -translate-x-1/2 z-30 px-2.5 py-0.5 rounded-full bg-slate-900/95 border border-emerald-400/40 text-white text-[11px] font-bold tabular-nums whitespace-nowrap shadow-lg opacity-0 scale-95 transition-[opacity,transform] duration-150 group-data-[hud=true]/cursor:opacity-100 group-data-[hud=true]/cursor:scale-100 pointer-events-none"
+                >24px · H 80% · O 100%</span>
+              </div>
               <div
                 id="dsPickerLoupe"
                 class="ds-picker-loupe absolute inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-slate-900/95 border border-white/25 text-white text-[12px] font-bold pointer-events-none -translate-x-1/2 -translate-y-[calc(100%+14px)] z-35 shadow-lg whitespace-nowrap"
@@ -1079,14 +1108,14 @@
               { id: 'dsCleanMargins', icon: 'lucide:scan', color: 'text-emerald-600 dark:text-emerald-400', key: 'optCleanMargins', label: t.optCleanMargins, span: 'col-span-2' }
             ] as opt}
               <label
-                class="ds-toggle {opt.span} min-h-[32px] flex items-center justify-between gap-1.5 px-2.5 py-1 rounded-md bg-slate-50/70 dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border cursor-pointer text-[12px] font-semibold text-slate-800 dark:text-studio-text transition-colors hover:bg-white dark:hover:bg-studio-surface hover:border-slate-300 dark:hover:border-slate-600"
+                class="ds-toggle {opt.span} min-h-[32px] flex items-center justify-between gap-1 px-2 py-1 rounded-md bg-slate-50/70 dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border cursor-pointer text-[11.5px] font-semibold tracking-[-0.01em] text-slate-800 dark:text-studio-text transition-colors hover:bg-white dark:hover:bg-studio-surface hover:border-slate-300 dark:hover:border-slate-600"
                 title={opt.key === 'optCleanMargins' ? t.cleanMarginsHint : opt.label}
               >
                 <span class="inline-flex items-center gap-1.5 min-w-0">
-                  <Icon name={opt.icon} class="w-4 h-4 {opt.color} shrink-0" />
+                  <Icon name={opt.icon} class="w-3.5 h-3.5 {opt.color} shrink-0" />
                   <em class="not-italic truncate" data-i18n={opt.key}>{opt.label}</em>
                 </span>
-                <input id={opt.id} type="checkbox" checked class="w-4 h-4 accent-emerald-600 cursor-pointer shrink-0" />
+                <input id={opt.id} type="checkbox" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer shrink-0" />
               </label>
             {/each}
           </div>
@@ -1132,18 +1161,18 @@
                   data-ds-adj-pod={adj.key}
                   class="group/pod min-h-[34px] rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/80 dark:bg-studio-sidebar flex items-stretch overflow-hidden transition-all hover:border-emerald-500/60 hover:bg-white dark:hover:bg-studio-surface data-[modified=true]:border-amber-500/50"
                 >
-                  <div class="relative flex-1 min-w-0 px-2 py-1 flex items-center justify-between gap-1 overflow-hidden select-none">
+                  <div class="relative flex-1 min-w-0 px-1.5 py-1 flex items-center justify-between gap-1 overflow-hidden select-none">
                     <!-- Dynamic Slider Fill Bar Inside Button -->
                     <span
                       data-ds-adj-fill={adj.key}
                       class="absolute inset-y-0 left-0 bg-emerald-500/14 dark:bg-emerald-400/18 pointer-events-none transition-[width] duration-75"
                       style="width:{adj.initPct}%"
                     ></span>
-                    <span class="relative z-10 inline-flex items-center gap-1.5 min-w-0 pointer-events-none">
+                    <span class="relative z-10 inline-flex items-center gap-1 min-w-0 pointer-events-none">
                       <Icon name={adj.icon} class="w-3.5 h-3.5 {adj.color} shrink-0" />
-                      <span class="truncate text-[12px] font-semibold text-slate-700 dark:text-studio-text" data-i18n={adj.i18nKey}>{adj.label}</span>
+                      <span class="truncate text-[11.5px] font-semibold tracking-[-0.01em] text-slate-700 dark:text-studio-text" data-i18n={adj.i18nKey}>{adj.label}</span>
                     </span>
-                    <output id={adj.outId} class="relative z-10 text-emerald-600 dark:text-emerald-400 font-bold text-[12px] tabular-nums shrink-0 pointer-events-none">{adj.initVal}</output>
+                    <output id={adj.outId} class="relative z-10 text-emerald-600 dark:text-emerald-400 font-bold text-[11.5px] tabular-nums shrink-0 pointer-events-none">{adj.initVal}</output>
                     <input
                       id={adj.id}
                       aria-label={adj.label}
@@ -1158,7 +1187,7 @@
                   <button
                     type="button"
                     data-ds-reset-adj={adj.key}
-                    class="w-6 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 cursor-pointer transition-colors z-30 disabled:opacity-30 disabled:cursor-not-allowed group-data-[modified=true]/pod:text-amber-600 dark:group-data-[modified=true]/pod:text-amber-400"
+                    class="w-5 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 cursor-pointer transition-colors z-30 disabled:opacity-30 disabled:cursor-not-allowed group-data-[modified=true]/pod:text-amber-600 dark:group-data-[modified=true]/pod:text-amber-400"
                     data-i18n-title="resetToolTip"
                     title={t.resetToolTip}
                   >
@@ -1198,7 +1227,7 @@
         <div class="p-2.5 grid gap-2">
         <!-- Direct Page Setup Controls -->
         <div class="grid gap-1.5">
-          <div class="grid grid-cols-[1fr_auto] items-center gap-1.5">
+          <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-1.5">
             <input
               type="text"
               id="dsFilename"
@@ -1206,7 +1235,7 @@
               maxlength="100"
               aria-label={t.lblFilename}
               placeholder={t.lblFilename}
-              class="w-full min-h-[30px] px-2.5 py-1 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[12px] font-semibold outline-none focus:border-emerald-500"
+              class="min-w-0 w-full min-h-[30px] px-2.5 py-1 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[12px] font-semibold outline-none focus:border-emerald-500"
             />
             <label
               class="inline-flex items-center gap-1.5 min-h-[30px] px-2 py-1 rounded-md bg-white dark:bg-studio-panel border border-slate-200 dark:border-studio-border cursor-pointer text-[12px] font-semibold text-slate-700 dark:text-studio-text whitespace-nowrap"
