@@ -295,6 +295,10 @@
             <Icon name="lucide:rotate-cw" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <span class="sr-only" data-i18n="rotateRightBtn">{t.rotateRightBtn}</span>
           </button>
+          <button type="button" data-ds="reset-crop" class={btnIcon} disabled data-i18n-title="resetCropTip" title={t.resetCropTip}>
+            <Icon name="lucide:history" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span class="sr-only" data-i18n="resetCropBtn">{t.resetCropBtn}</span>
+          </button>
         </div>
 
         <span class="w-px h-4 bg-slate-200 dark:bg-studio-border mx-1 shrink-0" aria-hidden="true"></span>
@@ -593,6 +597,16 @@
                 <Icon name="lucide:maximize-2" class="w-3.5 h-3.5 shrink-0" />
                 <span class="sr-only" data-i18n="fullImageBtn">{t.fullImageBtn}</span>
               </button>
+              <button
+                type="button"
+                data-ds="reset-crop"
+                class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white dark:bg-studio-surface text-amber-600 dark:text-amber-400 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-slate-100"
+                data-i18n-title="resetCropTip"
+                title={t.resetCropTip}
+              >
+                <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 shrink-0" />
+                <span class="sr-only" data-i18n="resetCropBtn">{t.resetCropBtn}</span>
+              </button>
               <small class="sr-only" data-i18n="cropSubCaption">{t.cropSubCaption}</small>
             </div>
           </div>
@@ -783,7 +797,12 @@
                 >
                   <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
                     <span data-i18n="sizeLbl">{t.sizeLbl}</span>
-                    <span class="text-slate-400 font-mono text-[9px]">[ / ]</span>
+                    <span class="inline-flex items-center gap-1">
+                      <span class="text-slate-400 font-mono text-[9px]">[ / ]</span>
+                      <button type="button" data-ds-reset-retouch="size" class="w-4 h-4 inline-flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-studio-surface text-amber-600 dark:text-amber-400 cursor-pointer" data-i18n-title="resetToolTip" title={t.resetToolTip}>
+                        <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
+                      </button>
+                    </span>
                   </div>
                   <input type="range" id="dsBrushSize" min="2" max="120" value="24" class="w-full cursor-pointer" />
                 </div>
@@ -809,6 +828,9 @@
                 >
                   <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
                     <span data-i18n="hardnessLbl">{t.hardnessLbl}</span>
+                    <button type="button" data-ds-reset-retouch="hardness" class="w-4 h-4 inline-flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-studio-surface text-amber-600 dark:text-amber-400 cursor-pointer" data-i18n-title="resetToolTip" title={t.resetToolTip}>
+                      <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
+                    </button>
                   </div>
                   <input type="range" id="dsBrushHardness" min="0" max="100" value="80" class="w-full cursor-pointer" />
                 </div>
@@ -836,6 +858,9 @@
                 >
                   <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
                     <span data-i18n="toleranceLbl">{t.toleranceLbl}</span>
+                    <button type="button" data-ds-reset-retouch="tolerance" class="w-4 h-4 inline-flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-studio-surface text-amber-600 dark:text-amber-400 cursor-pointer" data-i18n-title="resetToolTip" title={t.resetToolTip}>
+                      <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
+                    </button>
                   </div>
                   <input type="range" id="dsWandTolerance" min="5" max="85" value="28" class="w-full cursor-pointer" />
                 </div>
@@ -863,6 +888,9 @@
                 >
                   <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
                     <span data-i18n="opacityLbl">{t.opacityLbl}</span>
+                    <button type="button" data-ds-reset-retouch="opacity" class="w-4 h-4 inline-flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-studio-surface text-amber-600 dark:text-amber-400 cursor-pointer" data-i18n-title="resetToolTip" title={t.resetToolTip}>
+                      <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
+                    </button>
                   </div>
                   <input type="range" id="dsBrushOpacity" min="10" max="100" value="100" class="w-full cursor-pointer" />
                 </div>
@@ -871,6 +899,10 @@
 
             <!-- Quick Retouch Actions (Icon-Only with Hover Tooltip) -->
             <div class="inline-flex items-center gap-0.5 ml-auto">
+              <button type="button" data-ds="reset-retouch-params" class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]" data-i18n-title="resetRetouchParamsTip" title={t.resetRetouchParamsTip}>
+                <Icon name="lucide:history" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span class="sr-only" data-i18n="resetRetouchParamsTip">{t.resetRetouchParamsTip}</span>
+              </button>
               <button type="button" data-ds="erase-borders" class="{btnIcon} !w-6 !h-6 !min-w-[24px] !min-h-[24px]" data-i18n-title="borderTrimBtn" title={t.borderTrimBtn}>
                 <Icon name="lucide:scan" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span class="sr-only" data-i18n="borderTrimBtn">{t.borderTrimBtn}</span>
@@ -1107,21 +1139,32 @@
         </div>
       </div>
 
-      <!-- Compact Property Groups -->
-      <div class="ds-settings-scroll flex-1 min-h-0 overflow-y-auto p-2 flex flex-col gap-1.5 [scrollbar-width:thin]">
-        <!-- SECTION 1: AI & COLOR FILTER PRESETS (ULTRA-COMPACT PILLS) -->
-        <section class="rounded-lg border border-slate-200/90 dark:border-studio-border bg-slate-50/60 dark:bg-studio-panel/60 p-1.5">
-          <div class="flex items-center justify-between gap-1.5 mb-1 px-0.5">
-            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-800 dark:text-studio-text">
-              <Icon name="lucide:wand-sparkles" class="w-3 h-3 text-violet-600 dark:text-violet-400" />
+      <!-- Photoshop-Style Docked Control Panels -->
+      <div class="ds-settings-scroll flex-1 min-h-0 overflow-y-auto p-2 flex flex-col gap-2 bg-slate-100/70 dark:bg-studio-bg/60 [scrollbar-width:thin]">
+        <!-- PANEL 1: AI & SCAN FILTERS -->
+        <section class="rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel overflow-hidden shadow-2xs shrink-0">
+          <div class="px-2.5 py-1.5 bg-slate-50/95 dark:bg-studio-sidebar border-b border-slate-200/80 dark:border-studio-border flex items-center justify-between gap-1.5">
+            <span class="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-slate-800 dark:text-studio-text">
+              <Icon name="lucide:wand-sparkles" class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
               <span data-i18n="accFiltersTitle">{t.accFiltersTitle}</span>
+              <span
+                class="inline-flex items-center px-1.5 py-0 rounded-full bg-violet-500/12 text-violet-700 dark:text-violet-300 text-[8.5px] font-bold"
+                data-i18n="accFiltersBadge">{t.accFiltersBadge}</span
+              >
             </span>
-            <span
-              class="inline-flex items-center px-1.5 py-0 rounded-full bg-violet-500/10 text-violet-700 dark:text-violet-300 text-[9px] font-bold"
-              data-i18n="accFiltersBadge">{t.accFiltersBadge}</span
+            <button
+              type="button"
+              data-ds-reset-section="filter"
+              class="inline-flex items-center justify-center w-5 h-5 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
+              disabled
+              data-i18n-title="resetFilterTip"
+              title={t.resetFilterTip}
             >
+              <Icon name="lucide:rotate-ccw" class="w-3 h-3 shrink-0" />
+              <span class="sr-only" data-i18n="resetFilterTip">{t.resetFilterTip}</span>
+            </button>
           </div>
-          <fieldset class="ds-presets m-0 p-0 border-0 grid grid-cols-3 gap-1">
+          <fieldset class="ds-presets m-0 p-1.5 border-0 grid grid-cols-2 gap-1">
             <legend class="sr-only" data-i18n="accFiltersTitle">{t.accFiltersTitle}</legend>
             {#each t.presets as preset, idx}
               {@const presetColors = [
@@ -1133,14 +1176,14 @@
                 'text-indigo-600 dark:text-indigo-400',
                 'text-cyan-600 dark:text-cyan-400'
               ]}
-              <label class="relative cursor-pointer {idx === 0 ? 'col-span-3' : ''}" title={preset.desc}>
+              <label class="relative cursor-pointer {idx === 0 ? 'col-span-2' : ''}" title={preset.desc}>
                 <input type="radio" name="dsFilter" value={preset.value} checked={preset.value === 'magic_plus'} class="sr-only peer" />
                 <span
-                  class="min-h-[26px] px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-1 transition-colors hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-studio-surface peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 dark:peer-checked:bg-emerald-500/15 peer-checked:[&_b]:text-emerald-700 dark:peer-checked:[&_b]:text-emerald-300"
+                  class="min-h-[27px] px-2 py-1 rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/70 dark:bg-studio-sidebar flex items-center justify-between gap-1.5 transition-all hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-studio-surface peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 dark:peer-checked:bg-emerald-500/15 peer-checked:shadow-2xs peer-checked:[&_b]:text-emerald-700 dark:peer-checked:[&_b]:text-emerald-300"
                 >
-                  <span class="inline-flex items-center gap-1 min-w-0">
-                    <Icon name={`lucide:${preset.icon}`} class="w-3 h-3 {presetColors[idx % presetColors.length]} shrink-0" />
-                    <b class="text-[10px] font-bold text-slate-800 dark:text-studio-text truncate" data-i18n-preset-title={preset.value}
+                  <span class="inline-flex items-center gap-1.5 min-w-0">
+                    <Icon name={`lucide:${preset.icon}`} class="w-3.5 h-3.5 {presetColors[idx % presetColors.length]} shrink-0" />
+                    <b class="text-[10.5px] font-bold text-slate-800 dark:text-studio-text truncate" data-i18n-preset-title={preset.value}
                       >{preset.title}</b
                     >
                   </span>
@@ -1152,7 +1195,7 @@
                     <small class="sr-only" data-i18n-preset-desc={preset.value}>{preset.desc}</small>
                   {/if}
                   {#if preset.ai}
-                    <em class="ds-ai-tag not-italic px-1 py-0 rounded bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[8px] font-extrabold tracking-wider uppercase shrink-0"
+                    <em class="ds-ai-tag not-italic px-1.5 py-0.5 rounded bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[8px] font-extrabold tracking-wider uppercase shrink-0"
                       >AI</em
                     >
                   {/if}
@@ -1162,19 +1205,30 @@
           </fieldset>
         </section>
 
-        <!-- SECTION 2: SMART FIX & CLEANUP TOGGLES (ULTRA-COMPACT 2-COL CHIPS) -->
-        <section class="ds-section ds-smart-options rounded-lg border border-slate-200/90 dark:border-studio-border bg-slate-50/60 dark:bg-studio-panel/60 p-1.5">
-          <div class="flex items-center justify-between gap-1.5 mb-1 px-0.5">
-            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-800 dark:text-studio-text">
-              <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-500 dark:text-amber-400" />
+        <!-- PANEL 2: SMART FIX & CLEANUP -->
+        <section class="ds-section ds-smart-options rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel overflow-hidden shadow-2xs shrink-0">
+          <div class="px-2.5 py-1.5 bg-slate-50/95 dark:bg-studio-sidebar border-b border-slate-200/80 dark:border-studio-border flex items-center justify-between gap-1.5">
+            <span class="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-slate-800 dark:text-studio-text">
+              <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
               <span data-i18n="accSmartTitle">{t.accSmartTitle}</span>
+              <span
+                class="inline-flex items-center px-1.5 py-0 rounded-full bg-amber-500/12 text-amber-700 dark:text-amber-300 text-[8.5px] font-bold"
+                data-i18n="accSmartBadge">{t.accSmartBadge}</span
+              >
             </span>
-            <span
-              class="inline-flex items-center px-1.5 py-0 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[9px] font-bold"
-              data-i18n="accSmartBadge">{t.accSmartBadge}</span
+            <button
+              type="button"
+              data-ds-reset-section="smart"
+              class="inline-flex items-center justify-center w-5 h-5 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
+              disabled
+              data-i18n-title="resetSmartTip"
+              title={t.resetSmartTip}
             >
+              <Icon name="lucide:rotate-ccw" class="w-3 h-3 shrink-0" />
+              <span class="sr-only" data-i18n="resetSmartTip">{t.resetSmartTip}</span>
+            </button>
           </div>
-          <div class="grid grid-cols-2 gap-1">
+          <div class="p-1.5 grid grid-cols-2 gap-1">
             {#each [
               { id: 'dsShadow', icon: 'lucide:sun', color: 'text-amber-500 dark:text-amber-400', key: 'optShadow', label: t.optShadow },
               { id: 'dsText', icon: 'lucide:scan-text', color: 'text-indigo-600 dark:text-indigo-400', key: 'optText', label: t.optText },
@@ -1183,125 +1237,192 @@
               { id: 'dsCleanMargins', icon: 'lucide:scan', color: 'text-emerald-600 dark:text-emerald-400', key: 'optCleanMargins', label: t.optCleanMargins }
             ] as opt}
               <label
-                class="ds-toggle min-h-[25px] flex items-center justify-between gap-1 px-1.5 py-0.5 rounded-md bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer text-[10px] font-semibold text-slate-800 dark:text-studio-text transition-colors hover:border-slate-300 dark:hover:border-slate-600"
+                class="ds-toggle min-h-[27px] flex items-center justify-between gap-1 px-2 py-0.5 rounded-md bg-slate-50/70 dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border cursor-pointer text-[10px] font-semibold text-slate-800 dark:text-studio-text transition-colors hover:bg-white dark:hover:bg-studio-surface hover:border-slate-300 dark:hover:border-slate-600"
                 title={opt.key === 'optCleanMargins' ? t.cleanMarginsHint : opt.label}
               >
-                <span class="inline-flex items-center gap-1 min-w-0">
-                  <Icon name={opt.icon} class="w-3 h-3 {opt.color} shrink-0" />
+                <span class="inline-flex items-center gap-1.5 min-w-0">
+                  <Icon name={opt.icon} class="w-3.5 h-3.5 {opt.color} shrink-0" />
                   <em class="not-italic truncate" data-i18n={opt.key}>{opt.label}</em>
                 </span>
-                <input id={opt.id} type="checkbox" checked class="w-3 h-3 accent-emerald-600 cursor-pointer shrink-0" />
+                <input id={opt.id} type="checkbox" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer shrink-0" />
               </label>
             {/each}
             <button
               type="button"
               data-ds="toggle-eraser"
-              class="{btnPrimarySoft} min-h-[25px] px-1.5 py-0.5 rounded-md justify-center text-[10px]"
+              class="{btnPrimarySoft} min-h-[27px] px-2 py-0.5 rounded-md justify-center text-[10px]"
               disabled
+              data-i18n-title="retouchTip"
               title={t.retouchTip}
             >
-              <Icon name="lucide:pipette" class="w-3 h-3 text-fuchsia-600 dark:text-fuchsia-400 shrink-0" />
+              <Icon name="lucide:pipette" class="w-3.5 h-3.5 text-fuchsia-600 dark:text-fuchsia-400 shrink-0" />
               <span class="truncate" data-i18n="launchRetouchBtn">{t.launchRetouchBtn}</span>
             </button>
           </div>
           <small class="sr-only" data-i18n="cleanMarginsHint">{t.cleanMarginsHint}</small>
         </section>
 
-        <!-- SECTION 3: MANUAL ADJUSTMENTS (PHOTOSHOP-STYLE CLICK-TO-SHOW SLIDERS) -->
-        <section class="ds-section ds-sliders rounded-lg border border-slate-200/90 dark:border-studio-border bg-slate-50/60 dark:bg-studio-panel/60 p-1.5">
-          <div class="flex items-center justify-between gap-1.5 mb-1 px-0.5">
-            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-800 dark:text-studio-text">
-              <Icon name="lucide:sliders-horizontal" class="w-3 h-3 text-blue-600 dark:text-blue-400" />
+        <!-- PANEL 3: PHOTOSHOP MANUAL ADJUSTMENTS (WITH PER-TOOL RESET BUTTONS) -->
+        <section class="ds-section ds-sliders rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel overflow-hidden shadow-2xs shrink-0">
+          <div class="px-2.5 py-1.5 bg-slate-50/95 dark:bg-studio-sidebar border-b border-slate-200/80 dark:border-studio-border flex items-center justify-between gap-1.5">
+            <span class="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-slate-800 dark:text-studio-text">
+              <Icon name="lucide:sliders-horizontal" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
               <span data-i18n="accManualTitle">{t.accManualTitle}</span>
-            </span>
-            <span
-              class="inline-flex items-center px-1.5 py-0 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[9px] font-bold"
-              data-i18n="accManualBadge">{t.accManualBadge}</span
-            >
-          </div>
-
-          <!-- Compact 3x2 Parameter Pill Grid (Click any pill to toggle its slider below!) -->
-          <div class="grid grid-cols-2 gap-1">
-            {#each [
-              { key: 'brightness', icon: 'lucide:sun-medium', color: 'text-amber-500 dark:text-amber-400', i18nKey: 'lblBrightness', label: t.lblBrightness, outId: 'dsBrightnessValue', initVal: '100%' },
-              { key: 'contrast', icon: 'lucide:contrast', color: 'text-indigo-600 dark:text-indigo-400', i18nKey: 'lblContrast', label: t.lblContrast, outId: 'dsContrastValue', initVal: '100%' },
-              { key: 'sharpness', icon: 'lucide:triangle', color: 'text-violet-600 dark:text-violet-400', i18nKey: 'lblSharpness', label: t.lblSharpness, outId: 'dsSharpnessValue', initVal: '25%' },
-              { key: 'angle', icon: 'lucide:rotate-cw', color: 'text-blue-600 dark:text-blue-400', i18nKey: 'lblAngle', label: t.lblAngle, outId: 'dsAngleValue', initVal: '0°' },
-              { key: 'curve', icon: 'lucide:book-open', color: 'text-cyan-600 dark:text-cyan-400', i18nKey: 'lblCurve', label: t.lblCurve, outId: 'dsCurveValue', initVal: '0' },
-              { key: 'trim', icon: 'lucide:maximize', color: 'text-emerald-600 dark:text-emerald-400', i18nKey: 'lblTrim', label: t.lblTrim, outId: 'dsTrimValue', initVal: '0%' }
-            ] as adj}
-              <button
-                type="button"
-                data-ds-adj-btn={adj.key}
-                aria-expanded="false"
-                class="min-h-[25px] px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-700 dark:text-studio-text cursor-pointer transition-colors hover:border-emerald-500/50 aria-expanded:border-emerald-500 aria-expanded:bg-emerald-500/10 dark:aria-expanded:bg-emerald-500/15 aria-expanded:text-emerald-700 dark:aria-expanded:text-emerald-300"
+              <span
+                class="inline-flex items-center px-1.5 py-0 rounded-full bg-blue-500/12 text-blue-700 dark:text-blue-300 text-[8.5px] font-bold"
+                data-i18n="accManualBadge">{t.accManualBadge}</span
               >
-                <span class="inline-flex items-center gap-1 min-w-0">
-                  <Icon name={adj.icon} class="w-3 h-3 {adj.color} shrink-0" />
-                  <span class="truncate" data-i18n={adj.i18nKey}>{adj.label}</span>
-                </span>
-                <output id={adj.outId} class="text-emerald-600 dark:text-emerald-400 font-bold text-[10px] tabular-nums shrink-0">{adj.initVal}</output>
-              </button>
-            {/each}
+            </span>
+            <button
+              type="button"
+              data-ds-reset-section="manual"
+              class="inline-flex items-center justify-center w-5 h-5 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
+              disabled
+              data-i18n-title="resetManualTip"
+              title={t.resetManualTip}
+            >
+              <Icon name="lucide:rotate-ccw" class="w-3 h-3 shrink-0" />
+              <span class="sr-only" data-i18n="resetManualTip">{t.resetManualTip}</span>
+            </button>
           </div>
 
-          <!-- Contextual Photoshop Slider Tray (Shown only when a parameter pill above is clicked) -->
-          <div id="dsActiveSliderTray" hidden class="mt-1.5 p-2 rounded-md bg-white dark:bg-studio-sidebar border border-emerald-500/40 shadow-2xs">
-            <div data-ds-adj-pane="brightness" hidden class="grid gap-1">
-              <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                <span data-i18n="lblBrightness">{t.lblBrightness}</span>
-                <button type="button" data-ds-adj-close class="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer text-[10px] px-1">✕</button>
-              </div>
-              <input id="dsBrightness" aria-label={t.lblBrightness} type="range" min="60" max="150" value="100" class="w-full cursor-pointer" />
+          <div class="p-1.5">
+            <!-- Photoshop Property Grid: Each Tool has Icon, Name, Value & Individual Reset Button -->
+            <div class="grid grid-cols-2 gap-1">
+              {#each [
+                { key: 'brightness', icon: 'lucide:sun-medium', color: 'text-amber-500 dark:text-amber-400', i18nKey: 'lblBrightness', label: t.lblBrightness, outId: 'dsBrightnessValue', initVal: '100%' },
+                { key: 'contrast', icon: 'lucide:contrast', color: 'text-indigo-600 dark:text-indigo-400', i18nKey: 'lblContrast', label: t.lblContrast, outId: 'dsContrastValue', initVal: '100%' },
+                { key: 'sharpness', icon: 'lucide:triangle', color: 'text-violet-600 dark:text-violet-400', i18nKey: 'lblSharpness', label: t.lblSharpness, outId: 'dsSharpnessValue', initVal: '25%' },
+                { key: 'angle', icon: 'lucide:rotate-cw', color: 'text-blue-600 dark:text-blue-400', i18nKey: 'lblAngle', label: t.lblAngle, outId: 'dsAngleValue', initVal: '0°' },
+                { key: 'curve', icon: 'lucide:book-open', color: 'text-cyan-600 dark:text-cyan-400', i18nKey: 'lblCurve', label: t.lblCurve, outId: 'dsCurveValue', initVal: '0' },
+                { key: 'trim', icon: 'lucide:maximize', color: 'text-emerald-600 dark:text-emerald-400', i18nKey: 'lblTrim', label: t.lblTrim, outId: 'dsTrimValue', initVal: '0%' }
+              ] as adj}
+                <div
+                  data-ds-adj-pod={adj.key}
+                  class="group/pod min-h-[28px] rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/70 dark:bg-studio-sidebar flex items-stretch overflow-hidden transition-all hover:border-emerald-500/50 hover:bg-white dark:hover:bg-studio-surface has-[[aria-expanded=true]]:border-emerald-500 has-[[aria-expanded=true]]:bg-emerald-500/10 dark:has-[[aria-expanded=true]]:bg-emerald-500/15 has-[[aria-expanded=true]]:shadow-2xs data-[modified=true]:border-amber-500/45"
+                >
+                  <button
+                    type="button"
+                    data-ds-adj-btn={adj.key}
+                    aria-expanded="false"
+                    class="flex-1 min-w-0 px-1.5 py-0.5 border-0 bg-transparent flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-700 dark:text-studio-text cursor-pointer aria-expanded:text-emerald-700 dark:aria-expanded:text-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <span class="inline-flex items-center gap-1 min-w-0">
+                      <Icon name={adj.icon} class="w-3.5 h-3.5 {adj.color} shrink-0" />
+                      <span class="truncate" data-i18n={adj.i18nKey}>{adj.label}</span>
+                    </span>
+                    <output id={adj.outId} class="text-emerald-600 dark:text-emerald-400 font-bold text-[10px] tabular-nums shrink-0">{adj.initVal}</output>
+                  </button>
+                  <button
+                    type="button"
+                    data-ds-reset-adj={adj.key}
+                    class="w-5 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed group-data-[modified=true]/pod:text-amber-600 dark:group-data-[modified=true]/pod:text-amber-400"
+                    data-i18n-title="resetToolTip"
+                    title={t.resetToolTip}
+                  >
+                    <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5 shrink-0" />
+                    <span class="sr-only" data-i18n="resetToolTip">{t.resetToolTip}</span>
+                  </button>
+                </div>
+              {/each}
             </div>
 
-            <div data-ds-adj-pane="contrast" hidden class="grid gap-1">
-              <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                <span data-i18n="lblContrast">{t.lblContrast}</span>
-                <button type="button" data-ds-adj-close class="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer text-[10px] px-1">✕</button>
-              </div>
-              <input id="dsContrast" aria-label={t.lblContrast} type="range" min="60" max="170" value="100" class="w-full cursor-pointer" />
-            </div>
-
-            <div data-ds-adj-pane="sharpness" hidden class="grid gap-1">
-              <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                <span data-i18n="lblSharpness">{t.lblSharpness}</span>
-                <button type="button" data-ds-adj-close class="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer text-[10px] px-1">✕</button>
-              </div>
-              <input id="dsSharpness" aria-label={t.lblSharpness} type="range" min="0" max="100" value="25" class="w-full cursor-pointer" />
-            </div>
-
-            <div data-ds-adj-pane="angle" hidden class="grid gap-1">
-              <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                <span data-i18n="lblAngle">{t.lblAngle}</span>
-                <button type="button" data-ds-adj-close class="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer text-[10px] px-1">✕</button>
-              </div>
-              <input id="dsAngle" aria-label={t.lblAngle} type="range" min="-10" max="10" step="0.1" value="0" class="w-full cursor-pointer" />
-            </div>
-
-            <div data-ds-adj-pane="curve" hidden class="grid gap-1">
-              <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                <span data-i18n="lblCurve">{t.lblCurve}</span>
-                <button type="button" data-ds-adj-close class="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer text-[10px] px-1">✕</button>
-              </div>
-              <input id="dsCurve" aria-label={t.lblCurve} type="range" min="-50" max="50" value="0" class="w-full cursor-pointer" />
-              <small class="text-[9px] text-slate-500 dark:text-studio-muted leading-tight" data-i18n="lblCurveHint">{t.lblCurveHint}</small>
-            </div>
-
-            <div data-ds-adj-pane="trim" hidden class="grid gap-1">
-              <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                <span data-i18n="lblTrim">{t.lblTrim}</span>
-                <button type="button" data-ds-adj-close class="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer text-[10px] px-1">✕</button>
-              </div>
-              <input id="dsTrim" aria-label={t.lblTrim} type="range" min="0" max="4" step="0.5" value="0" class="w-full cursor-pointer" />
-              <small class="text-[9px] text-slate-500 dark:text-studio-muted leading-tight" data-i18n="lblTrimHint">{t.lblTrimHint}</small>
+            <!-- Contextual Photoshop Scrub Slider Tray (Shown when a tool pod is clicked) -->
+            <div id="dsActiveSliderTray" hidden class="mt-1.5 p-2 rounded-md bg-slate-50 dark:bg-studio-sidebar border border-emerald-500/50 shadow-xs">
+              {#each [
+                { key: 'brightness', id: 'dsBrightness', icon: 'lucide:sun-medium', color: 'text-amber-500', i18nKey: 'lblBrightness', label: t.lblBrightness, min: 60, max: 150, step: 1, val: 100, hintKey: '' },
+                { key: 'contrast', id: 'dsContrast', icon: 'lucide:contrast', color: 'text-indigo-500', i18nKey: 'lblContrast', label: t.lblContrast, min: 60, max: 170, step: 1, val: 100, hintKey: '' },
+                { key: 'sharpness', id: 'dsSharpness', icon: 'lucide:triangle', color: 'text-violet-500', i18nKey: 'lblSharpness', label: t.lblSharpness, min: 0, max: 100, step: 1, val: 25, hintKey: '' },
+                { key: 'angle', id: 'dsAngle', icon: 'lucide:rotate-cw', color: 'text-blue-500', i18nKey: 'lblAngle', label: t.lblAngle, min: -10, max: 10, step: 0.1, val: 0, hintKey: '' },
+                { key: 'curve', id: 'dsCurve', icon: 'lucide:book-open', color: 'text-cyan-500', i18nKey: 'lblCurve', label: t.lblCurve, min: -50, max: 50, step: 1, val: 0, hintKey: 'lblCurveHint', hint: t.lblCurveHint },
+                { key: 'trim', id: 'dsTrim', icon: 'lucide:maximize', color: 'text-emerald-500', i18nKey: 'lblTrim', label: t.lblTrim, min: 0, max: 4, step: 0.5, val: 0, hintKey: 'lblTrimHint', hint: t.lblTrimHint }
+              ] as pane}
+                <div data-ds-adj-pane={pane.key} hidden class="grid gap-1.5">
+                  <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
+                    <span class="inline-flex items-center gap-1.5">
+                      <Icon name={pane.icon} class="w-3.5 h-3.5 {pane.color} shrink-0" />
+                      <span data-i18n={pane.i18nKey}>{pane.label}</span>
+                    </span>
+                    <div class="inline-flex items-center gap-1">
+                      <button
+                        type="button"
+                        data-ds-reset-adj={pane.key}
+                        class="inline-flex items-center justify-center w-5 h-5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-studio-surface cursor-pointer"
+                        data-i18n-title="resetToolTip"
+                        title={t.resetToolTip}
+                      >
+                        <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
+                        <span class="sr-only" data-i18n="resetToolTip">{t.resetToolTip}</span>
+                      </button>
+                      <button
+                        type="button"
+                        data-ds-adj-close
+                        class="inline-flex items-center justify-center w-5 h-5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer text-[10px]"
+                        data-i18n-title="closeDrawerTip"
+                        title={t.closeDrawerTip}
+                      >✕</button>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-[20px_1fr_20px] items-center gap-1.5">
+                    <button
+                      type="button"
+                      data-ds-adj-step="-1"
+                      data-ds-adj-target={pane.key}
+                      class="w-5 h-5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-600 dark:text-studio-text text-xs font-bold leading-none cursor-pointer hover:bg-slate-100"
+                      aria-label="Decrease"
+                    >−</button>
+                    <input
+                      id={pane.id}
+                      aria-label={pane.label}
+                      type="range"
+                      min={pane.min}
+                      max={pane.max}
+                      step={pane.step}
+                      value={pane.val}
+                      class="w-full cursor-pointer accent-emerald-600"
+                    />
+                    <button
+                      type="button"
+                      data-ds-adj-step="1"
+                      data-ds-adj-target={pane.key}
+                      class="w-5 h-5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-600 dark:text-studio-text text-xs font-bold leading-none cursor-pointer hover:bg-slate-100"
+                      aria-label="Increase"
+                    >+</button>
+                  </div>
+                  {#if pane.hintKey}
+                    <small class="text-[9px] text-slate-500 dark:text-studio-muted leading-tight" data-i18n={pane.hintKey}>{pane.hint}</small>
+                  {/if}
+                </div>
+              {/each}
             </div>
           </div>
         </section>
       </div>
 
-      <!-- PINNED ULTRA-COMPACT PAGE SETUP & DIRECT 1-CLICK EXPORT DOCK -->
-      <div class="ds-export ds-section ds-export-settings p-2 border-t border-slate-200 dark:border-studio-border bg-slate-50/95 dark:bg-studio-sidebar grid gap-1.5 shrink-0">
+      <!-- PANEL 4: PINNED PAGE SETUP & DIRECT 1-CLICK EXPORT DOCK -->
+      <div class="ds-export ds-section ds-export-settings border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar shrink-0">
+        <div class="px-2.5 py-1 bg-slate-50/95 dark:bg-studio-panel border-b border-slate-200/80 dark:border-studio-border flex items-center justify-between gap-1.5">
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-800 dark:text-studio-text">
+            <Icon name="lucide:file-down" class="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span data-i18n="accExportTitle">{t.accExportTitle}</span>
+            <span
+              class="inline-flex items-center px-1.5 py-0 rounded-full bg-emerald-500/12 text-emerald-700 dark:text-emerald-300 text-[8.5px] font-bold"
+              data-i18n="accExportBadge">{t.accExportBadge}</span
+            >
+          </span>
+          <button
+            type="button"
+            data-ds-reset-section="export"
+            class="inline-flex items-center justify-center w-5 h-5 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-sidebar text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface transition-colors"
+            data-i18n-title="resetExportTip"
+            title={t.resetExportTip}
+          >
+            <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5 shrink-0" />
+            <span class="sr-only" data-i18n="resetExportTip">{t.resetExportTip}</span>
+          </button>
+        </div>
+
+        <div class="p-2 grid gap-1.5">
         <!-- Direct Page Setup Controls -->
         <div class="grid gap-1">
           <div class="grid grid-cols-[1fr_auto] items-center gap-1">
@@ -1382,6 +1503,7 @@
             <Icon name="lucide:printer" class="w-3 h-3 text-violet-600 dark:text-violet-400 shrink-0" />
             <span data-i18n="printBtn">{t.printBtn}</span>
           </button>
+        </div>
         </div>
       </div>
     </aside>

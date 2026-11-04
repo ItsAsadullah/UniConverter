@@ -48,6 +48,8 @@ export const I18N = {
     rotateLeftTip: 'বামে ৯০° ঘোরান',
     rotateRightBtn: 'ডানে',
     rotateRightTip: 'ডানে ৯০° ঘোরান',
+    resetCropBtn: 'ক্রপ রিসেট',
+    resetCropTip: 'ক্রপ ও রোটেশন রিসেট করুন',
     retouchBtn: 'দাগ ও ব্যাকগ্রাউন্ড মুছুন',
     retouchShortBtn: 'রিটাচ স্টুডিও',
     retouchTip: 'ফটোশপ-স্টাইল রিটাচ, স্পট হিলিং ও ব্যাকগ্রাউন্ড কালার পিকার',
@@ -120,7 +122,13 @@ export const I18N = {
 
     // Inspector
     inspectorTitle: 'ইন্সপেক্টর ও এনহ্যান্স',
-    resetBtn: 'রিসেট',
+    resetBtn: 'সব রিসেট',
+    resetFilterTip: 'ফিল্টার রিসেট করুন (ম্যাজিক+)',
+    resetSmartTip: 'স্মার্ট ফিক্স রিসেট করুন',
+    resetManualTip: 'সব ম্যানুয়াল এডজাস্টমেন্ট রিসেট করুন',
+    resetExportTip: 'এক্সপোর্ট সেটিংস রিসেট করুন',
+    resetToolTip: 'ডিফল্ট মানে রিসেট করুন',
+    resetRetouchParamsTip: 'টুল সেটিংস রিসেট করুন',
     accFiltersTitle: 'AI ও কালার ফিল্টার',
     accFiltersBadge: 'প্রিসেট',
     presets: [
@@ -227,6 +235,8 @@ export const I18N = {
     rotateLeftTip: 'Rotate 90° Counter-Clockwise',
     rotateRightBtn: 'Right',
     rotateRightTip: 'Rotate 90° Clockwise',
+    resetCropBtn: 'Reset Crop',
+    resetCropTip: 'Reset Crop & Rotation to default',
     retouchBtn: 'Spot & Background Retouch',
     retouchShortBtn: 'Retouch Studio',
     retouchTip: 'Photoshop-style Retouch, Spot Healing & Background Color Picker',
@@ -299,7 +309,13 @@ export const I18N = {
 
     // Inspector
     inspectorTitle: 'Inspector & Enhance',
-    resetBtn: 'Reset',
+    resetBtn: 'Reset All',
+    resetFilterTip: 'Reset Filter (Magic+ AI)',
+    resetSmartTip: 'Reset Smart Fix options',
+    resetManualTip: 'Reset all Manual Adjustments',
+    resetExportTip: 'Reset Export Settings',
+    resetToolTip: 'Reset to default value',
+    resetRetouchParamsTip: 'Reset Retouch Tool Settings',
     accFiltersTitle: 'AI & Scan Filters',
     accFiltersBadge: 'Presets',
     presets: [
