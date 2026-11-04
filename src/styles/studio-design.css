@@ -585,11 +585,11 @@
 [data-theme="dark"] #img-pane-scan #dsPreviewStage,
 [data-theme="dark"] #img-pane-scan #dsViewport {
   background-color: #252526 !important;
-  background-image: none !important;
+  background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 24px), repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 24px) !important;
 }
-#img-pane-scan #dsPreviewStage,
-#img-pane-scan #dsViewport {
-  background-image: none !important;
+:root:not([data-theme="dark"]) #img-pane-scan #dsPreviewStage,
+:root:not([data-theme="dark"]) #img-pane-scan #dsViewport {
+  background-image: repeating-linear-gradient(0deg, rgba(15, 23, 42, 0.06) 0 1px, transparent 1px 24px), repeating-linear-gradient(90deg, rgba(15, 23, 42, 0.06) 0 1px, transparent 1px 24px) !important;
 }
 #img-pane-scan:not([data-editing="true"]) #dsLayersSection,
 #img-pane-scan:not([data-editing="true"]) [data-ds-insp-tab="smart"],
