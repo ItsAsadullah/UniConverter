@@ -792,32 +792,40 @@
                 class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain rounded-xs bg-white shadow-[0_16px_40px_rgba(15,23,42,0.28)] select-none transition-[filter,transform] duration-200"
               ></canvas>
 
-              <!-- MAGIC GENERATE / LASER SCAN PRELOADER OVERLAY -->
+              <!-- GOOGLE GEMINI-STYLE IMAGE GENERATION ANIMATION OVERLAY -->
               <div
                 id="dsPreviewLoader"
-                class="ds-magic-loader absolute inset-0 rounded-xs overflow-hidden pointer-events-none z-22 flex items-center justify-center"
+                class="ds-gemini-loader absolute inset-0 rounded-xs overflow-hidden pointer-events-none z-22 flex items-center justify-center"
                 hidden
                 aria-live="polite"
+                aria-label="Generating preview"
               >
-                <div class="ds-magic-shimmer absolute inset-0"></div>
-                <div class="ds-magic-beam absolute inset-x-0 top-0 h-20 pointer-events-none">
-                  <div class="w-full h-[2.5px] bg-gradient-to-r from-violet-500 via-emerald-400 to-cyan-400 shadow-[0_0_18px_3px_rgba(16,185,129,0.85)]"></div>
-                  <div class="w-full h-16 bg-gradient-to-b from-emerald-400/28 via-violet-500/12 to-transparent"></div>
-                </div>
-                <div class="ds-magic-badge relative z-10 px-3.5 py-1.5 rounded-full bg-slate-900/88 dark:bg-slate-950/92 border border-emerald-400/45 shadow-[0_10px_30px_rgba(16,185,129,0.38)] backdrop-blur-md inline-flex items-center gap-2 text-white text-[11px] font-bold tracking-wide">
-                  <svg class="ds-magic-sparkle w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#dsMagicGrad)" />
-                    <circle cx="19" cy="5" r="1.5" fill="#a78bfa" />
-                    <circle cx="5" cy="19" r="1.2" fill="#34d399" />
+                <div class="ds-gemini-aurora absolute -inset-8"></div>
+                <div class="ds-gemini-wave absolute inset-0"></div>
+                <div class="ds-gemini-border absolute inset-0 rounded-xs"></div>
+                <div class="ds-gemini-star-wrap relative z-10 w-14 h-14 flex items-center justify-center">
+                  <div class="ds-gemini-halo absolute inset-0 rounded-full"></div>
+                  <!-- Main 4-Pointed Curved Gemini Star -->
+                  <svg class="ds-gemini-star-main w-9 h-9 drop-shadow-[0_4px_16px_rgba(155,114,203,0.55)]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M12 1C12 7.075 16.925 12 23 12C16.925 12 12 16.925 12 23C12 16.925 7.075 12 1 12C7.075 12 12 7.075 12 1Z"
+                      fill="url(#dsGeminiStarGrad)"
+                    />
                     <defs>
-                      <linearGradient id="dsMagicGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#34d399" />
-                        <stop offset="0.5" stop-color="#a78bfa" />
-                        <stop offset="1" stop-color="#38bdf8" />
+                      <linearGradient id="dsGeminiStarGrad" x1="1" y1="1" x2="23" y2="23" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#4285F4" />
+                        <stop offset="50%" stop-color="#9B72CB" />
+                        <stop offset="100%" stop-color="#D96570" />
                       </linearGradient>
                     </defs>
                   </svg>
-                  <span data-i18n="magicGenLbl">Generating Magic Preview…</span>
+                  <!-- Secondary Twinkling Gemini Sparkles -->
+                  <svg class="ds-gemini-star-sub1 absolute -top-1 -right-1 w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 1C12 7.075 16.925 12 23 12C16.925 12 12 16.925 12 23C12 16.925 7.075 12 1 12C7.075 12 12 7.075 12 1Z" fill="#4285F4" />
+                  </svg>
+                  <svg class="ds-gemini-star-sub2 absolute -bottom-0.5 -left-1 w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 1C12 7.075 16.925 12 23 12C16.925 12 12 16.925 12 23C12 16.925 7.075 12 1 12C7.075 12 12 7.075 12 1Z" fill="#D96570" />
+                  </svg>
                 </div>
               </div>
 
@@ -1306,71 +1314,110 @@
 </section>
 
 <style>
-  @keyframes dsMagicSweep {
+  @keyframes dsGeminiAurora {
     0% {
-      top: -12%;
-      opacity: 0.35;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      top: 100%;
-      opacity: 0.35;
-    }
-  }
-  @keyframes dsMagicShimmer {
-    0% {
+      transform: translate3d(-6%, -5%, 0) scale(1.05) rotate(0deg);
       background-position: 0% 50%;
     }
     50% {
+      transform: translate3d(6%, 5%, 0) scale(1.14) rotate(4deg);
       background-position: 100% 50%;
     }
     100% {
+      transform: translate3d(-6%, -5%, 0) scale(1.05) rotate(0deg);
       background-position: 0% 50%;
     }
   }
-  @keyframes dsSparkleSpin {
+  @keyframes dsGeminiWave {
     0% {
-      transform: rotate(0deg) scale(0.92);
+      transform: translateX(-110%) skewX(-18deg);
+    }
+    100% {
+      transform: translateX(110%) skewX(-18deg);
+    }
+  }
+  @keyframes dsGeminiStarMain {
+    0%,
+    100% {
+      transform: scale(0.88) rotate(0deg);
+      filter: hue-rotate(0deg);
     }
     50% {
-      transform: rotate(180deg) scale(1.14);
-    }
-    100% {
-      transform: rotate(360deg) scale(0.92);
+      transform: scale(1.12) rotate(90deg);
+      filter: hue-rotate(25deg);
     }
   }
-  @keyframes dsPreviewReveal {
+  @keyframes dsGeminiTwinkle {
+    0%,
+    100% {
+      transform: scale(0.45) rotate(-15deg);
+      opacity: 0.35;
+    }
+    50% {
+      transform: scale(1.15) rotate(25deg);
+      opacity: 1;
+    }
+  }
+  @keyframes dsGeminiUnveil {
     0% {
-      filter: brightness(1.08) contrast(0.96) blur(1.5px);
+      filter: blur(11px) saturate(1.22) brightness(1.05);
+      transform: scale(1.012);
     }
     100% {
-      filter: brightness(1) contrast(1) blur(0px);
+      filter: blur(0px) saturate(1) brightness(1);
+      transform: scale(1);
     }
   }
-  .ds-magic-shimmer {
+  .ds-gemini-aurora {
+    background:
+      radial-gradient(circle at 22% 28%, rgba(66, 133, 244, 0.36) 0%, transparent 55%),
+      radial-gradient(circle at 78% 32%, rgba(155, 114, 203, 0.38) 0%, transparent 55%),
+      radial-gradient(circle at 68% 76%, rgba(217, 101, 112, 0.34) 0%, transparent 55%),
+      radial-gradient(circle at 28% 75%, rgba(56, 189, 248, 0.32) 0%, transparent 55%);
+    background-size: 180% 180%;
+    backdrop-filter: blur(14px) saturate(1.28);
+    animation: dsGeminiAurora 2.4s ease-in-out infinite;
+  }
+  .ds-gemini-wave {
     background: linear-gradient(
-      125deg,
-      rgba(139, 92, 246, 0.14),
-      rgba(16, 185, 129, 0.22),
-      rgba(56, 189, 248, 0.14),
-      rgba(16, 185, 129, 0.18)
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 35%,
+      rgba(255, 255, 255, 0.52) 50%,
+      rgba(255, 255, 255, 0.08) 65%,
+      transparent 100%
     );
-    background-size: 240% 240%;
-    backdrop-filter: blur(1.5px);
-    animation: dsMagicShimmer 1.6s ease-in-out infinite;
+    animation: dsGeminiWave 1.45s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
-  .ds-magic-beam {
-    animation: dsMagicSweep 1.05s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  .ds-gemini-border {
+    box-shadow:
+      inset 0 0 0 2px rgba(155, 114, 203, 0.42),
+      inset 0 0 24px rgba(66, 133, 244, 0.25);
   }
-  .ds-magic-sparkle {
-    animation: dsSparkleSpin 2s ease-in-out infinite;
+  .ds-gemini-halo {
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.78) 0%,
+      rgba(155, 114, 203, 0.25) 60%,
+      transparent 100%
+    );
+    filter: blur(4px);
+    animation: dsGeminiTwinkle 1.6s ease-in-out infinite;
+  }
+  .ds-gemini-star-main {
+    animation: dsGeminiStarMain 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  .ds-gemini-star-sub1 {
+    animation: dsGeminiTwinkle 1.3s ease-in-out infinite;
+  }
+  .ds-gemini-star-sub2 {
+    animation: dsGeminiTwinkle 1.3s ease-in-out 0.65s infinite;
   }
   :global(#dsPreviewWrap.is-generating #dsPreview) {
-    filter: brightness(0.97) saturate(0.92);
+    filter: blur(10px) saturate(1.18) brightness(1.03);
+    transform: scale(1.01);
   }
   :global(#dsPreview.is-revealing) {
-    animation: dsPreviewReveal 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: dsGeminiUnveil 0.36s cubic-bezier(0.22, 1, 0.36, 1);
   }
 </style>
