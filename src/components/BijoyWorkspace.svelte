@@ -16,9 +16,9 @@
   const chipBtn =
     'inline-flex items-center gap-1.5 min-h-[30px] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-700 dark:text-studio-text text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-slate-100 dark:hover:bg-studio-surface hover:border-slate-300 dark:hover:border-slate-600 active:scale-[0.97]';
   const segContainer =
-    "seg relative inline-grid grid-cols-2 p-1 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border before:content-[''] before:pointer-events-none before:absolute before:top-1 before:bottom-1 before:left-1 before:w-[calc(50%-4px)] before:rounded-lg before:bg-emerald-600 dark:before:bg-emerald-500 before:shadow-xs before:transition-transform before:duration-300 before:ease-[cubic-bezier(0.22,1,0.36,1)] data-[dir=b2u]:before:translate-x-full";
+    "seg relative inline-grid grid-cols-2 p-1 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border before:content-[''] before:pointer-events-none before:absolute before:top-1 before:bottom-1 before:left-1 before:w-[calc(50%-4px)] before:rounded-lg before:bg-emerald-600 dark:before:bg-studio-surface before:shadow-xs before:transition-transform before:duration-300 before:ease-[cubic-bezier(0.22,1,0.36,1)] data-[dir=b2u]:before:translate-x-full";
   const segLabel =
-    'relative z-10 inline-flex items-center justify-center min-w-[138px] sm:min-w-[156px] px-3.5 py-1.5 rounded-lg text-xs sm:text-[13px] font-bold text-slate-600 dark:text-studio-muted cursor-pointer transition-colors duration-200 select-none hover:text-slate-900 dark:hover:text-white [input:checked+&]:text-white dark:[input:checked+&]:text-slate-950';
+    'relative z-10 inline-flex items-center justify-center min-w-[138px] sm:min-w-[156px] px-3.5 py-1.5 rounded-lg text-xs sm:text-[13px] font-bold text-slate-600 dark:text-studio-muted cursor-pointer transition-colors duration-200 select-none hover:text-slate-900 dark:hover:text-white [input:checked+&]:text-white dark:[input:checked+&]:text-white';
 </script>
 
 <div
@@ -141,7 +141,7 @@
             <span data-i18n-bn="লাইভ" data-i18n-en="Live">লাইভ</span>
           </label>
           <button
-            class="inline-flex items-center gap-1.5 min-h-[32px] px-3 py-1 rounded-lg bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 text-xs font-bold cursor-pointer"
+            class="inline-flex items-center gap-1.5 min-h-[32px] px-3 py-1 rounded-lg bg-emerald-600 dark:bg-emerald-500 text-white dark:text-white text-xs font-bold cursor-pointer"
             id="convertBtn"
             type="button"
             hidden
@@ -312,7 +312,7 @@
 
           <textarea
             id="inputText"
-            class="textbox is-unicode w-full min-h-[340px] p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-white dark:bg-[#0B1120] text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y outline-none focus:border-emerald-500 [&.is-bijoy]:font-['SutonnyMJ',var(--font-sans)] [&.is-unicode]:font-[family-name:var(--preview-font,var(--font-sans))] placeholder:font-sans placeholder:text-[15px] placeholder:text-slate-400 dark:placeholder:text-slate-500 [&:placeholder-shown]:!font-sans"
+            class="textbox is-unicode w-full min-h-[340px] p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y outline-none focus:border-emerald-500 [&.is-bijoy]:font-['SutonnyMJ',var(--font-sans)] [&.is-unicode]:font-[family-name:var(--preview-font,var(--font-sans))] placeholder:font-sans placeholder:text-[15px] placeholder:text-slate-400 dark:placeholder:text-slate-500 [&:placeholder-shown]:!font-sans"
             spellcheck="false"
             autocomplete="off"
             autocapitalize="off"
@@ -386,7 +386,7 @@
           <textarea
             id="outputText"
             hidden
-            class="textbox textbox--out is-bijoy w-full min-h-[340px] p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-[#0F172A] text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y outline-none focus:border-emerald-500 transition-[border-color,box-shadow] duration-300 [&.flash]:border-emerald-500 [&.flash]:ring-2 [&.flash]:ring-emerald-500/20 [&.is-bijoy]:font-['SutonnyMJ',var(--font-sans)] [&.is-unicode]:font-[family-name:var(--preview-font,var(--font-sans))] placeholder:font-sans placeholder:text-[15px] placeholder:text-slate-400 dark:placeholder:text-slate-500 [&:placeholder-shown]:!font-sans"
+            class="textbox textbox--out is-bijoy w-full min-h-[340px] p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y outline-none focus:border-emerald-500 transition-[border-color,box-shadow] duration-300 [&.flash]:border-emerald-500 [&.flash]:ring-2 [&.flash]:ring-emerald-500/20 [&.is-bijoy]:font-['SutonnyMJ',var(--font-sans)] [&.is-unicode]:font-[family-name:var(--preview-font,var(--font-sans))] placeholder:font-sans placeholder:text-[15px] placeholder:text-slate-400 dark:placeholder:text-slate-500 [&:placeholder-shown]:!font-sans"
             readonly
             spellcheck="false"
             placeholder="রূপান্তরিত লেখা এখানে দেখাবে…"
@@ -403,7 +403,7 @@
             placeholder="রূপান্তরিত লেখা এখানে দেখাবে…"
             data-i18n-placeholder-bn="রূপান্তরিত লেখা এখানে দেখাবে…"
             data-i18n-placeholder-en="Converted text will appear here…"
-            class="textbox textbox--out is-bijoy w-full min-h-[340px] p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-[#0F172A] text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y overflow-y-auto whitespace-pre-wrap break-words outline-none focus:border-emerald-500 transition-[border-color,box-shadow] duration-300 [&.flash]:border-emerald-500 [&.flash]:ring-2 [&.flash]:ring-emerald-500/20 empty:before:content-[attr(placeholder)] empty:before:font-sans empty:before:text-[15px] empty:before:text-slate-400 dark:empty:before:text-slate-500 empty:before:pointer-events-none select-text"
+            class="textbox textbox--out is-bijoy w-full min-h-[340px] p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y overflow-y-auto whitespace-pre-wrap break-words outline-none focus:border-emerald-500 transition-[border-color,box-shadow] duration-300 [&.flash]:border-emerald-500 [&.flash]:ring-2 [&.flash]:ring-emerald-500/20 empty:before:content-[attr(placeholder)] empty:before:font-sans empty:before:text-[15px] empty:before:text-slate-400 dark:empty:before:text-slate-500 empty:before:pointer-events-none select-text"
           ></div>
           <div class="flex items-center justify-between text-xs text-slate-500 dark:text-studio-muted px-0.5">
             <span id="outputCount">০ অক্ষর • ০ শব্দ</span>
@@ -540,7 +540,7 @@
 
           <div class="flex flex-wrap items-center gap-2">
             <button
-              class="inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 text-xs font-bold cursor-pointer hover:enabled:bg-emerald-700 dark:hover:enabled:bg-emerald-400 disabled:opacity-45 disabled:cursor-not-allowed transition-colors"
+              class="inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-emerald-600 dark:bg-emerald-500 text-white dark:text-white text-xs font-bold cursor-pointer hover:enabled:bg-emerald-700 dark:hover:enabled:bg-emerald-400 disabled:opacity-45 disabled:cursor-not-allowed transition-colors"
               id="convertFilesBtn"
               type="button"
               disabled

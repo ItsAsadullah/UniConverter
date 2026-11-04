@@ -60,7 +60,15 @@
   --color-teal-900: #1e3a8a;
   --color-teal-950: #172554;
 
-  /* Neutralize dark slate backgrounds to Antigravity Carbon Grays */
+  /* Neutralize entire slate scale to Antigravity Carbon/Zinc Grays (Zero Blue Tint) */
+  --color-slate-50: #fafafa;
+  --color-slate-100: #f4f4f5;
+  --color-slate-200: #e4e4e7;
+  --color-slate-300: #d4d4d8;
+  --color-slate-400: #a1a1aa;
+  --color-slate-500: #71717a;
+  --color-slate-600: #52525b;
+  --color-slate-700: #3f3f46;
   --color-slate-800: #242429;
   --color-slate-900: #18181c;
   --color-slate-950: #0e0e10;
@@ -175,6 +183,14 @@
     --th-primary: #3b82f6;
     --th-primary-hover: #60a5fa;
     --th-primary-soft: rgba(59, 130, 246, 0.14);
+  }
+
+  [data-theme="dark"] .sub-tab-btn.active,
+  [data-theme="dark"] .cal-mode-tab.active,
+  [data-theme="dark"] .th-dir-tab.is-active,
+  [data-theme="dark"] .th-cmd-cat.is-active,
+  [data-theme="dark"] .ds-eraser-mode[aria-pressed="true"] {
+    color: #ffffff !important;
   }
 
   [hidden] {
