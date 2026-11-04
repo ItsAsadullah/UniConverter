@@ -734,44 +734,19 @@
           class="ds-preview-panel group-data-[view=crop]/ds:hidden min-w-0 min-h-0 flex flex-col rounded-lg group-data-[editing=true]/ds:rounded-none border border-slate-200 dark:border-studio-border group-data-[editing=true]/ds:border-0 bg-white dark:bg-studio-sidebar overflow-hidden shadow-2xs"
           aria-label={t.previewCaption}
         >
-          <div
-            class="ds-canvas-caption group-data-[editing=true]/ds:!hidden min-h-[34px] px-3 py-1 border-b border-slate-200 dark:border-studio-border flex items-center justify-between gap-2 text-[13px] font-bold text-slate-800 dark:text-studio-text bg-slate-50/90 dark:bg-studio-panel shrink-0"
-          >
-            <span class="inline-flex items-center gap-2 min-w-0">
-              <i class="w-2 h-2 rounded-full bg-teal-500 inline-block shrink-0"></i>
-              <em class="not-italic truncate" data-i18n="previewCaption">{t.previewCaption}</em>
-            </span>
-            <div class="ds-preview-caption-actions inline-flex items-center gap-2 shrink-0">
-              <small id="dsPreviewMeta" class="text-slate-500 dark:text-studio-muted font-semibold text-[12px] tabular-nums truncate">—</small>
-              <button
-                type="button"
-                data-ds="toggle-eraser"
-                id="dsEraserToggle"
-                aria-pressed="false"
-                disabled
-                data-i18n-title="retouchTip"
-                title={t.retouchTip}
-                class="inline-flex items-center justify-center gap-1.5 h-7 px-2.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-700 dark:text-studio-text text-[12px] font-bold cursor-pointer hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 aria-pressed:bg-emerald-600 dark:aria-pressed:bg-emerald-500 aria-pressed:text-white dark:aria-pressed:text-slate-950 aria-pressed:border-emerald-600 aria-pressed:[&_svg]:!text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-              >
-                <Icon name="lucide:wand-2" class="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" />
-                <span data-i18n="retouchShortBtn">{t.retouchShortBtn}</span>
-              </button>
-            </div>
-          </div>
-
           <!-- PHOTOSHOP-STYLE CONTEXTUAL TOOL OPTIONS BAR (CHANGES WITH THE ACTIVE TOOL) -->
           <div
-            class="ds-eraser-bar relative z-30 min-h-[36px] px-2.5 py-1 bg-[#f0f0f0] dark:bg-[#2b2b2b] border-b border-slate-300 dark:border-[#181818] flex items-center gap-2 flex-wrap shrink-0 select-none"
+            class="ds-eraser-bar relative z-30 min-h-[38px] px-3 py-1 bg-[#f3f4f6] dark:bg-[#18181c] border-b border-slate-300 dark:border-[#27272c] flex items-center gap-2 flex-wrap shrink-0 select-none shadow-2xs"
             id="dsEraserBar"
             hidden
           >
             <!-- Active Tool Preset Badge -->
             <div
               id="dsPsActiveToolLabel"
-              class="inline-flex items-center gap-1.5 h-[25px] pl-1.5 pr-2 rounded-[3px] border border-slate-300 dark:border-[#141414] bg-white dark:bg-[#383838] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] shrink-0"
+              class="inline-flex items-center gap-1.5 h-[26px] pl-2 pr-2.5 rounded-[4px] border border-slate-300 dark:border-[#2e2e34] bg-white dark:bg-[#242429] shadow-2xs shrink-0"
             >
-              <span id="dsPsActiveToolIcon" class="inline-flex w-4 h-4 text-slate-700 dark:text-[#e6e6e6] [&_svg]:w-4 [&_svg]:h-4"></span>
-              <b class="text-[11.5px] font-medium text-slate-800 dark:text-[#e6e6e6] whitespace-nowrap">Brush Tool</b>
+              <span id="dsPsActiveToolIcon" class="inline-flex w-4 h-4 text-blue-600 dark:text-blue-400 [&_svg]:w-4 [&_svg]:h-4"></span>
+              <b class="text-[11.5px] font-semibold text-slate-800 dark:text-[#ececef] whitespace-nowrap">Brush Tool</b>
             </div>
             <span class={psSep}></span>
 
@@ -871,28 +846,30 @@
             </div>
 
             <!-- Brush Size / Hardness / Mode / Opacity / Flow / Sample (Photoshop Options Bar Layout) -->
-            <div class="inline-flex items-center gap-2.5 flex-wrap shrink-0" id="dsPsBrushOpts" data-ds-opts="brush heal clone dodge burn">
-              <label class="inline-flex items-center gap-1.5 shrink-0">
+            <div class="inline-flex items-center gap-2 flex-wrap shrink-0" id="dsPsBrushOpts" data-ds-opts="brush heal clone dodge burn">
+              <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-tip="Brush Size ( [ / ] )">
                 <span class="{psLbl} cursor-ew-resize"><span data-i18n="sizeLbl">{t.sizeLbl}</span>:</span>
-                <div class="{psPod} w-[68px]">
-                  <span id="dsBrushSizeFill" class="absolute bottom-0 left-0 h-[2px] bg-sky-500/80 dark:bg-sky-400/80 pointer-events-none" style="width:19%"></span>
-                  <output id="dsBrushSizeVal" class="relative z-10 flex-1 text-left font-medium text-[11.5px] text-slate-800 dark:text-[#ececec] tabular-nums pointer-events-none">24px</output>
-                  <span class="relative z-10 text-[9px] text-slate-400 dark:text-[#8c8c8c] pointer-events-none">▾</span>
-                  <input type="range" id="dsBrushSize" min="2" max="120" value="24" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" data-ds-tip="Brush Size  ( [ / ] )" />
+                <div class="inline-flex items-center gap-1.5 h-[26px] px-2 rounded-[4px] bg-white dark:bg-[#1e1e22] border border-slate-300 dark:border-[#323238] hover:border-slate-400 dark:hover:border-blue-500/50 transition-colors">
+                  <input type="range" id="dsBrushSize" min="2" max="120" value="24" class="ds-btn-slider w-[54px] h-1 cursor-pointer m-0" aria-label="Brush Size Slider" />
+                  <input type="number" id="dsBrushSizeNum" min="2" max="120" step="1" value="24" class="w-[34px] h-[20px] px-0.5 border-0 bg-transparent text-right font-semibold text-[11.5px] text-slate-800 dark:text-[#ececef] tabular-nums outline-none focus:bg-blue-500/15 rounded-[2px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" aria-label="Brush Size px" />
+                  <span class="text-[10.5px] text-slate-400 dark:text-[#8e8e96] select-none">px</span>
+                  <output id="dsBrushSizeVal" class="sr-only">24px</output>
+                  <span id="dsBrushSizeFill" class="hidden" style="width:19%"></span>
                 </div>
                 <button type="button" data-ds-reset-retouch="size" class={psReset} aria-hidden="true"></button>
-              </label>
+              </div>
 
-              <label class="inline-flex items-center gap-1.5 shrink-0">
+              <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-tip="Brush Hardness ( Shift + [ / ] )">
                 <span class="{psLbl} cursor-ew-resize"><span data-i18n="hardnessLbl">{t.hardnessLbl}</span>:</span>
-                <div class="{psPod} w-[64px]">
-                  <span id="dsBrushHardnessFill" class="absolute bottom-0 left-0 h-[2px] bg-sky-500/80 dark:bg-sky-400/80 pointer-events-none" style="width:80%"></span>
-                  <output id="dsBrushHardnessVal" class="relative z-10 flex-1 text-left font-medium text-[11.5px] text-slate-800 dark:text-[#ececec] tabular-nums pointer-events-none">80%</output>
-                  <span class="relative z-10 text-[9px] text-slate-400 dark:text-[#8c8c8c] pointer-events-none">▾</span>
-                  <input type="range" id="dsBrushHardness" min="0" max="100" value="80" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" data-ds-tip="Brush Hardness  ( Shift + [ / ] )" />
+                <div class="inline-flex items-center gap-1.5 h-[26px] px-2 rounded-[4px] bg-white dark:bg-[#1e1e22] border border-slate-300 dark:border-[#323238] hover:border-slate-400 dark:hover:border-blue-500/50 transition-colors">
+                  <input type="range" id="dsBrushHardness" min="0" max="100" value="80" class="ds-btn-slider w-[48px] h-1 cursor-pointer m-0" aria-label="Brush Hardness Slider" />
+                  <input type="number" id="dsBrushHardnessNum" min="0" max="100" step="1" value="80" class="w-[32px] h-[20px] px-0.5 border-0 bg-transparent text-right font-semibold text-[11.5px] text-slate-800 dark:text-[#ececef] tabular-nums outline-none focus:bg-blue-500/15 rounded-[2px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" aria-label="Brush Hardness %" />
+                  <span class="text-[10.5px] text-slate-400 dark:text-[#8e8e96] select-none">%</span>
+                  <output id="dsBrushHardnessVal" class="sr-only">80%</output>
+                  <span id="dsBrushHardnessFill" class="hidden" style="width:80%"></span>
                 </div>
                 <button type="button" data-ds-reset-retouch="hardness" class={psReset} aria-hidden="true"></button>
-              </label>
+              </div>
 
               <!-- Blend Mode (Brush, Spot Healing, Clone Stamp) -->
               <label class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="brush heal clone">
@@ -915,28 +892,30 @@
               </label>
 
               <!-- Opacity / Exposure -->
-              <label class="inline-flex items-center gap-1.5 shrink-0">
+              <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-tip="Opacity / Exposure ( 1 – 0 keys )">
                 <span class="{psLbl} cursor-ew-resize"><span id="dsBrushOpacityLbl">Opacity</span>:</span>
-                <div class="{psPod} w-[64px]">
-                  <span id="dsBrushOpacityFill" class="absolute bottom-0 left-0 h-[2px] bg-sky-500/80 dark:bg-sky-400/80 pointer-events-none" style="width:100%"></span>
-                  <output id="dsBrushOpacityVal" class="relative z-10 flex-1 text-left font-medium text-[11.5px] text-slate-800 dark:text-[#ececec] tabular-nums pointer-events-none">100%</output>
-                  <span class="relative z-10 text-[9px] text-slate-400 dark:text-[#8c8c8c] pointer-events-none">▾</span>
-                  <input type="range" id="dsBrushOpacity" min="10" max="100" value="100" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" data-ds-tip="Opacity / Exposure  ( 1 – 0 keys )" />
+                <div class="inline-flex items-center gap-1.5 h-[26px] px-2 rounded-[4px] bg-white dark:bg-[#1e1e22] border border-slate-300 dark:border-[#323238] hover:border-slate-400 dark:hover:border-blue-500/50 transition-colors">
+                  <input type="range" id="dsBrushOpacity" min="10" max="100" value="100" class="ds-btn-slider w-[48px] h-1 cursor-pointer m-0" aria-label="Opacity Slider" />
+                  <input type="number" id="dsBrushOpacityNum" min="10" max="100" step="1" value="100" class="w-[32px] h-[20px] px-0.5 border-0 bg-transparent text-right font-semibold text-[11.5px] text-slate-800 dark:text-[#ececef] tabular-nums outline-none focus:bg-blue-500/15 rounded-[2px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" aria-label="Opacity %" />
+                  <span class="text-[10.5px] text-slate-400 dark:text-[#8e8e96] select-none">%</span>
+                  <output id="dsBrushOpacityVal" class="sr-only">100%</output>
+                  <span id="dsBrushOpacityFill" class="hidden" style="width:100%"></span>
                 </div>
                 <button type="button" data-ds-reset-retouch="opacity" class={psReset} aria-hidden="true"></button>
-              </label>
+              </div>
 
               <!-- Flow (Brush, Spot Healing, Clone Stamp) -->
-              <label class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="brush heal clone">
+              <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="brush heal clone" data-ds-tip="Brush Flow Rate (1% – 100%)">
                 <span class="{psLbl} cursor-ew-resize">Flow:</span>
-                <div class="{psPod} w-[64px]">
-                  <span id="dsBrushFlowFill" class="absolute bottom-0 left-0 h-[2px] bg-sky-500/80 dark:bg-sky-400/80 pointer-events-none" style="width:100%"></span>
-                  <output id="dsBrushFlowVal" class="relative z-10 flex-1 text-left font-medium text-[11.5px] text-slate-800 dark:text-[#ececec] tabular-nums pointer-events-none">100%</output>
-                  <span class="relative z-10 text-[9px] text-slate-400 dark:text-[#8c8c8c] pointer-events-none">▾</span>
-                  <input type="range" id="dsBrushFlow" min="1" max="100" value="100" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" data-ds-tip="Brush Flow Rate (1% – 100%)" />
+                <div class="inline-flex items-center gap-1.5 h-[26px] px-2 rounded-[4px] bg-white dark:bg-[#1e1e22] border border-slate-300 dark:border-[#323238] hover:border-slate-400 dark:hover:border-blue-500/50 transition-colors">
+                  <input type="range" id="dsBrushFlow" min="1" max="100" value="100" class="ds-btn-slider w-[48px] h-1 cursor-pointer m-0" aria-label="Flow Slider" />
+                  <input type="number" id="dsBrushFlowNum" min="1" max="100" step="1" value="100" class="w-[32px] h-[20px] px-0.5 border-0 bg-transparent text-right font-semibold text-[11.5px] text-slate-800 dark:text-[#ececef] tabular-nums outline-none focus:bg-blue-500/15 rounded-[2px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" aria-label="Flow %" />
+                  <span class="text-[10.5px] text-slate-400 dark:text-[#8e8e96] select-none">%</span>
+                  <output id="dsBrushFlowVal" class="sr-only">100%</output>
+                  <span id="dsBrushFlowFill" class="hidden" style="width:100%"></span>
                 </div>
                 <button type="button" data-ds-reset-retouch="flow" class={psReset} aria-hidden="true"></button>
-              </label>
+              </div>
 
               <!-- Sample Source (Spot Healing / Clone Stamp) -->
               <label class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="heal clone">
@@ -1361,6 +1340,11 @@
             class="ds-page-pill px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-[12px] font-bold text-slate-700 dark:text-studio-text tabular-nums"
             id="dsPageName">{t.pageWord} 1</span
           >
+          <small
+            id="dsPreviewMeta"
+            class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-slate-600 dark:text-studio-muted font-semibold text-[11.5px] tabular-nums whitespace-nowrap"
+            >—</small
+          >
         </div>
         <span id="dsStatus" role="status" class="text-slate-800 dark:text-studio-text font-semibold text-[12.5px] truncate">{t.statusInitial}</span>
         <div class="ds-status-right inline-flex items-center gap-2">
@@ -1742,117 +1726,162 @@
         </div>
       </section>
 
-      <!-- PANEL 4: PINNED PAGE SETUP & DIRECT 1-CLICK EXPORT DOCK -->
-      <div class="ds-export ds-section ds-export-settings border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar shrink-0">
-        <div class="px-3 py-1.5 bg-slate-50/95 dark:bg-studio-panel border-b border-slate-200/80 dark:border-studio-border flex items-center justify-between gap-1.5">
-          <span class="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-slate-800 dark:text-studio-text">
-            <Icon name="lucide:file-down" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span data-i18n="accExportTitle">{t.accExportTitle}</span>
-            <span
-              class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/12 text-emerald-700 dark:text-emerald-300 text-[10.5px] font-bold"
-              data-i18n="accExportBadge">{t.accExportBadge}</span
-            >
-          </span>
-          <button
-            type="button"
-            data-ds-reset-section="export"
-            class="inline-flex items-center justify-center w-6 h-6 rounded border border-slate-200/90 dark:border-studio-border bg-white dark:bg-studio-sidebar text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface transition-colors"
-            data-i18n-title="resetExportTip"
-            title={t.resetExportTip}
-          >
-            <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 shrink-0" />
-            <span class="sr-only" data-i18n="resetExportTip">{t.resetExportTip}</span>
-          </button>
-        </div>
-
-        <div class="p-2.5 grid gap-2">
-        <!-- Direct Page Setup Controls -->
-        <div class="grid gap-1.5">
-          <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-1.5">
-            <input
-              type="text"
-              id="dsFilename"
-              value="TechHat-document"
-              maxlength="100"
-              aria-label={t.lblFilename}
-              placeholder={t.lblFilename}
-              class="min-w-0 w-full min-h-[30px] px-2.5 py-1 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[12px] font-semibold outline-none focus:border-emerald-500"
-            />
-            <label
-              class="inline-flex items-center gap-1.5 min-h-[30px] px-2 py-1 rounded-md bg-white dark:bg-studio-panel border border-slate-200 dark:border-studio-border cursor-pointer text-[12px] font-semibold text-slate-700 dark:text-studio-text whitespace-nowrap"
-              title={t.lblMargin}
-            >
-              <input type="checkbox" id="dsMargin" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer shrink-0" />
-              <span data-i18n="lblMargin">{t.lblMargin}</span>
-            </label>
-          </div>
-
-          <div class="grid grid-cols-2 gap-1.5">
-            <select
-              id="dsPaper"
-              aria-label={t.lblPaperSize}
-              title={t.lblPaperSize}
-              class="w-full min-h-[30px] px-2 py-0.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[12px] font-semibold outline-none focus:border-emerald-500 cursor-pointer"
-            >
-              <option value="a4" data-i18n="paperA4">{t.paperA4}</option>
-              <option value="letter" data-i18n="paperLetter">{t.paperLetter}</option>
-              <option value="original" data-i18n="paperOrig">{t.paperOrig}</option>
-            </select>
-            <select
-              id="dsQuality"
-              aria-label={t.lblQuality}
-              title={t.lblQuality}
-              class="w-full min-h-[30px] px-2 py-0.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[12px] font-semibold outline-none focus:border-emerald-500 cursor-pointer"
-            >
-              <option value="high" data-i18n="qualHigh">{t.qualHigh}</option>
-              <option value="balanced" selected data-i18n="qualBalanced">{t.qualBalanced}</option>
-              <option value="small" data-i18n="qualSmall">{t.qualSmall}</option>
-            </select>
-          </div>
-
-          <!-- Hidden Crop Learning Controls -->
-          <div class="hidden">
-            <select id="dsDatasetSplit" aria-label={t.lblDatasetMode}>
-              <option value="training">Training</option>
-              <option value="testing">Testing</option>
-            </select>
-            <button type="button" data-ds="clear-learning">{t.learnedPrefix}0</button>
-          </div>
-        </div>
-
-        <!-- Primary & Secondary 1-Click Export Actions -->
-        <button type="button" class="{btnPrimary} w-full min-h-[36px] justify-between px-3.5 text-[13px] rounded-lg" data-ds="pdf" disabled>
+      <!-- PANEL 4: SINGLE CLEAN EXPORT & PRINT TRIGGER BUTTON -->
+      <div class="ds-export ds-section ds-export-settings p-3 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar shrink-0">
+        <button
+          type="button"
+          class="{btnPrimary} w-full min-h-[40px] justify-between px-4 text-[13.5px] rounded-xl shadow-xs"
+          data-ds="open-export-modal"
+          id="dsOpenExportModalBtn"
+          disabled
+        >
           <span class="inline-flex items-center gap-2">
             <Icon name="lucide:file-down" class="w-4 h-4 shrink-0" />
-            <span data-i18n="downloadPdfBtn">{t.downloadPdfBtn}</span>
+            <span data-i18n-bn="এক্সপোর্ট ও প্রিন্ট" data-i18n-en="Export & Print">এক্সপোর্ট ও প্রিন্ট</span>
           </span>
-          <span id="dsExportCount" class="px-2 py-0.5 rounded-full bg-black/15 text-[11.5px] font-extrabold tabular-nums">0 pages</span>
+          <span id="dsExportCount" class="px-2.5 py-0.5 rounded-full bg-black/20 text-[11.5px] font-extrabold tabular-nums">0 pages</span>
         </button>
-
-        <div class="ds-export-sub grid grid-cols-4 gap-1.5">
-          <button type="button" data-ds="jpg" class="{btnBase} w-full min-h-[30px] px-1.5 justify-center text-[12px] rounded-md" disabled title="Download Current Page as JPG">
-            <Icon name="lucide:image-down" class="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
-            <span data-i18n="downloadJpgBtn">{t.downloadJpgBtn}</span>
-          </button>
-          <button type="button" data-ds="png" class="{btnBase} w-full min-h-[30px] px-1.5 justify-center text-[12px] rounded-md" disabled title="Download Current Page as Lossless PNG">
-            <Icon name="lucide:file-image" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-            <span data-i18n="downloadPngBtn">{t.downloadPngBtn}</span>
-          </button>
-          <button type="button" data-ds="zip" class="{btnBase} w-full min-h-[30px] px-1.5 justify-center text-[12px] rounded-md" disabled title="Download All Pages as ZIP">
-            <Icon name="lucide:archive" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-            <span data-i18n="downloadZipBtn">{t.downloadZipBtn}</span>
-          </button>
-          <button type="button" data-ds="print" class="{btnBase} w-full min-h-[30px] px-1.5 justify-center text-[12px] rounded-md" disabled data-i18n-title="printTip" title={t.printTip}>
-            <Icon name="lucide:printer" class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
-            <span data-i18n="printBtn">{t.printBtn}</span>
-          </button>
-        </div>
-        </div>
       </div>
     </aside>
   </div>
 
   <!-- MODALS -->
+  <dialog
+    id="dsExportDialog"
+    class="ds-export-dialog w-[min(520px,94vw)] border border-slate-200 dark:border-studio-border rounded-2xl bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text p-0 shadow-2xl backdrop:bg-slate-950/75 backdrop:backdrop-blur-xs overflow-hidden"
+    aria-labelledby="dsExportDialogTitle"
+  >
+    <div class="px-5 py-3.5 bg-slate-50 dark:bg-studio-panel border-b border-slate-200 dark:border-studio-border flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 inline-flex items-center justify-center shrink-0">
+          <Icon name="lucide:file-down" class="w-4 h-4" />
+        </span>
+        <div>
+          <h2 id="dsExportDialogTitle" class="m-0 text-[15px] font-extrabold text-slate-900 dark:text-studio-text leading-tight">
+            <span data-i18n-bn="এক্সপোর্ট ও প্রিন্ট (Export & Print)" data-i18n-en="Export & Print Document">এক্সপোর্ট ও প্রিন্ট (Export & Print)</span>
+          </h2>
+          <p class="m-0 text-[11.5px] text-slate-500 dark:text-studio-muted">
+            <span data-i18n="accExportBadge">{t.accExportBadge}</span>
+          </p>
+        </div>
+      </div>
+      <div class="inline-flex items-center gap-1.5">
+        <button
+          type="button"
+          data-ds-reset-section="export"
+          class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-50 dark:hover:bg-studio-surface transition-colors"
+          data-i18n-title="resetExportTip"
+          title={t.resetExportTip}
+        >
+          <Icon name="lucide:rotate-ccw" class="w-4 h-4 shrink-0" />
+          <span class="sr-only" data-i18n="resetExportTip">{t.resetExportTip}</span>
+        </button>
+        <button
+          type="button"
+          data-ds="export-close"
+          class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-studio-surface transition-colors"
+          aria-label={t.closeDrawerTip}
+        >✕</button>
+      </div>
+    </div>
+
+    <div class="p-5 grid gap-4">
+      <!-- Page Setup Section -->
+      <div class="grid gap-3 p-3.5 rounded-xl bg-slate-50/80 dark:bg-studio-panel border border-slate-200 dark:border-studio-border">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[12px] font-bold uppercase tracking-wider text-slate-500 dark:text-studio-muted" data-i18n="accExportTitle">{t.accExportTitle}</span>
+          <label
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border cursor-pointer text-[12px] font-semibold text-slate-700 dark:text-studio-text whitespace-nowrap"
+            title={t.lblMargin}
+          >
+            <input type="checkbox" id="dsMargin" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer shrink-0" />
+            <span data-i18n="lblMargin">{t.lblMargin}</span>
+          </label>
+        </div>
+
+        <label class="grid gap-1 text-[12px] font-semibold text-slate-700 dark:text-studio-text">
+          <span data-i18n="lblFilename">{t.lblFilename}</span>
+          <input
+            type="text"
+            id="dsFilename"
+            value="TechHat-document"
+            maxlength="100"
+            aria-label={t.lblFilename}
+            placeholder={t.lblFilename}
+            class="min-w-0 w-full min-h-[36px] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[13px] font-semibold outline-none focus:border-emerald-500"
+          />
+        </label>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <label class="grid gap-1 text-[12px] font-semibold text-slate-700 dark:text-studio-text">
+            <span data-i18n="lblPaperSize">{t.lblPaperSize}</span>
+            <select
+              id="dsPaper"
+              aria-label={t.lblPaperSize}
+              title={t.lblPaperSize}
+              class="w-full min-h-[36px] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[12.5px] font-semibold outline-none focus:border-emerald-500 cursor-pointer"
+            >
+              <option value="a4" data-i18n="paperA4">{t.paperA4}</option>
+              <option value="letter" data-i18n="paperLetter">{t.paperLetter}</option>
+              <option value="original" data-i18n="paperOrig">{t.paperOrig}</option>
+            </select>
+          </label>
+          <label class="grid gap-1 text-[12px] font-semibold text-slate-700 dark:text-studio-text">
+            <span data-i18n="lblQuality">{t.lblQuality}</span>
+            <select
+              id="dsQuality"
+              aria-label={t.lblQuality}
+              title={t.lblQuality}
+              class="w-full min-h-[36px] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text text-[12.5px] font-semibold outline-none focus:border-emerald-500 cursor-pointer"
+            >
+              <option value="high" data-i18n="qualHigh">{t.qualHigh}</option>
+              <option value="balanced" selected data-i18n="qualBalanced">{t.qualBalanced}</option>
+              <option value="small" data-i18n="qualSmall">{t.qualSmall}</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Hidden Crop Learning Controls -->
+        <div class="hidden">
+          <select id="dsDatasetSplit" aria-label={t.lblDatasetMode}>
+            <option value="training">Training</option>
+            <option value="testing">Testing</option>
+          </select>
+          <button type="button" data-ds="clear-learning">{t.learnedPrefix}0</button>
+        </div>
+      </div>
+
+      <!-- Export & Print Format Options -->
+      <div class="grid gap-2.5">
+        <button type="button" class="{btnPrimary} w-full min-h-[42px] justify-between px-4 text-[14px] rounded-xl shadow-xs" data-ds="pdf" disabled>
+          <span class="inline-flex items-center gap-2.5">
+            <Icon name="lucide:file-down" class="w-4.5 h-4.5 shrink-0" />
+            <span data-i18n="downloadPdfBtn">{t.downloadPdfBtn}</span>
+          </span>
+          <span id="dsExportModalCount" class="px-2.5 py-0.5 rounded-full bg-black/20 text-[12px] font-extrabold tabular-nums">0 pages</span>
+        </button>
+
+        <div class="ds-export-sub grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button type="button" data-ds="jpg" class="{btnBase} w-full min-h-[38px] px-2.5 justify-center text-[12.5px] rounded-xl" disabled title="Download Current Page as JPG">
+            <Icon name="lucide:image-down" class="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+            <span data-i18n="downloadJpgBtn">{t.downloadJpgBtn}</span>
+          </button>
+          <button type="button" data-ds="png" class="{btnBase} w-full min-h-[38px] px-2.5 justify-center text-[12.5px] rounded-xl" disabled title="Download Current Page as Lossless PNG">
+            <Icon name="lucide:file-image" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <span data-i18n="downloadPngBtn">{t.downloadPngBtn}</span>
+          </button>
+          <button type="button" data-ds="zip" class="{btnBase} w-full min-h-[38px] px-2.5 justify-center text-[12.5px] rounded-xl" disabled title="Download All Pages as ZIP">
+            <Icon name="lucide:archive" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span data-i18n="downloadZipBtn">{t.downloadZipBtn}</span>
+          </button>
+          <button type="button" data-ds="print" class="{btnBase} w-full min-h-[38px] px-2.5 justify-center text-[12.5px] rounded-xl" disabled data-i18n-title="printTip" title={t.printTip}>
+            <Icon name="lucide:printer" class="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" />
+            <span data-i18n="printBtn">{t.printBtn}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
   <dialog
     id="dsCameraDialog"
     class="ds-camera-dialog w-[min(640px,94vw)] border border-slate-200 dark:border-studio-border rounded-2xl bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text p-4 shadow-2xl backdrop:bg-slate-950/70 backdrop:backdrop-blur-xs"
