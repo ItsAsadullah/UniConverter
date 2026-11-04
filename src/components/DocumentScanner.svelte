@@ -1537,6 +1537,12 @@
 
         <!-- TAB PANE 2: SMART FIX & CLEANUP -->
         <section data-ds-insp-pane="smart" hidden class="ds-section ds-smart-options bg-white dark:bg-studio-panel overflow-hidden shrink-0">
+          <div class="ds-crop-tab-head hidden min-h-[34px] px-1.5 pt-1 items-end justify-between gap-1 border-t border-b border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-[#252525] shrink-0">
+            <div class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-t-md border border-b-0 border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-[11.5px] font-bold text-emerald-600 dark:text-emerald-400">
+              <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span>Smart Fix</span>
+            </div>
+          </div>
           <div class="px-2.5 py-1 bg-slate-50/70 dark:bg-studio-sidebar/60 border-b border-slate-100 dark:border-studio-border flex items-center justify-between gap-1.5">
             <span class="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-slate-600 dark:text-studio-muted">
               <span data-i18n="accSmartTitle">{t.accSmartTitle}</span>
@@ -1582,6 +1588,12 @@
 
         <!-- TAB PANE 3: MANUAL ADJUSTMENTS -->
         <section data-ds-insp-pane="manual" hidden class="ds-section ds-sliders bg-white dark:bg-studio-panel overflow-hidden shrink-0">
+          <div class="ds-crop-tab-head hidden min-h-[34px] px-1.5 pt-1 items-end justify-between gap-1 border-t border-b border-slate-200 dark:border-studio-border bg-slate-100 dark:bg-[#252525] shrink-0">
+            <div class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-t-md border border-b-0 border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-[11.5px] font-bold text-emerald-600 dark:text-emerald-400">
+              <Icon name="lucide:sliders-horizontal" class="w-3.5 h-3.5 text-blue-500 shrink-0" />
+              <span>Adjustments</span>
+            </div>
+          </div>
           <div class="px-2.5 py-1 bg-slate-50/70 dark:bg-studio-sidebar/60 border-b border-slate-100 dark:border-studio-border flex items-center justify-between gap-1.5">
             <span class="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-slate-600 dark:text-studio-muted">
               <span data-i18n="accManualTitle">{t.accManualTitle}</span>
