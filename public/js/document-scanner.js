@@ -122,28 +122,39 @@
     st.trim=p.settings.trim||0;st.bgColor=p.settings.bgColor||eraserColor||'#ffffff';st.erases=copy(p.erases||[]);
     var context=warped.getContext('2d',{willReadFrequently:true}),im=context.getImageData(0,0,warped.width,warped.height),result=await workerJob('enhance',im,st);context.putImageData(new ImageData(result.data,warped.width,warped.height),0,0);warped._scanInfo=result.info;return warped;
   }
-  var previewLoadStart=0;
+  var previewLoadStart=0,previewDoneTimer=null,previewHideTimer=null;
   function setPreviewLoading(on){
     var loader=$('#dsPreviewLoader'),wrap=$('#dsPreviewWrap'),canvas=$('#dsPreview');
     if(!loader)return;
+    clearTimeout(previewDoneTimer);
+    clearTimeout(previewHideTimer);
     if(on){
-      if(loader.hidden)previewLoadStart=performance.now();
+      if(loader.hidden||loader.dataset.state!=='loading')previewLoadStart=performance.now();
+      loader.dataset.state='loading';
       loader.hidden=false;
       if(wrap)wrap.classList.add('is-generating');
     }else{
-      loader.hidden=true;
       if(wrap)wrap.classList.remove('is-generating');
       if(canvas){
         canvas.classList.remove('is-revealing');
         void canvas.offsetWidth;
         canvas.classList.add('is-revealing');
       }
+      if(loader.hidden)return;
+      loader.dataset.state='done';
+      previewDoneTimer=setTimeout(function(){
+        loader.dataset.state='exiting';
+        previewHideTimer=setTimeout(function(){
+          loader.hidden=true;
+          loader.dataset.state='loading';
+        },260);
+      },380);
     }
   }
   function schedulePreview(){clearTimeout(previewTimer);var token=++renderToken;if(current()&&!eraserStroke)setPreviewLoading(true);previewTimer=setTimeout(function(){renderPreview(token);},60);}
   async function renderPreview(token){
     var p=current();if(!p)return;var version=p.revision,id=p.id,isCompare=compare;
-    try{if(!eraserStroke)setPreviewLoading(true);status(tr('প্রিভিউ তৈরি হচ্ছে…','Rendering preview…'));var out=await processPage(p,1100,isCompare);if(token!==renderToken||activeId!==id||p.revision!==version)return;var canvas=$('#dsPreview');canvas.width=out.width;canvas.height=out.height;canvas.getContext('2d').drawImage(out,0,0);setPreviewLoading(false);root.style.setProperty('--ds-ratio',out.width/out.height);$('#dsPreviewMeta').textContent=isCompare?tr('মূল ছবি','Original'):out.width+' × '+out.height+' px';status(tr('পেজ '+bn(pages.indexOf(p)+1)+' প্রস্তুত · পরিবর্তন স্বয়ংক্রিয়ভাবে প্রিভিউতে দেখা যায়','Page '+bn(pages.indexOf(p)+1)+' ready · Changes update automatically in preview'));
+    try{if(!eraserStroke)setPreviewLoading(true);status(tr('প্রিভিউ তৈরি হচ্ছে…','Rendering preview…'));var out=await processPage(p,1100,isCompare);if(token!==renderToken||activeId!==id||p.revision!==version)return;var elapsed=performance.now()-previewLoadStart;if(elapsed<240)await new Promise(function(r){setTimeout(r,240-elapsed);});if(token!==renderToken||activeId!==id||p.revision!==version)return;var canvas=$('#dsPreview');canvas.width=out.width;canvas.height=out.height;canvas.getContext('2d').drawImage(out,0,0);setPreviewLoading(false);root.style.setProperty('--ds-ratio',out.width/out.height);$('#dsPreviewMeta').textContent=isCompare?tr('মূল ছবি','Original'):out.width+' × '+out.height+' px';status(tr('পেজ '+bn(pages.indexOf(p)+1)+' প্রস্তুত · পরিবর্তন স্বয়ংক্রিয়ভাবে প্রিভিউতে দেখা যায়','Page '+bn(pages.indexOf(p)+1)+' ready · Changes update automatically in preview'));
       if(!isCompare){var thumb=document.createElement('canvas');var sc=Math.min(1,180/Math.max(out.width,out.height));thumb.width=Math.round(out.width*sc);thumb.height=Math.round(out.height*sc);thumb.getContext('2d').drawImage(out,0,0,thumb.width,thumb.height);var blob=await canvasBlob(thumb,.75);if(token!==renderToken||!pages.includes(p))return;var previous=p.thumb;p.thumb=URL.createObjectURL(blob);var image=$('.ds-page[data-page-id="'+p.id+'"] .ds-thumb img');if(image)image.src=p.thumb;if(previous)URL.revokeObjectURL(previous);}
     }catch(error){if(token===renderToken){setPreviewLoading(false);toast(error.message||tr('প্রিভিউ তৈরি করা যায়নি','Could not render preview'));}}
   }
@@ -602,7 +613,7 @@
       pagesTitle:'পেজগুলো',dragHint:'টেনে সাজান',addMoreBtn:'পেজ যোগ করুন',addMoreSub:'JPG, PNG, WebP · একসাথে ৬০টি পর্যন্ত পেজ',pageWord:'পেজ',moveUpTip:'আগে নিন',moveDownTip:'পরে নিন',deletePageTip:'এই পেজ সরান',closeDrawerTip:'বন্ধ করুন',
       sidebarToggleTip:'পেজ সাইডবার দেখান বা লুকান',autoDetectBtn:'অটো ডিটেক্ট',autoDetectTip:'স্বয়ংক্রিয়ভাবে ডকুমেন্টের চার কোণা শনাক্ত করুন',fullImageBtn:'পুরো ছবি',fullImageTip:'পুরো ছবি নির্বাচন করুন',rotateLeftBtn:'বামে',rotateLeftTip:'বামে ৯০° ঘোরান',rotateRightBtn:'ডানে',rotateRightTip:'ডানে ৯০° ঘোরান',retouchBtn:'দাগ ও ব্যাকগ্রাউন্ড মুছুন',retouchShortBtn:'রিটাচ স্টুডিও',retouchTip:'ফটোশপ-স্টাইল রিটাচ, স্পট হিলিং ও ব্যাকগ্রাউন্ড কালার পিকার',undoBtn:'পূর্বাবস্থা',undoTip:'আগের পরিবর্তন (Ctrl+Z)',redoBtn:'পুনরায়',redoTip:'পুনরায় (Ctrl+Y)',viewCrop:'ক্রপ',viewSplit:'পাশাপাশি',viewPreview:'প্রিভিউ',inspectorBtn:'ইন্সপেক্টর',
       emptyEyebrow:'TECHHAT DOCUMENT STUDIO',emptyTitle:'প্রফেশনাল ডকুমেন্ট স্ক্যানার ও এডিটর',emptyDesc:'ডকুমেন্ট, সার্টিফিকেট, রসিদ বা বইয়ের পাতার ছবি যোগ করুন। অটো ক্রপ, বাঁকা লাইন সোজা, শ্যাডো রিমুভ ও রিটাচ করে প্রিন্ট-রেডি PDF তৈরি করুন।',choosePhotosBtn:'ইমেজ ইমপোর্ট',openCameraBtn:'স্মার্ট স্ক্যান',smartScanBtn:'স্মার্ট স্ক্যান',importImagesBtn:'ইমেজ ইমপোর্ট',importFilesBtn:'ফাইল ইমপোর্ট',pasteBtn:'পেস্ট (Ctrl+V)',dropPasteHero:'এখানে ফাইল Drag & Drop বা Paste (Ctrl+V) করুন, অথবা ক্লিক করে আপলোড করুন',dropPasteHint:'এখানে ফাইল Drag & Drop বা Paste (Ctrl+V) করুন, অথবা ক্লিক করে আপলোড করুন',featAutoCrop:'স্মার্ট ৪-কোণা অটো ক্রপ',featDewarp:'অটো লাইন ডি-ওয়ার্প',featMagic:'ম্যাজিক+ শ্যাডো ও স্পট ক্লিনার',featPdf:'মাল্টিপেজ A4 PDF',
-      cropCaption:'মূল ছবি ও পার্সপেক্টিভ ক্রপ',cropSubCaption:'চার কোণা বা চার পাশের হ্যান্ডেল টেনে সীমানা ঠিক করুন',previewCaption:'স্ক্যান প্রিভিউ',magicGenLbl:'ম্যাজিক প্রিভিউ তৈরি হচ্ছে…',
+      cropCaption:'মূল ছবি ও পার্সপেক্টিভ ক্রপ',cropSubCaption:'চার কোণা বা চার পাশের হ্যান্ডেল টেনে সীমানা ঠিক করুন',previewCaption:'স্ক্যান প্রিভিউ',magicGenLbl:'ম্যাজিক প্রিভিউ তৈরি হচ্ছে…',previewDoneLbl:'✓ সম্পন্ন',
       corners:['উপরের বাম কোণা','উপরের ডান কোণা','নিচের ডান কোণা','নিচের বাম কোণা'],edges:['উপরের ধার','ডান ধার','নিচের ধার','বাম ধার'],
       tools:{brush:'ব্রাশ টুল',heal:'স্পট হিলিং',wand:'ম্যাজিক ইরেজার',rect:'বক্স ফিল',picker:'কালার পিকার',hand:'হ্যান্ড প্যান'},
       dockLabels:{brush:'ব্রাশ',heal:'হিলিং',wand:'ম্যাজিক',rect:'বক্স ফিল',picker:'পিকার',hand:'প্যান'},
@@ -631,7 +642,7 @@
       pagesTitle:'Pages',dragHint:'Drag to reorder',addMoreBtn:'Add Pages',addMoreSub:'JPG, PNG, WebP · Up to 60 pages',pageWord:'Page',moveUpTip:'Move Up',moveDownTip:'Move Down',deletePageTip:'Delete Page',closeDrawerTip:'Close panel',
       sidebarToggleTip:'Show or hide Pages sidebar',autoDetectBtn:'Auto Detect',autoDetectTip:'Automatically detect document corners & orientation',fullImageBtn:'Full Image',fullImageTip:'Select full image bounds',rotateLeftBtn:'Left',rotateLeftTip:'Rotate 90° Counter-Clockwise',rotateRightBtn:'Right',rotateRightTip:'Rotate 90° Clockwise',retouchBtn:'Spot & Background Retouch',retouchShortBtn:'Retouch Studio',retouchTip:'Photoshop-style Retouch, Spot Healing & Background Color Picker',undoBtn:'Undo',undoTip:'Undo last change (Ctrl+Z)',redoBtn:'Redo',redoTip:'Redo change (Ctrl+Y)',viewCrop:'Crop',viewSplit:'Split View',viewPreview:'Preview',inspectorBtn:'Inspector',
       emptyEyebrow:'TECHHAT DOCUMENT STUDIO',emptyTitle:'Professional Document Scanner & Retouch Studio',emptyDesc:'Drop document photos, certificates, receipts, or book pages. Auto-crop, straighten bowed lines, remove shadows, retouch spots, and export print-ready PDFs.',choosePhotosBtn:'Import Images',openCameraBtn:'Smart Scan',smartScanBtn:'Smart Scan',importImagesBtn:'Import Images',importFilesBtn:'Import Files',pasteBtn:'Paste (Ctrl+V)',dropPasteHero:'Drag and drop or paste (Ctrl+V) files here, or click to upload',dropPasteHint:'Drag and drop or paste (Ctrl+V) files here, or click to upload',featAutoCrop:'Smart 4-Corner Auto Crop',featDewarp:'Auto Line Dewarping',featMagic:'Magic+ Shadow & Spot Cleaner',featPdf:'Multipage A4 PDF Export',
-      cropCaption:'Source & Perspective Crop',cropSubCaption:'Drag corner or edge handles to refine document bounds',previewCaption:'Enhanced Scan Preview',magicGenLbl:'Generating Magic Preview…',
+      cropCaption:'Source & Perspective Crop',cropSubCaption:'Drag corner or edge handles to refine document bounds',previewCaption:'Enhanced Scan Preview',magicGenLbl:'Generating Magic Preview…',previewDoneLbl:'✓ Ready',
       corners:['Top-Left Corner','Top-Right Corner','Bottom-Right Corner','Bottom-Left Corner'],edges:['Top Edge','Right Edge','Bottom Edge','Left Edge'],
       tools:{brush:'Brush Tool',heal:'Spot Healing',wand:'Magic Eraser',rect:'Rectangle Fill',picker:'Color Picker',hand:'Hand Pan'},
       dockLabels:{brush:'Brush',heal:'Heal',wand:'Magic',rect:'Box Fill',picker:'Picker',hand:'Pan'},
