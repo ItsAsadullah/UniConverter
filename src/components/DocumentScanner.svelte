@@ -792,39 +792,32 @@
                 class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain rounded-xs bg-white shadow-[0_16px_40px_rgba(15,23,42,0.28)] select-none transition-[filter,transform] duration-200"
               ></canvas>
 
-              <!-- GOOGLE GEMINI-STYLE IMAGE GENERATION ANIMATION OVERLAY -->
+              <!-- MODERN STUDIO PRELOADER OVERLAY -->
               <div
                 id="dsPreviewLoader"
-                class="ds-gemini-loader absolute inset-0 rounded-xs overflow-hidden pointer-events-none z-22 flex items-center justify-center"
+                class="ds-modern-loader absolute inset-0 rounded-xs overflow-hidden pointer-events-none z-22 flex items-center justify-center bg-white/30 dark:bg-slate-950/35 backdrop-blur-[1.5px]"
                 hidden
                 aria-live="polite"
-                aria-label="Generating preview"
+                aria-label="Updating preview"
               >
-                <div class="ds-gemini-aurora absolute -inset-8"></div>
-                <div class="ds-gemini-wave absolute inset-0"></div>
-                <div class="ds-gemini-border absolute inset-0 rounded-xs"></div>
-                <div class="ds-gemini-star-wrap relative z-10 w-14 h-14 flex items-center justify-center">
-                  <div class="ds-gemini-halo absolute inset-0 rounded-full"></div>
-                  <!-- Main 4-Pointed Curved Gemini Star -->
-                  <svg class="ds-gemini-star-main w-9 h-9 drop-shadow-[0_4px_16px_rgba(155,114,203,0.55)]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M12 1C12 7.075 16.925 12 23 12C16.925 12 12 16.925 12 23C12 16.925 7.075 12 1 12C7.075 12 12 7.075 12 1Z"
-                      fill="url(#dsGeminiStarGrad)"
+                <!-- Top Indeterminate Progress Line -->
+                <div class="absolute inset-x-0 top-0 h-[2.5px] bg-emerald-500/15 overflow-hidden">
+                  <div class="ds-modern-bar h-full w-2/5 bg-gradient-to-r from-transparent via-emerald-500 to-teal-400 rounded-full"></div>
+                </div>
+
+                <!-- Center Minimal Glass Spinner Pod -->
+                <div class="w-11 h-11 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/85 dark:border-slate-700/85 shadow-[0_10px_28px_rgba(15,23,42,0.16)] flex items-center justify-center">
+                  <svg class="ds-modern-spinner w-6 h-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" class="text-slate-200 dark:text-slate-700" stroke-width="2.5" />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="9"
+                      stroke="currentColor"
+                      class="ds-modern-arc text-emerald-500 dark:text-emerald-400"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
                     />
-                    <defs>
-                      <linearGradient id="dsGeminiStarGrad" x1="1" y1="1" x2="23" y2="23" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stop-color="#4285F4" />
-                        <stop offset="50%" stop-color="#9B72CB" />
-                        <stop offset="100%" stop-color="#D96570" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <!-- Secondary Twinkling Gemini Sparkles -->
-                  <svg class="ds-gemini-star-sub1 absolute -top-1 -right-1 w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M12 1C12 7.075 16.925 12 23 12C16.925 12 12 16.925 12 23C12 16.925 7.075 12 1 12C7.075 12 12 7.075 12 1Z" fill="#4285F4" />
-                  </svg>
-                  <svg class="ds-gemini-star-sub2 absolute -bottom-0.5 -left-1 w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M12 1C12 7.075 16.925 12 23 12C16.925 12 12 16.925 12 23C12 16.925 7.075 12 1 12C7.075 12 12 7.075 12 1Z" fill="#D96570" />
                   </svg>
                 </div>
               </div>
@@ -1314,110 +1307,56 @@
 </section>
 
 <style>
-  @keyframes dsGeminiAurora {
+  @keyframes dsModernSpin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes dsModernDash {
     0% {
-      transform: translate3d(-6%, -5%, 0) scale(1.05) rotate(0deg);
-      background-position: 0% 50%;
+      stroke-dasharray: 1, 80;
+      stroke-dashoffset: 0;
     }
     50% {
-      transform: translate3d(6%, 5%, 0) scale(1.14) rotate(4deg);
-      background-position: 100% 50%;
+      stroke-dasharray: 42, 80;
+      stroke-dashoffset: -16px;
     }
     100% {
-      transform: translate3d(-6%, -5%, 0) scale(1.05) rotate(0deg);
-      background-position: 0% 50%;
+      stroke-dasharray: 42, 80;
+      stroke-dashoffset: -56px;
     }
   }
-  @keyframes dsGeminiWave {
+  @keyframes dsModernBar {
     0% {
-      transform: translateX(-110%) skewX(-18deg);
+      transform: translateX(-110%);
     }
     100% {
-      transform: translateX(110%) skewX(-18deg);
+      transform: translateX(260%);
     }
   }
-  @keyframes dsGeminiStarMain {
-    0%,
+  @keyframes dsModernFade {
+    0% {
+      opacity: 0.78;
+    }
     100% {
-      transform: scale(0.88) rotate(0deg);
-      filter: hue-rotate(0deg);
-    }
-    50% {
-      transform: scale(1.12) rotate(90deg);
-      filter: hue-rotate(25deg);
-    }
-  }
-  @keyframes dsGeminiTwinkle {
-    0%,
-    100% {
-      transform: scale(0.45) rotate(-15deg);
-      opacity: 0.35;
-    }
-    50% {
-      transform: scale(1.15) rotate(25deg);
       opacity: 1;
     }
   }
-  @keyframes dsGeminiUnveil {
-    0% {
-      filter: blur(11px) saturate(1.22) brightness(1.05);
-      transform: scale(1.012);
-    }
-    100% {
-      filter: blur(0px) saturate(1) brightness(1);
-      transform: scale(1);
-    }
+  .ds-modern-spinner {
+    animation: dsModernSpin 0.9s linear infinite;
   }
-  .ds-gemini-aurora {
-    background:
-      radial-gradient(circle at 22% 28%, rgba(66, 133, 244, 0.36) 0%, transparent 55%),
-      radial-gradient(circle at 78% 32%, rgba(155, 114, 203, 0.38) 0%, transparent 55%),
-      radial-gradient(circle at 68% 76%, rgba(217, 101, 112, 0.34) 0%, transparent 55%),
-      radial-gradient(circle at 28% 75%, rgba(56, 189, 248, 0.32) 0%, transparent 55%);
-    background-size: 180% 180%;
-    backdrop-filter: blur(14px) saturate(1.28);
-    animation: dsGeminiAurora 2.4s ease-in-out infinite;
+  .ds-modern-arc {
+    stroke-dasharray: 36, 80;
+    stroke-dashoffset: 0;
+    animation: dsModernDash 1.25s ease-in-out infinite;
   }
-  .ds-gemini-wave {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.08) 35%,
-      rgba(255, 255, 255, 0.52) 50%,
-      rgba(255, 255, 255, 0.08) 65%,
-      transparent 100%
-    );
-    animation: dsGeminiWave 1.45s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
-  .ds-gemini-border {
-    box-shadow:
-      inset 0 0 0 2px rgba(155, 114, 203, 0.42),
-      inset 0 0 24px rgba(66, 133, 244, 0.25);
-  }
-  .ds-gemini-halo {
-    background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.78) 0%,
-      rgba(155, 114, 203, 0.25) 60%,
-      transparent 100%
-    );
-    filter: blur(4px);
-    animation: dsGeminiTwinkle 1.6s ease-in-out infinite;
-  }
-  .ds-gemini-star-main {
-    animation: dsGeminiStarMain 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
-  .ds-gemini-star-sub1 {
-    animation: dsGeminiTwinkle 1.3s ease-in-out infinite;
-  }
-  .ds-gemini-star-sub2 {
-    animation: dsGeminiTwinkle 1.3s ease-in-out 0.65s infinite;
+  .ds-modern-bar {
+    animation: dsModernBar 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
   :global(#dsPreviewWrap.is-generating #dsPreview) {
-    filter: blur(10px) saturate(1.18) brightness(1.03);
-    transform: scale(1.01);
+    opacity: 0.82;
   }
   :global(#dsPreview.is-revealing) {
-    animation: dsGeminiUnveil 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: dsModernFade 0.18s ease-out;
   }
 </style>
