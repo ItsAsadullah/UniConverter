@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "node tests/engine.test.js && node tests/office.test.js && node tests/document-scan.test.cjs"
+    "test": "node tests/engine.test.js && node tests/office.test.js && node tests/document-scan.test.cjs && node tests/document-layers.test.cjs"
   },
   "dependencies": {
     "@astrojs/svelte": "^9.1.2",

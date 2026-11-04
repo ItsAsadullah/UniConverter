@@ -42,6 +42,22 @@
     { id: 'zoom', tools: [{ id: 'zoom', name: 'Zoom Tool', key: 'Z', icon: 'lucide:zoom-in' }] }
   ];
   const fontList = [
+    'Kalpurush',
+    'SolaimanLipi',
+    'Nikosh',
+    'Siyam Rupali',
+    'AdorshoLipi',
+    'BenSen Handwriting',
+    'Noto Sans Bengali',
+    'Hind Siliguri',
+    'Noto Serif Bengali',
+    'Anek Bangla',
+    'Tiro Bangla',
+    'Baloo Da 2',
+    'Galada',
+    'Atma',
+    'Mina',
+    'SutonnyMJ',
     'Arial',
     'Helvetica',
     'Times New Roman',
@@ -52,17 +68,7 @@
     'Cambria',
     'Segoe UI',
     'Courier New',
-    'Inter',
-    'Noto Sans Bengali',
-    'Hind Siliguri',
-    'Noto Serif Bengali',
-    'Anek Bangla',
-    'Tiro Bangla',
-    'Kalpurush',
-    'SolaimanLipi',
-    'Nikosh',
-    'Vrinda',
-    'SutonnyMJ'
+    'Inter'
   ];
   const txtSizes = [6, 8, 9, 10, 11, 12, 14, 18, 24, 28, 30, 36, 48, 60, 72, 96, 120, 144];
   const txtAligns = [
@@ -208,6 +214,7 @@
   hidden={!active}
   aria-label={t.brandSub}
   data-view="split"
+  data-editing="false"
   data-sidebar-collapsed="false"
   data-has-pages="false"
   data-lang="en"
@@ -407,6 +414,11 @@
           </button>
         </div>
 
+        <div class="ds-workflow-actions inline-flex items-center gap-1">
+          <button type="button" data-ds="finish-crop" class={btnBase}><span data-i18n-bn="ক্রপ সম্পন্ন" data-i18n-en="Done Cropping">Done Cropping</span></button>
+          <button type="button" data-ds="edit-page" class={btnBase}><Icon name="lucide:pencil" class="w-4 h-4" /><span data-i18n-bn="এডিট" data-i18n-en="Edit">Edit</span></button>
+          <button type="button" data-ds="close-eraser" class="ds-save-edit"><span data-i18n-bn="সেভ ও প্রিভিউ" data-i18n-en="Save & Preview">Save & Preview</span></button>
+        </div>
         <!-- Group 4: View Switcher (Icon-Only with Hover Tooltip) -->
         <div class="ds-toolbar-right ml-auto inline-flex items-center gap-1">
           <div
@@ -423,7 +435,7 @@
               class="inline-flex items-center justify-center w-8 h-7 rounded-md border-0 bg-transparent text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
             >
               <Icon name="lucide:crop" class="w-4 h-4 shrink-0" />
-              <span class="sr-only" data-i18n="viewCrop">{t.viewCrop}</span>
+              <span class="ds-view-label" data-i18n="viewCrop">{t.viewCrop}</span>
             </button>
             <button
               type="button"
@@ -445,7 +457,7 @@
               class="inline-flex items-center justify-center w-8 h-7 rounded-md border-0 bg-transparent text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
             >
               <Icon name="lucide:eye" class="w-4 h-4 shrink-0" />
-              <span class="sr-only" data-i18n="viewPreview">{t.viewPreview}</span>
+              <span class="ds-view-label" data-i18n="viewPreview">{t.viewPreview}</span>
             </button>
           </div>
           <button
@@ -945,19 +957,37 @@
               >
             </div>
 
-            <!-- Type Tool options: Font · Style · Size · Alignment · Color -->
+            <!-- Type Tool options: Font · Style · Bold/Italic · Size · Alignment · Color -->
             <div class="inline-flex items-center gap-1.5 shrink-0" data-ds-opts="text">
-              <select id="dsTxtFont" class="{psSel} w-[156px]" data-ds-tip="Set the font family">
+              <select id="dsTxtFont" class="{psSel} w-[162px]" data-ds-tip="Set the font family">
                 {#each fontList as f}
-                  <option value={f} style={`font-family:'${f}'`}>{f}</option>
+                  <option value={f} style={`font-family:'${f}','Noto Sans Bengali',sans-serif`}>{f === 'SutonnyMJ' ? 'SutonnyMJ (Bijoy)' : f}</option>
                 {/each}
               </select>
-              <select id="dsTxtStyle" class="{psSel} w-[104px]" data-ds-tip="Set the font style">
+              <select id="dsTxtStyle" class="{psSel} w-[98px]" data-ds-tip="Set the font style">
                 <option value="Regular">Regular</option>
                 <option value="Bold">Bold</option>
                 <option value="Italic">Italic</option>
                 <option value="Bold Italic">Bold Italic</option>
               </select>
+              <div class="inline-flex items-center rounded border border-slate-300 dark:border-white/10 overflow-hidden shrink-0" role="group" aria-label="Bold and Italic">
+                <button
+                  type="button"
+                  id="dsTxtBoldBtn"
+                  data-ds-txt-toggle="bold"
+                  aria-pressed="false"
+                  data-ds-tip="Bold (Ctrl+B)"
+                  class="w-7 h-7 inline-flex items-center justify-center bg-white dark:bg-[#383838] border-0 text-slate-700 dark:text-slate-200 font-serif font-extrabold text-[13.5px] cursor-pointer hover:bg-slate-100 dark:hover:bg-[#454545] aria-pressed:bg-emerald-500/25 aria-pressed:text-emerald-700 dark:aria-pressed:text-emerald-300"
+                >B</button>
+                <button
+                  type="button"
+                  id="dsTxtItalicBtn"
+                  data-ds-txt-toggle="italic"
+                  aria-pressed="false"
+                  data-ds-tip="Italic (Ctrl+I)"
+                  class="w-7 h-7 inline-flex items-center justify-center bg-white dark:bg-[#383838] border-0 border-l border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 font-serif italic font-bold text-[13.5px] cursor-pointer hover:bg-slate-100 dark:hover:bg-[#454545] aria-pressed:bg-emerald-500/25 aria-pressed:text-emerald-700 dark:aria-pressed:text-emerald-300"
+                >I</button>
+              </div>
               <span class="inline-flex items-center gap-1 shrink-0" data-ds-tip="Set the font size">
                 <span class="font-serif font-bold text-[14px] leading-none text-slate-600 dark:text-slate-300">T<small class="text-[9px]">T</small></span>
                 <input id="dsTxtSize" type="number" min="4" max="400" step="1" value="28" list="dsTxtSizeList" class="{psSel} w-[66px] cursor-text tabular-nums" />
@@ -1034,13 +1064,10 @@
             <small class="sr-only" id="dsEraserHint" data-i18n="eraserHint">{t.eraserHint}</small>
           </div>
 
-          <div
-            class="ds-preview-stage flex-1 min-h-0 flex items-center justify-center overflow-hidden relative p-3 bg-slate-200/90 dark:bg-[#070c18] [container-type:size] bg-[radial-gradient(circle_at_50%_45%,rgba(16,185,129,0.05),transparent_65%),repeating-linear-gradient(0deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px)]"
-            id="dsPreviewStage"
-          >
-            <!-- PHOTOSHOP-STYLE TOOLS PANEL (GROUPED TOOLS · RIGHT-CLICK / LONG-PRESS FOR FLYOUT) -->
+          <div class="relative flex-1 min-h-0 flex flex-col overflow-clip">
+            <!-- PHOTOSHOP-STYLE TOOLS PANEL (PINNED OUTSIDE STAGE SO TEXT TYPING NEVER SCROLLS IT) -->
             <aside
-              class="ds-ps-dock absolute left-1.5 top-2 w-[38px] rounded-md bg-[#2b2b2b] border border-black/60 p-[3px] flex flex-col items-center gap-[2px] z-[40] shrink-0 select-none shadow-[0_8px_22px_rgba(0,0,0,0.38)]"
+              class="ds-ps-dock absolute left-1.5 top-2 w-[38px] rounded-md bg-[#2b2b2b] border border-black/60 p-[3px] flex flex-col items-center gap-[2px] z-[60] shrink-0 select-none shadow-[0_8px_22px_rgba(0,0,0,0.38)]"
               id="dsPsDock"
               hidden
               aria-label="Tools"
@@ -1104,6 +1131,11 @@
             </aside>
 
             <div
+              class="ds-preview-stage flex-1 min-h-0 flex items-center justify-center overflow-clip relative p-3 bg-slate-200/90 dark:bg-[#070c18] [container-type:size] bg-[radial-gradient(circle_at_50%_45%,rgba(16,185,129,0.05),transparent_65%),repeating-linear-gradient(0deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px)]"
+              id="dsPreviewStage"
+            >
+
+            <div
               class="ds-preview-wrap relative inline-flex items-center justify-center origin-center select-none leading-none touch-none"
               id="dsPreviewWrap"
             >
@@ -1165,6 +1197,7 @@
 
               <!-- Editable Text Layers (drawn above the pixel layer, like Photoshop type layers) -->
               <canvas id="dsTextLayer" class="absolute inset-0 w-full h-full pointer-events-none z-[21]" aria-hidden="true"></canvas>
+              <div id="dsTextDomOverlay" class="absolute inset-0 w-full h-full pointer-events-none z-[22] overflow-visible select-none" aria-hidden="true"></div>
               <!-- Marching-ants selection overlay (Marquee / Lasso) -->
               <svg
                 id="dsSelOverlay"
@@ -1247,6 +1280,7 @@
                 <span class="ds-picker-loupe-ring w-3.5 h-3.5 rounded-full border-2 border-white shrink-0" id="dsPickerLoupeSwatch"></span>
                 <code id="dsPickerLoupeHex">#FFFFFF</code>
               </div>
+            </div>
             </div>
           </div>
         </section>
@@ -1632,8 +1666,11 @@
           aria-label="Document Layers"
         ></div>
 
-        <!-- Bottom Layer Action Bar (Merge Down · Duplicate · New Layer · Delete) -->
-        <div class="px-2 py-1 bg-slate-100 dark:bg-[#2b2b2b] border-t border-slate-200 dark:border-black/50 flex items-center justify-end gap-1 shrink-0">
+        <!-- Compact Photoshop-style layer actions -->
+        <div class="ds-layer-actions px-2 py-1 bg-slate-100 dark:bg-[#2b2b2b] border-t border-slate-200 dark:border-black/50 flex items-center justify-end gap-1 shrink-0">
+          <button type="button" data-ds-layer-act="effects" title="Layer Style (Effects)" aria-label="Layer Style (Effects)" class="ds-layer-icon ds-fx-icon">fx</button>
+          <button type="button" data-ds-layer-act="mask" title="Add layer mask from selection" aria-label="Add layer mask from selection" class="ds-layer-icon"><Icon name="lucide:layer-mask" class="w-3.5 h-3.5" /></button>
+          <button type="button" data-ds-layer-act="adjustment" title="New fill or adjustment layer" aria-label="New fill or adjustment layer" class="ds-layer-icon"><Icon name="lucide:layer-adjustment" class="w-3.5 h-3.5" /></button>
           <button
             type="button"
             data-ds-layer-act="merge"
