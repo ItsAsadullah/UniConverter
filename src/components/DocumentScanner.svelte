@@ -679,12 +679,12 @@
             </span>
           </div>
           <div
-            class="ds-viewport relative flex-1 min-h-0 overflow-hidden bg-slate-200/90 dark:bg-[#070c18] bg-[radial-gradient(circle_at_50%_45%,rgba(16,185,129,0.05),transparent_65%),repeating-linear-gradient(0deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px)] touch-none cursor-grab [&.is-panning]:cursor-grabbing focus-visible:outline-2 focus-visible:outline-emerald-500"
+            class="ds-viewport relative flex-1 min-h-0 overflow-hidden bg-[#dcdcdc] dark:bg-[#181818] touch-none cursor-grab [&.is-panning]:cursor-grabbing focus-visible:outline-2 focus-visible:outline-emerald-500"
             id="dsViewport"
             tabindex="0"
             aria-label={t.cropCaption}
           >
-            <div class="ds-image-plane absolute left-1/2 top-1/2 origin-top-left select-none shadow-[0_16px_40px_rgba(15,23,42,0.28)]" id="dsPlane">
+            <div class="ds-image-plane absolute left-1/2 top-1/2 origin-top-left select-none shadow-[0_12px_32px_rgba(0,0,0,0.45)]" id="dsPlane">
               <canvas id="dsSource" class="block w-full h-full rounded-xs bg-white select-none pointer-events-none"></canvas>
               <svg id="dsQuad" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible" aria-hidden="true">
                 <defs>
@@ -1141,7 +1141,7 @@
             </aside>
 
             <div
-              class="ds-preview-stage flex-1 min-h-0 flex items-center justify-center overflow-clip relative p-3 bg-slate-200/90 dark:bg-[#070c18] [container-type:size] bg-[radial-gradient(circle_at_50%_45%,rgba(16,185,129,0.05),transparent_65%),repeating-linear-gradient(0deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px)]"
+              class="ds-preview-stage flex-1 min-h-0 flex items-center justify-center overflow-clip relative p-3 bg-[#dcdcdc] dark:bg-[#181818] [container-type:size]"
               id="dsPreviewStage"
             >
 
@@ -1152,7 +1152,7 @@
               <canvas
                 id="dsPreview"
                 aria-label={t.previewCaption}
-                class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain rounded-xs bg-white shadow-[0_16px_40px_rgba(15,23,42,0.28)] select-none transition-[filter,transform] duration-200"
+                class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain rounded-xs bg-white shadow-[0_12px_32px_rgba(0,0,0,0.45)] select-none transition-[filter,transform] duration-200"
               ></canvas>
 
               <!-- SATISFYING 3D KINETIC GYROSCOPE & GPU-ACCELERATED PRELOADER WITH COMPLETION STATE -->
@@ -1479,7 +1479,7 @@
               <label class="relative cursor-pointer {idx === 0 ? 'col-span-2' : ''}" title={preset.desc}>
                 <input type="radio" name="dsFilter" value={preset.value} checked={preset.value === 'magic_plus'} class="sr-only peer" />
                 <span
-                  class="min-h-[30px] px-2 py-1 rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/70 dark:bg-studio-sidebar flex items-center justify-between gap-1.5 transition-all hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-studio-surface peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 dark:peer-checked:bg-emerald-500/15 peer-checked:shadow-2xs peer-checked:[&_b]:text-emerald-700 dark:peer-checked:[&_b]:text-emerald-300"
+                  class="min-h-[30px] px-2 py-1 rounded-[4px] border border-slate-200/90 dark:border-[#141414] bg-slate-50/70 dark:bg-[#1e1e1e] flex items-center justify-between gap-1.5 transition-all hover:border-slate-300 dark:hover:border-[#4a4a4a] hover:bg-white dark:hover:bg-[#333333] peer-checked:border-emerald-500 dark:peer-checked:border-[#5a5a5a] peer-checked:bg-emerald-500/10 dark:peer-checked:bg-[#3d3d3d] peer-checked:shadow-2xs peer-checked:[&_b]:text-emerald-700 dark:peer-checked:[&_b]:text-white"
                 >
                   <span class="inline-flex items-center gap-1.5 min-w-0">
                     <Icon name={`lucide:${preset.icon}`} class="w-3.5 h-3.5 {presetColors[idx % presetColors.length]} shrink-0" />
@@ -1536,7 +1536,7 @@
               { id: 'dsCleanMargins', icon: 'lucide:scan', color: 'text-emerald-600 dark:text-emerald-400', key: 'optCleanMargins', label: t.optCleanMargins, span: 'col-span-2' }
             ] as opt}
               <label
-                class="ds-toggle {opt.span} min-h-[30px] flex items-center justify-between gap-1 px-2 py-1 rounded-md bg-slate-50/70 dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border cursor-pointer text-[11.5px] font-semibold tracking-[-0.01em] text-slate-800 dark:text-studio-text transition-colors hover:bg-white dark:hover:bg-studio-surface hover:border-slate-300 dark:hover:border-slate-600"
+                class="ds-toggle {opt.span} min-h-[30px] flex items-center justify-between gap-1 px-2 py-1 rounded-[4px] bg-slate-50/70 dark:bg-[#1e1e1e] border border-slate-200/90 dark:border-[#141414] cursor-pointer text-[11.5px] font-semibold tracking-[-0.01em] text-slate-800 dark:text-studio-text transition-colors hover:bg-white dark:hover:bg-[#333333] hover:border-slate-300 dark:hover:border-[#4a4a4a]"
                 title={opt.key === 'optCleanMargins' ? t.cleanMarginsHint : opt.label}
               >
                 <span class="inline-flex items-center gap-1.5 min-w-0">
@@ -1586,20 +1586,20 @@
               ] as adj}
                 <div
                   data-ds-adj-pod={adj.key}
-                  class="group/pod min-h-[32px] rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/80 dark:bg-studio-sidebar flex items-stretch overflow-hidden transition-all hover:border-emerald-500/60 hover:bg-white dark:hover:bg-studio-surface data-[modified=true]:border-amber-500/50"
+                  class="group/pod min-h-[30px] rounded-[4px] border border-slate-200/90 dark:border-[#141414] bg-slate-50/80 dark:bg-[#1e1e1e] flex items-stretch overflow-hidden transition-all hover:border-slate-300 dark:hover:border-[#4a4a4a] hover:bg-white dark:hover:bg-[#2a2a2a] data-[modified=true]:border-amber-500/50"
                 >
                   <div class="relative flex-1 min-w-0 px-1.5 py-1 flex items-center justify-between gap-1 overflow-hidden select-none">
                     <!-- Dynamic Slider Fill Bar Inside Button -->
                     <span
                       data-ds-adj-fill={adj.key}
-                      class="absolute inset-y-0 left-0 bg-emerald-500/14 dark:bg-emerald-400/18 pointer-events-none transition-[width] duration-75"
+                      class="absolute inset-y-0 left-0 bg-emerald-500/14 dark:bg-white/[0.08] pointer-events-none transition-[width] duration-75"
                       style="width:{adj.initPct}%"
                     ></span>
                     <span class="relative z-10 inline-flex items-center gap-1 min-w-0 pointer-events-none">
                       <Icon name={adj.icon} class="w-3.5 h-3.5 {adj.color} shrink-0" />
-                      <span class="truncate text-[11.5px] font-semibold tracking-[-0.01em] text-slate-700 dark:text-studio-text" data-i18n={adj.i18nKey}>{adj.label}</span>
+                      <span class="truncate text-[11.5px] font-semibold tracking-[-0.01em] text-slate-700 dark:text-[#cfcfcf]" data-i18n={adj.i18nKey}>{adj.label}</span>
                     </span>
-                    <output id={adj.outId} class="relative z-10 text-emerald-600 dark:text-emerald-400 font-bold text-[11.5px] tabular-nums shrink-0 pointer-events-none">{adj.initVal}</output>
+                    <output id={adj.outId} class="relative z-10 text-emerald-600 dark:text-[#e6e6e6] font-bold text-[11.5px] tabular-nums shrink-0 pointer-events-none">{adj.initVal}</output>
                     <input
                       id={adj.id}
                       aria-label={adj.label}

@@ -51,12 +51,12 @@
     pages.forEach(function(p,index){
       var isAct=p.id===activeId;
       var card=document.createElement('div');
-      card.className='ds-page grid grid-cols-[1fr_auto] items-center gap-1.5 p-1.5 rounded-lg border transition-colors '+(isAct?'is-active border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 ring-2 ring-emerald-500/15':'border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-100/80 dark:hover:bg-studio-surface');
+      card.className='ds-page grid grid-cols-[1fr_auto] items-center gap-1.5 p-1.5 rounded-md border transition-colors '+(isAct?'is-active border-emerald-500 dark:border-[#5a5a5a] bg-emerald-500/10 dark:bg-[#3d3d3d]':'border-slate-200 dark:border-[#141414] bg-slate-50 dark:bg-[#1e1e1e] hover:border-slate-300 dark:hover:border-[#4a4a4a] hover:bg-slate-100/80 dark:hover:bg-[#2d2d2d]');
       card.draggable=!busy;card.dataset.pageId=p.id;
       var select=document.createElement('button');select.type='button';
       select.className='ds-page-select min-w-0 grid grid-cols-[44px_minmax(0,1fr)] items-center gap-2 p-0 border-0 bg-transparent text-left cursor-pointer';
       select.setAttribute('aria-label',tr('পেজ '+bn(index+1)+' নির্বাচন করুন','Select page '+bn(index+1)));select.setAttribute('aria-pressed',String(isAct));
-      var thumb=document.createElement('span');thumb.className='ds-thumb w-11 h-14 rounded-md overflow-hidden bg-slate-200 dark:bg-slate-900 border border-slate-200 dark:border-studio-border grid place-items-center shrink-0';
+      var thumb=document.createElement('span');thumb.className='ds-thumb w-11 h-14 rounded-md overflow-hidden bg-slate-200 dark:bg-[#181818] border border-slate-200 dark:border-studio-border grid place-items-center shrink-0';
       var image=document.createElement('img');image.src=p.thumb||p.item.url;image.alt=tr('পেজ ','Page ')+bn(index+1);image.draggable=false;image.className='w-full h-full object-cover block';thumb.appendChild(image);
       var label=document.createElement('span');label.className='ds-page-label min-w-0 grid gap-0.5';
       var b=document.createElement('b');b.className='text-[13px] font-bold text-slate-800 dark:text-studio-text truncate';b.textContent=tr('পেজ ','Page ')+bn(index+1);
@@ -858,12 +858,12 @@
       var badge='<span class="ds-layer-thumb"><img src="'+(thumbs[it.id]||'')+'" alt="'+escapeHtml(title)+' thumbnail" /></span>';
       if(it.mask)badge+='<button type="button" class="ds-layer-thumb ds-mask-thumb'+(it.maskDisabled?' is-disabled':'')+'" data-ds-layer-mask="'+escapeHtml(it.id)+'" title="Edit layer mask" aria-label="Edit layer mask"><img src="'+(thumbs[it.id+'-mask']||'')+'" alt="Layer mask" /></button>';
       html.push(
-        '<div class="flex items-center gap-1.5 px-1.5 py-1 rounded-md border transition-colors cursor-pointer select-none '+(sel?'border-emerald-500/60 bg-emerald-500/15 dark:bg-emerald-500/20 text-slate-900 dark:text-white':'border-transparent hover:bg-white/70 dark:hover:bg-studio-panel/70 text-slate-700 dark:text-slate-300')+'" data-ds-layer-row="'+escapeHtml(it.id)+'">'+
+        '<div class="flex items-center gap-1.5 px-1.5 py-1 rounded-[3px] border transition-colors cursor-pointer select-none '+(sel?'border-slate-400 dark:border-[#5a5a5a] bg-slate-300/75 dark:bg-[#3d3d3d] text-slate-900 dark:text-white':'border-transparent hover:bg-white/70 dark:hover:bg-[#2d2d2d] text-slate-700 dark:text-[#d4d4d4]')+'" data-ds-layer-row="'+escapeHtml(it.id)+'">'+
           '<button type="button" data-ds-layer-vis="'+escapeHtml(it.id)+'" class="w-5 h-5 inline-flex items-center justify-center rounded hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 shrink-0 cursor-pointer" title="Toggle Layer Visibility">'+(vis?eyeSvg:eyeOffSvg)+'</button>'+
           badge+
           '<div class="min-w-0 flex-1 leading-tight">'+
             '<div class="text-[11.5px] font-bold truncate">'+escapeHtml(title)+'</div>'+
-            '<div class="text-[9.5px] text-slate-500 dark:text-slate-400 truncate">'+escapeHtml(sub)+' · '+Math.round((it.opacity!=null?it.opacity:1)*100)+'%</div>'+
+            '<div class="text-[9.5px] text-slate-500 dark:text-[#9e9e9e] truncate">'+escapeHtml(sub)+' · '+Math.round((it.opacity!=null?it.opacity:1)*100)+'%</div>'+
           '</div>'+
           (it.locked?lockSvg:'')+
         '</div>'
@@ -874,12 +874,12 @@
     var bgSel=actId==='bg';
     var thumbImg=thumbs.bg?'<img src="'+escapeHtml(thumbs.bg)+'" alt="" class="w-full h-full object-cover" />':'';
     html.push(
-      '<div class="flex items-center gap-1.5 px-1.5 py-1 rounded-md border transition-colors cursor-pointer select-none '+(bgSel?'border-emerald-500/60 bg-emerald-500/15 dark:bg-emerald-500/20 text-slate-900 dark:text-white':'border-transparent hover:bg-white/70 dark:hover:bg-studio-panel/70 text-slate-700 dark:text-slate-300')+'" data-ds-layer-row="bg">'+
+      '<div class="flex items-center gap-1.5 px-1.5 py-1 rounded-[3px] border transition-colors cursor-pointer select-none '+(bgSel?'border-slate-400 dark:border-[#5a5a5a] bg-slate-300/75 dark:bg-[#3d3d3d] text-slate-900 dark:text-white':'border-transparent hover:bg-white/70 dark:hover:bg-[#2d2d2d] text-slate-700 dark:text-[#d4d4d4]')+'" data-ds-layer-row="bg">'+
         '<span class="w-5 h-5 inline-flex items-center justify-center text-slate-500 dark:text-slate-400 shrink-0">'+eyeSvg+'</span>'+
-        '<span class="w-6 h-6 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 overflow-hidden shrink-0 flex items-center justify-center">'+thumbImg+'</span>'+
+        '<span class="w-6 h-6 rounded border border-slate-300 dark:border-[#555555] bg-white dark:bg-[#181818] overflow-hidden shrink-0 flex items-center justify-center">'+thumbImg+'</span>'+
         '<div class="min-w-0 flex-1 leading-tight">'+
           '<div class="text-[11.5px] font-bold italic truncate">Background</div>'+
-          '<div class="text-[9.5px] text-slate-500 dark:text-slate-400 truncate">Scanned Document · 100%</div>'+
+          '<div class="text-[9.5px] text-slate-500 dark:text-[#9e9e9e] truncate">Scanned Document · 100%</div>'+
         '</div>'+
         lockSvg+
       '</div>'
