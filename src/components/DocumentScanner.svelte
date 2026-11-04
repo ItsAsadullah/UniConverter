@@ -299,25 +299,6 @@
             <Icon name="lucide:history" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span class="sr-only" data-i18n="resetCropBtn">{t.resetCropBtn}</span>
           </button>
-        </div>
-
-        <span class="w-px h-4 bg-slate-200 dark:bg-studio-border mx-1 shrink-0" aria-hidden="true"></span>
-
-        <!-- Group 4: Retouch & Border Trim -->
-        <div class="ds-toolbar-group inline-flex items-center gap-1" role="group" aria-label="Retouch & Cleanup">
-          <button
-            type="button"
-            data-ds="toggle-eraser"
-            id="dsToolbarEraser"
-            class="{btnIcon} aria-pressed:bg-emerald-600 dark:aria-pressed:bg-emerald-500 aria-pressed:text-white dark:aria-pressed:text-slate-950 aria-pressed:[&_svg]:!text-white"
-            disabled
-            aria-pressed="false"
-            data-i18n-title="retouchTip"
-            title={t.retouchTip}
-          >
-            <Icon name="lucide:wand-2" class="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" />
-            <span class="sr-only" data-i18n="retouchShortBtn">{t.retouchShortBtn}</span>
-          </button>
           <button
             type="button"
             data-ds="erase-borders"
@@ -331,7 +312,7 @@
           </button>
         </div>
 
-        <!-- Group 5: View Switcher (Icon-Only with Hover Tooltip) -->
+        <!-- Group 4: View Switcher (Icon-Only with Hover Tooltip) -->
         <div class="ds-toolbar-right ml-auto inline-flex items-center gap-1">
           <div
             class="ds-view-switch inline-flex p-0.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border gap-0.5"
@@ -576,7 +557,6 @@
               <i class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block shrink-0"></i>
               <em class="not-italic truncate" data-i18n="cropCaption">{t.cropCaption}</em>
             </span>
-            <small class="text-[10px] font-medium text-slate-400 dark:text-studio-muted truncate max-sm:hidden" data-i18n="cropSubCaption">{t.cropSubCaption}</small>
           </div>
           <div
             class="ds-viewport relative flex-1 min-h-0 overflow-hidden bg-slate-200/90 dark:bg-[#070c18] bg-[radial-gradient(circle_at_50%_45%,rgba(16,185,129,0.05),transparent_65%),repeating-linear-gradient(0deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px)] touch-none cursor-grab [&.is-panning]:cursor-grabbing focus-visible:outline-2 focus-visible:outline-emerald-500"
@@ -643,6 +623,19 @@
             </span>
             <div class="ds-preview-caption-actions inline-flex items-center gap-1.5 shrink-0">
               <small id="dsPreviewMeta" class="text-slate-500 dark:text-studio-muted font-medium text-[10px] tabular-nums truncate">—</small>
+              <button
+                type="button"
+                data-ds="toggle-eraser"
+                id="dsEraserToggle"
+                aria-pressed="false"
+                disabled
+                data-i18n-title="retouchTip"
+                title={t.retouchTip}
+                class="inline-flex items-center justify-center gap-1 h-5.5 px-2 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-slate-700 dark:text-studio-text text-[10px] font-bold cursor-pointer hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 aria-pressed:bg-emerald-600 dark:aria-pressed:bg-emerald-500 aria-pressed:text-white dark:aria-pressed:text-slate-950 aria-pressed:border-emerald-600 aria-pressed:[&_svg]:!text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <Icon name="lucide:wand-2" class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
+                <span data-i18n="retouchShortBtn">{t.retouchShortBtn}</span>
+              </button>
             </div>
           </div>
 
@@ -1189,11 +1182,6 @@
                     <span
                       data-ds-adj-fill={adj.key}
                       class="absolute inset-y-0 left-0 bg-emerald-500/14 dark:bg-emerald-400/18 pointer-events-none transition-[width] duration-75"
-                      style="width:{adj.initPct}%"
-                    ></span>
-                    <span
-                      data-ds-adj-bar={adj.key}
-                      class="absolute bottom-0 left-0 h-[2.5px] bg-emerald-500/80 dark:bg-emerald-400 pointer-events-none transition-[width] duration-75"
                       style="width:{adj.initPct}%"
                     ></span>
                     <span class="relative z-10 inline-flex items-center gap-1 min-w-0 pointer-events-none">
