@@ -1315,6 +1315,7 @@
       '/image': 'hub',
       '/image/scan': 'scan',
       '/image/scanner': 'scan',
+      '/image/passport': 'passport',
       '/image/resize': 'resize',
       '/image/compress': 'compress',
       '/image/crop': 'crop',
@@ -1322,7 +1323,8 @@
       '/image/combine': 'combine',
       '/image/colors': 'colors'
     };
-    if (IMG_MAP[targetPath] && $('#tool-image') && $('#img-pane-' + IMG_MAP[targetPath]) && window.TechHatImage) {
+    var imgPaneId = IMG_MAP[targetPath] === 'passport' ? 'scan' : IMG_MAP[targetPath];
+    if (IMG_MAP[targetPath] && $('#tool-image') && $('#img-pane-' + imgPaneId) && window.TechHatImage) {
       if (pushState && normPath(location.pathname) !== targetPath) {
         history.pushState(null, '', targetPath);
       }

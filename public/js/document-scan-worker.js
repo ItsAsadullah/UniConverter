@@ -1,10 +1,12 @@
-importScripts('/js/document-scan-core.js?v=32');
+importScripts('/js/document-scan-core.js?v=33');
 self.onmessage = function (event) {
   var m = event.data;
   try {
     var pixels = new Uint8ClampedArray(m.buffer);
     if (m.kind === 'detect') {
       self.postMessage({ id:m.id, result:TechHatDocumentCore.detect(pixels,m.width,m.height) });
+    } else if (m.kind === 'detect-passport') {
+      self.postMessage({ id:m.id, result:TechHatDocumentCore.detectPassportSixPts(pixels,m.width,m.height,m.options) });
     } else {
       var result=TechHatDocumentCore.process(pixels,m.width,m.height,m.options);
       self.postMessage({id:m.id,buffer:result.data.buffer,info:result.info},[result.data.buffer]);

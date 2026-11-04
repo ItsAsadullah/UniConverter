@@ -23,10 +23,91 @@
     var start=0;for(var j=1;j<4;j++)if(p[j].x+p[j].y<p[start].x+p[start].y)start=j;
     return p.slice(start).concat(p.slice(0,start));
   }
-  function validQuad(p) {
+  function validQuad4(p, minArea) {
     if(!p||p.length!==4||p.some(function(v){return !Number.isFinite(v.x)||!Number.isFinite(v.y)||v.x<-.15||v.x>1.15||v.y<-.15||v.y>1.15;}))return false;
     var sign=0;for(var i=0;i<4;i++){var c=cross(p[i],p[(i+1)%4],p[(i+2)%4]);if(Math.abs(c)<.00005)return false;if(sign&&Math.sign(c)!==sign)return false;sign=Math.sign(c);}
-    return area(p)>.008;
+    return area(p)>(minArea||.008);
+  }
+  function fullSixPts(foldAxis) {
+    if (foldAxis === 'horizontal') {
+      return [{x:0,y:0},{x:1,y:0},{x:1,y:.5},{x:1,y:1},{x:0,y:1},{x:0,y:.5}];
+    }
+    return [{x:0,y:0},{x:.5,y:0},{x:1,y:0},{x:1,y:1},{x:.5,y:1},{x:0,y:1}];
+  }
+  function inferFoldAxis(pts) {
+    if (!pts || pts.length !== 6) return 'vertical';
+    if (pts.foldAxis === 'horizontal' || pts.foldAxis === 'vertical') return pts.foldAxis;
+    var qV1 = [pts[0], pts[1], pts[4], pts[5]], qV2 = [pts[1], pts[2], pts[3], pts[4]];
+    var qH1 = [pts[0], pts[1], pts[2], pts[5]], qH2 = [pts[5], pts[2], pts[3], pts[4]];
+    var okV = validQuad4(qV1, 0.0025) && validQuad4(qV2, 0.0025) && validQuad4([pts[0], pts[2], pts[3], pts[5]], 0.008);
+    var okH = validQuad4(qH1, 0.0025) && validQuad4(qH2, 0.0025) && validQuad4([pts[0], pts[1], pts[3], pts[4]], 0.008);
+    if (okV && !okH) return 'vertical';
+    if (okH && !okV) return 'horizontal';
+    var dVert = Math.hypot(pts[1].x - (pts[0].x + pts[2].x) * 0.5, pts[1].y - (pts[0].y + pts[2].y) * 0.5) +
+                Math.hypot(pts[4].x - (pts[3].x + pts[5].x) * 0.5, pts[4].y - (pts[3].y + pts[5].y) * 0.5);
+    var dHoriz = Math.hypot(pts[2].x - (pts[1].x + pts[3].x) * 0.5, pts[2].y - (pts[1].y + pts[3].y) * 0.5) +
+                 Math.hypot(pts[5].x - (pts[4].x + pts[0].x) * 0.5, pts[5].y - (pts[4].y + pts[0].y) * 0.5);
+    return dHoriz < dVert * 0.75 ? 'horizontal' : 'vertical';
+  }
+  function quadToSixPts(q, foldAxis) {
+    if (!q || q.length < 4) return fullSixPts(foldAxis);
+    if (q.length === 6) return q.map(function (p) { return { x: p.x, y: p.y }; });
+    if (foldAxis === 'horizontal') {
+      return [
+        { x: q[0].x, y: q[0].y },
+        { x: q[1].x, y: q[1].y },
+        { x: (q[1].x + q[2].x) * 0.5, y: (q[1].y + q[2].y) * 0.5 },
+        { x: q[2].x, y: q[2].y },
+        { x: q[3].x, y: q[3].y },
+        { x: (q[3].x + q[0].x) * 0.5, y: (q[3].y + q[0].y) * 0.5 }
+      ];
+    }
+    return [
+      { x: q[0].x, y: q[0].y },
+      { x: (q[0].x + q[1].x) * 0.5, y: (q[0].y + q[1].y) * 0.5 },
+      { x: q[1].x, y: q[1].y },
+      { x: q[2].x, y: q[2].y },
+      { x: (q[2].x + q[3].x) * 0.5, y: (q[2].y + q[3].y) * 0.5 },
+      { x: q[3].x, y: q[3].y }
+    ];
+  }
+  function sixPtsToQuad(pts, foldAxis) {
+    if (!pts || pts.length < 4) return full();
+    if (pts.length === 4) return pts.map(function (p) { return { x: p.x, y: p.y }; });
+    var axis = foldAxis || inferFoldAxis(pts);
+    if (axis === 'horizontal') {
+      return [
+        { x: pts[0].x, y: pts[0].y },
+        { x: pts[1].x, y: pts[1].y },
+        { x: pts[3].x, y: pts[3].y },
+        { x: pts[4].x, y: pts[4].y }
+      ];
+    }
+    return [
+      { x: pts[0].x, y: pts[0].y },
+      { x: pts[2].x, y: pts[2].y },
+      { x: pts[3].x, y: pts[3].y },
+      { x: pts[5].x, y: pts[5].y }
+    ];
+  }
+  function validSixPts(p, foldAxis) {
+    if(!p||p.length!==6||p.some(function(v){return !Number.isFinite(v.x)||!Number.isFinite(v.y)||v.x<-.15||v.x>1.15||v.y<-.15||v.y>1.15;}))return false;
+    var axis = foldAxis || inferFoldAxis(p);
+    var q1, q2, outer;
+    if (axis === 'horizontal') {
+      q1 = [p[0], p[1], p[2], p[5]];
+      q2 = [p[5], p[2], p[3], p[4]];
+      outer = [p[0], p[1], p[3], p[4]];
+    } else {
+      q1 = [p[0], p[1], p[4], p[5]];
+      q2 = [p[1], p[2], p[3], p[4]];
+      outer = [p[0], p[2], p[3], p[5]];
+    }
+    return validQuad4(q1, 0.0025) && validQuad4(q2, 0.0025) && validQuad4(outer, 0.008) && area(p) > 0.006;
+  }
+  function validQuad(p) {
+    if (p && p.length === 6) return validSixPts(p);
+    return validQuad4(p, 0.008);
   }
   function plausiblePhotoQuad(q,w,h){
     if(!validQuad(q))return false;
@@ -587,6 +668,237 @@
       if(rot)res.rotation=rot;
     }catch(e){}
     return res;
+  }
+  function detectPassportSixPts(data,w,h,options) {
+    var opt=options||{},axis=opt.foldAxis==='horizontal'?'horizontal':'vertical';
+    var base=detect(data,w,h);
+    var q=(base&&base.pts&&base.pts.length===4)?base.pts:full();
+    var pts=quadToSixPts(q,axis);
+    try{
+      var g=lumaPlane(data,w,h);
+      var TL={x:q[0].x*(w-1),y:q[0].y*(h-1)},TR={x:q[1].x*(w-1),y:q[1].y*(h-1)},BR={x:q[2].x*(w-1),y:q[2].y*(h-1)},BL={x:q[3].x*(w-1),y:q[3].y*(h-1)};
+      function bilerpPt(u,v){
+        return {
+          x:(1-v)*((1-u)*TL.x+u*TR.x)+v*((1-u)*BL.x+u*BR.x),
+          y:(1-v)*((1-u)*TL.y+u*TR.y)+v*((1-u)*BL.y+u*BR.y)
+        };
+      }
+      var bestS0=.5,bestS1=.5,bestSeamScore=-1;
+      for(var sMid=.42;sMid<=.5801;sMid+=.01){
+        for(var dS=-.02;dS<=.0201;dS+=.01){
+          var sA=clamp(sMid-dS,.40,.60),sB=clamp(sMid+dS,.40,.60),seamSum=0;
+          for(var k=0;k<22;k++){
+            var t=.14+.72*(k/21),sAt=(1-t)*sA+t*sB;
+            var pC=axis==='horizontal'?bilerpPt(t,sAt):bilerpPt(sAt,t);
+            var pM1=axis==='horizontal'?bilerpPt(t,Math.max(.05,sAt-.032)):bilerpPt(Math.max(.05,sAt-.032),t);
+            var pP1=axis==='horizontal'?bilerpPt(t,Math.min(.95,sAt+.032)):bilerpPt(Math.min(.95,sAt+.032),t);
+            var pM2=axis==='horizontal'?bilerpPt(t,Math.max(.05,sAt-.012)):bilerpPt(Math.max(.05,sAt-.012),t);
+            var pP2=axis==='horizontal'?bilerpPt(t,Math.min(.95,sAt+.012)):bilerpPt(Math.min(.95,sAt+.012),t);
+            var lC=sampleBil(g,w,h,pC.x,pC.y);
+            var lSide=.5*(sampleBil(g,w,h,pM1.x,pM1.y)+sampleBil(g,w,h,pP1.x,pP1.y));
+            var lGrad=Math.abs(sampleBil(g,w,h,pP2.x,pP2.y)-sampleBil(g,w,h,pM2.x,pM2.y));
+            var valley=Math.max(0,lSide-lC);
+            seamSum+=valley*1.35+lGrad*.45;
+          }
+          var centerPrior=Math.exp(-Math.pow((sMid-.5)/.085,2))*(1-Math.abs(dS)*4);
+          var score=(seamSum/22+5)*centerPrior;
+          if(score>bestSeamScore){bestSeamScore=score;bestS0=sA;bestS1=sB;}
+        }
+      }
+      function refinePinchedSide(edgeStart,edgeEnd,inwardTarget,sFold){
+        var baseMid={x:(1-sFold)*edgeStart.x+sFold*edgeEnd.x,y:(1-sFold)*edgeStart.y+sFold*edgeEnd.y};
+        var edgeDx=edgeEnd.x-edgeStart.x,edgeDy=edgeEnd.y-edgeStart.y,edgeLen=Math.hypot(edgeDx,edgeDy)||1;
+        var tx=edgeDx/edgeLen,ty=edgeDy/edgeLen,nx=-ty,ny=tx;
+        if((inwardTarget.x-baseMid.x)*nx+(inwardTarget.y-baseMid.y)*ny<0){nx=-nx;ny=-ny;}
+        var span=Math.hypot(inwardTarget.x-baseMid.x,inwardTarget.y-baseMid.y)||Math.min(w,h)*.5;
+        if(baseMid.x<5||baseMid.y<5||baseMid.x>w-6||baseMid.y>h-6){
+          return {
+            start:{x:clamp(edgeStart.x/(w-1),0,1),y:clamp(edgeStart.y/(h-1),0,1)},
+            mid:{x:clamp(baseMid.x/(w-1),0,1),y:clamp(baseMid.y/(h-1),0,1)},
+            end:{x:clamp(edgeEnd.x/(w-1),0,1),y:clamp(edgeEnd.y/(h-1),0,1)}
+          };
+        }
+        var stepR=Math.max(2.5,Math.min(w,h)*.008);
+        var centerIn={x:baseMid.x+nx*Math.min(span*.25,24),y:baseMid.y+ny*Math.min(span*.25,24)};
+        var centerOut={x:baseMid.x-nx*Math.min(span*.22,22),y:baseMid.y-ny*Math.min(span*.22,22)};
+        var sign=(sampleBil(g,w,h,centerIn.x,centerIn.y)-sampleBil(g,w,h,centerOut.x,centerOut.y))>=0?1:-1;
+        function findLocalOff(uCenter,minR,maxR){
+          var pt0={x:(1-uCenter)*edgeStart.x+uCenter*edgeEnd.x,y:(1-uCenter)*edgeStart.y+uCenter*edgeEnd.y};
+          var bestOff=0,bestScore=0;
+          for(var off=minR;off<=maxR;off+=1){
+            var sumStep=0,validSamples=0;
+            for(var du=-2;du<=2;du++){
+              var px=pt0.x+tx*(du*stepR*1.1)+nx*off,py=pt0.y+ty*(du*stepR*1.1)+ny*off;
+              if(px<3||py<3||px>w-4||py>h-4)continue;
+              var vIn2=sampleBil(g,w,h,px+nx*stepR,py+ny*stepR),vOut2=sampleBil(g,w,h,px-nx*stepR,py-ny*stepR);
+              var vFarOut=sampleBil(g,w,h,px-nx*stepR*3,py-ny*stepR*3);
+              if(sign>0&&vFarOut>vOut2+18&&vFarOut>135&&Math.abs(vIn2-vFarOut)<30)continue;
+              sumStep+=(vIn2-vOut2)*sign;validSamples++;
+            }
+            if(validSamples>=3){
+              var avgStep=(sumStep/validSamples)*(1-Math.abs(off)/(span*.40));
+              if(avgStep>bestScore){bestScore=avgStep;bestOff=off;}
+            }
+          }
+          return bestScore>11?bestOff:0;
+        }
+        var maxSearch=Math.round(span*.16);
+        var offStart=findLocalOff(.07,-maxSearch,Math.round(span*.06));
+        var offEnd=findLocalOff(.93,-maxSearch,Math.round(span*.06));
+        var offMid=findLocalOff(sFold,-Math.round(span*.08),maxSearch);
+        var archDelta=offMid-.5*(offStart+offEnd);
+        if(archDelta>2){
+          offStart-=.22*archDelta;
+          offEnd-=.22*archDelta;
+        }
+        return {
+          start:{x:clamp((edgeStart.x+nx*offStart)/(w-1),0,1),y:clamp((edgeStart.y+ny*offStart)/(h-1),0,1)},
+          mid:{x:clamp((baseMid.x+nx*offMid)/(w-1),0,1),y:clamp((baseMid.y+ny*offMid)/(h-1),0,1)},
+          end:{x:clamp((edgeEnd.x+nx*offEnd)/(w-1),0,1),y:clamp((edgeEnd.y+ny*offEnd)/(h-1),0,1)}
+        };
+      }
+      if(axis==='horizontal'){
+        var rSide=refinePinchedSide(TR,BR,{x:(TL.x+BL.x)*.5,y:(TL.y+BL.y)*.5},bestS1);
+        var lSide=refinePinchedSide(BL,TL,{x:(TR.x+BR.x)*.5,y:(TR.y+BR.y)*.5},1-bestS0);
+        var candH=[lSide.end,rSide.start,rSide.mid,rSide.end,lSide.start,lSide.mid];
+        if(validSixPts(candH,'horizontal'))pts=candH;
+      }else{
+        var tSide=refinePinchedSide(TL,TR,{x:(BL.x+BR.x)*.5,y:(BL.y+BR.y)*.5},bestS0);
+        var bSide=refinePinchedSide(BR,BL,{x:(TL.x+TR.x)*.5,y:(TL.y+TR.y)*.5},1-bestS1);
+        var candV=[tSide.start,tSide.mid,tSide.end,bSide.start,bSide.mid,bSide.end];
+        if(validSixPts(candV,'vertical'))pts=candV;
+      }
+    }catch(e){}
+    return {
+      pts:pts,
+      auto:!!(base&&base.auto),
+      confidence:(base&&base.confidence)||0,
+      rotation:(base&&base.rotation)||0,
+      flatbed:!!(base&&base.flatbed),
+      foldAxis:axis
+    };
+  }
+  function makeHomography4(q) {
+    var x0=q[0].x,y0=q[0].y,x1=q[1].x,y1=q[1].y,x2=q[2].x,y2=q[2].y,x3=q[3].x,y3=q[3].y;
+    var dx1=x1-x2,dx2=x3-x2,sx=x0-x1+x2-x3,dy1=y1-y2,dy2=y3-y2,sy=y0-y1+y2-y3;
+    var denom=dx1*dy2-dx2*dy1,g=0,h=0;
+    if(Math.abs(denom)>1e-6){g=(sx*dy2-dx2*sy)/denom;h=(dx1*sy-sx*dy1)/denom;}
+    return {a:x1-x0+g*x1,b:x3-x0+h*x3,c:x0,d:y1-y0+g*y1,e:y3-y0+h*y3,f:y0,g:g,h:h};
+  }
+  function evalHomography4(H,u,v) {
+    var w=H.g*u+H.h*v+1;
+    return {x:(H.a*u+H.b*v+H.c)/w,y:(H.d*u+H.e*v+H.f)/w};
+  }
+  function computeSixPointDims(sw,sh,normPts,customMinW,customMaxW,preserveLongEdge,foldAxis) {
+    var axis=foldAxis||inferFoldAxis(normPts);
+    var p=normPts.map(function(pt){return {x:pt.x*sw,y:pt.y*sh};});
+    var natW,natH,split;
+    if(axis==='horizontal'){
+      var wT=Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),wM=Math.hypot(p[2].x-p[5].x,p[2].y-p[5].y),wB=Math.hypot(p[3].x-p[4].x,p[3].y-p[4].y);
+      var hLT=Math.hypot(p[5].x-p[0].x,p[5].y-p[0].y),hRT=Math.hypot(p[2].x-p[1].x,p[2].y-p[1].y);
+      var hLB=Math.hypot(p[4].x-p[5].x,p[4].y-p[5].y),hRB=Math.hypot(p[3].x-p[2].x,p[3].y-p[2].y);
+      var hTop=Math.max(hLT,hRT),hBot=Math.max(hLB,hRB);
+      natW=Math.max(60,Math.max(wT,wB,wM));
+      natH=Math.max(40,hTop+hBot);
+      var rawSplitH=hTop/Math.max(1,hTop+hBot);
+      split=(rawSplitH>=.34&&rawSplitH<=.66)?(.5+.25*(rawSplitH-.5)):clamp(rawSplitH,.15,.85);
+    }else{
+      var wTL=Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),wBL=Math.hypot(p[4].x-p[5].x,p[4].y-p[5].y);
+      var wTR=Math.hypot(p[2].x-p[1].x,p[2].y-p[1].y),wBR=Math.hypot(p[3].x-p[4].x,p[3].y-p[4].y);
+      var hL=Math.hypot(p[5].x-p[0].x,p[5].y-p[0].y),hM=Math.hypot(p[4].x-p[1].x,p[4].y-p[1].y),hR=Math.hypot(p[3].x-p[2].x,p[3].y-p[2].y);
+      var wLeft=Math.max(wTL,wBL),wRight=Math.max(wTR,wBR);
+      natW=Math.max(60,wLeft+wRight);
+      natH=Math.max(40,Math.max(hL,hR,hM));
+      var rawSplitV=wLeft/Math.max(1,wLeft+wRight);
+      split=(rawSplitV>=.34&&rawSplitV<=.66)?(.5+.25*(rawSplitV-.5)):clamp(rawSplitV,.15,.85);
+    }
+    var minTargetW=customMinW||1320,maxTargetW=customMaxW||2600;
+    var upScale=natW<minTargetW?(minTargetW/natW):(natW>maxTargetW?(maxTargetW/natW):1);
+    var outW=Math.max(120,Math.min(maxTargetW,Math.round(natW*upScale)));
+    var outH=Math.max(80,Math.min(maxTargetW,Math.round(natH*upScale)));
+    if(preserveLongEdge){
+      var docScale=Math.min(1,maxTargetW/Math.max(natW,natH));
+      outW=Math.max(16,Math.round(natW*docScale));
+      outH=Math.max(16,Math.round(natH*docScale));
+    }
+    return {outW:outW,outH:outH,natW:natW,natH:natH,split:split,axis:axis,p:p};
+  }
+  function warpSixPoints(srcData,sw,sh,normPts,outW,outH,foldAxis,dstBuf) {
+    var dims=computeSixPointDims(sw,sh,normPts,outW,outW,false,foldAxis);
+    var axis=dims.axis,split=dims.split,p=dims.p;
+    var dst=dstBuf||new Uint8ClampedArray(outW*outH*4);
+    var invW=1/Math.max(1,outW-1),invH=1/Math.max(1,outH-1);
+    var maxSx=sw-1.001,maxSy=sh-1.001,dstIdx=0;
+    if(axis==='horizontal'){
+      var qT=[p[0],p[1],p[2],p[5]],qB=[p[5],p[2],p[3],p[4]];
+      var HT=makeHomography4(qT),HB=makeHomography4(qB);
+      var midLeft={x:(1-split)*p[0].x+split*p[4].x,y:(1-split)*p[0].y+split*p[4].y};
+      var midRight={x:(1-split)*p[1].x+split*p[3].x,y:(1-split)*p[1].y+split*p[3].y};
+      var dLeft={x:p[5].x-midLeft.x,y:p[5].y-midLeft.y},dRight={x:p[2].x-midRight.x,y:p[2].y-midRight.y};
+      for(var oyH=0;oyH<outH;oyH++){
+        var vH=oyH*invH,isTop=vH<=split;
+        var eta=isTop?(vH/Math.max(1e-6,split)):((vH-split)/Math.max(1e-6,1-split));
+        var tentH=isTop?eta:(1-eta),archH=Math.sin(Math.PI*(isTop?.5*eta:.5+.5*eta));
+        var smoothDiffH=.28*(archH-tentH),blendWtH=isTop?(eta*eta):((1-eta)*(1-eta));
+        for(var oxH=0;oxH<outW;oxH++){
+          var uH=oxH*invW,sTop=evalHomography4(HT,uH,1),sBot=evalHomography4(HB,uH,0);
+          var spineX=.5*(sTop.x+sBot.x),spineY=.5*(sTop.y+sBot.y);
+          var basePtH=isTop?evalHomography4(HT,uH,eta):evalHomography4(HB,uH,eta),endPtH=isTop?sTop:sBot;
+          var srcXH=basePtH.x+blendWtH*(spineX-endPtH.x)+smoothDiffH*((1-uH)*dLeft.x+uH*dRight.x);
+          var srcYH=basePtH.y+blendWtH*(spineY-endPtH.y)+smoothDiffH*((1-uH)*dLeft.y+uH*dRight.y);
+          if(srcXH<0||srcXH>maxSx||srcYH<0||srcYH>maxSy){dst[dstIdx]=dst[dstIdx+1]=dst[dstIdx+2]=dst[dstIdx+3]=255;dstIdx+=4;continue;}
+          var ixH=srcXH|0,iyH=srcYH|0,fxH=srcXH-ixH,fyH=srcYH-iyH;
+          var w00H=(1-fxH)*(1-fyH),w10H=fxH*(1-fyH),w01H=(1-fxH)*fyH,w11H=fxH*fyH;
+          var i00H=(iyH*sw+ixH)*4,i10H=i00H+4,i01H=i00H+sw*4,i11H=i01H+4;
+          dst[dstIdx]=srcData[i00H]*w00H+srcData[i10H]*w10H+srcData[i01H]*w01H+srcData[i11H]*w11H;
+          dst[dstIdx+1]=srcData[i00H+1]*w00H+srcData[i10H+1]*w10H+srcData[i01H+1]*w01H+srcData[i11H+1]*w11H;
+          dst[dstIdx+2]=srcData[i00H+2]*w00H+srcData[i10H+2]*w10H+srcData[i01H+2]*w01H+srcData[i11H+2]*w11H;
+          dst[dstIdx+3]=255;dstIdx+=4;
+        }
+      }
+      return dst;
+    }
+    var qL=[p[0],p[1],p[4],p[5]],qR=[p[1],p[2],p[3],p[4]];
+    var HL=makeHomography4(qL),HR=makeHomography4(qR);
+    var midTop={x:(1-split)*p[0].x+split*p[2].x,y:(1-split)*p[0].y+split*p[2].y};
+    var midBot={x:(1-split)*p[5].x+split*p[3].x,y:(1-split)*p[5].y+split*p[3].y};
+    var dTop={x:p[1].x-midTop.x,y:p[1].y-midTop.y},dBot={x:p[4].x-midBot.x,y:p[4].y-midBot.y};
+    var colIsLeft=new Uint8Array(outW),colXi=new Float32Array(outW),colBlend=new Float32Array(outW),colSmooth=new Float32Array(outW);
+    for(var ox=0;ox<outW;ox++){
+      var u=ox*invW,isL=u<=split?1:0;
+      var xi=isL?(u/Math.max(1e-6,split)):((u-split)/Math.max(1e-6,1-split));
+      var tent=isL?xi:(1-xi),arch=Math.sin(Math.PI*(isL?.5*xi:.5+.5*xi));
+      colIsLeft[ox]=isL;colXi[ox]=xi;colBlend[ox]=isL?(xi*xi):((1-xi)*(1-xi));colSmooth[ox]=.28*(arch-tent);
+    }
+    for(var oy=0;oy<outH;oy++){
+      var v=oy*invH,sL=evalHomography4(HL,1,v),sR=evalHomography4(HR,0,v);
+      var spX=.5*(sL.x+sR.x),spY=.5*(sL.y+sR.y);
+      var corrL_X=spX-sL.x,corrL_Y=spY-sL.y,corrR_X=spX-sR.x,corrR_Y=spY-sR.y;
+      var archVecX=(1-v)*dTop.x+v*dBot.x,archVecY=(1-v)*dTop.y+v*dBot.y;
+      var bvXL=HL.b*v+HL.c,evYL=HL.e*v+HL.f,hvWL=HL.h*v+1;
+      var bvXR=HR.b*v+HR.c,evYR=HR.e*v+HR.f,hvWR=HR.h*v+1;
+      for(var ox2=0;ox2<outW;ox2++){
+        var xi2=colXi[ox2],bWt=colBlend[ox2],sm=colSmooth[ox2],srcX,srcY;
+        if(colIsLeft[ox2]){
+          var wL=HL.g*xi2+hvWL;
+          srcX=(HL.a*xi2+bvXL)/wL+bWt*corrL_X+sm*archVecX;
+          srcY=(HL.d*xi2+evYL)/wL+bWt*corrL_Y+sm*archVecY;
+        }else{
+          var wR=HR.g*xi2+hvWR;
+          srcX=(HR.a*xi2+bvXR)/wR+bWt*corrR_X+sm*archVecX;
+          srcY=(HR.d*xi2+evYR)/wR+bWt*corrR_Y+sm*archVecY;
+        }
+        if(srcX<0||srcX>maxSx||srcY<0||srcY>maxSy){dst[dstIdx]=dst[dstIdx+1]=dst[dstIdx+2]=dst[dstIdx+3]=255;dstIdx+=4;continue;}
+        var ix=srcX|0,iy=srcY|0,fx=srcX-ix,fy=srcY-iy;
+        var w00=(1-fx)*(1-fy),w10=fx*(1-fy),w01=(1-fx)*fy,w11=fx*fy;
+        var i00=(iy*sw+ix)*4,i10=i00+4,i01=i00+sw*4,i11=i01+4;
+        dst[dstIdx]=srcData[i00]*w00+srcData[i10]*w10+srcData[i01]*w01+srcData[i11]*w11;
+        dst[dstIdx+1]=srcData[i00+1]*w00+srcData[i10+1]*w10+srcData[i01+1]*w01+srcData[i11+1]*w11;
+        dst[dstIdx+2]=srcData[i00+2]*w00+srcData[i10+2]*w10+srcData[i01+2]*w01+srcData[i11+2]*w11;
+        dst[dstIdx+3]=255;dstIdx+=4;
+      }
+    }
+    return dst;
   }
   function extremaPass(src,w,h,radius,isMax,vertical) {
     var dst=new Float32Array(src.length),length=vertical?h:w,lines=vertical?w:h;
@@ -1784,5 +2096,5 @@
       for(var c=0;c<4;c++)out[(y*w+x)*4+c]=data[(y0*w+x)*4+c]*(1-f)+data[(Math.min(h-1,y0+1)*w+x)*4+c]*f;
     }return out;
   }
-  return { transformPixels:transformPixels, renderLayerPixels:renderLayerPixels, isSimpleTextItem:isSimpleTextItem, adjustPixels:adjustPixels, applyEffects:applyEffects, detect:detect, enhance:enhance, process:process, straighten:straighten, textLineDewarp:textLineDewarp, cleanBorders:cleanBorders, lineModel:lineModel, curve:curve, applyErases:applyErases, applyTrim:applyTrim, parseRgb:parseRgb, brushLut:brushLut, selectionMask:selectionMask, toneBlend:toneBlend, makePainter:makePainter, applyLayerOp:applyLayerOp, composeLayers:composeLayers, overComposite:overComposite, blendRGB:blendRGB, validQuad:validQuad, area:area, fullQuad:full };
+  return { transformPixels:transformPixels, renderLayerPixels:renderLayerPixels, isSimpleTextItem:isSimpleTextItem, adjustPixels:adjustPixels, applyEffects:applyEffects, detect:detect, detectPassportSixPts:detectPassportSixPts, computeSixPointDims:computeSixPointDims, warpSixPoints:warpSixPoints, enhance:enhance, process:process, straighten:straighten, textLineDewarp:textLineDewarp, cleanBorders:cleanBorders, lineModel:lineModel, curve:curve, applyErases:applyErases, applyTrim:applyTrim, parseRgb:parseRgb, brushLut:brushLut, selectionMask:selectionMask, toneBlend:toneBlend, makePainter:makePainter, applyLayerOp:applyLayerOp, composeLayers:composeLayers, overComposite:overComposite, blendRGB:blendRGB, validQuad:validQuad, validSixPts:validSixPts, fullSixPts:fullSixPts, quadToSixPts:quadToSixPts, sixPtsToQuad:sixPtsToQuad, inferFoldAxis:inferFoldAxis, area:area, fullQuad:full };
 });

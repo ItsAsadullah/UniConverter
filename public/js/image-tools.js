@@ -148,10 +148,12 @@
     convert: '/image/convert',
     combine: '/image/combine',
     scan: '/image/scan',
+    passport: '/image/passport',
     colors: '/image/colors'
   };
   var IMG_SUB_TITLES = {
     scan: { bn: 'ডকুমেন্ট স্ক্যানার', en: 'Document Scanner' },
+    passport: { bn: 'পাসপোর্ট মেকার ও স্ক্যানার', en: 'Passport Maker & Scanner' },
     resize: { bn: 'ইমেজ রিসাইজার', en: 'Image Resizer' },
     compress: { bn: 'কমপ্রেস ইমেজ', en: 'Compress Image' },
     crop: { bn: 'ক্রপ ও রাউন্ড ফটো', en: 'Crop & Circle Photo' },
@@ -162,11 +164,15 @@
 
   function switchImgTab(tabId, skipUrl) {
     currentTab = tabId || 'hub';
-    var targetPane = $('#img-pane-' + currentTab);
+    var targetPaneId = currentTab === 'passport' ? 'img-pane-scan' : ('img-pane-' + currentTab);
+    var targetPane = $('#' + targetPaneId);
     if (!targetPane && IMG_SUB_SLUGS[currentTab]) {
       if (window.TechHatNavigate) window.TechHatNavigate(IMG_SUB_SLUGS[currentTab]);
       else location.href = IMG_SUB_SLUGS[currentTab];
       return;
+    }
+    if ((currentTab === 'scan' || currentTab === 'passport') && window.TechHatScannerSetMode) {
+      window.TechHatScannerSetMode(currentTab === 'passport' ? 'passport' : 'scan');
     }
     $$('#tool-image .pdf-nav-btn').forEach(function (btn) {
       var active = btn.getAttribute('data-img-tab') === currentTab;
@@ -174,7 +180,7 @@
       btn.setAttribute('aria-selected', active ? 'true' : 'false');
     });
     $$('#tool-image .img-pane').forEach(function (pane) {
-      pane.hidden = pane.id !== 'img-pane-' + currentTab;
+      pane.hidden = pane.id !== targetPaneId;
     });
     var bcTool = $('#globalBreadcrumbTool');
     var bcSep = $('#globalBreadcrumbSep');
@@ -2762,9 +2768,28 @@
    * Maps any tilted/skewed quadrilateral `pts = [TL, TR, BR, BL]` on `sourceCanvas`
    * into a flat, straight high-DPI rectangular canvas using bilinear pixel interpolation.
    */
-  function warpPerspectiveCard(sourceCanvas, normPts, customMinW, customMaxW, preserveLongEdge) {
+  function warpPerspectiveCard(sourceCanvas, normPts, customMinW, customMaxW, preserveLongEdge, foldAxis) {
     var sw = sourceCanvas.width;
     var sh = sourceCanvas.height;
+    if (normPts && normPts.length === 6 && window.TechHatDocumentCore && window.TechHatDocumentCore.warpSixPoints) {
+      var dims6 = window.TechHatDocumentCore.computeSixPointDims(sw, sh, normPts, customMinW, customMaxW, preserveLongEdge, foldAxis);
+      var srcData6 = sourceCanvas._cachedPixelData;
+      if (!srcData6 || sourceCanvas._cachedPixelW !== sw || sourceCanvas._cachedPixelH !== sh) {
+        var srcCtx6 = sourceCanvas.getContext('2d', { willReadFrequently: true });
+        srcData6 = srcCtx6.getImageData(0, 0, sw, sh).data;
+        sourceCanvas._cachedPixelData = srcData6;
+        sourceCanvas._cachedPixelW = sw;
+        sourceCanvas._cachedPixelH = sh;
+      }
+      var outCanvas6 = document.createElement('canvas');
+      outCanvas6.width = dims6.outW;
+      outCanvas6.height = dims6.outH;
+      var outCtx6 = outCanvas6.getContext('2d', { willReadFrequently: true });
+      var outImg6 = outCtx6.createImageData(dims6.outW, dims6.outH);
+      window.TechHatDocumentCore.warpSixPoints(srcData6, sw, sh, normPts, dims6.outW, dims6.outH, foldAxis, outImg6.data);
+      outCtx6.putImageData(outImg6, 0, 0);
+      return outCanvas6;
+    }
     var p = normPts.map(function (pt) {
       return { x: pt.x * sw, y: pt.y * sh };
     });

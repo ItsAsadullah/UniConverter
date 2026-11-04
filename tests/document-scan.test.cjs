@@ -360,4 +360,77 @@ test('Photoshop retouch tools support custom background color, spot healing, and
  assert.equal(res.data[atWand+1],232);
  assert.equal(res.data[atWand+2],210);
 });
+test('6-Point Passport validation accepts inward center-pinch and rejects crossed polygons',()=>{
+ const pinched=[
+  {x:0.08,y:0.10}, // 0: TL
+  {x:0.50,y:0.18}, // 1: TM (pinched inward)
+  {x:0.92,y:0.11}, // 2: TR
+  {x:0.93,y:0.89}, // 3: BR
+  {x:0.50,y:0.81}, // 4: BM (pinched inward)
+  {x:0.07,y:0.90}  // 5: BL
+ ];
+ assert.equal(core.validQuad(pinched),true);
+ const crossed=[
+  {x:0.08,y:0.10},
+  {x:0.85,y:0.85}, // crossed fold point
+  {x:0.92,y:0.11},
+  {x:0.93,y:0.89},
+  {x:0.15,y:0.15},
+  {x:0.07,y:0.90}
+ ];
+ assert.equal(core.validQuad(crossed),false);
+});
+test('6-Point Passport detector finds outer corners and pinched center fold points',()=>{
+ const w=360,h=260;
+ // Simulated open passport on dark desk where center fold (x=180) pinches inward from y=30..230 to y=48..212
+ const data=image(w,h,(x,y)=>{
+  if(x<32||x>328)return [35,38,44];
+  const u=(x-32)/(328-32);
+  const arch=Math.sin(Math.PI*u);
+  const topY=30+18*arch;
+  const botY=230-18*arch;
+  if(y<topY||y>botY)return [35,38,44];
+  // Dark binding crease at x=180
+  if(Math.abs(x-180)<=2)return [95,95,100];
+  return [232,230,224];
+ });
+ const det=core.detectPassportSixPts(data,w,h,{foldAxis:'vertical'});
+ assert.equal(det.pts.length,6);
+ assert.equal(det.foldAxis,'vertical');
+ // Top-Middle (1) should dip lower (larger y) than average of TL (0) and TR (2)
+ const topOuterY=0.5*(det.pts[0].y+det.pts[2].y);
+ const botOuterY=0.5*(det.pts[5].y+det.pts[3].y);
+ assert.ok(det.pts[1].y>topOuterY+0.02,`Expected TM (${det.pts[1].y.toFixed(3)}) > outer top (${topOuterY.toFixed(3)})`);
+ assert.ok(det.pts[4].y<botOuterY-0.02,`Expected BM (${det.pts[4].y.toFixed(3)}) < outer bottom (${botOuterY.toFixed(3)})`);
+});
+test('6-Point piecewise homography & mesh warp un-pinches compressed passport spine to full height',()=>{
+ const sw=300,sh=200;
+ // Source image has a pinched passport: at x=150 (TM/BM), top border is at y=40 and bottom border is at y=160,
+ // whereas at left (x=30) and right (x=270), top border is at y=20 and bottom border is at y=180.
+ // We draw a bright red marker right inside the pinched top-middle (150, 44) and bottom-middle (150, 156).
+ const normPts=[
+  {x:30/sw,y:20/sh},   // 0: TL
+  {x:150/sw,y:40/sh},  // 1: TM
+  {x:270/sw,y:20/sh},  // 2: TR
+  {x:270/sw,y:180/sh}, // 3: BR
+  {x:150/sw,y:160/sh}, // 4: BM
+  {x:30/sw,y:180/sh}   // 5: BL
+ ];
+ const src=image(sw,sh,(x,y)=>{
+  if(Math.hypot(x-150,y-42)<=3)return [240,20,20];
+  if(Math.hypot(x-150,y-158)<=3)return [20,20,240];
+  return [235,235,235];
+ });
+ const dims=core.computeSixPointDims(sw,sh,normPts,1,400,true,'vertical');
+ // Natural height must preserve outer edge height (160px), not collapse to pinched middle height (120px)
+ assert.ok(dims.natH>=158,`Expected natH >= 158, got ${dims.natH}`);
+ const out=core.warpSixPoints(src,sw,sh,normPts,dims.outW,dims.outH,'vertical');
+ const midX=Math.round(dims.outW*dims.split);
+ // Near the top of the rectified output at midX (y=3), the red marker at the pinched spine top must now be at the top edge!
+ const topIdx=(3*dims.outW+midX)*4;
+ assert.ok(out[topIdx]>200&&out[topIdx+1]<60,`Top middle should be rectified to top edge: R=${out[topIdx]}, G=${out[topIdx+1]}`);
+ // Near the bottom of the rectified output at midX (y=outH-4), the blue marker at the pinched spine bottom must be at the bottom edge!
+ const botIdx=((dims.outH-4)*dims.outW+midX)*4;
+ assert.ok(out[botIdx+2]>200&&out[botIdx]<60,`Bottom middle should be rectified to bottom edge: B=${out[botIdx+2]}, R=${out[botIdx]}`);
+});
 console.log(`${passed} document scan tests passed`);

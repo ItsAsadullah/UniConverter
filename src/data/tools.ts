@@ -68,7 +68,7 @@ export interface PdfSubToolMeta {
 
 export interface ImageSubToolMeta {
   slug: string;
-  tabId: 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'colors';
+  tabId: 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'colors';
   title: string;
   titleEn: string;
   desc: string;
@@ -279,6 +279,19 @@ export const IMAGE_SUBTOOLS: ImageSubToolMeta[] = [
     seoDesc: 'ডকুমেন্টের ছবি অটো পেজ ডিটেকশন ও পার্সপেক্টিভ ক্রপ করে সোজা করুন, শ্যাডো কমান এবং PDF বা JPG ডাউনলোড করুন।'
   },
   {
+    slug: 'passport',
+    tabId: 'passport',
+    title: 'পাসপোর্ট মেকার ও স্ক্যানার',
+    titleEn: 'Passport Maker & Scanner',
+    desc: '৬-পয়েন্ট ভাঁজ সংশোধন, অটো ডি-ওয়ার্প ও A4 প্রিন্ট রেডি পাসপোর্ট',
+    descEn: '6-point fold correction, perspective rectification & A4 PDF',
+    lucideIcon: 'lucide:book-open-check',
+    keywords: 'passport scanner passport maker 6 point perspective crop fold correction mrz passport pdf পাসপোর্ট স্ক্যানার পাসপোর্ট মেকার',
+    popular: true,
+    seoTitle: 'পাসপোর্ট মেকার ও স্ক্যানার (Passport Maker & Scanner) — ৬-পয়েন্ট পার্সপেক্টিভ ক্রপ ও PDF | TechHat',
+    seoDesc: 'মোবাইল ক্যামেরায় তোলা পাসপোর্টের ছবি ৬-পয়েন্ট পার্সপেক্টিভ ক্রপ ও মাঝের ভাঁজ সংশোধন করে প্রফেশনাল স্ক্যানার কোয়ালিটি আউটপুট তৈরি করুন।'
+  },
+  {
     slug: 'resize',
     tabId: 'resize',
     title: 'ইমেজ রিসাইজার',
@@ -443,6 +456,7 @@ export const ALL_TOOLS: StudioToolItem[] = [
   ...IMAGE_SUBTOOLS.map((s): StudioToolItem => {
     const imgColorMap: Record<string, ToolColor> = {
       'scan': 'blue',
+      'passport': 'emerald',
       'resize': 'violet',
       'compress': 'orange',
       'crop': 'fuchsia',
@@ -459,8 +473,8 @@ export const ALL_TOOLS: StudioToolItem[] = [
       titleEn: s.titleEn,
       desc: s.desc,
       descEn: s.descEn,
-      badge: s.slug === 'scan' ? 'স্ক্যানার' : 'ইমেজ',
-      badgeEn: s.slug === 'scan' ? 'Scanner' : 'Image',
+      badge: (s.slug === 'scan' || s.slug === 'passport') ? 'স্ক্যানার' : 'ইমেজ',
+      badgeEn: (s.slug === 'scan' || s.slug === 'passport') ? 'Scanner' : 'Image',
       color: imgColorMap[s.slug] || 'sky',
       lucideIcon: s.lucideIcon,
       keywords: s.keywords,

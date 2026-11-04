@@ -4,9 +4,10 @@
 
   interface Props {
     active?: boolean;
+    mode?: 'scan' | 'passport';
   }
 
-  let { active = false }: Props = $props();
+  let { active = false, mode = 'scan' }: Props = $props();
   const t = I18N.en;
 
   // Photoshop-style retouch toolbar (grouped tools with flyouts, same order as Photoshop)
@@ -219,6 +220,7 @@
   hidden={!active}
   aria-label={t.brandSub}
   data-view="split"
+  data-scan-mode={mode}
   data-editing="false"
   data-sidebar-collapsed="false"
   data-has-pages="false"
@@ -400,6 +402,19 @@
           >
             <Icon name="lucide:scan-line" class="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span class="sr-only" data-i18n="autoDetectBtn">{t.autoDetectBtn}</span>
+          </button>
+          <button
+            type="button"
+            id="dsFoldAxisBtn"
+            data-ds="toggle-fold-axis"
+            hidden={mode !== 'passport'}
+            disabled
+            class="{btnBase} !px-2 !min-h-[30px] !border-amber-500/45 !bg-amber-500/10 !text-amber-700 dark:!text-amber-300 hover:enabled:!bg-amber-500/20"
+            data-ds-tip="Switch Passport Fold Line (Vertical ↕ / Horizontal ↔)"
+            title="Switch Passport Fold Line (Vertical ↕ / Horizontal ↔)"
+          >
+            <Icon name="lucide:columns-2" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span id="dsFoldAxisLabel" class="text-[11.5px] font-bold">6-Pt ↕</span>
           </button>
           <button type="button" data-ds="full" class={btnIcon} disabled data-i18n-title="fullImageTip" title={t.fullImageTip}>
             <Icon name="lucide:maximize-2" class="w-4.5 h-4.5 text-sky-600 dark:text-sky-400 shrink-0" />
@@ -691,6 +706,11 @@
                   id="dsOutline"
                   class="fill-emerald-500/10 stroke-emerald-500 stroke-[2.25] [vector-effect:non-scaling-stroke]"
                 />
+                <line
+                  id="dsFoldLine"
+                  hidden={mode !== 'passport'}
+                  class="stroke-amber-400 stroke-[2.5] [stroke-dasharray:6_4] [vector-effect:non-scaling-stroke]"
+                />
                 {#each [0, 1, 2, 3] as i}
                   <line
                     class="ds-gridline stroke-white/55 stroke-1 [stroke-dasharray:4_4] [vector-effect:non-scaling-stroke]"
@@ -699,21 +719,23 @@
                 {/each}
               </svg>
               <div id="dsHandles" class="absolute inset-0 w-full h-full pointer-events-none">
-                {#each t.corners as label, i}
+                {#each [0, 1, 2, 3, 4, 5] as i}
                   <button
                     type="button"
                     data-ds-corner={i}
-                    aria-label={label}
-                    title={label}
-                    class="absolute min-h-0 min-w-0 p-0 -translate-x-1/2 -translate-y-1/2 pointer-events-auto touch-none w-5.5 h-5.5 rounded-full bg-emerald-500 border-2 border-white shadow-[0_2px_8px_rgba(0,0,0,0.45)] cursor-grab hover:bg-emerald-400 hover:scale-110 [&.is-active]:bg-emerald-400 [&.is-active]:scale-110"
+                    hidden={i >= 4 && mode !== 'passport'}
+                    aria-label={t.corners[i] || `Point ${i + 1}`}
+                    title={t.corners[i] || `Point ${i + 1}`}
+                    class="absolute min-h-0 min-w-0 p-0 -translate-x-1/2 -translate-y-1/2 pointer-events-auto touch-none w-5.5 h-5.5 rounded-full bg-emerald-500 data-[fold-point=true]:bg-amber-500 border-2 border-white shadow-[0_2px_8px_rgba(0,0,0,0.45)] cursor-grab hover:bg-emerald-400 data-[fold-point=true]:hover:bg-amber-400 hover:scale-110 [&.is-active]:bg-emerald-400 data-[fold-point=true]:[&.is-active]:bg-amber-400 [&.is-active]:scale-110"
                   ></button>
                 {/each}
-                {#each t.edges as label, i}
+                {#each [0, 1, 2, 3, 4, 5] as i}
                   <button
                     type="button"
                     data-ds-edge={i}
-                    aria-label={label}
-                    title={label}
+                    hidden={i >= 4 && mode !== 'passport'}
+                    aria-label={t.edges[i] || `Edge ${i + 1}`}
+                    title={t.edges[i] || `Edge ${i + 1}`}
                     class="absolute min-h-0 min-w-0 p-0 pointer-events-auto touch-none w-6 h-2 rounded-full bg-white/95 border-2 border-emerald-600 shadow-[0_2px_6px_rgba(0,0,0,0.38)] cursor-pointer hover:bg-emerald-50 [&.is-active]:bg-emerald-50 [transform:translate(-50%,-50%)_rotate(var(--edge-deg,0deg))]"
                   ></button>
                 {/each}

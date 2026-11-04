@@ -35,12 +35,12 @@ const { sub } = Astro.props;
 
   <Fragment slot="scripts">
     <script is:inline src="/vendor/jszip.min.js" defer></script>
-    <script is:inline src="/js/image-tools.js?v=61" defer></script>
-    {sub.tabId === 'scan' && (
+    <script is:inline src="/js/image-tools.js?v=62" defer></script>
+    {(sub.tabId === 'scan' || sub.tabId === 'passport') && (
       <>
         <script is:inline src="/js/bijoy-engine.js?v=12" defer></script>
-        <script is:inline src="/js/document-scan-core.js?v=32" defer></script>
-        <script is:inline src="/js/document-scanner.js?v=54" defer></script>
+        <script is:inline src="/js/document-scan-core.js?v=33" defer></script>
+        <script is:inline src="/js/document-scanner.js?v=55" defer></script>
       </>
     )}
   </Fragment>

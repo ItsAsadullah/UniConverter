@@ -2,7 +2,7 @@
   import DocumentScanner from './DocumentScanner.svelte';
 
   interface Props {
-    initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'colors';
+    initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'colors';
   }
 
   let { initialTab = 'hub' }: Props = $props();
@@ -11,7 +11,7 @@
 <div class="tool-view w-full" id="tool-image" data-initial-tab={initialTab}>
   <section class="card util-card pdf-studio-card img-studio-card rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xs p-3.5 sm:p-5" aria-label="Image Studio">
     <div class="util-body pdf-studio-body">
-      {#if renderAll || initialTab === 'scan'}<DocumentScanner active={initialTab === 'scan'} />{/if}
+      {#if renderAll || initialTab === 'scan' || initialTab === 'passport'}<DocumentScanner active={initialTab === 'scan' || initialTab === 'passport'} mode={initialTab === 'passport' ? 'passport' : 'scan'} />{/if}
       <!-- ========================================== 0. HUB OVERVIEW -->
       {#if renderAll}
       <div class="img-pane space-y-4" id="img-pane-hub" hidden={initialTab !== 'hub'}>
@@ -24,6 +24,11 @@
             <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/15 to-cyan-500/15 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2" fill="currentColor" fill-opacity="0.18" stroke="none"/><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M7 8h10M7 12h10M7 16h7"/></svg></span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="ডকুমেন্ট স্ক্যানার" data-i18n-en="Document Scanner">ডকুমেন্ট স্ক্যানার</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="অটো পেজ ডিটেক্ট, বাঁকা পেজ সোজা, শ্যাডো সংশোধন ও পরিষ্কার লেখা। একাধিক পেজ থেকে PDF তৈরি করুন।" data-i18n-en="Auto page detection, perspective deskew, shadow removal & multipage PDF export.">অটো পেজ ডিটেক্ট, বাঁকা পেজ সোজা, শ্যাডো সংশোধন ও পরিষ্কার লেখা। একাধিক পেজ থেকে PDF তৈরি করুন।</span>
+          </button>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-emerald-500 dark:hover:border-emerald-400 cursor-pointer transition-colors" data-open-img="passport" data-accent="green">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-amber-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/><path d="m9 11 2 2 4-4"/></svg></span>
+            <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="পাসপোর্ট মেকার ও স্ক্যানার" data-i18n-en="Passport Maker & Scanner">পাসপোর্ট মেকার ও স্ক্যানার</span>
+            <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="৬-পয়েন্ট পার্সপেক্টিভ ক্রপ ও মাঝের ভাঁজ সংশোধন করে মোবাইল ক্যামেরার পাসপোর্ট ছবিকে প্রফেশনাল স্ক্যান আউটপুটে রূপান্তর করুন।" data-i18n-en="6-point perspective crop & center fold rectification to turn mobile passport photos into flat scanned documents.">৬-পয়েন্ট পার্সপেক্টিভ ক্রপ ও মাঝের ভাঁজ সংশোধন করে মোবাইল ক্যামেরার পাসপোর্ট ছবিকে প্রফেশনাল স্ক্যান আউটপুটে রূপান্তর করুন।</span>
           </button>
           <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-blue-500 dark:hover:border-blue-400 cursor-pointer transition-colors" data-open-img="resize" data-preset="job-photo" data-accent="teal">
             <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-sky-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
