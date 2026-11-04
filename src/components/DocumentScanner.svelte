@@ -576,39 +576,7 @@
               <i class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block shrink-0"></i>
               <em class="not-italic truncate" data-i18n="cropCaption">{t.cropCaption}</em>
             </span>
-            <div class="inline-flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                data-ds="detect"
-                class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 cursor-pointer hover:bg-emerald-500/20"
-                data-i18n-title="autoDetectTip"
-                title={t.autoDetectTip}
-              >
-                <Icon name="lucide:scan-line" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span class="sr-only" data-i18n="autoDetectBtn">{t.autoDetectBtn}</span>
-              </button>
-              <button
-                type="button"
-                data-ds="full"
-                class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white dark:bg-studio-surface text-sky-600 dark:text-sky-400 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-slate-100"
-                data-i18n-title="fullImageTip"
-                title={t.fullImageTip}
-              >
-                <Icon name="lucide:maximize-2" class="w-3.5 h-3.5 shrink-0" />
-                <span class="sr-only" data-i18n="fullImageBtn">{t.fullImageBtn}</span>
-              </button>
-              <button
-                type="button"
-                data-ds="reset-crop"
-                class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white dark:bg-studio-surface text-amber-600 dark:text-amber-400 border border-slate-200 dark:border-studio-border cursor-pointer hover:bg-slate-100"
-                data-i18n-title="resetCropTip"
-                title={t.resetCropTip}
-              >
-                <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 shrink-0" />
-                <span class="sr-only" data-i18n="resetCropBtn">{t.resetCropBtn}</span>
-              </button>
-              <small class="sr-only" data-i18n="cropSubCaption">{t.cropSubCaption}</small>
-            </div>
+            <small class="text-[10px] font-medium text-slate-400 dark:text-studio-muted truncate max-sm:hidden" data-i18n="cropSubCaption">{t.cropSubCaption}</small>
           </div>
           <div
             class="ds-viewport relative flex-1 min-h-0 overflow-hidden bg-slate-200/90 dark:bg-[#070c18] bg-[radial-gradient(circle_at_50%_45%,rgba(16,185,129,0.05),transparent_65%),repeating-linear-gradient(0deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px)] touch-none cursor-grab [&.is-panning]:cursor-grabbing focus-visible:outline-2 focus-visible:outline-emerald-500"
@@ -675,22 +643,10 @@
             </span>
             <div class="ds-preview-caption-actions inline-flex items-center gap-1.5 shrink-0">
               <small id="dsPreviewMeta" class="text-slate-500 dark:text-studio-muted font-medium text-[10px] tabular-nums truncate">—</small>
-              <button
-                type="button"
-                id="dsEraserToggle"
-                class="ds-caption-btn inline-flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-studio-surface border border-slate-200 dark:border-studio-border text-violet-600 dark:text-violet-400 cursor-pointer aria-pressed:bg-emerald-600 dark:aria-pressed:bg-emerald-500 aria-pressed:border-emerald-600 dark:aria-pressed:border-emerald-500 aria-pressed:text-white dark:aria-pressed:text-slate-950 disabled:opacity-40 disabled:cursor-not-allowed"
-                data-ds="toggle-eraser"
-                aria-pressed="false"
-                data-i18n-title="retouchTip"
-                title={t.retouchTip}
-              >
-                <Icon name="lucide:wand-2" class="w-3.5 h-3.5 shrink-0" />
-                <span class="sr-only" data-i18n="retouchShortBtn">{t.retouchShortBtn}</span>
-              </button>
             </div>
           </div>
 
-          <!-- ULTRA-COMPACT 1-LINE PHOTOSHOP OPTIONS BAR (CLICK TO OPEN SLIDER POPOVERS) -->
+          <!-- ULTRA-COMPACT 1-LINE PHOTOSHOP OPTIONS BAR (IN-BUTTON SCRUB & WHEEL SLIDERS) -->
           <div
             class="ds-eraser-bar relative z-30 min-h-[30px] px-2 py-0.5 bg-slate-50 dark:bg-studio-panel border-b border-slate-200 dark:border-studio-border flex items-center gap-1 flex-wrap shrink-0"
             id="dsEraserBar"
@@ -775,125 +731,62 @@
               </div>
             </div>
 
-            <!-- PHOTOSHOP CLICK-TO-OPEN SLIDER POPOVER TRIGGERS (Brush Size & Hardness) -->
+            <!-- IN-BUTTON SCRUB SLIDERS (Brush Size & Hardness — Drag or Scroll Wheel) -->
             <div class="ds-ps-sliders inline-flex items-center gap-1" id="dsPsBrushOpts">
-              <!-- Size Popover Trigger -->
-              <div class="relative" data-ds-pop-wrap>
-                <button
-                  type="button"
-                  data-ds-pop-btn="size"
-                  class="inline-flex items-center gap-1 min-h-[22px] px-1.5 py-0.5 rounded bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-[10px] font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500/50 aria-expanded:border-emerald-500 aria-expanded:bg-emerald-500/10"
-                  aria-expanded="false"
-                  title="Click to adjust Brush Size ([ and ])"
-                >
-                  <span data-i18n="sizeLbl">{t.sizeLbl}</span>
-                  <output id="dsBrushSizeVal" class="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">24px</output>
-                  <Icon name="lucide:chevron-down" class="w-2.5 h-2.5 opacity-65" />
-                </button>
-                <div
-                  data-ds-pop-panel="size"
-                  hidden
-                  class="absolute left-0 top-[calc(100%+4px)] w-44 p-2 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xl z-50 grid gap-1.5"
-                >
-                  <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                    <span data-i18n="sizeLbl">{t.sizeLbl}</span>
-                    <span class="inline-flex items-center gap-1">
-                      <span class="text-slate-400 font-mono text-[9px]">[ / ]</span>
-                      <button type="button" data-ds-reset-retouch="size" class="w-4 h-4 inline-flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-studio-surface text-amber-600 dark:text-amber-400 cursor-pointer" data-i18n-title="resetToolTip" title={t.resetToolTip}>
-                        <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
-                      </button>
-                    </span>
-                  </div>
-                  <input type="range" id="dsBrushSize" min="2" max="120" value="24" class="w-full cursor-pointer" />
+              <!-- Size In-Button Scrub Slider -->
+              <div class="min-h-[22px] min-w-[96px] rounded bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border flex items-stretch overflow-hidden">
+                <div class="relative flex-1 flex items-center justify-between gap-1.5 px-1.5 py-0.5 select-none">
+                  <span id="dsBrushSizeFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:19%"></span>
+                  <span class="relative z-10 text-[10px] font-semibold text-slate-700 dark:text-studio-text pointer-events-none" data-i18n="sizeLbl">{t.sizeLbl}</span>
+                  <output id="dsBrushSizeVal" class="relative z-10 font-bold text-[10px] text-emerald-600 dark:text-emerald-400 tabular-nums pointer-events-none">24px</output>
+                  <input type="range" id="dsBrushSize" min="2" max="120" value="24" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" title="Drag or Scroll Wheel to adjust Brush Size ([ and ])" />
                 </div>
+                <button type="button" data-ds-reset-retouch="size" class="w-4 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer z-30" data-i18n-title="resetToolTip" title={t.resetToolTip}>
+                  <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
+                </button>
               </div>
 
-              <!-- Hardness Popover Trigger -->
-              <div class="relative" data-ds-pop-wrap>
-                <button
-                  type="button"
-                  data-ds-pop-btn="hardness"
-                  class="inline-flex items-center gap-1 min-h-[22px] px-1.5 py-0.5 rounded bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-[10px] font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500/50 aria-expanded:border-emerald-500 aria-expanded:bg-emerald-500/10"
-                  aria-expanded="false"
-                  title="Click to adjust Brush Hardness"
-                >
-                  <span data-i18n="hardnessLbl">{t.hardnessLbl}</span>
-                  <output id="dsBrushHardnessVal" class="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">80%</output>
-                  <Icon name="lucide:chevron-down" class="w-2.5 h-2.5 opacity-65" />
-                </button>
-                <div
-                  data-ds-pop-panel="hardness"
-                  hidden
-                  class="absolute left-0 top-[calc(100%+4px)] w-44 p-2 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xl z-50 grid gap-1.5"
-                >
-                  <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                    <span data-i18n="hardnessLbl">{t.hardnessLbl}</span>
-                    <button type="button" data-ds-reset-retouch="hardness" class="w-4 h-4 inline-flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-studio-surface text-amber-600 dark:text-amber-400 cursor-pointer" data-i18n-title="resetToolTip" title={t.resetToolTip}>
-                      <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
-                    </button>
-                  </div>
-                  <input type="range" id="dsBrushHardness" min="0" max="100" value="80" class="w-full cursor-pointer" />
+              <!-- Hardness In-Button Scrub Slider -->
+              <div class="min-h-[22px] min-w-[104px] rounded bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border flex items-stretch overflow-hidden">
+                <div class="relative flex-1 flex items-center justify-between gap-1.5 px-1.5 py-0.5 select-none">
+                  <span id="dsBrushHardnessFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:80%"></span>
+                  <span class="relative z-10 text-[10px] font-semibold text-slate-700 dark:text-studio-text pointer-events-none" data-i18n="hardnessLbl">{t.hardnessLbl}</span>
+                  <output id="dsBrushHardnessVal" class="relative z-10 font-bold text-[10px] text-emerald-600 dark:text-emerald-400 tabular-nums pointer-events-none">80%</output>
+                  <input type="range" id="dsBrushHardness" min="0" max="100" value="80" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" title="Drag or Scroll Wheel to adjust Brush Hardness" />
                 </div>
+                <button type="button" data-ds-reset-retouch="hardness" class="w-4 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer z-30" data-i18n-title="resetToolTip" title={t.resetToolTip}>
+                  <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
+                </button>
               </div>
             </div>
 
-            <!-- Magic Wand Tolerance Popover Trigger -->
+            <!-- Magic Wand Tolerance In-Button Scrub Slider -->
             <div class="ds-ps-sliders inline-flex items-center gap-1" id="dsPsWandOpts" hidden>
-              <div class="relative" data-ds-pop-wrap>
-                <button
-                  type="button"
-                  data-ds-pop-btn="tolerance"
-                  class="inline-flex items-center gap-1 min-h-[22px] px-1.5 py-0.5 rounded bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-[10px] font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500/50 aria-expanded:border-emerald-500 aria-expanded:bg-emerald-500/10"
-                  aria-expanded="false"
-                  title="Click to adjust Magic Eraser Tolerance"
-                >
-                  <span data-i18n="toleranceLbl">{t.toleranceLbl}</span>
-                  <output id="dsWandToleranceVal" class="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">28</output>
-                  <Icon name="lucide:chevron-down" class="w-2.5 h-2.5 opacity-65" />
-                </button>
-                <div
-                  data-ds-pop-panel="tolerance"
-                  hidden
-                  class="absolute left-0 top-[calc(100%+4px)] w-44 p-2 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xl z-50 grid gap-1.5"
-                >
-                  <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                    <span data-i18n="toleranceLbl">{t.toleranceLbl}</span>
-                    <button type="button" data-ds-reset-retouch="tolerance" class="w-4 h-4 inline-flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-studio-surface text-amber-600 dark:text-amber-400 cursor-pointer" data-i18n-title="resetToolTip" title={t.resetToolTip}>
-                      <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
-                    </button>
-                  </div>
-                  <input type="range" id="dsWandTolerance" min="5" max="85" value="28" class="w-full cursor-pointer" />
+              <div class="min-h-[22px] min-w-[104px] rounded bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border flex items-stretch overflow-hidden">
+                <div class="relative flex-1 flex items-center justify-between gap-1.5 px-1.5 py-0.5 select-none">
+                  <span id="dsWandToleranceFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:29%"></span>
+                  <span class="relative z-10 text-[10px] font-semibold text-slate-700 dark:text-studio-text pointer-events-none" data-i18n="toleranceLbl">{t.toleranceLbl}</span>
+                  <output id="dsWandToleranceVal" class="relative z-10 font-bold text-[10px] text-emerald-600 dark:text-emerald-400 tabular-nums pointer-events-none">28</output>
+                  <input type="range" id="dsWandTolerance" min="5" max="85" value="28" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" title="Drag or Scroll Wheel to adjust Magic Eraser Tolerance" />
                 </div>
+                <button type="button" data-ds-reset-retouch="tolerance" class="w-4 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer z-30" data-i18n-title="resetToolTip" title={t.resetToolTip}>
+                  <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
+                </button>
               </div>
             </div>
 
-            <!-- Opacity Popover Trigger -->
+            <!-- Opacity In-Button Scrub Slider -->
             <div class="ds-ps-sliders inline-flex items-center gap-1">
-              <div class="relative" data-ds-pop-wrap>
-                <button
-                  type="button"
-                  data-ds-pop-btn="opacity"
-                  class="inline-flex items-center gap-1 min-h-[22px] px-1.5 py-0.5 rounded bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-[10px] font-semibold text-slate-700 dark:text-studio-text cursor-pointer hover:border-emerald-500/50 aria-expanded:border-emerald-500 aria-expanded:bg-emerald-500/10"
-                  aria-expanded="false"
-                  title="Click to adjust Stroke Opacity"
-                >
-                  <span data-i18n="opacityLbl">{t.opacityLbl}</span>
-                  <output id="dsBrushOpacityVal" class="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">100%</output>
-                  <Icon name="lucide:chevron-down" class="w-2.5 h-2.5 opacity-65" />
-                </button>
-                <div
-                  data-ds-pop-panel="opacity"
-                  hidden
-                  class="absolute left-0 top-[calc(100%+4px)] w-44 p-2 rounded-lg bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xl z-50 grid gap-1.5"
-                >
-                  <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                    <span data-i18n="opacityLbl">{t.opacityLbl}</span>
-                    <button type="button" data-ds-reset-retouch="opacity" class="w-4 h-4 inline-flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-studio-surface text-amber-600 dark:text-amber-400 cursor-pointer" data-i18n-title="resetToolTip" title={t.resetToolTip}>
-                      <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
-                    </button>
-                  </div>
-                  <input type="range" id="dsBrushOpacity" min="10" max="100" value="100" class="w-full cursor-pointer" />
+              <div class="min-h-[22px] min-w-[100px] rounded bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border flex items-stretch overflow-hidden">
+                <div class="relative flex-1 flex items-center justify-between gap-1.5 px-1.5 py-0.5 select-none">
+                  <span id="dsBrushOpacityFill" class="absolute inset-y-0 left-0 bg-emerald-500/15 dark:bg-emerald-400/20 pointer-events-none" style="width:100%"></span>
+                  <span class="relative z-10 text-[10px] font-semibold text-slate-700 dark:text-studio-text pointer-events-none" data-i18n="opacityLbl">{t.opacityLbl}</span>
+                  <output id="dsBrushOpacityVal" class="relative z-10 font-bold text-[10px] text-emerald-600 dark:text-emerald-400 tabular-nums pointer-events-none">100%</output>
+                  <input type="range" id="dsBrushOpacity" min="10" max="100" value="100" class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0" title="Drag or Scroll Wheel to adjust Stroke Opacity" />
                 </div>
+                <button type="button" data-ds-reset-retouch="opacity" class="w-4 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer z-30" data-i18n-title="resetToolTip" title={t.resetToolTip}>
+                  <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
+                </button>
               </div>
             </div>
 
@@ -931,13 +824,14 @@
           </div>
 
           <div
-            class="ds-preview-stage flex-1 min-h-0 flex items-center justify-center overflow-hidden relative p-3 pl-11 bg-slate-200/90 dark:bg-[#070c18] [container-type:size] bg-[radial-gradient(circle_at_50%_45%,rgba(16,185,129,0.05),transparent_65%),repeating-linear-gradient(0deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px)]"
+            class="ds-preview-stage flex-1 min-h-0 flex items-center justify-center overflow-hidden relative p-3 bg-slate-200/90 dark:bg-[#070c18] [container-type:size] bg-[radial-gradient(circle_at_50%_45%,rgba(16,185,129,0.05),transparent_65%),repeating-linear-gradient(0deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(148,163,184,0.08)_0_1px,transparent_1px_24px)]"
             id="dsPreviewStage"
           >
-            <!-- ULTRA-COMPACT PHOTOSHOP ICON DOCK -->
+            <!-- ULTRA-COMPACT PHOTOSHOP ICON DOCK (SHOWN ONLY WHEN RETOUCH STUDIO IS ACTIVE) -->
             <aside
               class="ds-ps-dock absolute left-1.5 top-2 w-8 rounded-lg bg-white/95 dark:bg-studio-panel/95 border border-slate-200/90 dark:border-studio-border p-1 flex flex-col items-center gap-0.5 z-15 shrink-0 select-none shadow-md backdrop-blur-xs"
               id="dsPsDock"
+              hidden
               aria-label="Photoshop Retouch Dock"
             >
               {#each [
@@ -1230,14 +1124,14 @@
           </div>
           <div class="p-1.5 grid grid-cols-2 gap-1">
             {#each [
-              { id: 'dsShadow', icon: 'lucide:sun', color: 'text-amber-500 dark:text-amber-400', key: 'optShadow', label: t.optShadow },
-              { id: 'dsText', icon: 'lucide:scan-text', color: 'text-indigo-600 dark:text-indigo-400', key: 'optText', label: t.optText },
-              { id: 'dsStraighten', icon: 'lucide:align-horizontal-justify-center', color: 'text-blue-600 dark:text-blue-400', key: 'optStraighten', label: t.optStraighten },
-              { id: 'dsCleanSpots', icon: 'lucide:eraser', color: 'text-rose-500 dark:text-rose-400', key: 'optCleanSpots', label: t.optCleanSpots },
-              { id: 'dsCleanMargins', icon: 'lucide:scan', color: 'text-emerald-600 dark:text-emerald-400', key: 'optCleanMargins', label: t.optCleanMargins }
+              { id: 'dsShadow', icon: 'lucide:sun', color: 'text-amber-500 dark:text-amber-400', key: 'optShadow', label: t.optShadow, span: '' },
+              { id: 'dsText', icon: 'lucide:scan-text', color: 'text-indigo-600 dark:text-indigo-400', key: 'optText', label: t.optText, span: '' },
+              { id: 'dsStraighten', icon: 'lucide:align-horizontal-justify-center', color: 'text-blue-600 dark:text-blue-400', key: 'optStraighten', label: t.optStraighten, span: '' },
+              { id: 'dsCleanSpots', icon: 'lucide:eraser', color: 'text-rose-500 dark:text-rose-400', key: 'optCleanSpots', label: t.optCleanSpots, span: '' },
+              { id: 'dsCleanMargins', icon: 'lucide:scan', color: 'text-emerald-600 dark:text-emerald-400', key: 'optCleanMargins', label: t.optCleanMargins, span: 'col-span-2' }
             ] as opt}
               <label
-                class="ds-toggle min-h-[27px] flex items-center justify-between gap-1 px-2 py-0.5 rounded-md bg-slate-50/70 dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border cursor-pointer text-[10px] font-semibold text-slate-800 dark:text-studio-text transition-colors hover:bg-white dark:hover:bg-studio-surface hover:border-slate-300 dark:hover:border-slate-600"
+                class="ds-toggle {opt.span} min-h-[27px] flex items-center justify-between gap-1 px-2 py-0.5 rounded-md bg-slate-50/70 dark:bg-studio-sidebar border border-slate-200/90 dark:border-studio-border cursor-pointer text-[10px] font-semibold text-slate-800 dark:text-studio-text transition-colors hover:bg-white dark:hover:bg-studio-surface hover:border-slate-300 dark:hover:border-slate-600"
                 title={opt.key === 'optCleanMargins' ? t.cleanMarginsHint : opt.label}
               >
                 <span class="inline-flex items-center gap-1.5 min-w-0">
@@ -1247,22 +1141,11 @@
                 <input id={opt.id} type="checkbox" checked class="w-3.5 h-3.5 accent-emerald-600 cursor-pointer shrink-0" />
               </label>
             {/each}
-            <button
-              type="button"
-              data-ds="toggle-eraser"
-              class="{btnPrimarySoft} min-h-[27px] px-2 py-0.5 rounded-md justify-center text-[10px]"
-              disabled
-              data-i18n-title="retouchTip"
-              title={t.retouchTip}
-            >
-              <Icon name="lucide:pipette" class="w-3.5 h-3.5 text-fuchsia-600 dark:text-fuchsia-400 shrink-0" />
-              <span class="truncate" data-i18n="launchRetouchBtn">{t.launchRetouchBtn}</span>
-            </button>
           </div>
           <small class="sr-only" data-i18n="cleanMarginsHint">{t.cleanMarginsHint}</small>
         </section>
 
-        <!-- PANEL 3: PHOTOSHOP MANUAL ADJUSTMENTS (WITH PER-TOOL RESET BUTTONS) -->
+        <!-- PANEL 3: PHOTOSHOP IN-BUTTON SCRUB & WHEEL SLIDERS (WITH PER-TOOL RESET) -->
         <section class="ds-section ds-sliders rounded-lg border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel overflow-hidden shadow-2xs shrink-0">
           <div class="px-2.5 py-1.5 bg-slate-50/95 dark:bg-studio-sidebar border-b border-slate-200/80 dark:border-studio-border flex items-center justify-between gap-1.5">
             <span class="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-slate-800 dark:text-studio-text">
@@ -1287,111 +1170,58 @@
           </div>
 
           <div class="p-1.5">
-            <!-- Photoshop Property Grid: Each Tool has Icon, Name, Value & Individual Reset Button -->
-            <div class="grid grid-cols-2 gap-1">
+            <!-- In-Button Scrubby Sliders: Drag or Scroll Mouse Wheel directly on each button! -->
+            <div class="grid grid-cols-2 gap-1.5">
               {#each [
-                { key: 'brightness', icon: 'lucide:sun-medium', color: 'text-amber-500 dark:text-amber-400', i18nKey: 'lblBrightness', label: t.lblBrightness, outId: 'dsBrightnessValue', initVal: '100%' },
-                { key: 'contrast', icon: 'lucide:contrast', color: 'text-indigo-600 dark:text-indigo-400', i18nKey: 'lblContrast', label: t.lblContrast, outId: 'dsContrastValue', initVal: '100%' },
-                { key: 'sharpness', icon: 'lucide:triangle', color: 'text-violet-600 dark:text-violet-400', i18nKey: 'lblSharpness', label: t.lblSharpness, outId: 'dsSharpnessValue', initVal: '25%' },
-                { key: 'angle', icon: 'lucide:rotate-cw', color: 'text-blue-600 dark:text-blue-400', i18nKey: 'lblAngle', label: t.lblAngle, outId: 'dsAngleValue', initVal: '0°' },
-                { key: 'curve', icon: 'lucide:book-open', color: 'text-cyan-600 dark:text-cyan-400', i18nKey: 'lblCurve', label: t.lblCurve, outId: 'dsCurveValue', initVal: '0' },
-                { key: 'trim', icon: 'lucide:maximize', color: 'text-emerald-600 dark:text-emerald-400', i18nKey: 'lblTrim', label: t.lblTrim, outId: 'dsTrimValue', initVal: '0%' }
+                { key: 'brightness', id: 'dsBrightness', icon: 'lucide:sun-medium', color: 'text-amber-500 dark:text-amber-400', i18nKey: 'lblBrightness', label: t.lblBrightness, outId: 'dsBrightnessValue', initVal: '100%', min: 60, max: 150, step: 1, val: 100, initPct: 44.4 },
+                { key: 'contrast', id: 'dsContrast', icon: 'lucide:contrast', color: 'text-indigo-600 dark:text-indigo-400', i18nKey: 'lblContrast', label: t.lblContrast, outId: 'dsContrastValue', initVal: '100%', min: 60, max: 170, step: 1, val: 100, initPct: 36.4 },
+                { key: 'sharpness', id: 'dsSharpness', icon: 'lucide:triangle', color: 'text-violet-600 dark:text-violet-400', i18nKey: 'lblSharpness', label: t.lblSharpness, outId: 'dsSharpnessValue', initVal: '25%', min: 0, max: 100, step: 1, val: 25, initPct: 25 },
+                { key: 'angle', id: 'dsAngle', icon: 'lucide:rotate-cw', color: 'text-blue-600 dark:text-blue-400', i18nKey: 'lblAngle', label: t.lblAngle, outId: 'dsAngleValue', initVal: '0°', min: -10, max: 10, step: 0.1, val: 0, initPct: 50 },
+                { key: 'curve', id: 'dsCurve', icon: 'lucide:book-open', color: 'text-cyan-600 dark:text-cyan-400', i18nKey: 'lblCurve', label: t.lblCurve, outId: 'dsCurveValue', initVal: '0', min: -50, max: 50, step: 1, val: 0, initPct: 50 },
+                { key: 'trim', id: 'dsTrim', icon: 'lucide:maximize', color: 'text-emerald-600 dark:text-emerald-400', i18nKey: 'lblTrim', label: t.lblTrim, outId: 'dsTrimValue', initVal: '0%', min: 0, max: 4, step: 0.5, val: 0, initPct: 0 }
               ] as adj}
                 <div
                   data-ds-adj-pod={adj.key}
-                  class="group/pod min-h-[28px] rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/70 dark:bg-studio-sidebar flex items-stretch overflow-hidden transition-all hover:border-emerald-500/50 hover:bg-white dark:hover:bg-studio-surface has-[[aria-expanded=true]]:border-emerald-500 has-[[aria-expanded=true]]:bg-emerald-500/10 dark:has-[[aria-expanded=true]]:bg-emerald-500/15 has-[[aria-expanded=true]]:shadow-2xs data-[modified=true]:border-amber-500/45"
+                  class="group/pod min-h-[30px] rounded-md border border-slate-200/90 dark:border-studio-border bg-slate-50/80 dark:bg-studio-sidebar flex items-stretch overflow-hidden transition-all hover:border-emerald-500/60 hover:bg-white dark:hover:bg-studio-surface data-[modified=true]:border-amber-500/50"
                 >
-                  <button
-                    type="button"
-                    data-ds-adj-btn={adj.key}
-                    aria-expanded="false"
-                    class="flex-1 min-w-0 px-1.5 py-0.5 border-0 bg-transparent flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-700 dark:text-studio-text cursor-pointer aria-expanded:text-emerald-700 dark:aria-expanded:text-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <span class="inline-flex items-center gap-1 min-w-0">
+                  <div class="relative flex-1 min-w-0 px-2 py-1 flex items-center justify-between gap-1 overflow-hidden select-none">
+                    <!-- Dynamic Slider Fill Bar Inside Button -->
+                    <span
+                      data-ds-adj-fill={adj.key}
+                      class="absolute inset-y-0 left-0 bg-emerald-500/14 dark:bg-emerald-400/18 pointer-events-none transition-[width] duration-75"
+                      style="width:{adj.initPct}%"
+                    ></span>
+                    <span
+                      data-ds-adj-bar={adj.key}
+                      class="absolute bottom-0 left-0 h-[2.5px] bg-emerald-500/80 dark:bg-emerald-400 pointer-events-none transition-[width] duration-75"
+                      style="width:{adj.initPct}%"
+                    ></span>
+                    <span class="relative z-10 inline-flex items-center gap-1 min-w-0 pointer-events-none">
                       <Icon name={adj.icon} class="w-3.5 h-3.5 {adj.color} shrink-0" />
-                      <span class="truncate" data-i18n={adj.i18nKey}>{adj.label}</span>
+                      <span class="truncate text-[10px] font-semibold text-slate-700 dark:text-studio-text" data-i18n={adj.i18nKey}>{adj.label}</span>
                     </span>
-                    <output id={adj.outId} class="text-emerald-600 dark:text-emerald-400 font-bold text-[10px] tabular-nums shrink-0">{adj.initVal}</output>
-                  </button>
+                    <output id={adj.outId} class="relative z-10 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] tabular-nums shrink-0 pointer-events-none">{adj.initVal}</output>
+                    <input
+                      id={adj.id}
+                      aria-label={adj.label}
+                      type="range"
+                      min={adj.min}
+                      max={adj.max}
+                      step={adj.step}
+                      value={adj.val}
+                      class="ds-btn-slider absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0 disabled:cursor-not-allowed"
+                    />
+                  </div>
                   <button
                     type="button"
                     data-ds-reset-adj={adj.key}
-                    class="w-5 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed group-data-[modified=true]/pod:text-amber-600 dark:group-data-[modified=true]/pod:text-amber-400"
+                    class="w-5 shrink-0 border-0 border-l border-slate-200/70 dark:border-studio-border bg-transparent inline-flex items-center justify-center text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 cursor-pointer transition-colors z-30 disabled:opacity-30 disabled:cursor-not-allowed group-data-[modified=true]/pod:text-amber-600 dark:group-data-[modified=true]/pod:text-amber-400"
                     data-i18n-title="resetToolTip"
                     title={t.resetToolTip}
                   >
                     <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5 shrink-0" />
                     <span class="sr-only" data-i18n="resetToolTip">{t.resetToolTip}</span>
                   </button>
-                </div>
-              {/each}
-            </div>
-
-            <!-- Contextual Photoshop Scrub Slider Tray (Shown when a tool pod is clicked) -->
-            <div id="dsActiveSliderTray" hidden class="mt-1.5 p-2 rounded-md bg-slate-50 dark:bg-studio-sidebar border border-emerald-500/50 shadow-xs">
-              {#each [
-                { key: 'brightness', id: 'dsBrightness', icon: 'lucide:sun-medium', color: 'text-amber-500', i18nKey: 'lblBrightness', label: t.lblBrightness, min: 60, max: 150, step: 1, val: 100, hintKey: '' },
-                { key: 'contrast', id: 'dsContrast', icon: 'lucide:contrast', color: 'text-indigo-500', i18nKey: 'lblContrast', label: t.lblContrast, min: 60, max: 170, step: 1, val: 100, hintKey: '' },
-                { key: 'sharpness', id: 'dsSharpness', icon: 'lucide:triangle', color: 'text-violet-500', i18nKey: 'lblSharpness', label: t.lblSharpness, min: 0, max: 100, step: 1, val: 25, hintKey: '' },
-                { key: 'angle', id: 'dsAngle', icon: 'lucide:rotate-cw', color: 'text-blue-500', i18nKey: 'lblAngle', label: t.lblAngle, min: -10, max: 10, step: 0.1, val: 0, hintKey: '' },
-                { key: 'curve', id: 'dsCurve', icon: 'lucide:book-open', color: 'text-cyan-500', i18nKey: 'lblCurve', label: t.lblCurve, min: -50, max: 50, step: 1, val: 0, hintKey: 'lblCurveHint', hint: t.lblCurveHint },
-                { key: 'trim', id: 'dsTrim', icon: 'lucide:maximize', color: 'text-emerald-500', i18nKey: 'lblTrim', label: t.lblTrim, min: 0, max: 4, step: 0.5, val: 0, hintKey: 'lblTrimHint', hint: t.lblTrimHint }
-              ] as pane}
-                <div data-ds-adj-pane={pane.key} hidden class="grid gap-1.5">
-                  <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-studio-text">
-                    <span class="inline-flex items-center gap-1.5">
-                      <Icon name={pane.icon} class="w-3.5 h-3.5 {pane.color} shrink-0" />
-                      <span data-i18n={pane.i18nKey}>{pane.label}</span>
-                    </span>
-                    <div class="inline-flex items-center gap-1">
-                      <button
-                        type="button"
-                        data-ds-reset-adj={pane.key}
-                        class="inline-flex items-center justify-center w-5 h-5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-studio-surface cursor-pointer"
-                        data-i18n-title="resetToolTip"
-                        title={t.resetToolTip}
-                      >
-                        <Icon name="lucide:rotate-ccw" class="w-2.5 h-2.5" />
-                        <span class="sr-only" data-i18n="resetToolTip">{t.resetToolTip}</span>
-                      </button>
-                      <button
-                        type="button"
-                        data-ds-adj-close
-                        class="inline-flex items-center justify-center w-5 h-5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer text-[10px]"
-                        data-i18n-title="closeDrawerTip"
-                        title={t.closeDrawerTip}
-                      >✕</button>
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-[20px_1fr_20px] items-center gap-1.5">
-                    <button
-                      type="button"
-                      data-ds-adj-step="-1"
-                      data-ds-adj-target={pane.key}
-                      class="w-5 h-5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-600 dark:text-studio-text text-xs font-bold leading-none cursor-pointer hover:bg-slate-100"
-                      aria-label="Decrease"
-                    >−</button>
-                    <input
-                      id={pane.id}
-                      aria-label={pane.label}
-                      type="range"
-                      min={pane.min}
-                      max={pane.max}
-                      step={pane.step}
-                      value={pane.val}
-                      class="w-full cursor-pointer accent-emerald-600"
-                    />
-                    <button
-                      type="button"
-                      data-ds-adj-step="1"
-                      data-ds-adj-target={pane.key}
-                      class="w-5 h-5 rounded border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-600 dark:text-studio-text text-xs font-bold leading-none cursor-pointer hover:bg-slate-100"
-                      aria-label="Increase"
-                    >+</button>
-                  </div>
-                  {#if pane.hintKey}
-                    <small class="text-[9px] text-slate-500 dark:text-studio-muted leading-tight" data-i18n={pane.hintKey}>{pane.hint}</small>
-                  {/if}
                 </div>
               {/each}
             </div>

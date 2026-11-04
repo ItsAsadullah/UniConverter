@@ -101,7 +101,7 @@
     var eraseUndo=$('[data-ds="undo-erase"]'),eraseClear=$('[data-ds="clear-erases"]');if(eraseUndo)eraseUndo.disabled=busy||!has||!(p&&p.erases&&p.erases.length);if(eraseClear)eraseClear.disabled=busy||!has||!(p&&p.erases&&p.erases.length);
     if(!p)return;
     $$('input[name=dsFilter]').forEach(function(el){el.checked=el.value===p.settings.filter;});$('#dsShadow').checked=p.settings.shadow;$('#dsText').checked=p.settings.text;$('#dsStraighten').checked=!!p.settings.straighten;$('#dsCleanSpots').checked=!!p.settings.cleanSpots;$('#dsCleanMargins').checked=!!p.settings.cleanMargins;$('#dsCleanMargins').disabled=busy||!p.settings.straighten;
-    var defSt=settingsDefault();Object.keys(controls).forEach(function(key){var el=$('#'+controls[key]);el.value=p.settings[key];$('#'+controls[key]+'Value').textContent=p.settings[key]+(key==='angle'?'°':key==='curve'?'':'%');var pod=$('[data-ds-adj-pod="'+key+'"]');if(pod)pod.dataset.modified=String(Number(p.settings[key])!==Number(defSt[key]));});
+    var defSt=settingsDefault();Object.keys(controls).forEach(function(key){var el=$('#'+controls[key]);if(!el)return;el.value=p.settings[key];$('#'+controls[key]+'Value').textContent=p.settings[key]+(key==='angle'?'°':key==='curve'?'':'%');var pod=$('[data-ds-adj-pod="'+key+'"]');if(pod)pod.dataset.modified=String(Number(p.settings[key])!==Number(defSt[key]));var mn=Number(el.min),mx=Number(el.max),pct=mx>mn?Math.max(0,Math.min(100,((Number(p.settings[key])-mn)/(mx-mn))*100)):0;var fill=$('[data-ds-adj-fill="'+key+'"]'),bar=$('[data-ds-adj-bar="'+key+'"]');if(fill)fill.style.width=pct+'%';if(bar)bar.style.width=pct+'%';});
     $('#dsPageName').textContent=tr('পেজ ','Page ')+bn(pages.indexOf(p)+1)+' / '+bn(pages.length);
   }
   function drawSource(){
@@ -185,8 +185,14 @@
   }
   // Actions use the same per-page geometry and settings for preview and export.
   function closePopovers(except){$$('[data-ds-pop-panel]').forEach(function(p){if(p.dataset.dsPopPanel!==except)p.hidden=true;});$$('[data-ds-pop-btn]').forEach(function(b){if(b.dataset.dsPopBtn!==except)b.setAttribute('aria-expanded','false');});}
+  function syncRetouchFills(){
+    if($('#dsBrushSizeFill'))$('#dsBrushSizeFill').style.width=Math.max(0,Math.min(100,((eraserSize-2)/(120-2))*100))+'%';
+    if($('#dsBrushHardnessFill'))$('#dsBrushHardnessFill').style.width=Math.max(0,Math.min(100,eraserHardness))+'%';
+    if($('#dsWandToleranceFill'))$('#dsWandToleranceFill').style.width=Math.max(0,Math.min(100,((wandTolerance-5)/(85-5))*100))+'%';
+    if($('#dsBrushOpacityFill'))$('#dsBrushOpacityFill').style.width=Math.max(0,Math.min(100,((eraserOpacity-10)/(100-10))*100))+'%';
+  }
   function toggleAdjSlider(key){var tray=$('#dsActiveSliderTray');if(!tray)return;var pane=key?tray.querySelector('[data-ds-adj-pane="'+key+'"]'):null,isOpen=pane&&!pane.hidden&&!tray.hidden;$$('[data-ds-adj-pane]').forEach(function(el){el.hidden=true;});$$('[data-ds-adj-btn]').forEach(function(b){b.setAttribute('aria-expanded','false');});if(!key||isOpen){tray.hidden=true;return;}if(pane){pane.hidden=false;tray.hidden=false;var btn=$('[data-ds-adj-btn="'+key+'"]');if(btn)btn.setAttribute('aria-expanded','true');}}
-  root.addEventListener('click',async function(e){var resetRetBtn=e.target.closest('[data-ds-reset-retouch]');if(resetRetBtn&&!busy){var rk=resetRetBtn.dataset.dsResetRetouch;if(rk==='size'){eraserSize=24;if($('#dsBrushSize'))$('#dsBrushSize').value='24';if($('#dsBrushSizeVal'))$('#dsBrushSizeVal').textContent='24px';updateEraserCursor();}else if(rk==='hardness'){eraserHardness=80;if($('#dsBrushHardness'))$('#dsBrushHardness').value='80';if($('#dsBrushHardnessVal'))$('#dsBrushHardnessVal').textContent='80%';updateEraserCursor();}else if(rk==='tolerance'){wandTolerance=28;if($('#dsWandTolerance'))$('#dsWandTolerance').value='28';if($('#dsWandToleranceVal'))$('#dsWandToleranceVal').textContent='28';}else if(rk==='opacity'){eraserOpacity=100;if($('#dsBrushOpacity'))$('#dsBrushOpacity').value='100';if($('#dsBrushOpacityVal'))$('#dsBrushOpacityVal').textContent='100%';updateEraserCursor();}return;}var resetSecBtn=e.target.closest('[data-ds-reset-section]');if(resetSecBtn&&!busy&&!resetSecBtn.disabled){var sec=resetSecBtn.dataset.dsResetSection,cp=current();if(sec==='export'){if($('#dsFilename'))$('#dsFilename').value='TechHat-document';if($('#dsMargin'))$('#dsMargin').checked=true;if($('#dsPaper'))$('#dsPaper').value='a4';if($('#dsQuality'))$('#dsQuality').value='balanced';toast(tr('এক্সপোর্ট সেটিংস ডিফল্টে রিসেট হয়েছে','Export settings reset to default'));return;}if(!cp)return;remember(cp);var defS=settingsDefault();if(sec==='filter'){cp.settings.filter=defS.filter;changed(cp);toast(tr('ফিল্টার ম্যাজিক+ এ রিসেট হয়েছে','Filter reset to Magic+ AI'));}else if(sec==='smart'){cp.settings.shadow=defS.shadow;cp.settings.text=defS.text;cp.settings.straighten=defS.straighten;cp.settings.cleanSpots=defS.cleanSpots;cp.settings.cleanMargins=defS.cleanMargins;changed(cp);toast(tr('স্মার্ট ফিক্স সেটিংস ডিফল্টে রিসেট হয়েছে','Smart Fix options reset to default'));}else if(sec==='manual'){['brightness','contrast','sharpness','angle','curve','trim'].forEach(function(k){cp.settings[k]=defS[k];});changed(cp);toast(tr('সব ম্যানুয়াল এডজাস্টমেন্ট রিসেট হয়েছে','All manual adjustments reset'));}return;}var resetAdjBtn=e.target.closest('[data-ds-reset-adj]');if(resetAdjBtn&&!busy&&!resetAdjBtn.disabled){var ak=resetAdjBtn.dataset.dsResetAdj,ap=current();if(ap&&ak in controls){var dv=settingsDefault()[ak];if(Number(ap.settings[ak])!==Number(dv)){remember(ap);ap.settings[ak]=dv;changed(ap);}}return;}var stepBtn=e.target.closest('[data-ds-adj-step]');if(stepBtn&&!busy&&!stepBtn.disabled){var tk=stepBtn.dataset.dsAdjTarget,dir=Number(stepBtn.dataset.dsAdjStep)||0,inp=tk?$('#'+controls[tk]):null;if(inp&&current()){var stp=Number(inp.step)||1,mn=Number(inp.min),mx=Number(inp.max),nv=Math.max(mn,Math.min(mx,Number((Number(inp.value)+dir*stp).toFixed(2))));inp.value=String(nv);applySetting(tk,nv,true);}return;}var popBtn=e.target.closest('[data-ds-pop-btn]');if(popBtn&&!busy){var pk=popBtn.dataset.dsPopBtn,pp=$('[data-ds-pop-panel="'+pk+'"]'),wasOpen=pp&&!pp.hidden;closePopovers();if(pp&&!wasOpen){pp.hidden=false;popBtn.setAttribute('aria-expanded','true');}return;}if(!e.target.closest('[data-ds-pop-wrap]'))closePopovers();var adjBtn=e.target.closest('[data-ds-adj-btn]');if(adjBtn&&!busy&&!adjBtn.disabled){toggleAdjSlider(adjBtn.dataset.dsAdjBtn);return;}if(e.target.closest('[data-ds-adj-close]')){toggleAdjSlider(null);return;}var toolBtn=e.target.closest('[data-ds-tool]');if(toolBtn&&!busy&&!toolBtn.disabled){if(!eraserActive)setEraserMode(true);setEraserTool(toolBtn.dataset.dsTool);return;}var swatchBtn=e.target.closest('[data-ds-swatch]');if(swatchBtn&&!busy){setEraserColor(swatchBtn.dataset.dsSwatch,true);return;}var btn=e.target.closest('[data-ds]');if(!btn||btn.disabled)return;var action=btn.dataset.ds,p=current();
+  root.addEventListener('click',async function(e){var resetRetBtn=e.target.closest('[data-ds-reset-retouch]');if(resetRetBtn&&!busy){var rk=resetRetBtn.dataset.dsResetRetouch;if(rk==='size'){eraserSize=24;if($('#dsBrushSize'))$('#dsBrushSize').value='24';if($('#dsBrushSizeVal'))$('#dsBrushSizeVal').textContent='24px';updateEraserCursor();}else if(rk==='hardness'){eraserHardness=80;if($('#dsBrushHardness'))$('#dsBrushHardness').value='80';if($('#dsBrushHardnessVal'))$('#dsBrushHardnessVal').textContent='80%';updateEraserCursor();}else if(rk==='tolerance'){wandTolerance=28;if($('#dsWandTolerance'))$('#dsWandTolerance').value='28';if($('#dsWandToleranceVal'))$('#dsWandToleranceVal').textContent='28';}else if(rk==='opacity'){eraserOpacity=100;if($('#dsBrushOpacity'))$('#dsBrushOpacity').value='100';if($('#dsBrushOpacityVal'))$('#dsBrushOpacityVal').textContent='100%';updateEraserCursor();}syncRetouchFills();return;}var resetSecBtn=e.target.closest('[data-ds-reset-section]');if(resetSecBtn&&!busy&&!resetSecBtn.disabled){var sec=resetSecBtn.dataset.dsResetSection,cp=current();if(sec==='export'){if($('#dsFilename'))$('#dsFilename').value='TechHat-document';if($('#dsMargin'))$('#dsMargin').checked=true;if($('#dsPaper'))$('#dsPaper').value='a4';if($('#dsQuality'))$('#dsQuality').value='balanced';toast(tr('এক্সপোর্ট সেটিংস ডিফল্টে রিসেট হয়েছে','Export settings reset to default'));return;}if(!cp)return;remember(cp);var defS=settingsDefault();if(sec==='filter'){cp.settings.filter=defS.filter;changed(cp);toast(tr('ফিল্টার ম্যাজিক+ এ রিসেট হয়েছে','Filter reset to Magic+ AI'));}else if(sec==='smart'){cp.settings.shadow=defS.shadow;cp.settings.text=defS.text;cp.settings.straighten=defS.straighten;cp.settings.cleanSpots=defS.cleanSpots;cp.settings.cleanMargins=defS.cleanMargins;changed(cp);toast(tr('স্মার্ট ফিক্স সেটিংস ডিফল্টে রিসেট হয়েছে','Smart Fix options reset to default'));}else if(sec==='manual'){['brightness','contrast','sharpness','angle','curve','trim'].forEach(function(k){cp.settings[k]=defS[k];});changed(cp);toast(tr('সব ম্যানুয়াল এডজাস্টমেন্ট রিসেট হয়েছে','All manual adjustments reset'));}return;}var resetAdjBtn=e.target.closest('[data-ds-reset-adj]');if(resetAdjBtn&&!busy&&!resetAdjBtn.disabled){var ak=resetAdjBtn.dataset.dsResetAdj,ap=current();if(ap&&ak in controls){var dv=settingsDefault()[ak];if(Number(ap.settings[ak])!==Number(dv)){remember(ap);ap.settings[ak]=dv;changed(ap);}}return;}var stepBtn=e.target.closest('[data-ds-adj-step]');if(stepBtn&&!busy&&!stepBtn.disabled){var tk=stepBtn.dataset.dsAdjTarget,dir=Number(stepBtn.dataset.dsAdjStep)||0,inp=tk?$('#'+controls[tk]):null;if(inp&&current()){var stp=Number(inp.step)||1,mn=Number(inp.min),mx=Number(inp.max),nv=Math.max(mn,Math.min(mx,Number((Number(inp.value)+dir*stp).toFixed(2))));inp.value=String(nv);applySetting(tk,nv,true);}return;}var popBtn=e.target.closest('[data-ds-pop-btn]');if(popBtn&&!busy){var pk=popBtn.dataset.dsPopBtn,pp=$('[data-ds-pop-panel="'+pk+'"]'),wasOpen=pp&&!pp.hidden;closePopovers();if(pp&&!wasOpen){pp.hidden=false;popBtn.setAttribute('aria-expanded','true');}return;}if(!e.target.closest('[data-ds-pop-wrap]'))closePopovers();var adjBtn=e.target.closest('[data-ds-adj-btn]');if(adjBtn&&!busy&&!adjBtn.disabled){toggleAdjSlider(adjBtn.dataset.dsAdjBtn);return;}if(e.target.closest('[data-ds-adj-close]')){toggleAdjSlider(null);return;}var toolBtn=e.target.closest('[data-ds-tool]');if(toolBtn&&!busy&&!toolBtn.disabled){if(!eraserActive)setEraserMode(true);setEraserTool(toolBtn.dataset.dsTool);return;}var swatchBtn=e.target.closest('[data-ds-swatch]');if(swatchBtn&&!busy){setEraserColor(swatchBtn.dataset.dsSwatch,true);return;}var btn=e.target.closest('[data-ds]');if(!btn||btn.disabled)return;var action=btn.dataset.ds,p=current();
     if(action==='add'){$('#dsFiles').click();return;}if(action==='import-files'){($('#dsDocFiles')||$('#dsFiles')).click();return;}if(action==='paste'){pasteFromClipboard();return;}if(action==='theme'){document.querySelector('#themeToggle')?.click();return;}if(action==='camera'){openCamera();return;}if(action==='camera-close'){$('#dsCameraDialog').close();return;}if(action==='camera-switch'){cameraFacing=cameraFacing==='environment'?'user':'environment';openCamera();return;}
     if(action==='capture'){var video=$('#dsVideo');if(!video.videoWidth)return;var capture=document.createElement('canvas');capture.width=video.videoWidth;capture.height=video.videoHeight;capture.getContext('2d').drawImage(video,0,0);var photo=await canvasBlob(capture,.97);$('#dsCameraDialog').close();await addFiles([new File([photo],'camera-'+Date.now()+'.jpg',{type:'image/jpeg'})]);return;}
     if(action==='clear-learning'){try{localStorage.removeItem(learningKey);}catch(e){}updateControls();toast(tr('আপনার ব্যক্তিগত ক্রপ শেখার তথ্য মুছে ফেলা হয়েছে।','Your learned crop preferences have been cleared.'));return;}
@@ -200,7 +206,7 @@
     if(action==='auto-paper-color'){autoDetectPaperColor();return;}
     if(action==='toggle-eraser'){setEraserMode(!eraserActive);return;}
     if(action==='close-eraser'){setEraserMode(false);return;}
-    if(action==='reset-retouch-params'){eraserSize=24;eraserHardness=80;wandTolerance=28;eraserOpacity=100;if($('#dsBrushSize'))$('#dsBrushSize').value='24';if($('#dsBrushSizeVal'))$('#dsBrushSizeVal').textContent='24px';if($('#dsBrushHardness'))$('#dsBrushHardness').value='80';if($('#dsBrushHardnessVal'))$('#dsBrushHardnessVal').textContent='80%';if($('#dsWandTolerance'))$('#dsWandTolerance').value='28';if($('#dsWandToleranceVal'))$('#dsWandToleranceVal').textContent='28';if($('#dsBrushOpacity'))$('#dsBrushOpacity').value='100';if($('#dsBrushOpacityVal'))$('#dsBrushOpacityVal').textContent='100%';setEraserColor('#ffffff',false);toast(tr('রিটাচ টুল সেটিংস ডিফল্টে রিসেট হয়েছে','Retouch tool settings reset to default'));return;}
+    if(action==='reset-retouch-params'){eraserSize=24;eraserHardness=80;wandTolerance=28;eraserOpacity=100;if($('#dsBrushSize'))$('#dsBrushSize').value='24';if($('#dsBrushSizeVal'))$('#dsBrushSizeVal').textContent='24px';if($('#dsBrushHardness'))$('#dsBrushHardness').value='80';if($('#dsBrushHardnessVal'))$('#dsBrushHardnessVal').textContent='80%';if($('#dsWandTolerance'))$('#dsWandTolerance').value='28';if($('#dsWandToleranceVal'))$('#dsWandToleranceVal').textContent='28';if($('#dsBrushOpacity'))$('#dsBrushOpacity').value='100';if($('#dsBrushOpacityVal'))$('#dsBrushOpacityVal').textContent='100%';syncRetouchFills();setEraserColor('#ffffff',false);toast(tr('রিটাচ টুল সেটিংস ডিফল্টে রিসেট হয়েছে','Retouch tool settings reset to default'));return;}
     if(!p||busy)return;if(action==='undo'){historyAction(false);return;}if(action==='redo'){historyAction(true);return;}
     if(action==='erase-borders'){remember(p);p.erases=p.erases||[];var bc=eraserColor||'#ffffff';p.erases.push({type:'rect',x0:0,y0:0,x1:1,y1:.022,color:bc},{type:'rect',x0:0,y0:.978,x1:1,y1:1,color:bc},{type:'rect',x0:0,y0:0,x1:.022,y1:1,color:bc},{type:'rect',x0:.978,y0:0,x1:1,y1:1,color:bc});changed(p);toast(tr('চারপাশের বর্ডারের বাড়তি ব্যাকগ্রাউন্ড পরিষ্কার করা হয়েছে','Outer border background cleaned'));return;}
     if(action==='undo-erase'){if(p.erases&&p.erases.length){remember(p);p.erases.pop();changed(p);}return;}
@@ -322,9 +328,10 @@
   }
   function setEraserMode(active){
     eraserActive=!!active;
-    var bar=$('#dsEraserBar'),dock=$('#dsPsDock'),wrap=$('#dsPreviewWrap'),cur=$('#dsEraserCursor'),loupe=$('#dsPickerLoupe');
+    var bar=$('#dsEraserBar'),dock=$('#dsPsDock'),stage=$('#dsPreviewStage'),wrap=$('#dsPreviewWrap'),cur=$('#dsEraserCursor'),loupe=$('#dsPickerLoupe');
     if(bar)bar.hidden=!eraserActive;
-    if(dock)dock.hidden=false;
+    if(dock)dock.hidden=!eraserActive;
+    if(stage)stage.classList.toggle('pl-11',eraserActive);
     if(wrap){wrap.classList.toggle('is-eraser-active',eraserActive);wrap.dataset.tool=eraserTool;}
     if(!eraserActive){closePopovers();if(cur)cur.hidden=true;if(loupe)loupe.hidden=true;$$('[data-ds-tool]').forEach(function(b){b.classList.remove('is-active');b.setAttribute('aria-pressed','false');});setPreviewZoom(1);}
     $$('[data-ds="toggle-eraser"]').forEach(function(b){
@@ -355,10 +362,11 @@
     if(!wrap||!canvas)return;
     var colorInp=$('#dsEraserColor'),szInp=$('#dsBrushSize'),hdInp=$('#dsBrushHardness'),opInp=$('#dsBrushOpacity'),tolInp=$('#dsWandTolerance');
     if(colorInp)colorInp.addEventListener('input',function(){setEraserColor(this.value,true);});
-    if(szInp)szInp.addEventListener('input',function(){eraserSize=Number(this.value)||24;$('#dsBrushSizeVal').textContent=eraserSize+'px';updateEraserCursor();});
-    if(hdInp)hdInp.addEventListener('input',function(){eraserHardness=Number(this.value);$('#dsBrushHardnessVal').textContent=eraserHardness+'%';updateEraserCursor();});
-    if(opInp)opInp.addEventListener('input',function(){eraserOpacity=Number(this.value)||100;$('#dsBrushOpacityVal').textContent=eraserOpacity+'%';updateEraserCursor();});
-    if(tolInp)tolInp.addEventListener('input',function(){wandTolerance=Number(this.value)||28;$('#dsWandToleranceVal').textContent=String(wandTolerance);});
+    if(szInp)szInp.addEventListener('input',function(){eraserSize=Number(this.value)||24;$('#dsBrushSizeVal').textContent=eraserSize+'px';syncRetouchFills();updateEraserCursor();});
+    if(hdInp)hdInp.addEventListener('input',function(){eraserHardness=Number(this.value);$('#dsBrushHardnessVal').textContent=eraserHardness+'%';syncRetouchFills();updateEraserCursor();});
+    if(opInp)opInp.addEventListener('input',function(){eraserOpacity=Number(this.value)||100;$('#dsBrushOpacityVal').textContent=eraserOpacity+'%';syncRetouchFills();updateEraserCursor();});
+    if(tolInp)tolInp.addEventListener('input',function(){wandTolerance=Number(this.value)||28;$('#dsWandToleranceVal').textContent=String(wandTolerance);syncRetouchFills();});
+    syncRetouchFills();
     function getRel(e){
       var r=canvas.getBoundingClientRect();
       var nx=(e.clientX-r.left)/Math.max(1,r.width),ny=(e.clientY-r.top)/Math.max(1,r.height);
@@ -519,10 +527,47 @@
         eraserSize=Math.max(2,Math.min(120,eraserSize+(e.key===']'?step:-step)));
         if(szInp)szInp.value=String(eraserSize);
         var szOut=$('#dsBrushSizeVal');if(szOut)szOut.textContent=eraserSize+'px';
+        syncRetouchFills();
         updateEraserCursor();
       }
     });
   }
+  var wheelSaveTimer=null,wheelRememberedPage=null;
+  root.addEventListener('wheel',function(e){
+    var pod=e.target.closest('[data-ds-adj-pod]');
+    var inp=pod?pod.querySelector('input[type="range"]'):e.target.closest('input.ds-btn-slider');
+    if(!inp){
+      var retWrap=e.target.closest('#dsEraserBar .relative');
+      if(retWrap)inp=retWrap.querySelector('input.ds-btn-slider');
+    }
+    if(!inp||inp.disabled||busy)return;
+    e.preventDefault();
+    e.stopPropagation();
+    var dir=e.deltaY<0?1:(e.deltaY>0?-1:0);
+    if(!dir)return;
+    var step=Number(inp.step)||1;
+    if(e.shiftKey)step*=5;
+    else if(step===1&&(Number(inp.max)-Number(inp.min))>=80)step=2;
+    var mn=Number(inp.min),mx=Number(inp.max),curVal=Number(inp.value);
+    var nextVal=Math.max(mn,Math.min(mx,Number((curVal+dir*step).toFixed(2))));
+    if(nextVal===curVal)return;
+    if(pod){
+      var p=current();
+      if(!p)return;
+      if(wheelRememberedPage!==p.id){
+        remember(p);
+        wheelRememberedPage=p.id;
+      }
+      clearTimeout(wheelSaveTimer);
+      wheelSaveTimer=setTimeout(function(){wheelRememberedPage=null;},600);
+      var key=pod.dataset.dsAdjPod;
+      inp.value=String(nextVal);
+      applySetting(key,nextVal,false);
+    }else{
+      inp.value=String(nextVal);
+      inp.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+  },{passive:false});
   root.addEventListener('ds:langchange',function(){
     renderList();updateControls();
     var names=en()?{brush:'Brush Tool',heal:'Spot Healing',wand:'Magic Eraser',rect:'Rectangle Fill',picker:'Eyedropper',hand:'Hand Pan'}:{brush:'ব্রাশ টুল',heal:'স্পট হিলিং',wand:'ম্যাজিক ইরেজার',rect:'রেকট্যাঙ্গেল ফিল',picker:'কালার পিকার',hand:'হ্যান্ড প্যান'};
