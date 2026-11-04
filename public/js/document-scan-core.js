@@ -1199,8 +1199,18 @@
         var by0=Math.max(0,minPy-r-1),by1=Math.min(h-1,maxPy+r+1);
         var bw=bx1-bx0+1,bh=by1-by0+1;
         if(bw<=0||bh<=0)continue;
-        var mask=new Uint8Array(bw*bh);
+        var mask=new Uint8Array(bw*bh),lut=new Uint8Array(rSq+1),rInSq=Math.floor(rInnerSq);
+        for(var d2=0;d2<=rSq;d2++){
+          if(d2<=rInSq)lut[d2]=255;
+          else{
+            var tLut=(Math.sqrt(d2)-rInner)/rSpan;
+            lut[d2]=Math.round(255*Math.pow(.5*(1+Math.cos(Math.PI*tLut)),.78));
+          }
+        }
+        var lastSx=-99999,lastSy=-99999;
         function stampMask(cx,cy){
+          if(cx===lastSx&&cy===lastSy)return;
+          lastSx=cx;lastSy=cy;
           var sx0=Math.max(bx0,cx-r),sx1=Math.min(bx1,cx+r);
           var sy0=Math.max(by0,cy-r),sy1=Math.min(by1,cy+r);
           for(var y=sy0;y<=sy1;y++){
@@ -1208,12 +1218,7 @@
             for(var x=sx0;x<=sx1;x++){
               var dx=x-cx,dSq=dx*dx+dySq;
               if(dSq>rSq)continue;
-              var wt=255;
-              if(dSq>rInnerSq){
-                var t=(Math.sqrt(dSq)-rInner)/rSpan;
-                wt=Math.round(255*Math.pow(.5*(1+Math.cos(Math.PI*t)),.78));
-              }
-              var mIdx=rowOff+x;
+              var wt=lut[dSq],mIdx=rowOff+x;
               if(wt>mask[mIdx])mask[mIdx]=wt;
             }
           }

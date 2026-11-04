@@ -861,9 +861,9 @@
                   height="160"
                   class="relative z-10 w-full h-full rounded-full block pointer-events-none"
                 ></canvas>
-                <!-- Photoshop-Style Crisp 1px Circular Brush Outline -->
+                <!-- Subtle Non-Black Cursor Ring on Canvas (Hidden during Size/Hardness/Opacity HUD Preview) -->
                 <span
-                  class="absolute inset-0 z-20 rounded-full border border-neutral-800/85 shadow-[0_0_0_1px_rgba(255,255,255,0.45)] pointer-events-none"
+                  class="absolute inset-0 z-20 rounded-full border border-emerald-500/45 shadow-[0_0_0_1px_rgba(255,255,255,0.7)] group-data-[hud=true]/cursor:opacity-0 pointer-events-none"
                 ></span>
                 <!-- Photoshop-Style Live Brush HUD Card (Diameter / Hardness / Opacity) -->
                 <div
@@ -1534,5 +1534,14 @@
   }
   :global(#dsPreview.is-revealing) {
     animation: dsSatReveal 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(#img-pane-scan .ds-btn-slider:focus),
+  :global(#img-pane-scan .ds-btn-slider:focus-visible),
+  :global(#dsEraserBar input:focus),
+  :global(#dsEraserBar input:focus-visible),
+  :global(#dsEraserBar button:focus),
+  :global(#dsEraserBar button:focus-visible) {
+    outline: none !important;
+    box-shadow: none !important;
   }
 </style>
