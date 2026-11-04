@@ -792,33 +792,40 @@
                 class="block w-auto h-auto max-w-[calc(100cqw-52px)] max-h-[calc(100cqh-24px)] object-contain rounded-xs bg-white shadow-[0_16px_40px_rgba(15,23,42,0.28)] select-none transition-[filter,transform] duration-200"
               ></canvas>
 
-              <!-- MODERN STUDIO PRELOADER OVERLAY -->
+              <!-- SATISFYING 3D KINETIC GYROSCOPE & MORPHING LIQUID ORB PRELOADER -->
               <div
                 id="dsPreviewLoader"
-                class="ds-modern-loader absolute inset-0 rounded-xs overflow-hidden pointer-events-none z-22 flex items-center justify-center bg-white/30 dark:bg-slate-950/35 backdrop-blur-[1.5px]"
+                class="ds-sat-loader absolute inset-0 rounded-xs overflow-hidden pointer-events-none z-22 flex items-center justify-center bg-slate-900/12 dark:bg-slate-950/35 backdrop-blur-[2px]"
                 hidden
                 aria-live="polite"
                 aria-label="Updating preview"
               >
-                <!-- Top Indeterminate Progress Line -->
-                <div class="absolute inset-x-0 top-0 h-[2.5px] bg-emerald-500/15 overflow-hidden">
-                  <div class="ds-modern-bar h-full w-2/5 bg-gradient-to-r from-transparent via-emerald-500 to-teal-400 rounded-full"></div>
+                <!-- Top Smooth Gradient Progress Ribbon -->
+                <div class="absolute inset-x-0 top-0 h-[3px] bg-slate-200/40 dark:bg-slate-800/50 overflow-hidden">
+                  <div class="ds-sat-topbar h-full w-1/2 bg-gradient-to-r from-transparent via-emerald-400 to-violet-500 rounded-full"></div>
                 </div>
 
-                <!-- Center Minimal Glass Spinner Pod -->
-                <div class="w-11 h-11 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/85 dark:border-slate-700/85 shadow-[0_10px_28px_rgba(15,23,42,0.16)] flex items-center justify-center">
-                  <svg class="ds-modern-spinner w-6 h-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" class="text-slate-200 dark:text-slate-700" stroke-width="2.5" />
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="9"
-                      stroke="currentColor"
-                      class="ds-modern-arc text-emerald-500 dark:text-emerald-400"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                    />
-                  </svg>
+                <!-- Center Satisfying Kinetic Glass Pod -->
+                <div class="ds-sat-pod relative w-20 h-20 rounded-2xl bg-white/92 dark:bg-slate-900/92 backdrop-blur-xl border border-white/80 dark:border-slate-700/80 shadow-[0_20px_50px_rgba(16,185,129,0.24),0_6px_20px_rgba(15,23,42,0.14)] flex flex-col items-center justify-center gap-2">
+                  <!-- Expanding Soft Ripple -->
+                  <span class="ds-sat-ripple absolute w-12 h-12 rounded-full border border-emerald-400/50 pointer-events-none"></span>
+
+                  <!-- 3D Gyroscope Orbits + Morphing Liquid Core -->
+                  <div class="ds-sat-gyro relative w-11 h-11 flex items-center justify-center">
+                    <span class="ds-sat-ring ds-sat-ring-1 absolute inset-0 rounded-full"></span>
+                    <span class="ds-sat-ring ds-sat-ring-2 absolute inset-0.5 rounded-full"></span>
+                    <span class="ds-sat-ring ds-sat-ring-3 absolute inset-1 rounded-full"></span>
+                    <span class="ds-sat-blob relative w-4.5 h-4.5"></span>
+                  </div>
+
+                  <!-- Synchronized 5-Bar Sine Wave Equalizer -->
+                  <div class="ds-sat-bars flex items-center justify-center gap-1 h-2.5">
+                    <span class="ds-sat-bar w-1 rounded-full bg-emerald-500" style="animation-delay:0s"></span>
+                    <span class="ds-sat-bar w-1 rounded-full bg-teal-400" style="animation-delay:0.12s"></span>
+                    <span class="ds-sat-bar w-1 rounded-full bg-cyan-500" style="animation-delay:0.24s"></span>
+                    <span class="ds-sat-bar w-1 rounded-full bg-indigo-500" style="animation-delay:0.36s"></span>
+                    <span class="ds-sat-bar w-1 rounded-full bg-violet-500" style="animation-delay:0.48s"></span>
+                  </div>
                 </div>
               </div>
 
@@ -1307,56 +1314,130 @@
 </section>
 
 <style>
-  @keyframes dsModernSpin {
+  @keyframes dsGyroOrbit1 {
+    0% {
+      transform: rotateX(65deg) rotateY(20deg) rotateZ(0deg);
+    }
     100% {
-      transform: rotate(360deg);
+      transform: rotateX(65deg) rotateY(20deg) rotateZ(360deg);
     }
   }
-  @keyframes dsModernDash {
+  @keyframes dsGyroOrbit2 {
     0% {
-      stroke-dasharray: 1, 80;
-      stroke-dashoffset: 0;
+      transform: rotateX(-65deg) rotateY(22deg) rotateZ(360deg);
+    }
+    100% {
+      transform: rotateX(-65deg) rotateY(22deg) rotateZ(0deg);
+    }
+  }
+  @keyframes dsGyroOrbit3 {
+    0% {
+      transform: rotateX(20deg) rotateY(68deg) rotateZ(0deg);
+    }
+    100% {
+      transform: rotateX(20deg) rotateY(68deg) rotateZ(360deg);
+    }
+  }
+  @keyframes dsLiquidBlob {
+    0%,
+    100% {
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      transform: scale(0.92) rotate(0deg);
+    }
+    33% {
+      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+      transform: scale(1.12) rotate(120deg);
+    }
+    66% {
+      border-radius: 50% 60% 30% 60% / 30% 40% 70% 60%;
+      transform: scale(0.98) rotate(240deg);
+    }
+  }
+  @keyframes dsSatRipple {
+    0% {
+      transform: scale(0.65);
+      opacity: 0.75;
+    }
+    100% {
+      transform: scale(1.48);
+      opacity: 0;
+    }
+  }
+  @keyframes dsSineBar {
+    0%,
+    100% {
+      height: 3.5px;
+      opacity: 0.55;
     }
     50% {
-      stroke-dasharray: 42, 80;
-      stroke-dashoffset: -16px;
-    }
-    100% {
-      stroke-dasharray: 42, 80;
-      stroke-dashoffset: -56px;
+      height: 10px;
+      opacity: 1;
     }
   }
-  @keyframes dsModernBar {
+  @keyframes dsSatTopbar {
     0% {
       transform: translateX(-110%);
     }
     100% {
-      transform: translateX(260%);
+      transform: translateX(220%);
     }
   }
-  @keyframes dsModernFade {
+  @keyframes dsSatReveal {
     0% {
-      opacity: 0.78;
+      opacity: 0.84;
+      transform: scale(0.994);
     }
     100% {
       opacity: 1;
+      transform: scale(1);
     }
   }
-  .ds-modern-spinner {
-    animation: dsModernSpin 0.9s linear infinite;
+  .ds-sat-gyro {
+    perspective: 240px;
+    transform-style: preserve-3d;
   }
-  .ds-modern-arc {
-    stroke-dasharray: 36, 80;
-    stroke-dashoffset: 0;
-    animation: dsModernDash 1.25s ease-in-out infinite;
+  .ds-sat-ring {
+    border: 2.2px solid transparent;
+    will-change: transform;
   }
-  .ds-modern-bar {
-    animation: dsModernBar 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  .ds-sat-ring-1 {
+    border-top-color: #10b981;
+    border-right-color: rgba(16, 185, 129, 0.35);
+    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.55));
+    animation: dsGyroOrbit1 1.15s linear infinite;
+  }
+  .ds-sat-ring-2 {
+    border-bottom-color: #6366f1;
+    border-left-color: rgba(99, 102, 241, 0.35);
+    filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.55));
+    animation: dsGyroOrbit2 1.35s linear infinite;
+  }
+  .ds-sat-ring-3 {
+    border-top-color: #06b6d4;
+    border-left-color: rgba(6, 182, 212, 0.35);
+    filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.55));
+    animation: dsGyroOrbit3 1.55s linear infinite;
+  }
+  .ds-sat-blob {
+    background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #6366f1 100%);
+    box-shadow:
+      0 0 14px rgba(16, 185, 129, 0.65),
+      inset 2px 2px 4px rgba(255, 255, 255, 0.65);
+    animation: dsLiquidBlob 1.8s ease-in-out infinite;
+  }
+  .ds-sat-ripple {
+    animation: dsSatRipple 1.3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+  .ds-sat-bar {
+    animation: dsSineBar 0.75s ease-in-out infinite;
+  }
+  .ds-sat-topbar {
+    animation: dsSatTopbar 0.95s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
   :global(#dsPreviewWrap.is-generating #dsPreview) {
-    opacity: 0.82;
+    opacity: 0.85;
   }
   :global(#dsPreview.is-revealing) {
-    animation: dsModernFade 0.18s ease-out;
+    animation: dsSatReveal 0.22s cubic-bezier(0.22, 1, 0.36, 1);
   }
 </style>
