@@ -459,4 +459,19 @@ test('Horizontal 6-Point Passport detector strips bottom watermark banner and pr
  const skinIdx=(255*w+68)*4;
  assert.ok(enhanced.data[skinIdx]<228,`Portrait skin tone must not bleach to pure white (got ${enhanced.data[skinIdx]})`);
 });
+test('6-Point Passport enforces 50/50 top-bottom page split, standard 125:176 aspect ratio, and out-of-bounds crop handles',()=>{
+ const pts=[
+  {x:-0.12,y:-0.08},
+  {x:1.08,y:-0.05},
+  {x:1.04,y:0.38},
+  {x:1.15,y:1.12},
+  {x:-0.15,y:1.10},
+  {x:-0.08,y:0.36}
+ ];
+ pts.foldAxis='horizontal';
+ assert.ok(core.validQuad(pts),'Out-of-bounds 6-point passport polygon within [-0.4, 1.4] must be valid');
+ const dims=core.computeSixPointDims(600,800,pts,600,1000,true,'horizontal');
+ assert.equal(dims.split,0.5,'Center fold must split top and bottom passport pages into exact 50/50 halves');
+ assert.ok(Math.abs(dims.outH/dims.outW-1.408)<0.015,`Passport output aspect ratio (${(dims.outH/dims.outW).toFixed(3)}) must match standard 125:176 (1.408)`);
+});
 console.log(`${passed} document scan tests passed`);

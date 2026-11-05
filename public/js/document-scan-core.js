@@ -24,7 +24,7 @@
     return p.slice(start).concat(p.slice(0,start));
   }
   function validQuad4(p, minArea) {
-    if(!p||p.length!==4||p.some(function(v){return !Number.isFinite(v.x)||!Number.isFinite(v.y)||v.x<-.15||v.x>1.15||v.y<-.15||v.y>1.15;}))return false;
+    if(!p||p.length!==4||p.some(function(v){return !Number.isFinite(v.x)||!Number.isFinite(v.y)||v.x<-.45||v.x>1.45||v.y<-.45||v.y>1.45;}))return false;
     var sign=0;for(var i=0;i<4;i++){var c=cross(p[i],p[(i+1)%4],p[(i+2)%4]);if(Math.abs(c)<.00005)return false;if(sign&&Math.sign(c)!==sign)return false;sign=Math.sign(c);}
     return area(p)>(minArea||.008);
   }
@@ -91,7 +91,7 @@
     ];
   }
   function validSixPts(p, foldAxis) {
-    if(!p||p.length!==6||p.some(function(v){return !Number.isFinite(v.x)||!Number.isFinite(v.y)||v.x<-.15||v.x>1.15||v.y<-.15||v.y>1.15;}))return false;
+    if(!p||p.length!==6||p.some(function(v){return !Number.isFinite(v.x)||!Number.isFinite(v.y)||v.x<-.45||v.x>1.45||v.y<-.45||v.y>1.45;}))return false;
     var axis = foldAxis || inferFoldAxis(p);
     var q1, q2, outer;
     if (axis === 'horizontal') {
@@ -1140,6 +1140,99 @@
         var lSide=refinePinchedSide(BL,TL,{x:(TR.x+BR.x)*.5,y:(TR.y+BR.y)*.5},1-bestS0);
         var candH=[lSide.end,rSide.start,rSide.mid,rSide.end,lSide.start,lSide.mid];
         if(validSixPts(candH,'horizontal'))pts=candH;
+        var atL=function(arr,nx,ny){
+          var ix=clamp(Math.round(nx*(aw-1)),0,aw-1),iy=clamp(Math.round(ny*(ah-1)),0,ah-1);
+          return arr[iy*aw+ix];
+        };
+        var pH=pts.map(function(pt){return {x:pt.x,y:pt.y};});
+        var yBotAvg=.5*(pH[3].y+pH[4].y),yFoldAvg=.5*(pH[2].y+pH[5].y);
+        if(yBotAvg-yFoldAvg>.24){
+          var botPts=[];
+          for(var bi=0;bi<9;bi++){
+            var uB=.16+.64*(bi/8),xB=(1-uB)*pH[4].x+uB*pH[3].x,yOutB=(1-uB)*pH[4].y+uB*pH[3].y;
+            var bestYB=-1,bestDropB=0;
+            for(var dyB=.022;dyB<=.075;dyB+=.004){
+              var yCandB=yOutB-dyB,lAbv=atL(L,xB,yCandB-.012),lMt1=atL(L,xB,yCandB+.010),lMt2=atL(L,xB,yCandB+.020),lRm=atL(L,xB,yOutB-.012);
+              var dropB=lAbv-.5*(lMt1+lMt2);
+              if(lAbv>130&&lMt1<138&&lMt2<140&&lRm>lMt1+18&&dropB>32&&dropB>bestDropB){bestDropB=dropB;bestYB=yCandB;}
+            }
+            if(bestYB>0)botPts.push({u:uB,y:bestYB,w:bestDropB});
+          }
+          if(botPts.length>=6){
+            var suB=0,syB=0,suuB=0,suyB=0,swB=0;
+            for(var bpi=0;bpi<botPts.length;bpi++){var bp=botPts[bpi];suB+=bp.u*bp.w;syB+=bp.y*bp.w;suuB+=bp.u*bp.u*bp.w;suyB+=bp.u*bp.y*bp.w;swB+=bp.w;}
+            var denB=swB*suuB-suB*suB,slpB=Math.abs(denB)>1e-4?clamp((swB*suyB-suB*syB)/denB,-.08,.08):0,offB=(syB-slpB*suB)/swB;
+            var oldBLy=pH[4].y,newBLy=clamp(offB,yFoldAvg+.15,pH[4].y),newBRy=clamp(offB+slpB,yFoldAvg+.15,pH[3].y);
+            if(oldBLy>pH[5].y+.08){
+              var tBL=(newBLy-pH[5].y)/(oldBLy-pH[5].y);
+              pH[4].x=pH[5].x+tBL*(pH[4].x-pH[5].x);
+            }
+            pH[4].y=newBLy;pH[3].y=newBRy;
+          }
+        }
+        var ulPts=[];
+        for(var uli=0;uli<7;uli++){
+          var tUL=.12+.78*(uli/6),yUL=(1-tUL)*pH[0].y+tUL*pH[5].y,xOutUL=(1-tUL)*pH[0].x+tUL*pH[5].x;
+          var bestXUL=-1,bestRiseUL=0;
+          for(var dxUL=.015;dxUL<=.065;dxUL+=.004){
+            var xCandUL=xOutUL+dxUL,lMtUL=atL(L,xCandUL-.012,yUL),lIn1UL=atL(L,xCandUL+.012,yUL),lIn2UL=atL(Lc,xCandUL+.025,yUL),riseUL=lIn1UL-lMtUL;
+            if(lMtUL<142&&lIn1UL>162&&lIn2UL>175&&riseUL>38&&riseUL>bestRiseUL){bestRiseUL=riseUL;bestXUL=xCandUL;}
+          }
+          if(bestXUL>0)ulPts.push({t:tUL,x:bestXUL,w:bestRiseUL});
+        }
+        if(ulPts.length>=5){
+          var oldLMx=pH[5].x,oldBLx=pH[4].x;
+          var avgXUL=0;for(var uli2=0;uli2<ulPts.length;uli2++)avgXUL+=ulPts[uli2].x;avgXUL/=ulPts.length;
+          pH[0].x=clamp(avgXUL-.004,pH[0].x,.45);
+          pH[5].x=clamp(avgXUL-.008,pH[5].x,.45);
+          var llShiftSum=0,llShiftW=0,llCnt=0;
+          for(var lli=0;lli<7;lli++){
+            var tLL=.10+.72*(lli/6),yLL=(1-tLL)*pH[5].y+tLL*pH[4].y,xRefLL=(1-tLL)*oldLMx+tLL*oldBLx;
+            var bestDxLL=-1,bestRiseLL=0;
+            for(var dxLL=.012;dxLL<=.065;dxLL+=.004){
+              var xCandLL=xRefLL+dxLL,lMtLL=atL(L,xCandLL-.012,yLL),lInLL=atL(L,xCandLL+.016,yLL),riseLL=lInLL-lMtLL;
+              if(lMtLL<122&&lInLL>118&&riseLL>34&&riseLL>bestRiseLL){bestRiseLL=riseLL;bestDxLL=dxLL;}
+            }
+            if(bestDxLL>0){llShiftSum+=bestDxLL*bestRiseLL;llShiftW+=bestRiseLL;llCnt++;}
+          }
+          if(llCnt>=4&&llShiftW>0){
+            pH[4].x=clamp(oldBLx+llShiftSum/llShiftW,oldBLx,.45);
+          }
+          var topDySum=0,topDyW=0,topCnt=0;
+          for(var ti=0;ti<8;ti++){
+            var uT=.10+.75*(ti/7),xT=(1-uT)*pH[0].x+uT*pH[1].x,yOutT=(1-uT)*pH[0].y+uT*pH[1].y;
+            var bestDyT=-1,bestRiseT=0;
+            for(var dyT=.012;dyT<=.036;dyT+=.003){
+              var yCandT=yOutT+dyT,lMtT=atL(L,xT,yCandT-.008),lInT=atL(L,xT,yCandT+.008),riseT=lInT-lMtT;
+              if(lInT>185&&lMtT>=105&&lMtT<=170&&riseT>36&&riseT>bestRiseT){bestRiseT=riseT;bestDyT=dyT;}
+            }
+            if(bestDyT>0){topDySum+=bestDyT*bestRiseT;topDyW+=bestRiseT;topCnt++;}
+          }
+          if(topCnt>=5&&topDyW>0){
+            var avgDyT=topDySum/topDyW;
+            pH[0].y=clamp(pH[0].y+avgDyT,pH[0].y,yFoldAvg-.15);
+            pH[1].y=clamp(pH[1].y+avgDyT*1.08,pH[1].y,yFoldAvg-.15);
+          }
+        }
+        var lrPts=[];
+        for(var lri=0;lri<8;lri++){
+          var tLR=.12+.80*(lri/7),yLR=(1-tLR)*pH[2].y+tLR*pH[3].y,xCurLR=(1-tLR)*pH[2].x+tLR*pH[3].x;
+          if(atL(Lc,xCurLR+.018,yLR)>158){
+            var bestXLR=-1,bestDropLR=0;
+            for(var xCandLR=xCurLR;xCandLR<=Math.min(.96,pH[2].x+.14);xCandLR+=.004){
+              var lInLR=atL(L,xCandLR-.014,yLR),lOutLR=atL(L,xCandLR+.014,yLR),dropLR=lInLR-lOutLR;
+              if(lInLR>155&&lOutLR<152&&dropLR>26&&dropLR>bestDropLR){bestDropLR=dropLR;bestXLR=xCandLR;}
+            }
+            if(bestXLR>0)lrPts.push({t:tLR,x:bestXLR,w:bestDropLR});
+          }
+        }
+        if(lrPts.length>=5){
+          var stLR=0,sxLR=0,sttLR=0,stxLR=0,swLR=0;
+          for(var lrpi=0;lrpi<lrPts.length;lrpi++){var lrp=lrPts[lrpi];stLR+=lrp.t*lrp.w;sxLR+=lrp.x*lrp.w;sttLR+=lrp.t*lrp.t*lrp.w;stxLR+=lrp.t*lrp.x*lrp.w;swLR+=lrp.w;}
+          var denLR=swLR*sttLR-stLR*stLR,slpLR=Math.abs(denLR)>1e-4?clamp((swLR*stxLR-stLR*sxLR)/denLR,-.25,.25):0,offLR=(sxLR-slpLR*stLR)/swLR;
+          pH[3].x=clamp(offLR+slpLR,pH[3].x,.98);
+        }
+        if(validSixPts(pH,'horizontal'))pts=pH;
       }else{
         var tSide=refinePinchedSide(TL,TR,{x:(BL.x+BR.x)*.5,y:(BL.y+BR.y)*.5},bestS0);
         var bSide=refinePinchedSide(BR,BL,{x:(TL.x+TR.x)*.5,y:(TL.y+TR.y)*.5},1-bestS1);
@@ -1170,26 +1263,18 @@
   function computeSixPointDims(sw,sh,normPts,customMinW,customMaxW,preserveLongEdge,foldAxis) {
     var axis=foldAxis||inferFoldAxis(normPts);
     var p=normPts.map(function(pt){return {x:pt.x*sw,y:pt.y*sh};});
-    var natW,natH,split;
+    var natW,natH,split=.5;
     if(axis==='horizontal'){
       var wT=Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),wM=Math.hypot(p[2].x-p[5].x,p[2].y-p[5].y),wB=Math.hypot(p[3].x-p[4].x,p[3].y-p[4].y);
-      var hLT=Math.hypot(p[5].x-p[0].x,p[5].y-p[0].y),hRT=Math.hypot(p[2].x-p[1].x,p[2].y-p[1].y);
-      var hLB=Math.hypot(p[4].x-p[5].x,p[4].y-p[5].y),hRB=Math.hypot(p[3].x-p[2].x,p[3].y-p[2].y);
-      var hTop=Math.max(hLT,hRT),hBot=Math.max(hLB,hRB);
       natW=Math.max(60,Math.max(wT,wB,wM));
-      natH=Math.max(40,hTop+hBot);
-      var rawSplitH=hTop/Math.max(1,hTop+hBot);
-      if(rawSplitH>=.34&&rawSplitH<=.66&&natH>natW*.82&&natH<natW*1.34)natH=Math.max(natH,Math.round(natW*1.36));
-      split=(rawSplitH>=.34&&rawSplitH<=.66)?(.5+.25*(rawSplitH-.5)):clamp(rawSplitH,.15,.85);
+      natH=Math.max(84,Math.round(natW*1.408));
     }else{
       var wTL=Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),wBL=Math.hypot(p[4].x-p[5].x,p[4].y-p[5].y);
       var wTR=Math.hypot(p[2].x-p[1].x,p[2].y-p[1].y),wBR=Math.hypot(p[3].x-p[4].x,p[3].y-p[4].y);
       var hL=Math.hypot(p[5].x-p[0].x,p[5].y-p[0].y),hM=Math.hypot(p[4].x-p[1].x,p[4].y-p[1].y),hR=Math.hypot(p[3].x-p[2].x,p[3].y-p[2].y);
       var wLeft=Math.max(wTL,wBL),wRight=Math.max(wTR,wBR);
-      natW=Math.max(60,wLeft+wRight);
       natH=Math.max(40,Math.max(hL,hR,hM));
-      var rawSplitV=wLeft/Math.max(1,wLeft+wRight);
-      split=(rawSplitV>=.34&&rawSplitV<=.66)?(.5+.25*(rawSplitV-.5)):clamp(rawSplitV,.15,.85);
+      natW=Math.max(60,wLeft+wRight,Math.round(natH*1.408));
     }
     var minTargetW=customMinW||1320,maxTargetW=customMaxW||2600;
     var upScale=natW<minTargetW?(minTargetW/natW):(natW>maxTargetW?(maxTargetW/natW):1);
