@@ -1058,6 +1058,16 @@
     var cleanSrc = (rawSrc || '').split('?')[0];
     if (!cleanSrc) return Promise.resolve();
     if (loadedScripts[cleanSrc]) return loadedScripts[cleanSrc];
+    var existing = document.querySelector('script[src^="' + cleanSrc + '"]');
+    if (existing) {
+      var ep = new Promise(function (resolve) {
+        existing.addEventListener('load', function () { resolve(); }, { once: true });
+        existing.addEventListener('error', function () { resolve(); }, { once: true });
+        setTimeout(resolve, 60);
+      });
+      loadedScripts[cleanSrc] = ep;
+      return ep;
+    }
     var p = new Promise(function (resolve) {
       var s = document.createElement('script');
       s.src = rawSrc;
@@ -1069,6 +1079,7 @@
     loadedScripts[cleanSrc] = p;
     return p;
   }
+  window.TechHatEnsureScript = ensureScriptLoaded;
 
   function ensureHeadStyles(newDoc) {
     var promises = [];
@@ -1253,6 +1264,9 @@
     if ($('#tool-image') && window.TechHatImage && window.TechHatImage.init) {
       window.TechHatImage.init();
     }
+    if ($('#img-pane-combine') && window.TechHatNidScanner && window.TechHatNidScanner.init) {
+      window.TechHatNidScanner.init();
+    }
     if ($('#img-pane-scan') && window.TechHatScannerInit) {
       window.TechHatScannerInit();
     }
@@ -1325,6 +1339,7 @@
     };
     var imgPaneId = IMG_MAP[targetPath] === 'passport' ? 'scan' : IMG_MAP[targetPath];
     if (IMG_MAP[targetPath] && $('#tool-image') && $('#img-pane-' + imgPaneId) && window.TechHatImage) {
+      $('#tool-image').setAttribute('data-initial-tab', IMG_MAP[targetPath]);
       if (pushState && normPath(location.pathname) !== targetPath) {
         history.pushState(null, '', targetPath);
       }
@@ -1369,8 +1384,16 @@
           curShellScript &&
           newShellScript.getAttribute('src') !== curShellScript.getAttribute('src')
         ) {
-          location.href = targetPath;
-          return;
+          var reloadKey = 'thbc-shell-reload:' + targetPath + ':' + newShellScript.getAttribute('src');
+          var alreadyReloaded = false;
+          try {
+            alreadyReloaded = sessionStorage.getItem(reloadKey) === '1';
+            sessionStorage.setItem(reloadKey, '1');
+          } catch (e) {}
+          if (!alreadyReloaded) {
+            location.href = targetPath;
+            return;
+          }
         }
 
         var newWorkbench = $('#workbench', newDoc);
@@ -1435,11 +1458,6 @@
   window.TechHatNavigate = function (url) {
     return navigateSPA(url, true);
   };
-
-  // Cache initial page HTML so navigating back to the entry page is 0ms
-  try {
-    pageHtmlCache[normPath(location.pathname)] = document.documentElement.outerHTML;
-  } catch (e) {}
 
   // Intercept all internal <a> clicks for pure SPA navigation
   document.addEventListener('click', function (e) {

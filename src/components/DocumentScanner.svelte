@@ -334,14 +334,14 @@
 
     <!-- CENTER PANEL: NATIVE STUDIO COMMAND BAR & DUAL/SINGLE CANVAS -->
     <div class="ds-main min-w-0 min-h-0 flex flex-col bg-slate-100 dark:bg-studio-bg group-data-[has-pages=false]/ds:bg-transparent overflow-hidden">
-      <!-- STICKY COMPACT NATIVE DESKTOP ICON RIBBON (HOVER FOR TOOLTIP NAME) -->
+      <!-- STICKY COMPACT NATIVE DESKTOP & MOBILE ICON RIBBON (HOVER FOR TOOLTIP NAME) -->
       <div
-        class="ds-toolbar group-data-[has-pages=false]/ds:!hidden sticky top-0 z-30 min-h-[42px] px-3 py-1 border-b border-slate-200 dark:border-studio-border group-data-[editing=true]/ds:border-slate-300 dark:group-data-[editing=true]/ds:border-[#181818] bg-white/98 dark:bg-studio-sidebar/98 group-data-[editing=true]/ds:dark:bg-[#232323] backdrop-blur-xs flex items-center gap-1 flex-wrap shrink-0"
+        class="ds-toolbar group-data-[has-pages=false]/ds:!hidden sticky top-0 z-30 min-h-[42px] px-2.5 py-1 border-b border-slate-200 dark:border-studio-border group-data-[editing=true]/ds:border-slate-300 dark:group-data-[editing=true]/ds:border-[#181818] bg-white/98 dark:bg-studio-sidebar/98 group-data-[editing=true]/ds:dark:bg-[#232323] backdrop-blur-xs flex items-center gap-1 flex-wrap max-lg:flex-nowrap max-lg:overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden shrink-0"
         role="toolbar"
         aria-label="Document Editing Toolbar"
       >
         <!-- Group 1: Sidebar, Add Page, Camera, New Scan -->
-        <div class="ds-toolbar-group inline-flex items-center gap-1" role="group" aria-label="Pages & Input">
+        <div class="ds-toolbar-group inline-flex items-center gap-0.5 shrink-0" role="group" aria-label="Pages & Input">
           <button
             type="button"
             data-ds="toggle-sidebar"
@@ -374,10 +374,10 @@
           </button>
         </div>
 
-        <span class="w-px h-4.5 bg-slate-200 dark:bg-studio-border mx-1 shrink-0" aria-hidden="true"></span>
+        <span class="w-px h-4.5 bg-slate-200 dark:bg-studio-border mx-0.5 shrink-0" aria-hidden="true"></span>
 
         <!-- Group 2: Undo & Redo -->
-        <div class="ds-toolbar-group inline-flex items-center gap-1" role="group" aria-label="History">
+        <div class="ds-toolbar-group inline-flex items-center gap-0.5 shrink-0" role="group" aria-label="History">
           <button type="button" data-ds="undo" class={btnIcon} disabled data-i18n-title="undoTip" title={t.undoTip}>
             <Icon name="lucide:undo-2" class="w-4.5 h-4.5 text-slate-700 dark:text-slate-300 shrink-0" />
             <span class="sr-only" data-i18n="undoBtn">{t.undoBtn}</span>
@@ -388,10 +388,22 @@
           </button>
         </div>
 
-        <span class="w-px h-4.5 bg-slate-200 dark:bg-studio-border mx-1 shrink-0" aria-hidden="true"></span>
+        <span class="w-px h-4.5 bg-slate-200 dark:bg-studio-border mx-0.5 shrink-0" aria-hidden="true"></span>
 
-        <!-- Group 3: Crop & Rotation -->
-        <div class="ds-toolbar-group inline-flex items-center gap-1" role="group" aria-label="Crop & Rotation">
+        <!-- Group 3: Step 1 — Orientation (Rotate Left, Rotate Right) -->
+        <div class="ds-toolbar-group inline-flex items-center gap-0.5 px-1 py-0.5 rounded-md bg-slate-100/70 dark:bg-studio-panel/60 border border-slate-200/70 dark:border-studio-border shrink-0" role="group" aria-label="Orientation">
+          <button type="button" data-ds="left" class={btnIcon} disabled data-i18n-title="rotateLeftTip" title={t.rotateLeftTip}>
+            <Icon name="lucide:rotate-ccw" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <span class="sr-only" data-i18n="rotateLeftBtn">{t.rotateLeftBtn}</span>
+          </button>
+          <button type="button" data-ds="right" class={btnIcon} disabled data-i18n-title="rotateRightTip" title={t.rotateRightTip}>
+            <Icon name="lucide:rotate-cw" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <span class="sr-only" data-i18n="rotateRightBtn">{t.rotateRightBtn}</span>
+          </button>
+        </div>
+
+        <!-- Group 4: Step 2 — Smart Crop & Presets (Auto Detect, Fold Line, Full Image, Reset Crop) -->
+        <div class="ds-toolbar-group inline-flex items-center gap-0.5 px-1 py-0.5 rounded-md bg-slate-100/70 dark:bg-studio-panel/60 border border-slate-200/70 dark:border-studio-border shrink-0" role="group" aria-label="Smart Crop">
           <button
             type="button"
             data-ds="detect"
@@ -410,46 +422,49 @@
             hidden={mode !== 'passport'}
             disabled
             class="{btnBase} !px-2 !min-h-[30px] !border-amber-500/45 !bg-amber-500/10 !text-amber-700 dark:!text-amber-300 hover:enabled:!bg-amber-500/20"
-            data-ds-tip="Switch Passport Fold Line (Vertical ↕ / Horizontal ↔)"
-            title="Switch Passport Fold Line (Vertical ↕ / Horizontal ↔)"
+            data-i18n-title-bn="পাসপোর্ট ভাঁজ অক্ষ পরিবর্তন (উলম্ব ↕ / অনুভূমিক ↔)"
+            data-i18n-title-en="Passport Fold Axis (Vertical ↕ / Horizontal ↔)"
+            title="Passport Fold Axis (Vertical ↕ / Horizontal ↔)"
           >
             <Icon name="lucide:columns-2" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
             <span id="dsFoldAxisLabel" class="text-[11.5px] font-bold">6-Pt ↕</span>
           </button>
           <button type="button" data-ds="full" class={btnIcon} disabled data-i18n-title="fullImageTip" title={t.fullImageTip}>
-            <Icon name="lucide:maximize-2" class="w-4.5 h-4.5 text-sky-600 dark:text-sky-400 shrink-0" />
+            <Icon name="lucide:maximize-2" class="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
             <span class="sr-only" data-i18n="fullImageBtn">{t.fullImageBtn}</span>
           </button>
-          <button type="button" data-ds="left" class={btnIcon} disabled data-i18n-title="rotateLeftTip" title={t.rotateLeftTip}>
-            <Icon name="lucide:rotate-ccw" class="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-            <span class="sr-only" data-i18n="rotateLeftBtn">{t.rotateLeftBtn}</span>
-          </button>
-          <button type="button" data-ds="right" class={btnIcon} disabled data-i18n-title="rotateRightTip" title={t.rotateRightTip}>
-            <Icon name="lucide:rotate-cw" class="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-            <span class="sr-only" data-i18n="rotateRightBtn">{t.rotateRightBtn}</span>
-          </button>
           <button type="button" data-ds="reset-crop" class={btnIcon} disabled data-i18n-title="resetCropTip" title={t.resetCropTip}>
-            <Icon name="lucide:history" class="w-4.5 h-4.5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <Icon name="lucide:history" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span class="sr-only" data-i18n="resetCropBtn">{t.resetCropBtn}</span>
           </button>
         </div>
 
-        <div class="ds-workflow-actions inline-flex items-center gap-1.5 ml-1">
-          <button type="button" data-ds="finish-crop" class="{btnBase} !px-2.5">
-            <Icon name="lucide:check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span data-i18n-bn="ক্রপ সম্পন্ন" data-i18n-en="Done Cropping">Done Cropping</span>
-          </button>
-          <button type="button" data-ds="edit-page" class="{btnBase} !px-2.5 !border-emerald-500/40 dark:!border-emerald-400/35 hover:!bg-emerald-500/10">
+        <div class="ds-workflow-actions inline-flex items-center gap-1.5 ml-1 shrink-0">
+          <button
+            type="button"
+            data-ds="edit-page"
+            class="{btnBase} !px-2.5 !border-emerald-500/40 dark:!border-emerald-400/35 hover:!bg-emerald-500/10"
+            title="ক্যানভাস ও লেয়ার এডিটর খুলুন"
+            data-i18n-title-bn="ক্যানভাস ও লেয়ার এডিটর খুলুন"
+            data-i18n-title-en="Open Canvas & Layer Editor"
+          >
             <Icon name="lucide:pencil" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span data-i18n-bn="এডিট" data-i18n-en="Edit">Edit</span>
           </button>
-          <button type="button" data-ds="close-eraser" class="ds-save-edit inline-flex items-center gap-1.5">
+          <button
+            type="button"
+            data-ds="close-eraser"
+            class="ds-save-edit inline-flex items-center gap-1.5"
+            title="এডিট সম্পন্ন করে প্রিভিউতে ফিরুন"
+            data-i18n-title-bn="এডিট সম্পন্ন করে প্রিভিউতে ফিরুন"
+            data-i18n-title-en="Save Edits & Return to Preview"
+          >
             <Icon name="lucide:check" class="w-4 h-4 shrink-0" />
             <span data-i18n-bn="সেভ ও প্রিভিউ" data-i18n-en="Save & Preview">Save & Preview</span>
           </button>
         </div>
-        <!-- Group 4: View Switcher (Icon-Only with Hover Tooltip) -->
-        <div class="ds-toolbar-right ml-auto inline-flex items-center gap-1">
+        <!-- Group 5: View Switcher (Integrated Crop Completion + Split + Preview) -->
+        <div class="ds-toolbar-right ml-auto inline-flex items-center gap-1 shrink-0">
           <div
             class="ds-view-switch inline-flex p-0.5 rounded-lg bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border gap-0.5"
             role="group"
@@ -461,9 +476,10 @@
               aria-pressed="false"
               data-i18n-title="viewCrop"
               title={t.viewCrop}
-              class="inline-flex items-center justify-center w-8 h-7 rounded-md border-0 bg-transparent text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
+              class="group/dscrop inline-flex items-center justify-center px-2.5 h-7 gap-1 rounded-md border-0 bg-transparent text-[12px] font-semibold text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-emerald-600 aria-pressed:text-white aria-pressed:shadow-2xs transition-colors"
             >
-              <Icon name="lucide:crop" class="w-4 h-4 shrink-0" />
+              <Icon name="lucide:crop" class="w-3.5 h-3.5 shrink-0 group-aria-pressed/dscrop:hidden" />
+              <Icon name="lucide:check" class="w-3.5 h-3.5 shrink-0 hidden group-aria-pressed/dscrop:inline-block" />
               <span class="ds-view-label" data-i18n="viewCrop">{t.viewCrop}</span>
             </button>
             <button
@@ -472,7 +488,7 @@
               aria-pressed="true"
               data-i18n-title="viewSplit"
               title={t.viewSplit}
-              class="inline-flex items-center justify-center w-8 h-7 rounded-md border-0 bg-transparent text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
+              class="max-md:hidden inline-flex items-center justify-center w-8 h-7 rounded-md border-0 bg-transparent text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
             >
               <Icon name="lucide:columns-2" class="w-4 h-4 shrink-0" />
               <span class="sr-only" data-i18n="viewSplit">{t.viewSplit}</span>
@@ -483,9 +499,9 @@
               aria-pressed="false"
               data-i18n-title="viewPreview"
               title={t.viewPreview}
-              class="inline-flex items-center justify-center w-8 h-7 rounded-md border-0 bg-transparent text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
+              class="inline-flex items-center justify-center px-2.5 h-7 gap-1 rounded-md border-0 bg-transparent text-[12px] font-semibold text-slate-600 dark:text-studio-muted cursor-pointer hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:text-emerald-600 dark:aria-pressed:text-emerald-400 aria-pressed:shadow-2xs transition-colors"
             >
-              <Icon name="lucide:eye" class="w-4 h-4 shrink-0" />
+              <Icon name="lucide:eye" class="w-3.5 h-3.5 shrink-0" />
               <span class="ds-view-label" data-i18n="viewPreview">{t.viewPreview}</span>
             </button>
           </div>
