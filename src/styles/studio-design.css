@@ -570,6 +570,210 @@
   }
 }
 
+/* ==========================================================================
+   NID Card Scanner — crop canvas, overlay handles and mobile view switching
+   Restored after the Tailwind v4 migration dropped the legacy NID stylesheet.
+   ========================================================================== */
+#img-pane-combine .nid-crop-canvas-shell {
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  isolation: isolate;
+}
+#img-pane-combine .nid-canvas-zoom-plane {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  flex: none;
+  max-width: none;
+  transform-origin: center center;
+}
+#img-pane-combine .nid-perspective-stage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  line-height: 0;
+}
+#img-pane-combine #nidCropSourceCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+}
+#img-pane-combine .nid-quad-svg {
+  width: 100%;
+  height: 100%;
+}
+#img-pane-combine #nidQuadSvg.is-grid-hidden .nid-quad-grid {
+  display: none;
+}
+#img-pane-combine .nid-quad-handle--corner {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  cursor: grab;
+}
+#img-pane-combine .nid-quad-handle--edge {
+  width: 26px;
+  height: 9px;
+  border-radius: 999px;
+  cursor: grab;
+}
+#img-pane-combine .nid-quad-handle:hover,
+#img-pane-combine .nid-quad-handle.active {
+  box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.3), 0 3px 10px rgba(0, 0, 0, 0.5);
+  scale: 1.18;
+}
+#img-pane-combine .nid-quad-handle.is-snapped {
+  background: #06b6d4;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 6px rgba(6, 182, 212, 0.38), 0 3px 12px rgba(0, 0, 0, 0.55);
+}
+#img-pane-combine .nid-quad-handle.is-invalid {
+  background: #f43f5e;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 5px rgba(244, 63, 94, 0.34), 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+#img-pane-combine .nid-scan-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -56px;
+  height: 56px;
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0) 0%, rgba(16, 185, 129, 0.28) 70%, rgba(110, 231, 183, 0.65) 100%);
+  border-bottom: 2.5px solid #6ee7b7;
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.45);
+  pointer-events: none;
+  z-index: 4;
+  animation: nidLaserSweep 0.68s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+@keyframes nidLaserSweep {
+  0% {
+    top: -56px;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+#img-pane-combine .nid-crop-loupe {
+  background: #0f172a;
+  box-shadow: 0 14px 36px rgba(9, 13, 22, 0.72), 0 0 0 2.5px #ffffff;
+  z-index: 20;
+}
+#img-pane-combine .nid-angle-badge {
+  min-width: 2.75rem;
+  text-align: center;
+}
+#img-pane-combine .nid-mobile-nav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--th-bg, #f8fafc);
+  color: var(--th-text-secondary, #475569);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+#img-pane-combine .nid-mobile-nav button[aria-pressed="true"] {
+  border-color: var(--th-primary, #2563eb);
+  background: var(--th-primary-soft, rgba(37, 99, 235, 0.08));
+  color: var(--th-primary, #1d4ed8);
+  font-weight: 700;
+}
+#img-pane-combine .nid-crop-canvas-shell.is-hand,
+#img-pane-combine .nid-crop-canvas-shell.is-hand .nid-quad-handle {
+  cursor: grab;
+}
+#img-pane-combine .nid-crop-canvas-shell.is-panning,
+#img-pane-combine .nid-crop-canvas-shell.is-panning .nid-quad-handle {
+  cursor: grabbing;
+}
+
+@media (max-width: 1023px) {
+  #img-pane-combine {
+    min-height: 100dvh;
+    height: auto;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+  #img-pane-combine .th-studio-3panel {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    height: auto;
+  }
+  #img-pane-combine .th-panel {
+    width: 100%;
+    min-height: 0;
+    border-left: 0;
+  }
+  #img-pane-combine .nid-workspace-split {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    overflow: visible;
+  }
+  #img-pane-combine .nid-canvas-column {
+    overflow: visible;
+    flex: none;
+  }
+  #img-pane-combine .nid-workspace-preview {
+    border-left: 0;
+    border-top: 1px solid var(--color-studio-border, #e2e8f0);
+    flex: none;
+    min-height: 0;
+  }
+  #img-pane-combine .nid-crop-canvas-shell {
+    flex: none;
+    height: 54dvh;
+    min-height: 320px;
+  }
+  #img-pane-combine .nid-mobile-nav {
+    position: sticky;
+    top: 0;
+    z-index: 25;
+  }
+  #img-pane-combine[data-mobile-view="edit"] .th-panel--right,
+  #img-pane-combine[data-mobile-view="edit"] .nid-workspace-preview,
+  #img-pane-combine[data-mobile-view="edit"] .nid-images-section {
+    display: none;
+  }
+  #img-pane-combine[data-mobile-view="images"] :is(.th-panel--center, .th-context-toolbar, .nid-crop-canvas-shell, .th-canvas-statusbar, .nid-workspace-preview, .nid-export-bar, .nid-layout-controls) {
+    display: none;
+  }
+  #img-pane-combine[data-mobile-view="print"] :is(.th-panel--center, .th-context-toolbar, .nid-crop-canvas-shell, .th-canvas-statusbar, .nid-images-section) {
+    display: none;
+  }
+  #img-pane-combine[data-mobile-view="print"] .nid-workspace-preview {
+    display: flex;
+  }
+  #img-pane-combine .nid-quad-handle--corner {
+    width: 28px;
+    height: 28px;
+  }
+  #img-pane-combine .nid-quad-handle--edge {
+    width: 32px;
+    height: 11px;
+  }
+}
+
 @media print {
   .no-print,
   header,

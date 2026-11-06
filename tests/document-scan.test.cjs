@@ -474,4 +474,156 @@ test('6-Point Passport enforces 50/50 top-bottom page split, standard 125:176 as
  assert.equal(dims.split,0.5,'Center fold must split top and bottom passport pages into exact 50/50 halves');
  assert.ok(Math.abs(dims.outH/dims.outW-1.408)<0.015,`Passport output aspect ratio (${(dims.outH/dims.outW).toFixed(3)}) must match standard 125:176 (1.408)`);
 });
+test('Horizontal 6-Point Passport fold detector locks onto spine crease instead of bold header text lines below fold',()=>{
+ const w=280,h=380;
+ const data=image(w,h,(x,y)=>{
+  if(y>=338)return [250,250,250];
+  const tY=Math.max(0,Math.min(1,(y-48)/(328-48)));
+  const pinch=Math.exp(-Math.pow((y-176)/18,2))*6;
+  const xL=Math.round(28-4*tY+pinch);
+  const xR=Math.round(232+24*tY-pinch*1.4);
+  if(x<xL||x>xR||y<48||y>328)return [28,32,38];
+  // Continuous spine fold crease at y=176
+  if(Math.abs(y-176)<=1)return [148,150,152];
+  if(Math.abs(y-176)===2)return [182,184,186];
+  // High-contrast dashed character strokes on header text rows below the fold (y=191..194 and y=202..205)
+  if(y>=191&&y<=194&&x>=xL+28&&x<=xR-16&&(x%5)<3)return [42,44,48];
+  if(y>=202&&y<=205&&x>=xL+14&&x<=xR-24&&(x%6)<4)return [35,38,42];
+  return [222,220,215];
+ });
+ const det=core.detectPassportSixPts(data,w,h,{foldAxis:'horizontal'});
+ const foldY=0.5*(det.pts[2].y+det.pts[5].y)*(h-1);
+ assert.ok(Math.abs(foldY-176)<6,`Detected fold y (${foldY.toFixed(1)}px) must lock onto true crease at 176px instead of header text at 192..204px`);
+});
+test('Tilted horizontal 6-Point Passport refines lower-left and lower-right corners to full bio-data page edges',()=>{
+ const w=280,h=380;
+ const data=image(w,h,(x,y)=>{
+  const nx=x/(w-1),ny=y/(h-1);
+  // Tilted passport where top edge runs (0.09,0.22)->(0.73,0.13), fold runs (0.16,0.56)->(0.84,0.45), bottom runs (0.16,0.96)->(1.05,0.82)
+  const yFold=0.56-0.16*(nx-0.16);
+  const yTop=0.22-0.14*(nx-0.09);
+  const yBot=0.96-0.16*(nx-0.16);
+  const xLeft=ny<yFold?(0.09+0.21*(ny-0.22)):(0.16+0.01*(ny-0.56));
+  const xRight=ny<yFold?(0.73+0.35*(ny-0.13)):(0.84+0.58*(ny-0.45));
+  if(ny<yTop||ny>yBot+0.02||nx<xLeft||nx>xRight)return [34,36,40];
+  if(Math.abs(ny-yFold)<0.006)return [145,148,150];
+  // Inner portrait box on lower left that could pull initial BL inward
+  if(ny>yFold+0.05&&ny<yFold+0.24&&nx>xLeft+0.05&&nx<xLeft+0.22)return [95,98,102];
+  // MRZ lines near v=0.72..0.82 of lower page
+  const vLow=(ny-yFold)/Math.max(0.05,yBot-yFold);
+  if((Math.abs(vLow-0.74)<0.012||Math.abs(vLow-0.81)<0.012)&&nx>xLeft+0.03&&nx<xRight-0.03&&(x%5)<3)return [32,34,38];
+  // Fanned underlying page stack seam near v=0.95..1.05
+  if(vLow>0.94)return [135,120,118];
+  return [216,218,220];
+ });
+ const det=core.detectPassportSixPts(data,w,h,[
+  {x:0.09,y:0.22},{x:0.73,y:0.13},{x:0.99,y:0.85},{x:0.24,y:0.98}
+ ]);
+ assert.equal(det.foldAxis,'horizontal');
+ assert.ok(det.pts[4].x<0.19,`Tilted BL.x (${det.pts[4].x.toFixed(3)}) must expand leftward to true paper edge (~0.16)`);
+ assert.ok(det.pts[3].x>1.01,`Tilted BR.x (${det.pts[3].x.toFixed(3)}) must project rightward to true lower-right corner (>1.01)`);
+});
+test('Border cleanup whitens dark corner/edge artifacts to pure white instead of stretching interior pixels',()=>{
+ const w=180,h=220;
+ const data=image(w,h,(x,y)=>{
+  // Dark corner wedge in top-right (x+y-w > -14) and dark 3px left border strip
+  if((x>w-16&&y<16&&(x-(w-16))>y)||x<3)return [38,40,44];
+  // Alternating vertical security pattern at x=12..18 that previously got stretched to x=0..11
+  if(x>=12&&x<=18&&(y%4)<2)return [110,115,125];
+  return [228,226,222];
+ });
+ const out=core.process(data,w,h,{filter:'magic_plus',shadow:true,text:true,straighten:false,cleanSpots:false,cleanMargins:false}).data;
+ // Top-right corner must be whitened to 255
+ const trCorner=(2*w+(w-2))*4;
+ assert.equal(out[trCorner],255);
+ assert.equal(out[trCorner+1],255);
+ assert.equal(out[trCorner+2],255);
+ // Left border (x=0..4) must be pure white (255), NOT a stretched copy of the alternating pattern at x=12..18
+ for(let y=20;y<200;y++){
+  const idx=(y*w+1)*4;
+  assert.equal(out[idx],255,`Left border pixel at y=${y} must be pure white (255), got ${out[idx]}`);
+ }
+});
+test('Tilted horizontal 6-Point Passport ignores floral clutter above TL and finger occlusion on bottom edge',()=>{
+ const w=260,h=350;
+ const data=image(w,h,(x,y)=>{
+  const nx=x/(w-1),ny=y/(h-1);
+  const yTop=0.128-0.088*((nx-0.05)/0.80);
+  const yFold=0.525-0.050*((nx-0.10)/0.78);
+  const yBot=0.952-0.012*((nx-0.12)/0.83);
+  const xLeft=ny<yFold?(0.05+0.14*(ny-0.128)):(0.10+0.04*(ny-0.525));
+  const xRight=ny<yFold?(0.85+0.06*(ny-0.040)):(0.88+0.15*(ny-0.475));
+  if(nx>=0.18&&nx<=0.28&&ny>=0.925)return [28,22,20];
+  if(ny<yTop){
+   if(ny>yTop-0.025)return [75,45,35];
+   if(nx<0.55&&ny>0.025)return [215,195,120];
+   return [40,35,38];
+  }
+  if(ny>yBot||nx<xLeft||nx>xRight)return [35,32,36];
+  if(Math.abs(ny-yFold)<0.006)return [110,112,115];
+  return [195,196,192];
+ });
+ const det=core.detectPassportSixPts(data,w,h,[
+  {x:0.05,y:0.026},{x:0.85,y:0.031},{x:0.906,y:0.947},{x:0.12,y:0.928}
+ ]);
+ assert.ok(Math.abs(det.pts[0].y-0.128)<0.022,`TL.y (${det.pts[0].y.toFixed(3)}) must drop below floral clutter onto true top-left corner (~0.128)`);
+ assert.ok(det.pts[4].y>0.940,`BL.y (${det.pts[4].y.toFixed(3)}) must bypass finger occlusion to reach true bottom-left corner (~0.952)`);
+ assert.ok(det.pts[3].x>0.935,`BR.x (${det.pts[3].x.toFixed(3)}) must expand rightward to true lower-right corner (~0.950)`);
+});
+test('Bright-tabletop tilted 6-Point Passport (#15) and dark-tabletop trapezoid (#5) lock corners cleanly across lanczos3 and browser linear kernels',()=>{
+ const dir='C:/Users/Administrator/Desktop/test passport';
+ const f15=require('path').join(dir,'photo_2026-11-04_23-24-45.jpg');
+ if(require('fs').existsSync(f15)){
+  for(const kernel of ['lanczos3','linear']){
+   const raw=require('child_process').execFileSync(process.execPath,['-e',`
+    const sharp=require('sharp');
+    sharp(${JSON.stringify(f15)}).resize(700,700,{fit:'inside',kernel:${JSON.stringify(kernel)}}).ensureAlpha().raw().toBuffer({resolveWithObject:true}).then(({data,info})=>{
+     const core=require('./public/js/document-scan-core.js');
+     const det=core.detectPassportSixPts(new Uint8ClampedArray(data),info.width,info.height,{foldAxis:'horizontal'});
+     process.stdout.write(JSON.stringify(det.pts));
+    });
+   `],{cwd:process.cwd()});
+   const pts=JSON.parse(raw.toString());
+   assert.ok(Math.abs(pts[5].x-0.126)<0.015,`[${kernel}] #15 LM.x (${pts[5].x.toFixed(3)}) must sit on left fold (~0.126)`);
+   assert.ok(Math.abs(pts[4].x-0.168)<0.018&&Math.abs(pts[4].y-0.910)<0.018,`[${kernel}] #15 BL (${pts[4].x.toFixed(3)},${pts[4].y.toFixed(3)}) must avoid bottom-left thumb (~0.168,0.910)`);
+   assert.ok(pts[3].x>0.975&&Math.abs(pts[3].y-0.866)<0.018,`[${kernel}] #15 BR (${pts[3].x.toFixed(3)},${pts[3].y.toFixed(3)}) must reach bottom-right corner (~0.985,0.866)`);
+  }
+ }
+ const f5=require('path').join(dir,'photo_2026-11-04_23-24-25.jpg');
+ if(require('fs').existsSync(f5)){
+  for(const kernel of ['lanczos3','linear']){
+   const raw=require('child_process').execFileSync(process.execPath,['-e',`
+    const sharp=require('sharp');
+    sharp(${JSON.stringify(f5)}).resize(700,700,{fit:'inside',kernel:${JSON.stringify(kernel)}}).ensureAlpha().raw().toBuffer({resolveWithObject:true}).then(({data,info})=>{
+     const core=require('./public/js/document-scan-core.js');
+     const det=core.detectPassportSixPts(new Uint8ClampedArray(data),info.width,info.height,{foldAxis:'horizontal'});
+     process.stdout.write(JSON.stringify(det.pts));
+    });
+   `],{cwd:process.cwd()});
+   const pts=JSON.parse(raw.toString());
+   assert.ok(pts[0].x>0.080&&pts[0].x<0.105,`[${kernel}] #5 TL.x (${pts[0].x.toFixed(3)}) must preserve perforated passport number (~0.092)`);
+   assert.ok(pts[5].x>0.082&&pts[5].x<0.105,`[${kernel}] #5 LM.x (${pts[5].x.toFixed(3)}) must sit on left fold without cutting portrait (~0.095)`);
+   assert.ok(pts[4].x>0.015&&pts[4].x<0.035,`[${kernel}] #5 BL.x (${pts[4].x.toFixed(3)}) must reach lower-left MRZ margin (~0.022)`);
+  }
+ }
+});
+test('Passport Magic+ AI preserves portrait skin tones without scorching and never erodes jagged border corners',()=>{
+ const w=180,h=220;
+ const data=image(w,h,(x,y)=>{
+  // Shaded top-left passport corner / perforation (x<12, y<18) that must NOT be magic-wand deleted to 255
+  if(x<12&&y<18)return [152,148,140];
+  // Portrait face box (x=25..75, y=120..180) with two adjacent skin tones (R-G=22 and R-G=15)
+  if(x>=25&&x<=75&&y>=120&&y<=180){
+   return x<50?[156,134,122]:[150,135,124];
+  }
+  return [210,210,206];
+ });
+ const out=core.process(data,w,h,{filter:'magic_plus',shadow:true,text:false,straighten:false,cleanSpots:false,cleanMargins:false,sharpness:25}).data;
+ const cIdx=(4*w+4)*4;
+ assert.ok(out[cIdx]<225,`Passport top-left corner must not be magic-wand erased to 255, got ${out[cIdx]}`);
+ const s1=((150*w+38)*4),s2=((150*w+62)*4);
+ assert.ok(out[s1]<215&&out[s2]<215,`Portrait skin tones must not be overexposed/scorched (${out[s1]}, ${out[s2]})`);
+ const sat1=out[s1]-out[s1+1],sat2=out[s2]-out[s2+1];
+ assert.ok(sat2>8&&Math.abs(sat1-sat2)<14,`Adjacent skin tones must keep smooth continuous warmth without gray/orange jump (${sat1} vs ${sat2})`);
+});
 console.log(`${passed} document scan tests passed`);

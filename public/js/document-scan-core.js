@@ -1052,25 +1052,164 @@
           y:(1-v)*((1-u)*TL.y+u*TR.y)+v*((1-u)*BL.y+u*BR.y)
         };
       }
-      var bestS0=.5,bestS1=.5,bestSeamScore=-1;
-      for(var sMid=.42;sMid<=.5801;sMid+=.01){
-        for(var dS=-.02;dS<=.0201;dS+=.01){
-          var sA=clamp(sMid-dS,.40,.60),sB=clamp(sMid+dS,.40,.60),seamSum=0;
-          for(var k=0;k<22;k++){
-            var t=.14+.72*(k/21),sAt=(1-t)*sA+t*sB;
-            var pC=axis==='horizontal'?bilerpPt(t,sAt):bilerpPt(sAt,t);
-            var pM1=axis==='horizontal'?bilerpPt(t,Math.max(.05,sAt-.032)):bilerpPt(Math.max(.05,sAt-.032),t);
-            var pP1=axis==='horizontal'?bilerpPt(t,Math.min(.95,sAt+.032)):bilerpPt(Math.min(.95,sAt+.032),t);
-            var pM2=axis==='horizontal'?bilerpPt(t,Math.max(.05,sAt-.012)):bilerpPt(Math.max(.05,sAt-.012),t);
-            var pP2=axis==='horizontal'?bilerpPt(t,Math.min(.95,sAt+.012)):bilerpPt(Math.min(.95,sAt+.012),t);
-            var lC=sampleBil(g,w,h,pC.x,pC.y);
-            var lSide=.5*(sampleBil(g,w,h,pM1.x,pM1.y)+sampleBil(g,w,h,pP1.x,pP1.y));
-            var lGrad=Math.abs(sampleBil(g,w,h,pP2.x,pP2.y)-sampleBil(g,w,h,pM2.x,pM2.y));
-            var valley=Math.max(0,lSide-lC);
-            seamSum+=valley*1.35+lGrad*.45;
+      function atLP(nx,ny){
+        var ix=clamp(Math.round(nx*(w-1)),0,w-1),iy=clamp(Math.round(ny*(h-1)),0,h-1),i4=(iy*w+ix)*4;
+        var r0=workData[i4],g0=workData[i4+1],b0=workData[i4+2],l0=.299*r0+.587*g0+.114*b0,c0=Math.max(r0,g0,b0)-Math.min(r0,g0,b0);
+        return {l:l0,p:Math.max(0,l0-1.1*c0)};
+      }
+      if(axis==='horizontal'){
+        var nonPaperTop=0,preTopPts=[];
+        for(var pti=0;pti<16;pti++){
+          var uPT=.05+.90*(pti/15),xPT=(1-uPT)*q[0].x+uPT*q[1].x,y0PT=(1-uPT)*q[0].y+uPT*q[1].y;
+          if(atLP(xPT,y0PT+.008).p<92)nonPaperTop++;
+          var bestYPT=-1,bestWPT=0;
+          for(var dyPT=.004;dyPT<=.120;dyPT+=.003){
+            var yPT=y0PT+dyPT,o1PT=atLP(xPT,yPT-.008),o2PT=atLP(xPT,Math.max(.002,yPT-.018));
+            var i1PT=atLP(xPT,yPT+.008),i2PT=atLP(xPT,yPT+.020),i3PT=atLP(xPT,yPT+.032),stepPT=i1PT.p-o1PT.p;
+            if(o1PT.p<85&&o2PT.p<95&&o1PT.l<122&&i1PT.p>105&&i2PT.p>108&&i3PT.p>95&&stepPT>36){bestYPT=yPT-.006;bestWPT=stepPT;}
           }
-          var centerPrior=Math.exp(-Math.pow((sMid-.5)/.085,2))*(1-Math.abs(dS)*4);
-          var score=(seamSum/22+5)*centerPrior;
+          if(bestYPT>0)preTopPts.push({u:uPT,y:bestYPT,w:bestWPT});
+        }
+        if(nonPaperTop>=5&&preTopPts.length>=8){
+          var bestWPT2=-1,slpPT=0,offPT=.08;
+          for(var iPT=0;iPT<preTopPts.length;iPT++){
+            for(var jPT=iPT+1;jPT<preTopPts.length;jPT++){
+              if(preTopPts[jPT].u-preTopPts[iPT].u<.35)continue;
+              var sCandPT=(preTopPts[jPT].y-preTopPts[iPT].y)/(preTopPts[jPT].u-preTopPts[iPT].u);
+              if(Math.abs(sCandPT)>.25)continue;
+              var oCandPT=preTopPts[iPT].y-sCandPT*preTopPts[iPT].u,wSumPT=0;
+              for(var kPT0=0;kPT0<preTopPts.length;kPT0++){
+                var ePT0=Math.abs(preTopPts[kPT0].y-(oCandPT+sCandPT*preTopPts[kPT0].u));
+                if(ePT0<=.009)wSumPT+=preTopPts[kPT0].w*(1-ePT0/.012);
+              }
+              if(wSumPT>bestWPT2){bestWPT2=wSumPT;slpPT=sCandPT;offPT=oCandPT;}
+            }
+          }
+          var suPT=0,syPT=0,suuPT=0,suyPT=0,swPT=0;
+          for(var kPT=0;kPT<preTopPts.length;kPT++){
+            var ptP=preTopPts[kPT],errPT=Math.abs(ptP.y-(offPT+slpPT*ptP.u));
+            if(errPT<=.010){
+              var wtPT=ptP.w;
+              suPT+=ptP.u*wtPT;syPT+=ptP.y*wtPT;suuPT+=ptP.u*ptP.u*wtPT;suyPT+=ptP.u*ptP.y*wtPT;swPT+=wtPT;
+            }
+          }
+          var denPT=swPT*suuPT-suPT*suPT;
+          if(Math.abs(denPT)>1e-5){slpPT=clamp((swPT*suyPT-suPT*syPT)/denPT,-.25,.25);offPT=(syPT-slpPT*suPT)/swPT;}
+          if(offPT>q[0].y+.012||offPT+slpPT>q[1].y+.012){
+            q[0].y=clamp(offPT,q[0].y,.38);q[1].y=clamp(offPT+slpPT,q[1].y,.38);
+            TL.y=q[0].y*(h-1);TR.y=q[1].y*(h-1);
+          }
+        }
+        if(Math.abs(q[0].y-q[1].y)>.04&&(q[2].y-q[3].y)*(q[1].y-q[0].y)<0){
+          var preBotPts=[];
+          for(var pbi=0;pbi<16;pbi++){
+            var uPB=pbi/15,xPB=(1-uPB)*q[3].x+uPB*q[2].x;
+            var bestYPB=-1,bestWPB=0;
+            for(var yPB=Math.max(.75,Math.min(q[3].y,q[2].y)-.020);yPB<=Math.min(.985,Math.max(q[3].y,q[2].y)+.035);yPB+=.003){
+              var i1PB=atLP(xPB,yPB-.008),i2PB=atLP(xPB,yPB-.020),o1PB=atLP(xPB,yPB+.008),o2PB=atLP(xPB,Math.min(.995,yPB+.018)),dropPB=i1PB.p-o1PB.p;
+              if(i1PB.p>102&&i2PB.p>102&&o1PB.p<85&&o2PB.p<85&&dropPB>34&&dropPB>bestWPB){bestWPB=dropPB;bestYPB=yPB;}
+            }
+            if(bestYPB>0)preBotPts.push({u:uPB,y:bestYPB,w:bestWPB});
+          }
+          if(preBotPts.length>=8){
+            var slpPB=(q[1].y-q[0].y)*.35,offPB=.5*(q[3].y+q[2].y)-.5*slpPB;
+            for(var itPB=0;itPB<5;itPB++){
+              var suPB=0,syPB=0,suuPB=0,suyPB=0,swPB=0;
+              for(var kPB=0;kPB<preBotPts.length;kPB++){
+                var pbP=preBotPts[kPB],predPB=offPB+slpPB*pbP.u,errPB=pbP.y-predPB;
+                var scalePB=errPB<-.005?.004:.009;
+                var wtPB=itPB===0?pbP.w:pbP.w/(1+(errPB/scalePB)*(errPB/scalePB));
+                suPB+=pbP.u*wtPB;syPB+=pbP.y*wtPB;suuPB+=pbP.u*pbP.u*wtPB;suyPB+=pbP.u*pbP.y*wtPB;swPB+=wtPB;
+              }
+              var denPB=swPB*suuPB-suPB*suPB;
+              if(Math.abs(denPB)>1e-5){slpPB=clamp((swPB*suyPB-suPB*syPB)/denPB,-.25,.25);offPB=(syPB-slpPB*suPB)/swPB;}
+            }
+            q[3].y=clamp(offPB,.65,.992);q[2].y=clamp(offPB+slpPB,.65,.992);
+            BL.y=q[3].y*(h-1);BR.y=q[2].y*(h-1);
+          }
+        }
+        var urPts=[];
+        for(var uri=0;uri<7;uri++){
+          var tUR=.08+.32*(uri/6),yUR=(1-tUR)*q[1].y+tUR*q[2].y,xOutUR=(1-tUR)*q[1].x+tUR*q[2].x;
+          var ixCheck=clamp(Math.round((xOutUR-.018)*(aw-1)),0,aw-1),iyCheck=clamp(Math.round(yUR*(ah-1)),0,ah-1);
+          if(Lc[iyCheck*aw+ixCheck]<105){
+            var bestXUR=-1,bestDropUR=0;
+            for(var dxUR=.02;dxUR<=.17;dxUR+=.004){
+              var xCandUR=xOutUR-dxUR;
+              var ixIn=clamp(Math.round((xCandUR-.014)*(aw-1)),0,aw-1),ixOut=clamp(Math.round((xCandUR+.014)*(aw-1)),0,aw-1);
+              var lInUR=L[iyCheck*aw+ixIn],lOutUR=L[iyCheck*aw+ixOut],dropUR=lInUR-lOutUR;
+              if(lInUR>120&&lOutUR<102&&dropUR>32&&dropUR>bestDropUR){bestDropUR=dropUR;bestXUR=xCandUR;}
+            }
+            if(bestXUR>0)urPts.push({t:tUR,x:bestXUR,w:bestDropUR});
+          }
+        }
+        if(urPts.length>=4){
+          var stUR=0,sxUR=0,sttUR=0,stxUR=0,swUR=0;
+          for(var urpi=0;urpi<urPts.length;urpi++){var urp=urPts[urpi];stUR+=urp.t*urp.w;sxUR+=urp.x*urp.w;sttUR+=urp.t*urp.t*urp.w;stxUR+=urp.t*urp.x*urp.w;swUR+=urp.w;}
+          var denUR=swUR*sttUR-stUR*stUR,slpUR=Math.abs(denUR)>1e-4?clamp((swUR*stxUR-stUR*sxUR)/denUR,-.35,.35):0,offUR=(sxUR-slpUR*stUR)/swUR;
+          q[1].x=clamp(offUR,q[0].x+.25,q[1].x);
+          TR.x=q[1].x*(w-1);
+        }
+      }
+      var Nu=96,Ns=160,ru=7,sGrid=new Float32Array(Nu*Ns),clGrid=new Float32Array(Nu*Ns),dlRow=new Float32Array(Nu);
+      for(var is=0;is<Ns;is++){
+        var sG=is/(Ns-1),rOff=is*Nu;
+        for(var iu=0;iu<Nu;iu++){
+          var uG=.06+.88*(iu/(Nu-1)),ptG=axis==='horizontal'?bilerpPt(uG,sG):bilerpPt(sG,uG);
+          sGrid[rOff+iu]=sampleBil(g,w,h,ptG.x,ptG.y);
+        }
+        for(var iu1=0;iu1<Nu;iu1++){
+          var mxG=0,j0=Math.max(0,iu1-ru),j1=Math.min(Nu-1,iu1+ru);
+          for(var jG=j0;jG<=j1;jG++)if(sGrid[rOff+jG]>mxG)mxG=sGrid[rOff+jG];
+          dlRow[iu1]=mxG;
+        }
+        for(var iu2=0;iu2<Nu;iu2++){
+          var mnG=255,j0b=Math.max(0,iu2-ru),j1b=Math.min(Nu-1,iu2+ru);
+          for(var jGb=j0b;jGb<=j1b;jGb++)if(dlRow[jGb]<mnG)mnG=dlRow[jGb];
+          clGrid[rOff+iu2]=mnG;
+        }
+      }
+      var rowTxt=new Float32Array(Ns);
+      for(var isT=0;isT<Ns;isT++){
+        var sumT=0;
+        for(var iuT=8;iuT<Nu-8;iuT++)sumT+=Math.max(0,clGrid[isT*Nu+iuT]-sGrid[isT*Nu+iuT]);
+        rowTxt[isT]=sumT/(Nu-16);
+      }
+      var span1=axis==='horizontal'?Math.hypot(TR.x-TL.x,TR.y-TL.y):Math.hypot(BL.x-TL.x,BL.y-TL.y);
+      var span2=axis==='horizontal'?Math.hypot(BR.x-BL.x,BR.y-BL.y):Math.hypot(BR.x-TR.x,BR.y-TR.y);
+      var sProj=clamp(span1/Math.max(1,span1+span2),.44,.53);
+      var bestS0=sProj,bestS1=sProj,bestSeamScore=-1;
+      for(var sMid=.42;sMid<=.5551;sMid+=.005){
+        var isMid=Math.round(sMid*(Ns-1)),maxAbv=0,meanAbv=0,nAbv=0,maxBel=0,meanBel=0,nBel=0;
+        for(var dA=1;dA<=4;dA++)if(isMid-dA>=0){var tA=rowTxt[isMid-dA];if(tA>maxAbv)maxAbv=tA;meanAbv+=tA;nAbv++;}
+        for(var dB=2;dB<=8;dB++)if(isMid+dB<Ns){var tB=rowTxt[isMid+dB];if(tB>maxBel)maxBel=tB;meanBel+=tB;nBel++;}
+        meanAbv/=Math.max(1,nAbv);meanBel/=Math.max(1,nBel);
+        for(var dS=-.02;dS<=.0201;dS+=.005){
+          var sA=clamp(sMid-dS,.40,.575),sB=clamp(sMid+dS,.40,.575);
+          var vTSum=0,vASum=0,leftSum=0,txtSum=0,contHits=0,nL=0;
+          for(var iuS=0;iuS<Nu;iuS++){
+            var tS=iuS/(Nu-1),sAt=(1-tS)*sA+tS*sB,isS=clamp(Math.round(sAt*(Ns-1)),6,Ns-7);
+            var cCl=clGrid[isS*Nu+iuS];
+            var uCl=Math.max(clGrid[(isS-3)*Nu+iuS],clGrid[(isS-5)*Nu+iuS]);
+            var dCl=Math.max(clGrid[(isS+3)*Nu+iuS],clGrid[(isS+5)*Nu+iuS]);
+            var minSide=Math.min(uCl,dCl);
+            var vT=Math.max(0,minSide-cCl);
+            var vA=minSide>=cCl-1?Math.min(Math.max(0,.5*(uCl+dCl)-cCl),vT*1.8+2.5):0;
+            vTSum+=vT;vASum+=vA;
+            var vCol=vT*1.2+vA*.95;
+            txtSum+=Math.max(0,cCl-sGrid[isS*Nu+iuS]);
+            if(vCol>3.5)contHits++;
+            if(tS<=.22){leftSum+=vCol;nL++;}
+          }
+          var meanVT=vTSum/Nu,meanVA=vASum/Nu,meanV=meanVT*1.2+meanVA*.95,meanL=leftSum/Math.max(1,nL),meanTxt=txtSum/Nu,cont=contHits/Nu;
+          var excessTxt=Math.max(0,meanTxt-meanVT*.8);
+          var abvExcess=Math.max(0,maxAbv-meanVT*.9-6.5);
+          var textSuppr=1/(1+excessTxt*.25+abvExcess*.28+Math.max(0,meanAbv-6.5)*.32);
+          var leftGate=.35+.65*clamp(meanL/2.5,0,1);
+          var asymBonus=1+.18*clamp((maxBel-maxAbv)/16,-.4,1);
+          var rawSeam=(meanV*1.35+clamp(meanL,0,28)*.25)*(.38+.62*cont)*leftGate*textSuppr*asymBonus;
+          var centerPrior=Math.exp(-Math.pow((sMid-sProj)/.078,2))*(1-Math.abs(dS)*(Math.abs(q[0].y-q[1].y)>.04?14:4));
+          var score=(rawSeam+1.2)*centerPrior;
           if(score>bestSeamScore){bestSeamScore=score;bestS0=sA;bestS1=sB;}
         }
       }
@@ -1146,57 +1285,46 @@
         };
         var pH=pts.map(function(pt){return {x:pt.x,y:pt.y};});
         var yBotAvg=.5*(pH[3].y+pH[4].y),yFoldAvg=.5*(pH[2].y+pH[5].y);
-        if(yBotAvg-yFoldAvg>.24){
-          var botPts=[];
-          for(var bi=0;bi<9;bi++){
-            var uB=.16+.64*(bi/8),xB=(1-uB)*pH[4].x+uB*pH[3].x,yOutB=(1-uB)*pH[4].y+uB*pH[3].y;
-            var bestYB=-1,bestDropB=0;
-            for(var dyB=.022;dyB<=.075;dyB+=.004){
-              var yCandB=yOutB-dyB,lAbv=atL(L,xB,yCandB-.012),lMt1=atL(L,xB,yCandB+.010),lMt2=atL(L,xB,yCandB+.020),lRm=atL(L,xB,yOutB-.012);
-              var dropB=lAbv-.5*(lMt1+lMt2);
-              if(lAbv>130&&lMt1<138&&lMt2<140&&lRm>lMt1+18&&dropB>32&&dropB>bestDropB){bestDropB=dropB;bestYB=yCandB;}
+        var ulPts=[],brightOutUL=atL(Lc,Math.max(.005,pH[0].x-.018),pH[0].y+.04)>125;
+        if(brightOutUL){
+          for(var uli=0;uli<7;uli++){
+            var tUL=.12+.78*(uli/6),yUL=(1-tUL)*pH[0].y+tUL*pH[5].y,xOutUL=(1-tUL)*pH[0].x+tUL*pH[5].x;
+            var bestXUL=-1,bestRiseUL=0;
+            for(var dxUL=.015;dxUL<=.065;dxUL+=.004){
+              var xCandUL=xOutUL+dxUL,lMtUL=atL(L,xCandUL-.012,yUL),lIn1UL=atL(L,xCandUL+.012,yUL),lIn2UL=atL(Lc,xCandUL+.025,yUL),riseUL=lIn1UL-lMtUL;
+              var pMtUL=atL(P,xCandUL-.012,yUL),pIn1UL=atL(P,xCandUL+.012,yUL),risePUL=pIn1UL-pMtUL,scoreUL=Math.max(riseUL,risePUL*.85);
+              if((lMtUL<144||pMtUL<105)&&lIn1UL>155&&lIn2UL>170&&(riseUL>35||risePUL>48)&&scoreUL>bestRiseUL){bestRiseUL=scoreUL;bestXUL=xCandUL;}
             }
-            if(bestYB>0)botPts.push({u:uB,y:bestYB,w:bestDropB});
-          }
-          if(botPts.length>=6){
-            var suB=0,syB=0,suuB=0,suyB=0,swB=0;
-            for(var bpi=0;bpi<botPts.length;bpi++){var bp=botPts[bpi];suB+=bp.u*bp.w;syB+=bp.y*bp.w;suuB+=bp.u*bp.u*bp.w;suyB+=bp.u*bp.y*bp.w;swB+=bp.w;}
-            var denB=swB*suuB-suB*suB,slpB=Math.abs(denB)>1e-4?clamp((swB*suyB-suB*syB)/denB,-.08,.08):0,offB=(syB-slpB*suB)/swB;
-            var oldBLy=pH[4].y,newBLy=clamp(offB,yFoldAvg+.15,pH[4].y),newBRy=clamp(offB+slpB,yFoldAvg+.15,pH[3].y);
-            if(oldBLy>pH[5].y+.08){
-              var tBL=(newBLy-pH[5].y)/(oldBLy-pH[5].y);
-              pH[4].x=pH[5].x+tBL*(pH[4].x-pH[5].x);
-            }
-            pH[4].y=newBLy;pH[3].y=newBRy;
+            if(bestXUL>0)ulPts.push({t:tUL,x:bestXUL,w:bestRiseUL});
           }
         }
-        var ulPts=[];
-        for(var uli=0;uli<7;uli++){
-          var tUL=.12+.78*(uli/6),yUL=(1-tUL)*pH[0].y+tUL*pH[5].y,xOutUL=(1-tUL)*pH[0].x+tUL*pH[5].x;
-          var bestXUL=-1,bestRiseUL=0;
-          for(var dxUL=.015;dxUL<=.065;dxUL+=.004){
-            var xCandUL=xOutUL+dxUL,lMtUL=atL(L,xCandUL-.012,yUL),lIn1UL=atL(L,xCandUL+.012,yUL),lIn2UL=atL(Lc,xCandUL+.025,yUL),riseUL=lIn1UL-lMtUL;
-            if(lMtUL<142&&lIn1UL>162&&lIn2UL>175&&riseUL>38&&riseUL>bestRiseUL){bestRiseUL=riseUL;bestXUL=xCandUL;}
-          }
-          if(bestXUL>0)ulPts.push({t:tUL,x:bestXUL,w:bestRiseUL});
-        }
-        if(ulPts.length>=5){
+        if(ulPts.length>=4){
           var oldLMx=pH[5].x,oldBLx=pH[4].x;
           var avgXUL=0;for(var uli2=0;uli2<ulPts.length;uli2++)avgXUL+=ulPts[uli2].x;avgXUL/=ulPts.length;
           pH[0].x=clamp(avgXUL-.004,pH[0].x,.45);
           pH[5].x=clamp(avgXUL-.008,pH[5].x,.45);
-          var llShiftSum=0,llShiftW=0,llCnt=0;
-          for(var lli=0;lli<7;lli++){
-            var tLL=.10+.72*(lli/6),yLL=(1-tLL)*pH[5].y+tLL*pH[4].y,xRefLL=(1-tLL)*oldLMx+tLL*oldBLx;
+          var llPts=[];
+          for(var lli=0;lli<8;lli++){
+            var tLL=.08+.76*(lli/7),yLL=(1-tLL)*pH[5].y+tLL*pH[4].y,xRefLL=(1-tLL)*oldLMx+tLL*oldBLx;
             var bestDxLL=-1,bestRiseLL=0;
-            for(var dxLL=.012;dxLL<=.065;dxLL+=.004){
-              var xCandLL=xRefLL+dxLL,lMtLL=atL(L,xCandLL-.012,yLL),lInLL=atL(L,xCandLL+.016,yLL),riseLL=lInLL-lMtLL;
-              if(lMtLL<122&&lInLL>118&&riseLL>34&&riseLL>bestRiseLL){bestRiseLL=riseLL;bestDxLL=dxLL;}
+            for(var dxLL=.012;dxLL<=.095;dxLL+=.003){
+              var xCandLL=xRefLL+dxLL,lMtLL=atL(L,xCandLL-.010,yLL),lInLL=atL(L,xCandLL+.014,yLL),riseLL=lInLL-lMtLL;
+              var pMtLL=atL(P,xCandLL-.010,yLL),pInLL=atL(P,xCandLL+.014,yLL),risePLL=pInLL-pMtLL,scoreLL=Math.max(riseLL,risePLL*.85);
+              if((lMtLL<138||pMtLL<108)&&lInLL>118&&(riseLL>25||risePLL>36)&&scoreLL>bestRiseLL){bestRiseLL=scoreLL;bestDxLL=dxLL;}
             }
-            if(bestDxLL>0){llShiftSum+=bestDxLL*bestRiseLL;llShiftW+=bestRiseLL;llCnt++;}
+            if(bestDxLL>0)llPts.push({t:tLL,x:xRefLL+bestDxLL,dx:bestDxLL,w:bestRiseLL});
           }
-          if(llCnt>=4&&llShiftW>0){
-            pH[4].x=clamp(oldBLx+llShiftSum/llShiftW,oldBLx,.45);
+          if(llPts.length>=5){
+            var stLL=0,sxLL=0,sttLL=0,stxLL=0,sdxLL=0,swLL0=0;
+            for(var llk=0;llk<llPts.length;llk++){var lp=llPts[llk];stLL+=lp.t*lp.w;sxLL+=lp.x*lp.w;sttLL+=lp.t*lp.t*lp.w;stxLL+=lp.t*lp.x*lp.w;sdxLL+=lp.dx*lp.w;swLL0+=lp.w;}
+            var denLL0=swLL0*sttLL-stLL*stLL,slpLL0=Math.abs(denLL0)>1e-4?clamp((swLL0*stxLL-stLL*sxLL)/denLL0,-.25,.25):0,offLL0=(sxLL-slpLL0*stLL)/swLL0;
+            if(slpLL0>.025){
+              pH[5].x=clamp(offLL0+.005,pH[5].x,.45);
+              pH[4].x=clamp(offLL0+slpLL0,oldBLx,.45);
+              pH[0].x=clamp(Math.min(pH[0].x,offLL0-.008),oldLMx,.45);
+            }else{
+              pH[4].x=clamp(oldBLx+sdxLL/swLL0,oldBLx,.45);
+            }
           }
           var topDySum=0,topDyW=0,topCnt=0;
           for(var ti=0;ti<8;ti++){
@@ -1213,24 +1341,248 @@
             pH[0].y=clamp(pH[0].y+avgDyT,pH[0].y,yFoldAvg-.15);
             pH[1].y=clamp(pH[1].y+avgDyT*1.08,pH[1].y,yFoldAvg-.15);
           }
-        }
-        var lrPts=[];
-        for(var lri=0;lri<8;lri++){
-          var tLR=.12+.80*(lri/7),yLR=(1-tLR)*pH[2].y+tLR*pH[3].y,xCurLR=(1-tLR)*pH[2].x+tLR*pH[3].x;
-          if(atL(Lc,xCurLR+.018,yLR)>158){
-            var bestXLR=-1,bestDropLR=0;
-            for(var xCandLR=xCurLR;xCandLR<=Math.min(.96,pH[2].x+.14);xCandLR+=.004){
-              var lInLR=atL(L,xCandLR-.014,yLR),lOutLR=atL(L,xCandLR+.014,yLR),dropLR=lInLR-lOutLR;
-              if(lInLR>155&&lOutLR<152&&dropLR>26&&dropLR>bestDropLR){bestDropLR=dropLR;bestXLR=xCandLR;}
+        }else if(!brightOutUL&&Math.abs(pH[0].y-pH[1].y)<.04&&Math.abs(pH[3].y-pH[4].y)<.03&&pH[3].x-pH[1].x>.10){
+          var llOutPts=[];
+          for(var loi=0;loi<8;loi++){
+            var tLO=.08+.78*(loi/7),yLO=(1-tLO)*pH[5].y+tLO*pH[4].y,xCurLO=(1-tLO)*pH[5].x+tLO*pH[4].x;
+            if(atL(L,xCurLO-.012,yLO)>155&&atL(L,Math.max(.003,xCurLO-.075),yLO)<55){
+              var bestXLO=-1,bestRiseLO=0;
+              for(var xCandLO=xCurLO-.006;xCandLO>=Math.max(.008,xCurLO-.075);xCandLO-=.003){
+                var lOutLO=atL(L,xCandLO-.008,yLO),lInLO=atL(L,xCandLO+.008,yLO),riseLO=lInLO-lOutLO;
+                if(lOutLO<55&&lInLO>145&&riseLO>90&&riseLO>bestRiseLO){bestRiseLO=riseLO;bestXLO=xCandLO;}
+              }
+              if(bestXLO>0)llOutPts.push({t:tLO,x:bestXLO,w:bestRiseLO});
             }
-            if(bestXLR>0)lrPts.push({t:tLR,x:bestXLR,w:bestDropLR});
+          }
+          if(llOutPts.length>=5){
+            var stLO=0,sxLO=0,sttLO=0,stxLO=0,swLO=0;
+            for(var lok=0;lok<llOutPts.length;lok++){var lop=llOutPts[lok];stLO+=lop.t*lop.w;sxLO+=lop.x*lop.w;sttLO+=lop.t*lop.t*lop.w;stxLO+=lop.t*lop.x*lop.w;swLO+=lop.w;}
+            var denLO=swLO*sttLO-stLO*stLO,slpLO=Math.abs(denLO)>1e-4?clamp((swLO*stxLO-stLO*sxLO)/denLO,-.25,.25):0,offLO=(sxLO-slpLO*stLO)/swLO;
+            if(slpLO<-.04){
+              pH[5].x=clamp(offLO+.009,.01,pH[5].x);
+              pH[4].x=clamp(offLO+slpLO*.88,.022,pH[4].x);
+              pH[0].x=clamp(Math.max(pH[0].x,offLO+.006),.01,.45);
+              pH[2].x=clamp(pH[2].x-.010,.55,pH[2].x);
+              pH[3].y=clamp(pH[3].y-.008,yFoldAvg+.20,pH[3].y);
+              pH[4].y=clamp(pH[4].y-.006,yFoldAvg+.20,pH[4].y);
+              pH[0].y=clamp(pH[0].y+.009,pH[0].y,yFoldAvg-.15);
+              pH[1].y=clamp(pH[1].y+.006,pH[1].y,yFoldAvg-.15);
+            }
           }
         }
-        if(lrPts.length>=5){
+        var lrPts=[],lrBrightPts=[],lrWhiteToEdge=0;
+        for(var lri=0;lri<8;lri++){
+          var tLR=.10+.78*(lri/7),yLR=(1-tLR)*pH[2].y+tLR*pH[3].y,xCurLR=(1-tLR)*pH[2].x+tLR*pH[3].x;
+          if(tLR>=.28&&atL(Pc,.90,yLR)>175&&atL(Pc,.95,yLR)>175&&atL(Pc,.982,yLR)>168&&atL(Lc,.982,yLR)>185)lrWhiteToEdge++;
+          if(atL(Lc,xCurLR+.018,yLR)>158){
+            var bestXLR=-1,bestDropLR=0,bestBXLR=-1,bestRiseLR=0;
+            for(var xCandLR=xCurLR;xCandLR<=Math.min(.985,pH[2].x+.14);xCandLR+=.003){
+              var lInLR=atL(L,xCandLR-.012,yLR),lOutLR=atL(L,xCandLR+.012,yLR),lFarLR=atL(L,Math.min(.995,xCandLR+.022),yLR),dropLR=lInLR-lOutLR,riseLR=lOutLR-lInLR;
+              if(lInLR>155&&lOutLR<152&&dropLR>26&&dropLR>bestDropLR){bestDropLR=dropLR;bestXLR=xCandLR;}
+              if(lInLR>155&&lInLR<184&&lOutLR>183&&Math.abs(lOutLR-lFarLR)<7&&riseLR>9&&riseLR>bestRiseLR){bestRiseLR=riseLR;bestBXLR=xCandLR;}
+            }
+            if(bestXLR>0)lrPts.push({t:tLR,x:bestXLR,w:bestDropLR});
+            if(bestBXLR>0)lrBrightPts.push({t:tLR,x:bestBXLR,w:bestRiseLR});
+          }
+        }
+        if(lrWhiteToEdge>=5&&pH[3].x<.95){
+          pH[3].x=.988;
+          pH[2].x=clamp(Math.max(pH[2].x,.962),pH[2].x,.985);
+          pH[1].x=clamp(Math.max(pH[1].x,.948),pH[1].x,.985);
+          if(pH[4].x<.015){
+            var llInPts=[];
+            for(var lli3=0;lli3<6;lli3++){
+              var tLL3=.16+.64*(lli3/5),yLL3=(1-tLL3)*pH[5].y+tLL3*pH[4].y;
+              var bestXLL3=-1,bestRiseLL3=0;
+              for(var xCandLL3=.018;xCandLL3<=pH[5].x+.02;xCandLL3+=.003){
+                var pOut3=atL(Pc,xCandLL3-.008,yLL3),pIn3=atL(Pc,xCandLL3+.012,yLL3),riseP3=pIn3-pOut3;
+                if(pOut3<125&&pIn3>160&&riseP3>48&&riseP3>bestRiseLL3){bestRiseLL3=riseP3;bestXLL3=xCandLL3;}
+              }
+              if(bestXLL3>0)llInPts.push({t:tLL3,x:bestXLL3});
+            }
+            if(llInPts.length>=3){
+              var lastLL3=llInPts[llInPts.length-1],firstLL3=llInPts[0];
+              var slp3=(lastLL3.x-firstLL3.x)/Math.max(.1,lastLL3.t-firstLL3.t);
+              pH[4].x=clamp(firstLL3.x+slp3*(1-firstLL3.t),.032,pH[5].x);
+            }
+          }
+        }else if(lrPts.length>=5){
           var stLR=0,sxLR=0,sttLR=0,stxLR=0,swLR=0;
           for(var lrpi=0;lrpi<lrPts.length;lrpi++){var lrp=lrPts[lrpi];stLR+=lrp.t*lrp.w;sxLR+=lrp.x*lrp.w;sttLR+=lrp.t*lrp.t*lrp.w;stxLR+=lrp.t*lrp.x*lrp.w;swLR+=lrp.w;}
           var denLR=swLR*sttLR-stLR*stLR,slpLR=Math.abs(denLR)>1e-4?clamp((swLR*stxLR-stLR*sxLR)/denLR,-.25,.25):0,offLR=(sxLR-slpLR*stLR)/swLR;
           pH[3].x=clamp(offLR+slpLR,pH[3].x,.98);
+          if(offLR>pH[2].x+.015)pH[2].x=clamp(offLR,pH[2].x,.98);
+        }else if(lrBrightPts.length>=5){
+          var stBLR=0,sxBLR=0,sttBLR=0,stxBLR=0,swBLR=0;
+          for(var blri=0;blri<lrBrightPts.length;blri++){var blrp=lrBrightPts[blri];stBLR+=blrp.t*blrp.w;sxBLR+=blrp.x*blrp.w;sttBLR+=blrp.t*blrp.t*blrp.w;stxBLR+=blrp.t*blrp.x*blrp.w;swBLR+=blrp.w;}
+          var denBLR=swBLR*sttBLR-stBLR*stBLR,slpBLR=Math.abs(denBLR)>1e-4?clamp((swBLR*stxBLR-stBLR*sxBLR)/denBLR,-.25,.25):0,offBLR=(sxBLR-slpBLR*stBLR)/swBLR;
+          pH[3].x=clamp(offBLR+slpBLR,pH[3].x,.985);
+          if(pH[0].y>pH[1].y+.02)pH[5].y=clamp(pH[2].y-(pH[1].y-pH[0].y)*.82,pH[0].y+.20,pH[5].y);
+          var bBotPts=[];
+          for(var bbi=0;bbi<8;bbi++){
+            var uBB=.30+.56*(bbi/7),xBB=(1-uBB)*pH[4].x+uBB*pH[3].x,y0BB=(1-uBB)*pH[4].y+uBB*pH[3].y;
+            var bestYBB=-1,bestRiseBB=0;
+            for(var yBB=y0BB-.042;yBB<=y0BB+.008;yBB+=.003){
+              var lAbvBB=atL(L,xBB,yBB-.012),lTrBB=atL(L,xBB,yBB),lBelBB=atL(L,xBB,yBB+.012),lFar2BB=atL(L,xBB,Math.min(.995,yBB+.022));
+              if(lAbvBB>168&&lTrBB<168&&lAbvBB-lTrBB>10&&lBelBB>180&&Math.abs(lBelBB-lFar2BB)<8&&lBelBB-lTrBB>14){
+                var scTr=(lAbvBB-lTrBB)+(lBelBB-lTrBB);
+                if(scTr>bestRiseBB){bestRiseBB=scTr;bestYBB=yBB-.008;}
+              }
+              var lInBB=atL(L,xBB,yBB-.008),lOutBB=atL(L,xBB,yBB+.008),lFarBB=atL(L,xBB,Math.min(.995,yBB+.018)),riseBB=lOutBB-lInBB;
+              if(lInBB>158&&lInBB<181&&lOutBB>181&&Math.abs(lOutBB-lFarBB)<7&&riseBB>7&&riseBB>bestRiseBB){bestRiseBB=riseBB;bestYBB=yBB;}
+            }
+            if(bestYBB>0)bBotPts.push({u:uBB,y:bestYBB,w:bestRiseBB});
+          }
+          if(bBotPts.length>=5){
+            var suBB=0,syBB=0,suuBB=0,suyBB=0,swBB=0;
+            for(var bbk=0;bbk<bBotPts.length;bbk++){var bbp=bBotPts[bbk];suBB+=bbp.u*bbp.w;syBB+=bbp.y*bbp.w;suuBB+=bbp.u*bbp.u*bbp.w;suyBB+=bbp.u*bbp.y*bbp.w;swBB+=bbp.w;}
+            var denBB=swBB*suuBB-suBB*suBB,slpBB=Math.abs(denBB)>1e-4?clamp((swBB*suyBB-suBB*syBB)/denBB,-.20,.20):0,offBB=(syBB-slpBB*suBB)/swBB;
+            pH[3].y=clamp(offBB+slpBB,yFoldAvg+.20,pH[3].y);
+            pH[4].y=clamp(Math.min(offBB-.006,pH[3].y+(pH[5].y-pH[2].y)*1.28),yFoldAvg+.20,pH[4].y);
+          }
+        }
+        var oldBLx2=pH[4].x,oldBLy2=pH[4].y,oldBRx2=pH[3].x,oldBRy2=pH[3].y;
+        var steepBotTilt=Math.abs(oldBLy2-oldBRy2)>.06&&Math.abs(pH[5].y-pH[2].y)>.06;
+        if((steepBotTilt||Math.abs(pH[0].y-pH[1].y)>.045)&&lrWhiteToEdge<5){
+          function atG(nx,ny){return sampleBil(g,w,h,clamp(nx,0,1)*(w-1),clamp(ny,0,1)*(h-1));}
+          var topDarkCnt=0,topPts2=[];
+          for(var ti2=0;ti2<8;ti2++){
+            var uT2=.10+.80*(ti2/7),xT2=(1-uT2)*pH[0].x+uT2*pH[1].x,y0T2=(1-uT2)*pH[0].y+uT2*pH[1].y;
+            if(atG(xT2,y0T2+.004)<100)topDarkCnt++;
+            var bestDyT2=-1,bestRiseT2=0;
+            for(var dyT2=0;dyT2<=.030;dyT2+=.002){
+              var lOutT2=atG(xT2,y0T2+dyT2-.004),lInT2=atG(xT2,y0T2+dyT2+.004),riseT2=lInT2-lOutT2;
+              if(lOutT2<100&&lInT2>170&&riseT2>75&&riseT2>bestRiseT2){bestRiseT2=riseT2;bestDyT2=dyT2;}
+            }
+            if(bestDyT2>=0)topPts2.push({u:uT2,dy:bestDyT2,w:bestRiseT2});
+          }
+          if(topDarkCnt>=4&&topPts2.length>=6){
+            var suT2=0,sdyT2=0,suuT2=0,sudyT2=0,swT2=0;
+            for(var tpi2=0;tpi2<topPts2.length;tpi2++){var tp2=topPts2[tpi2];suT2+=tp2.u*tp2.w;sdyT2+=tp2.dy*tp2.w;suuT2+=tp2.u*tp2.u*tp2.w;sudyT2+=tp2.u*tp2.dy*tp2.w;swT2+=tp2.w;}
+            var denT2=swT2*suuT2-suT2*suT2;
+            if(Math.abs(denT2)>1e-5){
+              var slpT2=clamp((swT2*sudyT2-suT2*sdyT2)/denT2,-.05,.05),offT2=(sdyT2-slpT2*suT2)/swT2;
+              pH[0].y=clamp(pH[0].y+Math.max(0,offT2),.005,yFoldAvg-.15);
+              pH[1].y=clamp(pH[1].y+Math.max(0,offT2+slpT2),.005,yFoldAvg-.15);
+            }
+          }
+          var ulPts2=[];
+          for(var uli3=0;uli3<8;uli3++){
+            var tUL2=.14+.72*(uli3/7),yUL2=(1-tUL2)*pH[0].y+tUL2*pH[5].y,xCurUL2=(1-tUL2)*pH[0].x+tUL2*pH[5].x;
+            var bestXUL2=-1,bestRiseUL2=0;
+            for(var xCandUL2=Math.max(.01,xCurUL2-.03);xCandUL2<=xCurUL2+.02;xCandUL2+=.002){
+              var lOutUL2=atG(xCandUL2-.005,yUL2),lFarUL2=atG(Math.max(.002,xCandUL2-.015),yUL2),lInUL2=atG(xCandUL2+.005,yUL2),riseUL2=lInUL2-lOutUL2;
+              if(lOutUL2<105&&(lFarUL2<115||atLP(xCandUL2-.005,yUL2).p<25)&&(lInUL2>155||(lInUL2>125&&atLP(xCandUL2+.006,yUL2).p>115))&&riseUL2>42&&riseUL2>bestRiseUL2){bestRiseUL2=riseUL2;bestXUL2=xCandUL2;}
+            }
+            if(bestXUL2>0)ulPts2.push({y:yUL2,x:bestXUL2,w:bestRiseUL2});
+          }
+          if(ulPts2.length>=5){
+            var syUL2=0,sxUL2=0,syyUL2=0,syxUL2=0,swUL2=0;
+            for(var ulpi2=0;ulpi2<ulPts2.length;ulpi2++){var ulp2=ulPts2[ulpi2];syUL2+=ulp2.y*ulp2.w;sxUL2+=ulp2.x*ulp2.w;syyUL2+=ulp2.y*ulp2.y*ulp2.w;syxUL2+=ulp2.y*ulp2.x*ulp2.w;swUL2+=ulp2.w;}
+            var denUL2=swUL2*syyUL2-syUL2*syUL2;
+            if(Math.abs(denUL2)>1e-5){
+              var dxdyUL2=clamp((swUL2*syxUL2-syUL2*sxUL2)/denUL2,-.4,.6),x0UL2=(sxUL2-dxdyUL2*syUL2)/swUL2;
+              var candTLx=x0UL2+dxdyUL2*pH[0].y,candLMx=x0UL2+dxdyUL2*pH[5].y;
+              if(Math.abs(candTLx-pH[0].x)<.025)pH[0].x=clamp(candTLx,.008,pH[0].x+.012);
+              if(!steepBotTilt&&Math.abs(candLMx-pH[5].x)<.018)pH[5].x=candLMx;
+            }
+          }
+          var urPts2=[];
+          for(var uri3=0;uri3<8;uri3++){
+            var tUR2=.14+.72*(uri3/7),yUR2=(1-tUR2)*pH[1].y+tUR2*pH[2].y,xCurUR2=(1-tUR2)*pH[1].x+tUR2*pH[2].x;
+            var bestXUR2=-1,bestDropUR2=0;
+            for(var xCandUR2=xCurUR2-.025;xCandUR2<=Math.min(.985,xCurUR2+.025);xCandUR2+=.002){
+              var lInUR2=atG(xCandUR2-.005,yUR2),lOutUR2=atG(xCandUR2+.005,yUR2),lFarUR2=atG(Math.min(.996,xCandUR2+.015),yUR2),dropUR2=lInUR2-lOutUR2;
+              if(lInUR2>155&&lOutUR2<110&&lFarUR2<115&&dropUR2>45&&dropUR2>bestDropUR2){bestDropUR2=dropUR2;bestXUR2=xCandUR2;}
+            }
+            if(bestXUR2>0)urPts2.push({y:yUR2,x:bestXUR2,w:bestDropUR2});
+          }
+          if(urPts2.length>=5){
+            var syUR2=0,sxUR2=0,syyUR2=0,syxUR2=0,swUR2=0;
+            for(var urpi2=0;urpi2<urPts2.length;urpi2++){var urp2=urPts2[urpi2];syUR2+=urp2.y*urp2.w;sxUR2+=urp2.x*urp2.w;syyUR2+=urp2.y*urp2.y*urp2.w;syxUR2+=urp2.y*urp2.x*urp2.w;swUR2+=urp2.w;}
+            var denUR2=swUR2*syyUR2-syUR2*syUR2;
+            if(Math.abs(denUR2)>1e-5){
+              var dxdyUR2=clamp((swUR2*syxUR2-syUR2*sxUR2)/denUR2,-.4,.65),x0UR2=(sxUR2-dxdyUR2*syUR2)/swUR2;
+              var candTRx=x0UR2+dxdyUR2*pH[1].y,candRMx=x0UR2+dxdyUR2*pH[2].y;
+              if(Math.abs(candTRx-pH[1].x)<.025)pH[1].x=clamp(candTRx,pH[0].x+.25,.992);
+              if(candRMx<pH[2].x&&pH[2].x-candRMx<.015)pH[2].x=candRMx;
+            }
+          }
+          var llPts2=[];
+          for(var lli2=0;lli2<8;lli2++){
+            var tLL2=.12+.72*(lli2/7),yLL2=(1-tLL2)*pH[5].y+tLL2*pH[4].y,xCurLL2=(1-tLL2)*pH[5].x+tLL2*pH[4].x;
+            var bestXLL2=-1,bestRiseLL2=0;
+            for(var xCandLL2=Math.max(.012,pH[5].x-.035);xCandLL2<=xCurLL2+.025;xCandLL2+=.002){
+              var lOutLL2=atG(xCandLL2-.005,yLL2),lFarLL2=atG(Math.max(.002,xCandLL2-.016),yLL2),lInLL2=atG(xCandLL2+.005,yLL2),riseLL2=lInLL2-lOutLL2;
+              if(lOutLL2<108&&lFarLL2<118&&lInLL2>145&&riseLL2>42){
+                if(riseLL2>bestRiseLL2){bestRiseLL2=riseLL2;bestXLL2=xCandLL2;}
+              }else if(bestXLL2>0){
+                break;
+              }
+            }
+            if(bestXLL2>0)llPts2.push({y:yLL2,x:bestXLL2,w:bestRiseLL2});
+          }
+          var hasLL2=false,x0LL2=0,dxdyLL2=0;
+          if(llPts2.length>=5){
+            var syLL=0,sxLL=0,syyLL=0,syxLL=0,swLL=0;
+            for(var llpi=0;llpi<llPts2.length;llpi++){var llp=llPts2[llpi];syLL+=llp.y*llp.w;sxLL+=llp.x*llp.w;syyLL+=llp.y*llp.y*llp.w;syxLL+=llp.y*llp.x*llp.w;swLL+=llp.w;}
+            var denLL=swLL*syyLL-syLL*syLL;
+            if(Math.abs(denLL)>1e-5){
+              dxdyLL2=clamp((swLL*syxLL-syLL*sxLL)/denLL,-.4,.6);x0LL2=(sxLL-dxdyLL2*syLL)/swLL;
+              var candBLx=x0LL2+dxdyLL2*oldBLy2;
+              if(candBLx<oldBLx2-.004){hasLL2=true;pH[4].x=clamp(candBLx,.008,oldBLx2);}
+            }
+          }
+          var lrPts2=[];
+          for(var lri2=0;lri2<10;lri2++){
+            var tLR2=.06+.80*(lri2/9),yLR2=(1-tLR2)*pH[2].y+tLR2*pH[3].y,xCurLR2=(1-tLR2)*pH[2].x+tLR2*pH[3].x;
+            var bestXLR2=-1,bestDropLR2=0;
+            for(var xCandLR2=Math.max(.5,xCurLR2-.008);xCandLR2<=Math.min(.986,xCurLR2+.09);xCandLR2+=.003){
+              var lInLR2=atG(xCandLR2-.006,yLR2),lOutLR2=atG(xCandLR2+.006,yLR2),lFarLR2=atG(Math.min(.996,xCandLR2+.018),yLR2),dropLR2=lInLR2-lOutLR2;
+              if(lInLR2>140&&lOutLR2<135&&lFarLR2<125&&dropLR2>34&&dropLR2>bestDropLR2){bestDropLR2=dropLR2;bestXLR2=xCandLR2;}
+            }
+            if(bestXLR2>0)lrPts2.push({y:yLR2,x:bestXLR2,w:bestDropLR2});
+          }
+          var hasLR2=false,x0LR2=0,dxdyLR2=0;
+          if(lrPts2.length>=5){
+            var syLR2=0,sxLR2=0,syyLR2=0,syxLR2=0,swLR2=0;
+            for(var lrpi2=0;lrpi2<lrPts2.length;lrpi2++){var lrp2=lrPts2[lrpi2];syLR2+=lrp2.y*lrp2.w;sxLR2+=lrp2.x*lrp2.w;syyLR2+=lrp2.y*lrp2.y*lrp2.w;syxLR2+=lrp2.y*lrp2.x*lrp2.w;swLR2+=lrp2.w;}
+            var denLR2=swLR2*syyLR2-syLR2*syLR2;
+            if(Math.abs(denLR2)>1e-5){
+              dxdyLR2=clamp((swLR2*syxLR2-syLR2*sxLR2)/denLR2,-.6,.85);x0LR2=(sxLR2-dxdyLR2*syLR2)/swLR2;
+              var candBRx=x0LR2+dxdyLR2*oldBRy2;
+              if(candBRx>oldBRx2+.010){hasLR2=true;pH[3].x=clamp(candBRx,oldBRx2,1.065);}
+            }
+          }
+          if((hasLL2||hasLR2)&&Math.abs(oldBRx2-oldBLx2)>.2){
+            var dydxBot=(oldBRy2-oldBLy2)/(oldBRx2-oldBLx2);
+            var nBLy=clamp(oldBLy2+dydxBot*(pH[4].x-oldBLx2),yFoldAvg+.18,.995);
+            var nBRy=clamp(oldBLy2+dydxBot*(pH[3].x-oldBLx2),yFoldAvg+.18,.995);
+            var nBLx=hasLL2?clamp(x0LL2+dxdyLL2*nBLy,.008,oldBLx2):pH[4].x;
+            var nBRx=hasLR2?clamp(x0LR2+dxdyLR2*nBRy,oldBRx2,1.065):pH[3].x;
+            if(steepBotTilt){
+              var lastMrzV=0;
+              for(var vM=.68;vM<=.90;vM+=.01){
+                var sumGM=0,nGM=0;
+                for(var uM=.14;uM<=.84;uM+=.025){
+                  var xM=(1-vM)*((1-uM)*pH[5].x+uM*pH[2].x)+vM*((1-uM)*nBLx+uM*nBRx);
+                  var yM=(1-vM)*((1-uM)*pH[5].y+uM*pH[2].y)+vM*((1-uM)*nBLy+uM*nBRy);
+                  if(xM<.02||xM>.98)continue;
+                  sumGM+=Math.abs(atL(L,xM,yM)-atL(L,xM+.006,yM))+Math.abs(atL(L,xM,yM)-atL(L,xM,yM+.006));nGM++;
+                }
+                if(nGM>0&&sumGM/nGM>42)lastMrzV=vM;
+              }
+              if(lastMrzV>=.76&&lastMrzV<=.86){
+                var vCut=lastMrzV+.105;
+                nBLy=(1-vCut)*pH[5].y+vCut*nBLy;
+                nBRy=(1-vCut)*pH[2].y+vCut*nBRy;
+                if(hasLL2)nBLx=clamp(x0LL2+dxdyLL2*nBLy,.008,oldBLx2);
+                if(hasLR2)nBRx=clamp(x0LR2+dxdyLR2*nBRy,oldBRx2,1.065);
+              }
+            }
+            pH[4]={x:nBLx,y:nBLy};
+            pH[3]={x:nBRx,y:nBRy};
+          }
         }
         if(validSixPts(pH,'horizontal'))pts=pH;
       }else{
@@ -1305,11 +1657,11 @@
         var tentH=isTop?eta:(1-eta),archH=Math.sin(Math.PI*(isTop?.5*eta:.5+.5*eta));
         var smoothDiffH=.28*(archH-tentH),blendWtH=isTop?(eta*eta):((1-eta)*(1-eta));
         for(var oxH=0;oxH<outW;oxH++){
-          var uH=oxH*invW,sTop=evalHomography4(HT,uH,1),sBot=evalHomography4(HB,uH,0);
+          var uH=oxH*invW,archWtH=4*uH*(1-uH)*smoothDiffH,sTop=evalHomography4(HT,uH,1),sBot=evalHomography4(HB,uH,0);
           var spineX=.5*(sTop.x+sBot.x),spineY=.5*(sTop.y+sBot.y);
           var basePtH=isTop?evalHomography4(HT,uH,eta):evalHomography4(HB,uH,eta),endPtH=isTop?sTop:sBot;
-          var srcXH=basePtH.x+blendWtH*(spineX-endPtH.x)+smoothDiffH*((1-uH)*dLeft.x+uH*dRight.x);
-          var srcYH=basePtH.y+blendWtH*(spineY-endPtH.y)+smoothDiffH*((1-uH)*dLeft.y+uH*dRight.y);
+          var srcXH=basePtH.x+blendWtH*(spineX-endPtH.x)+archWtH*((1-uH)*dLeft.x+uH*dRight.x);
+          var srcYH=basePtH.y+blendWtH*(spineY-endPtH.y)+archWtH*((1-uH)*dLeft.y+uH*dRight.y);
           if(srcXH<0||srcXH>maxSx||srcYH<0||srcYH>maxSy){dst[dstIdx]=dst[dstIdx+1]=dst[dstIdx+2]=dst[dstIdx+3]=255;dstIdx+=4;continue;}
           var ixH=srcXH|0,iyH=srcYH|0,fxH=srcXH-ixH,fyH=srcYH-iyH;
           var w00H=(1-fxH)*(1-fyH),w10H=fxH*(1-fyH),w01H=(1-fxH)*fyH,w11H=fxH*fyH;
@@ -1408,13 +1760,135 @@
   }
   function magicEnhance(data,w,h,opt){
     var n=w*h,out=new Uint8ClampedArray(data.length),gray=new Float32Array(n);
+    var brightness=(opt.brightness||100)/100,contrast=(opt.contrast||100)/100;
+    var strong=opt.filter==='magic_plus',shadow=opt.shadow!==false;
+    if(opt&&opt.text===false){
+      var lum=new Float32Array(n),rawWhite=new Uint8Array(n);
+      for(var pi0=0;pi0<n;pi0++){
+        var a0=data[pi0*4+3]/255,r0=data[pi0*4]*a0+255*(1-a0),g0=data[pi0*4+1]*a0+255*(1-a0),b0=data[pi0*4+2]*a0+255*(1-a0);
+        lum[pi0]=r0*.299+g0*.587+b0*.114;
+        if(data[pi0*4+3]<250||(data[pi0*4]===255&&data[pi0*4+1]===255&&data[pi0*4+2]===255))rawWhite[pi0]=1;
+      }
+      var bgGrid=null,cellP=Math.max(14,Math.round(Math.min(w,h)/16)),gwP=Math.ceil(w/cellP),ghP=Math.ceil(h/cellP);
+      if(shadow){
+        bgGrid=new Float32Array(gwP*ghP);
+        var sumP=0,cntP=0;
+        for(var gyP=0;gyP<ghP;gyP++)for(var gxP=0;gxP<gwP;gxP++){
+          var histP=new Uint32Array(256),cP=0;
+          for(var yyP=gyP*cellP;yyP<Math.min(h,(gyP+1)*cellP);yyP+=2)for(var xxP=gxP*cellP;xxP<Math.min(w,(gxP+1)*cellP);xxP+=2){
+            var idxP=yyP*w+xxP;if(rawWhite[idxP])continue;
+            histP[Math.round(lum[idxP])]++;cP++;
+          }
+          var totP=0,vP=210;
+          if(cP>0){for(vP=255;vP>=0;vP--){totP+=histP[vP];if(totP>=cP*.18)break;}}
+          bgGrid[gyP*gwP+gxP]=clamp(vP,95,248);
+          if(cP>4){sumP+=bgGrid[gyP*gwP+gxP];cntP++;}
+        }
+        var avgPaperP=cntP>0?sumP/cntP:205,minEnvP=Math.max(95,avgPaperP*.52);
+        for(var giP=0;giP<bgGrid.length;giP++)if(bgGrid[giP]<minEnvP)bgGrid[giP]=minEnvP;
+        var closeR=Math.max(2,Math.round(Math.min(gwP,ghP)*.18));
+        var closedBg=blurBox(closePaper(bgGrid,gwP,ghP,closeR),gwP,ghP,Math.max(2,Math.round(closeR*.75)));
+        var localBg=blurXY(bgGrid,gwP,ghP,2,1);
+        for(var gyB=0;gyB<ghP;gyB++)for(var gxB=0;gxB<gwP;gxB++){
+          var idxB=gyB*gwP+gxB;
+          var inLowerPage=(gyB>=Math.floor(ghP*.48));
+          var inPortraitZone=(inLowerPage&&gxB<=Math.ceil(gwP*.42));
+          bgGrid[idxB]=inPortraitZone?closedBg[idxB]:(inLowerPage?Math.max(localBg[idxB],closedBg[idxB]*.88):localBg[idxB]);
+        }
+        bgGrid=blurXY(bgGrid,gwP,ghP,1,1);
+      }
+      var targetPaper=strong?250:244,targetPhoto=strong?230:222,blackPt=strong?10:4,photoFloorP=Math.max(145,(avgPaperP||205)*.84);
+      for(var yP=0;yP<h;yP++)for(var xP=0;xP<w;xP++){
+        var iP=yP*w+xP,i4P=iP*4;
+        if(rawWhite[iP]){out[i4P]=out[i4P+1]=out[i4P+2]=out[i4P+3]=255;gray[iP]=255;continue;}
+        var rP=data[i4P],gP=data[i4P+1],bP=data[i4P+2],lP=lum[iP];
+        var chrP=Math.max(rP,gP,bP)-Math.min(rP,gP,bP);
+        var bgP=215,gainPaper=1,gainPhoto=1;
+        if(shadow&&bgGrid){
+          var fxP=clamp((xP+.5)/cellP-.5,0,gwP-1),fyP=clamp((yP+.5)/cellP-.5,0,ghP-1);
+          bgP=Math.max(95,sampleBil(bgGrid,gwP,ghP,fxP,fyP));
+          var wxPort=clamp((w*.38-xP)/(w*.08),0,1)*clamp((xP-w*.02)/(w*.04),0,1);
+          var wyPort=clamp((yP-h*.48)/(h*.06),0,1)*clamp((h*.86-yP)/(h*.06),0,1);
+          var portMask=wxPort*wyPort;
+          var gainPort=clamp(targetPhoto/Math.max(bgP,photoFloorP),.96,1.24);
+          var gainPageShadow=clamp((targetPaper-12)/bgP,.96,1.82);
+          gainPaper=clamp(targetPaper/bgP,.94,2.15);
+          gainPhoto=gainPageShadow+(gainPort-gainPageShadow)*portMask;
+        }
+        var relL=clamp(((lP-chrP*.22)/bgP-.60)/.24,0,1);
+        var pWeight=relL*relL*(3-2*relL);
+        var gainP=gainPhoto+(gainPaper-gainPhoto)*pWeight;
+        var lNorm=lP*gainP;
+        var uP=clamp((lNorm-blackPt)/(252-blackPt),0,1);
+        var inkP;
+        if(uP<.42){
+          var tDark=uP/.42;
+          inkP=252*.42*Math.pow(tDark,strong?1.04:1.0);
+        }else{
+          var tLight=clamp((uP-.42)/.58,0,1);
+          var shPower=1+(strong?.30:.14)*pWeight;
+          inkP=252*(.42+.58*(1-Math.pow(Math.max(0,1-tLight),shPower)));
+        }
+        inkP=clamp((inkP*brightness-128)*contrast+128,0,254);
+        gray[iP]=inkP;
+        var baseScale=lP>1?inkP/lP:1;
+        var cScale=Math.min(baseScale,1+(baseScale-1)*.25)*(strong?1.02:1);
+        if(inkP>180)cScale*=1-(.62*pWeight+.18)*Math.pow(clamp((inkP-180)/70,0,1),1.3);
+        if(lNorm<105&&chrP<16)cScale*=clamp((chrP-4)/12,0,1);
+        out[i4P]=clamp(Math.round(inkP+(rP-lP)*cScale),0,255);
+        out[i4P+1]=clamp(Math.round(inkP+(gP-lP)*cScale),0,255);
+        out[i4P+2]=clamp(Math.round(inkP+(bP-lP)*cScale),0,255);
+        out[i4P+3]=255;
+      }
+      var amtP=(opt.sharpness||0)/100*.55;
+      if(amtP){
+        var smP=blurBox(gray,w,h,1);
+        for(var siP=0;siP<n;siP++){
+          if(rawWhite[siP])continue;
+          var detP=clamp((gray[siP]-smP[siP])*amtP,-14,14);
+          for(var scP=0;scP<3;scP++)out[siP*4+scP]=clamp(Math.round(out[siP*4+scP]+detP),0,255);
+        }
+      }
+      if(opt.cleanSpots===true)removeIsolatedSpots(out,w,h);
+      return out;
+    }
     var radius=Math.max(5,Math.round(Math.min(w,h)*.027));
     var gw=Math.max(20,Math.round(w/4)),gh=Math.max(20,Math.round(h/4)),gRad=Math.max(4,Math.round(Math.min(gw,gh)*.16));
-    var channels=[],shadow=opt.shadow!==false;
+    var channels=[],whiteMask=null,hasWhite=false;
+    if(shadow){
+      var rawWhite=new Uint8Array(n);
+      for(var wi=0;wi<n;wi++){if(data[wi*4+3]<250||(data[wi*4]===255&&data[wi*4+1]===255&&data[wi*4+2]===255)){rawWhite[wi]=1;hasWhite=true;}}
+      if(hasWhite){
+        whiteMask=new Uint8Array(rawWhite);
+        for(var dPass=0;dPass<2;dPass++){
+          var prevW=new Uint8Array(whiteMask);
+          for(var wy=0;wy<h;wy++)for(var wx=0;wx<w;wx++){
+            var wIdx=wy*w+wx;if(prevW[wIdx])continue;
+            if((wx>0&&prevW[wIdx-1])||(wx<w-1&&prevW[wIdx+1])||(wy>0&&prevW[wIdx-w])||(wy<h-1&&prevW[wIdx+w]))whiteMask[wIdx]=1;
+          }
+        }
+      }
+    }
     for(var c=0;c<3;c++){
       var input=new Float32Array(n);
       for(var i=0;i<n;i++){var alpha=data[i*4+3]/255;input[i]=data[i*4+c]*alpha+255*(1-alpha);}
-      var paper=shadow?blurBox(closePaper(input,w,h,radius),w,h,Math.max(1,Math.round(radius*.18))):null;
+      var paperSrc=input;
+      if(shadow&&hasWhite){
+        paperSrc=new Float32Array(input);
+        for(var py=0;py<h;py++){
+          var pRow=py*w,lastV=-1;
+          for(var px=0;px<w;px++){var pi=pRow+px;if(!whiteMask[pi])lastV=paperSrc[pi];else if(lastV>=0)paperSrc[pi]=lastV;}
+          lastV=-1;
+          for(px=w-1;px>=0;px--){pi=pRow+px;if(!whiteMask[pi])lastV=paperSrc[pi];else if(lastV>=0)paperSrc[pi]=lastV;}
+        }
+        for(var px2=0;px2<w;px2++){
+          var lastV2=-1;
+          for(var py2=0;py2<h;py2++){var pi2=py2*w+px2;if(!whiteMask[pi2]||paperSrc[pi2]<254)lastV2=paperSrc[pi2];else if(lastV2>=0)paperSrc[pi2]=lastV2;}
+          lastV2=-1;
+          for(py2=h-1;py2>=0;py2--){pi2=py2*w+px2;if(!whiteMask[pi2]||paperSrc[pi2]<254)lastV2=paperSrc[pi2];else if(lastV2>=0)paperSrc[pi2]=lastV2;}
+        }
+      }
+      var paper=shadow?blurBox(closePaper(paperSrc,w,h,radius),w,h,Math.max(1,Math.round(radius*.18))):null;
       if(shadow&&paper){
         var small=new Float32Array(gw*gh);
         for(var gy=0;gy<gh;gy++){
@@ -1461,6 +1935,7 @@
     }
     var amount=(opt.sharpness||0)/100*.8;
     if(amount){var smooth=blurBox(gray,w,h,1);for(i=0;i<n;i++){var detail=clamp((gray[i]-smooth[i])*amount,-20,20);for(c=0;c<3;c++)out[i*4+c]+=detail;}}
+    if(hasWhite&&whiteMask){for(i=0;i<n;i++){if(whiteMask[i]&&gray[i]>200){out[i*4]=out[i*4+1]=out[i*4+2]=255;}}}
     if((strong&&opt.cleanSpots!==false)||opt.cleanSpots===true)removeIsolatedSpots(out,w,h);
     return out;
   }
@@ -1891,61 +2366,97 @@
     }
     return {data:dst,info:{straightened:true,marginCleaned:false,rules:chains.length,textLines:true,maxShift:Math.round(maxDev*hy*10)/10}};
   }
-  function whitenBorderArtifacts(data,w,h){
-    var band=Math.min(5,Math.max(2,Math.round(Math.min(w,h)*.006))),cBand=Math.min(18,Math.max(6,Math.round(Math.min(w,h)*.022))),seen=new Uint8Array(w*h),queue=new Int32Array(w*h),out=new Uint8ClampedArray(data);
+  function whitenBorderArtifacts(data,w,h,opt){
+    var isPhotoDoc=!!(opt&&opt.text===false&&!opt.cleanMargins);
+    var band=isPhotoDoc?6:Math.min(5,Math.max(2,Math.round(Math.min(w,h)*.006))),cBand=Math.min(24,Math.max(6,Math.round(Math.min(w,h)*.028))),cBandY=Math.min(30,Math.max(cBand,Math.round(h*.030))),seen=new Uint8Array(w*h),queue=new Int32Array(w*h),out=new Uint8ClampedArray(data);
     function luma(i){var at=i*4;return data[at]*.299+data[at+1]*.587+data[at+2]*.114;}
     function chroma(i){var at=i*4;return Math.max(data[at],data[at+1],data[at+2])-Math.min(data[at],data[at+1],data[at+2]);}
     function refPaper(x,y){
-      var rx=clamp(x,band+2,Math.max(band+2,w-1-band-2)),ry=clamp(y,band+2,Math.max(band+2,h-1-band-2));
-      return luma(ry*w+rx);
+      var rx=clamp(x,cBand+2,Math.max(cBand+2,w-1-cBand-2)),ry=clamp(y,cBandY+2,Math.max(cBandY+2,h-1-cBandY-2));
+      var m=luma(ry*w+rx);
+      if(rx>=6){var l1=luma(ry*w+rx-6);if(l1>m)m=l1;}
+      if(rx+6<w){var l2=luma(ry*w+rx+6);if(l2>m)m=l2;}
+      if(ry>=6){var l3=luma((ry-6)*w+rx);if(l3>m)m=l3;}
+      if(ry+6<h){var l4=luma((ry+6)*w+rx);if(l4>m)m=l4;}
+      return m;
     }
+    function inCorner(x,y){return (x<cBand||x>=w-cBand)&&(y<cBandY||y>=h-cBandY);}
     function dark(i){
-      var x=i%w,y=(i/w)|0,L=luma(i),C=chroma(i),P=L-C*1.1,ref=refPaper(x,y);
+      var x=i%w,y=(i/w)|0,L=luma(i),C=chroma(i);
       var inBand=x<band||x>=w-band||y<band||y>=h-band;
-      var inCBand=x<cBand||x>=w-cBand||y<cBand||y>=h-cBand;
-      return (inBand&&L<145&&L<ref-35)||(inCBand&&P<95&&(C>28||L<ref-55));
+      if(isPhotoDoc){
+        if(!inBand||L>=105)return false;
+        var rxP=clamp(x,band+4,Math.max(band+4,w-1-band-4)),ryP=clamp(y,band+4,Math.max(band+4,h-1-band-4));
+        var refP=Math.max(luma(ryP*w+rxP),refPaper(x,y));
+        return refP>185&&L<refP-95;
+      }
+      var P=L-C*1.1,ref=refPaper(x,y);
+      var inCBand=x<cBand||x>=w-cBand||y<cBandY||y>=h-cBandY;
+      return (inBand&&L<145&&L<ref-35)||(inCBand&&P<95&&(C>28||L<ref-55))||(inCorner(x,y)&&L<160&&L<ref-28);
     }
     function clear(seed){if(seen[seed]||!dark(seed))return;var head=0,tail=1;queue[0]=seed;seen[seed]=1;
       while(head<tail){var at=queue[head++],x=at%w,y=(at/w)|0;var ns=[x?at-1:-1,x<w-1?at+1:-1,y?at-w:-1,y<h-1?at+w:-1];
         for(var k=0;k<4;k++){var ni=ns[k];if(ni<0||seen[ni]||!dark(ni))continue;seen[ni]=1;queue[tail++]=ni;}
       }
-      if(tail>=Math.max(4,Math.round(band*.7)))for(var j=0;j<tail;j++){var idx=queue[j]*4;out[idx]=out[idx+1]=out[idx+2]=255;out[idx+3]=255;}
+      if(tail>=Math.max(4,Math.round(band*.7))){
+        for(var pass=0;pass<(isPhotoDoc?0:4);pass++){
+          var pEnd=tail;
+          for(var fi=0;fi<pEnd;fi++){
+            var fat=queue[fi],fx=fat%w,fy=(fat/w)|0;
+            for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){
+              if(!dx&&!dy)continue;
+              var nx=fx+dx,ny=fy+dy;if(nx<0||nx>=w||ny<0||ny>=h)continue;
+              if(!(nx<cBand||nx>=w-cBand||ny<cBandY||ny>=h-cBandY))continue;
+              var fni=ny*w+nx;if(seen[fni])continue;
+              if(luma(fni)<refPaper(nx,ny)-4){seen[fni]=1;queue[tail++]=fni;}
+            }
+          }
+        }
+        for(var j=0;j<tail;j++){var idx=queue[j]*4;out[idx]=out[idx+1]=out[idx+2]=255;out[idx+3]=255;}
+      }
     }
     for(var x=0;x<w;x++){clear(x);clear((h-1)*w+x);}for(var y=0;y<h;y++){clear(y*w);clear(y*w+w-1);}
     return out;
   }
   function cleanBorders(data,w,h){
     if(w<24||h<24)return data;
-    var band=Math.min(18,Math.max(3,Math.round(Math.min(w,h)*.015))),out=new Uint8ClampedArray(data),x,y,d,t,side;
+    var band=Math.min(18,Math.max(3,Math.round(Math.min(w,h)*.015))),cBand=Math.min(28,Math.max(8,Math.round(Math.min(w,h)*.032))),out=new Uint8ClampedArray(data),x,y;
     function L(i){var a=i*4;return out[a]*.299+out[a+1]*.587+out[a+2]*.114;}
     var hist=new Uint32Array(256),cnt=0;
     for(y=band;y<h-band;y+=4)for(x=band;x<w-band;x+=4){hist[L(y*w+x)|0]++;cnt++;}
     var acc=0,paper=255;for(var v=255;v>=0;v--){acc+=hist[v];if(acc>=cnt*.3){paper=v;break;}}
     var darkT=Math.min(210,paper-34);if(darkT<60)return data;
-    function idx(side,d,t){return side===0?d*w+t:side===1?(h-1-d)*w+t:side===2?t*w+d:t*w+(w-1-d);}
-    for(side=0;side<4;side++){
-      var n=side<2?w:h,deep=-1;
-      for(d=0;d<band;d++){
-        var dark=0,tot=0;
-        for(t=Math.round(n*.02);t<n-Math.round(n*.02);t+=2){tot++;if(L(idx(side,d,t))<darkT+18)dark++;}
-        var frac=dark/Math.max(1,tot);
-        if(frac>.24)deep=d;
-        else if(d>=1&&frac<.08)break;
-      }
-      if(deep>=0){
-        var from=Math.min(band+2,deep+2);
-        for(d=0;d<from;d++)for(t=0;t<n;t++){var s4=idx(side,from,t)*4,d4=idx(side,d,t)*4;out[d4]=out[s4];out[d4+1]=out[s4+1];out[d4+2]=out[s4+2];out[d4+3]=255;}
-      }
-    }
-    var seen=new Uint8Array(w*h),queue=new Int32Array(w*h),fill=Math.max(paper,240);
+    var seen=new Uint8Array(w*h),queue=new Int32Array(w*h);
+    function inCorner(cx,cy){return (cx<cBand||cx>=w-cBand)&&(cy<cBand||cy>=h-cBand);}
     function isDark(i){return L(i)<darkT;}
     function clear(seed){
       if(seen[seed]||!isDark(seed))return;var head=0,tail=1;queue[0]=seed;seen[seed]=1;
       while(head<tail){var at=queue[head++],cx=at%w,cy=(at/w)|0,ns=[cx?at-1:-1,cx<w-1?at+1:-1,cy?at-w:-1,cy<h-1?at+w:-1];
-        for(var k=0;k<4;k++){var ni=ns[k];if(ni<0||seen[ni]||!isDark(ni))continue;var nx=ni%w,ny=(ni/w)|0;if(nx>=band&&nx<w-band&&ny>=band&&ny<h-band)continue;seen[ni]=1;queue[tail++]=ni;}}
-      if(tail>=2)for(var j=0;j<tail;j++){var q4=queue[j]*4;out[q4]=out[q4+1]=out[q4+2]=fill;out[q4+3]=255;}
+        for(var k=0;k<4;k++){var ni=ns[k];if(ni<0||seen[ni]||!isDark(ni))continue;var nx=ni%w,ny=(ni/w)|0;if(nx>=band&&nx<w-band&&ny>=band&&ny<h-band&&!inCorner(nx,ny))continue;seen[ni]=1;queue[tail++]=ni;}}
+      if(tail>=2){
+        for(var pass=0;pass<2;pass++){
+          var pEnd=tail;
+          for(var fi=0;fi<pEnd;fi++){
+            var fat=queue[fi],fx=fat%w,fy=(fat/w)|0;
+            for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){
+              if(!dx&&!dy)continue;
+              var nx2=fx+dx,ny2=fy+dy;if(nx2<0||nx2>=w||ny2<0||ny2>=h)continue;
+              if(nx2>=band&&nx2<w-band&&ny2>=band&&ny2<h-band&&!inCorner(nx2,ny2))continue;
+              var fni=ny2*w+nx2;if(!seen[fni]&&L(fni)<Math.min(244,paper-6)){seen[fni]=1;queue[tail++]=fni;}
+            }
+          }
+        }
+        for(var j=0;j<tail;j++){var q4=queue[j]*4;out[q4]=out[q4+1]=out[q4+2]=255;out[q4+3]=255;}
+      }
     }
-    for(x=0;x<w;x++){clear(x);clear((h-1)*w+x);}for(y=0;y<h;y++){clear(y*w);clear(y*w+w-1);}
+    for(x=0;x<w;x++){
+      for(var dt=0;dt<band;dt++){var it=dt*w+x;if(L(it)<250){clear(it);break;}}
+      for(var db=0;db<band;db++){var ib=(h-1-db)*w+x;if(L(ib)<250){clear(ib);break;}}
+    }
+    for(y=0;y<h;y++){
+      for(var dl=0;dl<band;dl++){var il=y*w+dl;if(L(il)<250){clear(il);break;}}
+      for(var dr=0;dr<band;dr++){var ir=y*w+w-1-dr;if(L(ir)<250){clear(ir);break;}}
+    }
     return out;
   }
   function parseRgb(c){
@@ -2513,21 +3024,21 @@
   }
   function process(data,w,h,opt){
     opt=opt||{};
-    var enhanced=enhance(data,w,h,opt),result;
-    if(opt.filter!=='original')enhanced=cleanBorders(enhanced,w,h);
+    var enhanced=enhance(data,w,h,opt),result,doBorderClean=opt.filter!=='original'&&(opt.text!==false||opt.cleanMargins);
+    if(doBorderClean)enhanced=cleanBorders(enhanced,w,h);
     if(opt.straighten){
       var ruled=straighten(enhanced,w,h,!!opt.cleanMargins,data);
       var texted=textLineDewarp(ruled.data,w,h,ruled.info.hTargets);
       result=texted.info.straightened?{data:texted.data,info:{straightened:true,marginCleaned:ruled.info.marginCleaned,rules:ruled.info.rules+texted.info.rules,textLines:true,maxShift:texted.info.maxShift}}:ruled;
     }else result={data:enhanced,info:{straightened:false,marginCleaned:false,rules:0}};
     result.data=curve(result.data,w,h,opt.curve);
-    if(opt.filter!=='original')result.data=cleanBorders(result.data,w,h);
+    if(doBorderClean)result.data=cleanBorders(result.data,w,h);
     if(opt.trim>0)applyTrim(result.data,w,h,opt.trim,opt.bgColor);
     if(opt.erases&&opt.erases.length)applyErases(result.data,w,h,opt.erases);
     return result;
   }
   function enhance(data,w,h,opt) {
-    data=whitenBorderArtifacts(data,w,h);
+    data=whitenBorderArtifacts(data,w,h,opt);
     if(opt && (opt.filter === "magic_plus" || opt.filter === "shadow" || ((opt.filter === "auto" || opt.filter === "color") && opt.shadow))) return magicEnhance(data,w,h,opt);
     opt=opt||{};var n=w*h,mode=opt.filter||'auto',out=new Uint8ClampedArray(data.length);
     var shadow=!!opt.shadow, text=!!opt.text,grayMode=mode==='gray'||mode==='bw';
