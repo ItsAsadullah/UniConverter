@@ -605,6 +605,20 @@
         recGrid.appendChild(buildMiniToolCard(meta, favs.indexOf(meta.id) !== -1));
       });
     }
+
+    // Native-app mobile home: show pre-rendered "Recent" rows in most-recent-first order
+    var mobRecSec = $('#mobRecentSection');
+    var mobRecList = $('#mobRecentList');
+    if (mobRecSec && mobRecList) {
+      var rows = $$('[data-mob-recent-row]', mobRecList);
+      rows.forEach(function (r) { r.hidden = true; });
+      var shown = 0;
+      recents.forEach(function (id) {
+        var row = $('[data-mob-recent-row="' + id + '"]', mobRecList);
+        if (row && shown < 4) { row.hidden = false; mobRecList.appendChild(row); shown++; }
+      });
+      mobRecSec.hidden = shown === 0;
+    }
   }
 
   document.addEventListener('click', function (e) {

@@ -16,9 +16,10 @@
 </script>
 
       <section
-        class="img-pane th-nid-studio ds group/nid relative w-full text-slate-900 dark:text-studio-text antialiased select-none [&_[hidden]]:!hidden data-[has-pages=true]:lg:fixed data-[has-pages=true]:lg:inset-x-0 data-[has-pages=true]:lg:top-12 data-[has-pages=true]:lg:bottom-0 data-[has-pages=true]:lg:z-40 data-[has-pages=true]:lg:w-screen data-[has-pages=true]:lg:h-[calc(100dvh-3rem)] data-[has-pages=true]:h-[calc(100dvh-3rem)] data-[has-pages=true]:max-lg:h-auto data-[has-pages=true]:max-lg:min-h-[calc(100dvh-3.5rem)] data-[has-pages=true]:flex-1 data-[has-pages=true]:min-h-0 data-[has-pages=true]:flex data-[has-pages=true]:flex-col data-[has-pages=true]:overflow-hidden data-[has-pages=true]:bg-slate-100 dark:data-[has-pages=true]:bg-studio-bg"
+        class="img-pane th-nid-studio ds group/nid relative w-full text-slate-900 dark:text-studio-text antialiased select-none [&_[hidden]]:!hidden data-[has-pages=true]:lg:fixed data-[has-pages=true]:lg:inset-x-0 data-[has-pages=true]:lg:top-12 data-[has-pages=true]:lg:bottom-0 data-[has-pages=true]:lg:z-40 data-[has-pages=true]:lg:w-screen data-[has-pages=true]:lg:h-[calc(100dvh-3rem)] data-[has-pages=true]:max-lg:fixed data-[has-pages=true]:max-lg:inset-0 data-[has-pages=true]:max-lg:z-[70] data-[has-pages=true]:max-lg:w-screen data-[has-pages=true]:max-lg:h-[100dvh] data-[has-pages=true]:flex-1 data-[has-pages=true]:min-h-0 data-[has-pages=true]:flex data-[has-pages=true]:flex-col data-[has-pages=true]:overflow-hidden data-[has-pages=true]:bg-slate-100 dark:data-[has-pages=true]:bg-studio-bg"
         id="img-pane-combine"
         data-mobile-view="edit"
+        data-mobile-step="crop"
         data-view="split"
         data-sidebar-collapsed="false"
         data-has-pages="false"
@@ -181,12 +182,106 @@
 
         <!-- ACTIVE PROFESSIONAL DESIGN WORKSPACE (MATCHES DOCUMENT & PASSPORT SCANNER 3-PANEL SHELL) -->
         <div class="pdf-workspace-stage th-studio-stage flex-1 min-h-0 flex flex-col overflow-hidden" id="imgCombineStage" hidden>
-          <!-- NATIVE DESKTOP THREE-PANEL WORKSPACE -->
-          <div class="nid-studio-body ds-body flex-1 min-h-0 grid grid-cols-[224px_minmax(0,1fr)_348px] group-data-[sidebar-collapsed=true]/nid:grid-cols-[0px_minmax(0,1fr)_348px] max-lg:grid-cols-1 max-lg:group-data-[sidebar-collapsed=true]/nid:grid-cols-1 overflow-hidden">
+          <!-- ========================================== CAMSCANNER MOBILE TOP APP BAR (< 1024px ONLY) -->
+          <header
+            class="nid-mobile-topbar lg:hidden min-h-[48px] px-2.5 py-1 bg-[#12151e] text-white border-b border-white/10 flex items-center justify-between gap-1.5 shrink-0 z-40"
+            aria-label="মোবাইল এনআইডি স্ক্যানার হেডার"
+          >
+            <!-- Left: Back / New Scan + Undo / Redo -->
+            <div class="inline-flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                id="nidMobBackBtn"
+                class="inline-flex items-center justify-center gap-1 h-8 px-2.5 rounded-lg bg-white/10 hover:bg-white/15 active:bg-white/20 text-white text-[11.5px] font-bold border border-white/10 cursor-pointer"
+                title="পেছনে যান / নতুন স্ক্যান"
+              >
+                <Icon name="lucide:arrow-left" class="w-4 h-4 shrink-0" />
+                <span id="nidMobBackTxt" data-i18n-bn="নতুন" data-i18n-en="New">নতুন</span>
+              </button>
+              <button
+                type="button"
+                id="nidMobUndoBtn"
+                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/8 hover:bg-white/15 text-slate-200 disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
+                disabled
+                title="আনডু (Undo)"
+              >
+                <Icon name="lucide:undo-2" class="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                id="nidMobRedoBtn"
+                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/8 hover:bg-white/15 text-slate-200 disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
+                disabled
+                title="রিডু (Redo)"
+              >
+                <Icon name="lucide:redo-2" class="w-4 h-4" />
+              </button>
+            </div>
+
+            <!-- Center: CamScanner 1-Tap Front / Back Card Switcher Pills -->
+            <div
+              class="inline-flex items-center gap-1 p-0.5 rounded-xl bg-white/8 border border-white/10 min-w-0 overflow-x-auto [scrollbar-width:none]"
+              id="nidMobSideSwitch"
+              role="tablist"
+              aria-label="সামনের ও পেছনের পৃষ্ঠা পরিবর্তন"
+            >
+              <button
+                type="button"
+                id="nidMobFrontPill"
+                role="tab"
+                aria-selected="true"
+                class="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg text-[11.5px] font-bold transition-colors cursor-pointer shrink-0 bg-emerald-500 text-white shadow-xs"
+              >
+                <span id="nidMobFrontTxt" data-i18n-bn="সামনে" data-i18n-en="Front">সামনে</span>
+              </button>
+              <button
+                type="button"
+                id="nidMobBackPill"
+                role="tab"
+                aria-selected="false"
+                class="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg text-[11.5px] font-bold transition-colors cursor-pointer shrink-0 bg-transparent text-slate-300 hover:text-white"
+              >
+                <span id="nidMobBackSideTxt" data-i18n-bn="+ পেছনে" data-i18n-en="+ Back">+ পেছনে</span>
+              </button>
+              <button
+                type="button"
+                id="nidMobSwapBtn"
+                class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer shrink-0"
+                title="সামনের ও পেছনের পাশ অদলবদল করুন"
+              >
+                <Icon name="lucide:arrow-up-down" class="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <!-- Right: Camera + All Card Sides Drawer Toggle -->
+            <div class="inline-flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                id="nidMobCamBtn"
+                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 hover:bg-white/15 text-emerald-400 border border-white/10 cursor-pointer"
+                title="ক্যামেরা দিয়ে স্ক্যান করুন"
+              >
+                <Icon name="lucide:camera" class="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                id="nidMobPagesBtn"
+                class="inline-flex items-center justify-center gap-1 h-8 px-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-[11.5px] font-bold border border-white/10 aria-pressed:bg-indigo-600 aria-pressed:border-indigo-500 cursor-pointer"
+                aria-pressed="false"
+                title="সব কার্ডের পৃষ্ঠা দেখুন"
+              >
+                <Icon name="lucide:layers" class="w-3.5 h-3.5 text-indigo-300" />
+                <span id="nidMobCountBadge" class="tabular-nums">১</span>
+              </button>
+            </div>
+          </header>
+
+          <!-- NATIVE DESKTOP THREE-PANEL WORKSPACE (ON MOBILE: CAMSCANNER FLEX-COL STAGE) -->
+          <div class="nid-studio-body ds-body flex-1 min-h-0 grid grid-cols-[224px_minmax(0,1fr)_348px] group-data-[sidebar-collapsed=true]/nid:grid-cols-[0px_minmax(0,1fr)_348px] max-lg:flex max-lg:flex-col overflow-hidden">
 
             <!-- ========================================== PANEL 1: LEFT CARD SIDES FILMSTRIP -->
             <aside
-              class="ds-pages bg-white dark:bg-studio-sidebar border-r border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden group-data-[sidebar-collapsed=true]/nid:lg:opacity-0 group-data-[sidebar-collapsed=true]/nid:lg:pointer-events-none group-data-[sidebar-collapsed=true]/nid:lg:border-r-0 max-lg:hidden max-lg:group-data-[mobile-view=pages]/nid:flex"
+              class="ds-pages bg-white dark:bg-studio-sidebar border-r border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden group-data-[sidebar-collapsed=true]/nid:lg:opacity-0 group-data-[sidebar-collapsed=true]/nid:lg:pointer-events-none group-data-[sidebar-collapsed=true]/nid:lg:border-r-0 max-lg:hidden max-lg:group-data-[mobile-step=pages]/nid:flex max-lg:flex-1"
               id="nidPagesSidebar"
               aria-label="ID Card Sides"
             >
@@ -196,7 +291,17 @@
                   <span data-i18n-bn="কার্ডের পৃষ্ঠা" data-i18n-en="Card Sides">কার্ডের পৃষ্ঠা</span>
                   <span id="nidCount" class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11.5px] font-bold tabular-nums">0</span>
                 </strong>
-                <span class="text-slate-400 dark:text-studio-muted text-[11px] font-medium" data-i18n-bn="সামনে / পেছনে" data-i18n-en="Front / Back">সামনে / পেছনে</span>
+                <div class="inline-flex items-center gap-2">
+                  <span class="text-slate-400 dark:text-studio-muted text-[11px] font-medium max-lg:hidden" data-i18n-bn="সামনে / পেছনে" data-i18n-en="Front / Back">সামনে / পেছনে</span>
+                  <button
+                    type="button"
+                    id="nidMobClosePagesBtn"
+                    class="lg:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-600 text-white text-[11.5px] font-bold cursor-pointer"
+                  >
+                    <Icon name="lucide:check" class="w-3.5 h-3.5" />
+                    <span data-i18n-bn="সম্পন্ন" data-i18n-en="Done">সম্পন্ন</span>
+                  </button>
+                </div>
               </div>
 
               <!-- Vertical Card Sides List (#nidCardTabs) — Renders large ID-Card ratio cards -->
@@ -237,10 +342,10 @@
             </aside>
 
             <!-- ========================================== PANEL 2: CENTER COMMAND BAR & DUAL CANVAS STAGE -->
-            <div class="ds-main th-panel th-panel--center min-w-0 min-h-0 flex flex-col bg-slate-100 dark:bg-studio-bg overflow-hidden max-lg:group-data-[mobile-view=pages]/nid:hidden max-md:group-data-[mobile-view=inspect]/nid:hidden" id="nidScannerCropPanel">
-              <!-- STICKY COMPACT NATIVE DESKTOP & MOBILE ICON RIBBON (ORGANIZED BY WORKFLOW STEP) -->
+            <div class="ds-main th-panel th-panel--center min-w-0 min-h-0 flex-1 flex flex-col bg-slate-100 dark:bg-studio-bg overflow-hidden max-lg:group-data-[mobile-step=pages]/nid:hidden" id="nidScannerCropPanel">
+              <!-- STICKY COMPACT NATIVE DESKTOP ICON RIBBON (HIDDEN ON MOBILE IN FAVOR OF CAMSCANNER TOP & BOTTOM BARS) -->
               <div
-                class="ds-toolbar th-context-toolbar sticky top-0 z-30 min-h-[42px] px-2.5 py-1 border-b border-slate-200 dark:border-studio-border bg-white/98 dark:bg-studio-sidebar/98 backdrop-blur-xs flex items-center gap-1 flex-wrap max-lg:flex-nowrap max-lg:overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden shrink-0"
+                class="ds-toolbar th-context-toolbar max-lg:hidden sticky top-0 z-30 min-h-[42px] px-2.5 py-1 border-b border-slate-200 dark:border-studio-border bg-white/98 dark:bg-studio-sidebar/98 backdrop-blur-xs flex items-center gap-1 flex-wrap shrink-0"
                 role="toolbar"
                 aria-label="ID Card Editing Toolbar"
               >
@@ -576,6 +681,47 @@
                         <canvas class="nid-crop-loupe absolute w-48 h-48 rounded-full border-3 border-blue-500 shadow-2xl pointer-events-none z-20" id="nidCropLoupe" width="220" height="220" hidden aria-hidden="true"></canvas>
                       </div>
                     </div>
+
+                    <!-- CamScanner Mobile Floating Crop Assist Pills (< 1024px) -->
+                    <div
+                      class="lg:hidden absolute bottom-2.5 inset-x-2.5 z-20 flex items-center justify-center pointer-events-none"
+                      aria-label="দ্রুত ক্রপ টুলস"
+                    >
+                      <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#12151e]/88 backdrop-blur-md border border-white/15 shadow-lg pointer-events-auto overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                        <button
+                          type="button"
+                          id="nidMobSnapEdges"
+                          class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                        >
+                          <Icon name="lucide:scan-line" class="w-3.5 h-3.5 text-emerald-400" />
+                          <span data-i18n-bn="বর্ডার স্ন্যাপ" data-i18n-en="Snap Edges">বর্ডার স্ন্যাপ</span>
+                        </button>
+                        <button
+                          type="button"
+                          id="nidMobSnapRatio"
+                          class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                        >
+                          <Icon name="lucide:credit-card" class="w-3.5 h-3.5 text-sky-400" />
+                          <span data-i18n-bn="ID অনুপাত" data-i18n-en="ID Ratio">ID অনুপাত</span>
+                        </button>
+                        <button
+                          type="button"
+                          id="nidMobFullCrop"
+                          class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                        >
+                          <Icon name="lucide:maximize" class="w-3.5 h-3.5 text-amber-400" />
+                          <span data-i18n-bn="পুরো ছবি" data-i18n-en="Full Image">পুরো ছবি</span>
+                        </button>
+                        <button
+                          type="button"
+                          id="nidMobCloneSide"
+                          class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                        >
+                          <Icon name="lucide:copy" class="w-3.5 h-3.5 text-violet-400" />
+                          <span data-i18n-bn="২য় পাশ ক্লোন" data-i18n-en="Clone 2nd">২য় পাশ ক্লোন</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -585,15 +731,15 @@
                   id="nidPreviewPanel"
                   aria-label="বড় প্রিন্ট প্রিভিউ"
                 >
-                  <div class="nid-sheet-stage relative flex-1 min-h-0 p-4 grid place-items-center [container-type:size] bg-[#dcdcdc] dark:bg-[#252526] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_24px)]">
+                  <div class="nid-sheet-stage relative flex-1 min-h-0 p-4 max-lg:p-2 grid place-items-center [container-type:size] bg-[#dcdcdc] dark:bg-[#252526] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_24px),repeating-linear-gradient(90deg,rgba(255,255,255,0.045)_0_1px,transparent_1px_24px)]">
                     <canvas id="nidLivePreviewCanvas" class="nid-live-preview-canvas rounded-[2px] shadow-[0_14px_34px_rgba(15,23,42,0.22)]" width="806" height="1140" aria-label="Live Preview" hidden></canvas>
                     <img id="imgCombineOutPreview" alt="Combined Preview" width="420" height="594" class="rounded-[2px] shadow-[0_14px_34px_rgba(15,23,42,0.22)]">
                   </div>
                 </section>
               </div>
 
-              <!-- BOTTOM WORKSPACE HUD & ZOOM BAR (MATCHES footer.ds-status IN DOCUMENT SCANNER) -->
-              <footer class="ds-status th-canvas-statusbar min-h-[34px] px-3 py-1 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-2 max-sm:flex-wrap text-[12px] text-slate-600 dark:text-studio-muted shrink-0">
+              <!-- BOTTOM WORKSPACE HUD & ZOOM BAR (MATCHES footer.ds-status IN DOCUMENT SCANNER — DESKTOP ONLY) -->
+              <footer class="ds-status th-canvas-statusbar max-lg:hidden min-h-[34px] px-3 py-1 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-2 max-sm:flex-wrap text-[12px] text-slate-600 dark:text-studio-muted shrink-0">
                 <div class="ds-status-left th-status-left inline-flex items-center gap-1.5 flex-wrap">
                   <div class="ds-zoom inline-flex items-center gap-0.5 p-0.5 rounded-md bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border" role="group" aria-label="ক্যানভাস জুম">
                     <button type="button" class="min-h-[22px] min-w-[24px] px-1.5 py-0 border-0 rounded bg-transparent text-[12px] font-bold text-slate-700 dark:text-studio-text cursor-pointer hover:bg-white dark:hover:bg-studio-surface" id="nidZoomOutBtn" title="জুম আউট (−)" data-i18n-title-bn="জুম আউট (−)" data-i18n-title-en="Zoom Out (−)">−</button>
@@ -619,8 +765,8 @@
               </footer>
             </div>
 
-            <!-- ========================================== PANEL 3: RIGHT INSPECTOR PANEL (3 TRUE SWITCHABLE TAB PANES) -->
-            <aside class="ds-inspector th-panel th-panel--right nid-sheet-panel bg-white dark:bg-studio-sidebar border-l border-slate-200 dark:border-studio-border flex flex-col min-w-0 min-h-0 max-xl:col-span-full max-xl:border-l-0 max-xl:border-t max-xl:max-h-[42vh] max-md:hidden max-md:group-data-[mobile-view=inspect]/nid:flex max-md:max-h-none" id="nidPrintPanel" aria-label="Inspector & Page Setup">
+            <!-- ========================================== PANEL 3: RIGHT INSPECTOR PANEL (ON MOBILE: DOCKS BELOW LIVE PREVIEW IN ENHANCE STEP) -->
+            <aside class="ds-inspector th-panel th-panel--right nid-sheet-panel bg-white dark:bg-studio-sidebar border-l border-slate-200 dark:border-studio-border flex flex-col min-w-0 min-h-0 max-lg:w-full max-lg:border-l-0 max-lg:border-t max-lg:max-h-[38dvh] max-lg:shrink-0 max-lg:group-data-[mobile-step=crop]/nid:!hidden max-lg:group-data-[mobile-step=pages]/nid:!hidden" id="nidPrintPanel" aria-label="Inspector & Page Setup">
 
               <!-- Photoshop-style Top Tab Bar (Switches between Filters / Smart Fix / Layout panes) -->
               <div class="px-2.5 pt-1.5 border-b border-slate-200 dark:border-studio-border bg-slate-100/70 dark:bg-studio-bg flex items-center justify-between gap-1 shrink-0" role="tablist" aria-label="Inspector Panels">
@@ -720,7 +866,7 @@
                     <div id="nidLeftScanSection">
                       <fieldset class="pdf-fieldset nid-fieldset-clean m-0 p-0 border-0">
                         <legend class="sr-only">কালার ও ডকুমেন্ট ফিল্টার নির্বাচন করুন</legend>
-                        <div class="ds-presets nid-filter-pills grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="ফিল্টার প্রিসেট">
+                        <div class="ds-presets nid-filter-pills grid grid-cols-2 gap-1.5 max-lg:flex max-lg:overflow-x-auto max-lg:gap-2 max-lg:pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&_label]:max-lg:shrink-0 [&_label]:max-lg:min-w-[122px]" role="radiogroup" aria-label="ফিল্টার প্রিসেট">
                           <label class="nid-pill-option col-span-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel hover:border-indigo-400 text-left flex items-center justify-between gap-1.5 cursor-pointer transition has-[:checked]:border-indigo-500 has-[:checked]:bg-gradient-to-r has-[:checked]:from-indigo-500/15 has-[:checked]:to-violet-500/15 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 [&_input]:sr-only">
                             <input type="radio" name="imgCombineScanMode" value="magic_plus">
                             <span class="inline-flex items-center gap-2 text-[12px] font-bold text-slate-800 dark:text-studio-text">
@@ -949,8 +1095,8 @@
                 </div>
               </div>
 
-              <!-- Export Area (Matches DocumentScanner .ds-export) -->
-              <div class="ds-export nid-export-bar px-3 py-2 border-t border-slate-200 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/40 flex flex-col gap-1.5 shrink-0">
+              <!-- Export Area (Matches DocumentScanner .ds-export — Desktop Only; Mobile uses CamScanner Bottom Bar) -->
+              <div class="ds-export nid-export-bar max-lg:hidden px-3 py-2 border-t border-slate-200 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/40 flex flex-col gap-1.5 shrink-0">
                 <button type="button" class="{btnBase} {btnPrimary} w-full !min-h-[36px] text-[12.5px] shadow-sm rounded-xl" id="imgCombineDownloadPdfBtn">
                   <Icon name="download" class="w-4 h-4" />
                   <span data-i18n-bn="এক্সপোর্ট ও PDF ডাউনলোড" data-i18n-en="Export & Download PDF">এক্সপোর্ট ও PDF ডাউনলোড</span>
@@ -969,35 +1115,131 @@
               </div>
             </aside>
 
-            <!-- Native-App Style Mobile Bottom Navigation Bar (1. Crop / 2. Card Sides / 3. Filters & PDF) -->
-            <nav class="ds-mobile-nav hidden max-lg:grid grid-cols-3 gap-1.5 px-2.5 py-1.5 border-t border-slate-200 dark:border-studio-border bg-white/98 dark:bg-studio-sidebar/98 backdrop-blur-md shrink-0 z-40" aria-label="মোবাইল ভিউ নেভিগেশন">
-              <button
-                type="button"
-                class="{btnBase} !min-h-[36px] text-[11.5px] aria-pressed:bg-indigo-600 aria-pressed:text-white aria-pressed:border-indigo-600"
-                data-nid-mobile-tab="edit"
-                aria-pressed="true"
-              >
-                <Icon name="crop" class="w-3.5 h-3.5" />
-                <span data-i18n-bn="১. ক্রপ ও প্রিভিউ" data-i18n-en="1. Crop & View">১. ক্রপ ও প্রিভিউ</span>
-              </button>
-              <button
-                type="button"
-                class="{btnBase} !min-h-[36px] text-[11.5px] aria-pressed:bg-indigo-600 aria-pressed:text-white aria-pressed:border-indigo-600"
-                data-nid-mobile-tab="pages"
-                aria-pressed="false"
-              >
-                <Icon name="layers" class="w-3.5 h-3.5" />
-                <span data-i18n-bn="২. কার্ডের পাশ" data-i18n-en="2. Card Sides">২. কার্ডের পাশ</span>
-              </button>
-              <button
-                type="button"
-                class="{btnBase} !min-h-[36px] text-[11.5px] aria-pressed:bg-indigo-600 aria-pressed:text-white aria-pressed:border-indigo-600"
-                data-nid-mobile-tab="inspect"
-                aria-pressed="false"
-              >
-                <Icon name="wand" class="w-3.5 h-3.5" />
-                <span data-i18n-bn="৩. ফিল্টার ও PDF" data-i18n-en="3. Filters & PDF">৩. ফিল্টার ও PDF</span>
-              </button>
+            <!-- ========================================== CAMSCANNER MOBILE BOTTOM DOCK (< 1024px ONLY) -->
+            <nav
+              class="ds-mobile-nav nid-mobile-bottombar lg:hidden bg-[#12151e] text-white border-t border-white/10 shrink-0 z-40"
+              aria-label="মোবাইল স্ক্যানার অ্যাকশন বার"
+            >
+              <!-- STEP 1 BAR: CROP MODE (Rotate L, Rotate R, Flip, Auto Crop, ✓ Next Step) -->
+              <div class="hidden group-data-[mobile-step=crop]/nid:flex items-center justify-between gap-1 px-2.5 py-1.5 min-h-[58px]">
+                <button
+                  type="button"
+                  id="nidMobRotL"
+                  class="flex flex-col items-center justify-center gap-0.5 min-w-[52px] h-11 px-1.5 rounded-xl text-slate-200 hover:bg-white/10 active:bg-white/15 cursor-pointer"
+                >
+                  <Icon name="lucide:rotate-ccw" class="w-4.5 h-4.5 text-amber-400" />
+                  <span class="text-[10.5px] font-bold leading-none" data-i18n-bn="বামে" data-i18n-en="Left">বামে</span>
+                </button>
+                <button
+                  type="button"
+                  id="nidMobRotR"
+                  class="flex flex-col items-center justify-center gap-0.5 min-w-[52px] h-11 px-1.5 rounded-xl text-slate-200 hover:bg-white/10 active:bg-white/15 cursor-pointer"
+                >
+                  <Icon name="lucide:rotate-cw" class="w-4.5 h-4.5 text-amber-400" />
+                  <span class="text-[10.5px] font-bold leading-none" data-i18n-bn="ডানে" data-i18n-en="Right">ডানে</span>
+                </button>
+                <button
+                  type="button"
+                  id="nidMobFlipH"
+                  class="flex flex-col items-center justify-center gap-0.5 min-w-[52px] h-11 px-1.5 rounded-xl text-slate-200 hover:bg-white/10 active:bg-white/15 cursor-pointer"
+                >
+                  <Icon name="lucide:flip-horizontal-2" class="w-4.5 h-4.5 text-violet-400" />
+                  <span class="text-[10.5px] font-bold leading-none" data-i18n-bn="উল্টান" data-i18n-en="Flip">উল্টান</span>
+                </button>
+                <button
+                  type="button"
+                  id="nidMobAutoCrop"
+                  class="flex flex-col items-center justify-center gap-0.5 min-w-[60px] h-11 px-1.5 rounded-xl text-slate-200 hover:bg-white/10 active:bg-white/15 cursor-pointer"
+                >
+                  <Icon name="lucide:scan" class="w-4.5 h-4.5 text-emerald-400" />
+                  <span class="text-[10.5px] font-bold leading-none" data-i18n-bn="অটো ক্রপ" data-i18n-en="Auto Crop">অটো ক্রপ</span>
+                </button>
+                <button
+                  type="button"
+                  id="nidMobNextStepBtn"
+                  class="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white text-[13px] font-extrabold shadow-md shadow-emerald-500/25 cursor-pointer shrink-0"
+                >
+                  <Icon name="lucide:check" class="w-4.5 h-4.5 stroke-[2.6]" />
+                  <span data-i18n-bn="পরবর্তী" data-i18n-en="Next">পরবর্তী</span>
+                </button>
+              </div>
+
+              <!-- STEP 2 BAR: ENHANCE & A4 PREVIEW MODE (← Crop, Filters, Tune, Layout, JPG, PDF) -->
+              <div class="hidden group-data-[mobile-step=enhance]/nid:flex items-center justify-between gap-1 px-2 py-1.5 min-h-[58px]">
+                <button
+                  type="button"
+                  data-nid-mob-step="crop"
+                  class="flex flex-col items-center justify-center gap-0.5 min-w-[48px] h-11 px-1.5 rounded-xl text-slate-200 hover:bg-white/10 cursor-pointer"
+                >
+                  <Icon name="crop" class="w-4 h-4 text-emerald-400" />
+                  <span class="text-[10px] font-bold leading-none" data-i18n-bn="ক্রপ" data-i18n-en="Crop">ক্রপ</span>
+                </button>
+                <button
+                  type="button"
+                  data-nid-mob-insp="filters"
+                  aria-pressed="true"
+                  class="flex flex-col items-center justify-center gap-0.5 min-w-[50px] h-11 px-1.5 rounded-xl text-slate-300 aria-pressed:bg-indigo-600/30 aria-pressed:text-indigo-300 hover:bg-white/10 cursor-pointer"
+                >
+                  <Icon name="wand" class="w-4 h-4 text-indigo-400" />
+                  <span class="text-[10px] font-bold leading-none" data-i18n-bn="ফিল্টার" data-i18n-en="Filters">ফিল্টার</span>
+                </button>
+                <button
+                  type="button"
+                  data-nid-mob-insp="smart"
+                  aria-pressed="false"
+                  class="flex flex-col items-center justify-center gap-0.5 min-w-[50px] h-11 px-1.5 rounded-xl text-slate-300 aria-pressed:bg-indigo-600/30 aria-pressed:text-indigo-300 hover:bg-white/10 cursor-pointer"
+                >
+                  <Icon name="sparkle" class="w-4 h-4 text-amber-400" />
+                  <span class="text-[10px] font-bold leading-none" data-i18n-bn="টিউন" data-i18n-en="Tune">টিউন</span>
+                </button>
+                <button
+                  type="button"
+                  data-nid-mob-insp="layout"
+                  aria-pressed="false"
+                  class="flex flex-col items-center justify-center gap-0.5 min-w-[50px] h-11 px-1.5 rounded-xl text-slate-300 aria-pressed:bg-indigo-600/30 aria-pressed:text-indigo-300 hover:bg-white/10 cursor-pointer"
+                >
+                  <Icon name="sliders" class="w-4 h-4 text-emerald-400" />
+                  <span class="text-[10px] font-bold leading-none" data-i18n-bn="লেআউট" data-i18n-en="Layout">লেআউট</span>
+                </button>
+                <div class="inline-flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    id="nidMobJpgBtn"
+                    class="inline-flex items-center justify-center gap-1 h-10 px-2.5 rounded-xl bg-white/12 hover:bg-white/20 text-white text-[11.5px] font-bold border border-white/15 cursor-pointer"
+                  >
+                    <Icon name="image" class="w-3.5 h-3.5 text-sky-300" />
+                    <span>JPG</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="nidMobPdfBtn"
+                    class="inline-flex items-center justify-center gap-1 h-10 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white text-[12px] font-extrabold shadow-md shadow-emerald-500/25 cursor-pointer"
+                  >
+                    <Icon name="download" class="w-4 h-4" />
+                    <span>PDF</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- STEP 3 BAR: CARD SIDES DRAWER MODE -->
+              <div class="hidden group-data-[mobile-step=pages]/nid:flex items-center justify-between gap-2 px-3 py-1.5 min-h-[58px]">
+                <button
+                  type="button"
+                  data-nid-mob-step="crop"
+                  class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl bg-white/10 text-white text-[12px] font-bold cursor-pointer"
+                >
+                  <Icon name="crop" class="w-4 h-4 text-emerald-400" />
+                  <span data-i18n-bn="ক্রপ মোডে ফিরুন" data-i18n-en="Back to Crop">ক্রপ মোডে ফিরুন</span>
+                </button>
+                <button
+                  type="button"
+                  data-nid-mob-step="enhance"
+                  class="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-emerald-500 text-white text-[12.5px] font-extrabold cursor-pointer"
+                >
+                  <Icon name="lucide:check" class="w-4 h-4" />
+                  <span data-i18n-bn="প্রিভিউ ও PDF" data-i18n-en="Preview & PDF">প্রিভিউ ও PDF</span>
+                </button>
+              </div>
             </nav>
 
           </div>

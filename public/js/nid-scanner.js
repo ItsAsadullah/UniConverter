@@ -2425,8 +2425,12 @@
   function updateNidHistoryButtons() {
     var uBtn = $('#nidUndoBtn');
     var rBtn = $('#nidRedoBtn');
+    var mobUBtn = $('#nidMobUndoBtn');
+    var mobRBtn = $('#nidMobRedoBtn');
     if (uBtn) uBtn.disabled = nidUndoStack.length === 0;
     if (rBtn) rBtn.disabled = nidRedoStack.length === 0;
+    if (mobUBtn) mobUBtn.disabled = nidUndoStack.length === 0;
+    if (mobRBtn) mobRBtn.disabled = nidRedoStack.length === 0;
   }
 
   function clearNidHistory() {
@@ -2607,29 +2611,82 @@
     }).observe(viewport);
   }
 
-  function switchNidView(view) {
-    var normalized = view === 'images' || view === 'print' ? 'inspect' : (view || 'edit');
-    var pane = $('#img-pane-combine');
-    if (pane) {
-      pane.setAttribute('data-mobile-view', normalized);
-      if (normalized === 'edit' && pane.getAttribute('data-view') === 'preview' && window.innerWidth < 768) {
-        pane.setAttribute('data-view', 'crop');
-        $$('[data-nid-canvas-view]').forEach(function (b) {
-          b.setAttribute('aria-pressed', b.getAttribute('data-nid-canvas-view') === 'crop' ? 'true' : 'false');
-        });
-      }
+  function activateNidInspectorTab(tab) {
+    var targetTab = tab || 'filters';
+    $$('[data-nid-insp-tab]').forEach(function (b) {
+      var active = b.getAttribute('data-nid-insp-tab') === targetTab;
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+      b.className = active
+        ? 'px-2.5 py-1.5 rounded-t-md text-[11.5px] font-bold text-indigo-600 dark:text-indigo-300 bg-white dark:bg-studio-sidebar border-t-2 border-x border-t-indigo-500 border-x-slate-200 dark:border-x-studio-border -mb-px inline-flex items-center gap-1 cursor-pointer transition-colors'
+        : 'px-2.5 py-1.5 rounded-t-md text-[11px] font-semibold text-slate-600 dark:text-studio-muted hover:text-slate-900 dark:hover:text-studio-text bg-transparent border-t-2 border-x border-transparent -mb-px inline-flex items-center gap-1 cursor-pointer transition-colors';
+    });
+    $$('[data-nid-insp-pane]').forEach(function (paneEl) {
+      var isMatch = paneEl.getAttribute('data-nid-insp-pane') === targetTab;
+      paneEl.hidden = !isMatch;
+    });
+    $$('[data-nid-mob-insp]').forEach(function (mobBtn) {
+      var active = mobBtn.getAttribute('data-nid-mob-insp') === targetTab;
+      mobBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    var targetBar = $('#nidColorTargetBar');
+    if (targetBar) {
+      targetBar.hidden = (targetTab === 'layout');
     }
-    $$('[data-nid-view], [data-nid-mobile-tab]').forEach(function (btn) {
-      var v = btn.getAttribute('data-nid-view') || btn.getAttribute('data-nid-mobile-tab');
-      btn.setAttribute('aria-pressed', v === normalized ? 'true' : 'false');
-    });
-    if (normalized === 'edit') requestAnimationFrame(function () {
-      if (nidFitMode) fitNidCanvas(); else syncNidViewport();
-    });
+  }
+
+  function setNidMobileStep(step, inspTab) {
+    var pane = $('#img-pane-combine');
+    if (!pane) return;
+    var isMob = window.innerWidth < 1024;
+    var normStep = step === 'enhance' || step === 'pages' ? step : 'crop';
+    pane.setAttribute('data-mobile-step', normStep);
+    pane.setAttribute('data-mobile-view', normStep === 'enhance' ? 'inspect' : (normStep === 'pages' ? 'pages' : 'edit'));
+
+    var pagesBtn = $('#nidMobPagesBtn');
+    if (pagesBtn) {
+      pagesBtn.setAttribute('aria-pressed', normStep === 'pages' ? 'true' : 'false');
+    }
+    var backTxt = $('#nidMobBackTxt');
+    if (backTxt) {
+      var isRootCrop = normStep === 'crop';
+      backTxt.setAttribute('data-i18n-bn', isRootCrop ? 'নতুন' : 'ক্রপ');
+      backTxt.setAttribute('data-i18n-en', isRootCrop ? 'New' : 'Crop');
+      backTxt.textContent = isRootCrop ? tr('নতুন', 'New') : tr('ক্রপ', 'Crop');
+    }
+
+    if (isMob) {
+      var targetView = normStep === 'enhance' ? 'preview' : 'crop';
+      pane.setAttribute('data-view', targetView);
+      $$('[data-nid-canvas-view]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-nid-canvas-view') === targetView ? 'true' : 'false');
+      });
+    } else if (normStep === 'crop' && (!pane.getAttribute('data-view') || pane.getAttribute('data-view') === 'crop')) {
+      pane.setAttribute('data-view', 'split');
+      $$('[data-nid-canvas-view]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-nid-canvas-view') === 'split' ? 'true' : 'false');
+      });
+    }
+
+    if (inspTab) {
+      activateNidInspectorTab(inspTab);
+    }
+
+    if (normStep === 'enhance') {
+      renderCombineLivePreview();
+    } else if (normStep === 'crop') {
+      requestAnimationFrame(function () {
+        if (nidFitMode) fitNidCanvas(); else syncNidViewport();
+      });
+    }
+  }
+
+  function switchNidView(view) {
+    var normalized = view === 'images' || view === 'print' || view === 'inspect' ? 'enhance' : (view === 'pages' ? 'pages' : 'crop');
+    setNidMobileStep(normalized);
   }
 
   function setNidExportReady(ready) {
-    ['imgCombineDownloadBtn', 'imgCombineDownloadPdfBtn', 'imgCombinePrintBtn'].forEach(function (id) {
+    ['imgCombineDownloadBtn', 'imgCombineDownloadPdfBtn', 'imgCombinePrintBtn', 'nidMobPdfBtn', 'nidMobJpgBtn'].forEach(function (id) {
       var btn = $('#' + id);
       if (btn) btn.disabled = !ready;
     });
@@ -2651,11 +2708,50 @@
   function renderNidCardTabs() {
     var tabsEl = $('#nidCardTabs');
     var countEl = $('#nidCount');
+    var mobCountEl = $('#nidMobCountBadge');
     var expCountEl = $('#nidExportCount');
     if (countEl) countEl.textContent = toBn(combineItems.length);
+    if (mobCountEl) mobCountEl.textContent = toBn(combineItems.length);
     if (expCountEl) {
       expCountEl.textContent = toBn(combineItems.length) + tr('টি কার্ড', combineItems.length === 1 ? ' card' : ' cards');
     }
+
+    // Update CamScanner Mobile Top Header Front / Back Switcher Pills
+    var frontPill = $('#nidMobFrontPill');
+    var backPill = $('#nidMobBackPill');
+    var frontTxt = $('#nidMobFrontTxt');
+    var backTxt = $('#nidMobBackSideTxt');
+    var swapBtn = $('#nidMobSwapBtn');
+    if (frontPill) {
+      var isFrontAct = activeNidIdx === 0;
+      frontPill.setAttribute('aria-selected', isFrontAct ? 'true' : 'false');
+      frontPill.className = 'inline-flex items-center gap-1 h-7 px-2.5 rounded-lg text-[11.5px] font-bold transition-colors cursor-pointer shrink-0 ' +
+        (isFrontAct ? 'bg-emerald-500 text-white shadow-xs' : 'bg-transparent text-slate-300 hover:text-white');
+    }
+    if (frontTxt) {
+      frontTxt.textContent = tr('সামনে', 'Front') + (combineItems.length >= 1 ? ' ✓' : '');
+    }
+    if (backPill) {
+      var hasBack = combineItems.length >= 2;
+      var isBackAct = hasBack && activeNidIdx >= 1;
+      backPill.setAttribute('aria-selected', isBackAct ? 'true' : 'false');
+      backPill.className = 'inline-flex items-center gap-1 h-7 px-2.5 rounded-lg text-[11.5px] font-bold transition-colors cursor-pointer shrink-0 ' +
+        (isBackAct
+          ? 'bg-emerald-500 text-white shadow-xs'
+          : (hasBack
+              ? 'bg-transparent text-slate-300 hover:text-white'
+              : 'bg-indigo-500/25 border border-dashed border-indigo-400/50 text-indigo-200 hover:bg-indigo-500/35'));
+    }
+    if (backTxt) {
+      backTxt.textContent = combineItems.length >= 2
+        ? (activeNidIdx > 1 ? (tr('কার্ড ', 'Card ') + toBn(activeNidIdx + 1) + ' ✓') : tr('পেছনে ✓', 'Back ✓'))
+        : tr('+ পেছনে', '+ Back');
+    }
+    if (swapBtn) {
+      swapBtn.disabled = combineItems.length < 2;
+      swapBtn.style.opacity = combineItems.length < 2 ? '0.35' : '1';
+    }
+
     if (!tabsEl) return;
     tabsEl.innerHTML = '';
     combineItems.forEach(function (entry, idx) {
@@ -5146,24 +5242,102 @@
     $$('[data-nid-insp-tab]').forEach(function (tabBtn) {
       tabBtn.addEventListener('click', function () {
         var tab = tabBtn.getAttribute('data-nid-insp-tab') || 'filters';
-        $$('[data-nid-insp-tab]').forEach(function (b) {
-          var active = b === tabBtn;
-          b.setAttribute('aria-selected', active ? 'true' : 'false');
-          b.className = active
-            ? 'px-2.5 py-1.5 rounded-t-md text-[11.5px] font-bold text-indigo-600 dark:text-indigo-300 bg-white dark:bg-studio-sidebar border-t-2 border-x border-t-indigo-500 border-x-slate-200 dark:border-x-studio-border -mb-px inline-flex items-center gap-1 cursor-pointer transition-colors'
-            : 'px-2.5 py-1.5 rounded-t-md text-[11px] font-semibold text-slate-600 dark:text-studio-muted hover:text-slate-900 dark:hover:text-studio-text bg-transparent border-t-2 border-x border-transparent -mb-px inline-flex items-center gap-1 cursor-pointer transition-colors';
-        });
-        // Exclusively show only the selected tab pane
-        $$('[data-nid-insp-pane]').forEach(function (paneEl) {
-          var isMatch = paneEl.getAttribute('data-nid-insp-pane') === tab;
-          paneEl.hidden = !isMatch;
-        });
-        // Show Apply-to target selector on Filters & Smart Fix tabs, hide on Layout tab
-        var targetBar = $('#nidColorTargetBar');
-        if (targetBar) {
-          targetBar.hidden = (tab === 'layout');
-        }
+        activateNidInspectorTab(tab);
       });
+    });
+
+    // Wire CamScanner Mobile Top & Bottom Controls (< 1024px)
+    on('nidMobBackBtn', 'click', function () {
+      var pane = $('#img-pane-combine');
+      var step = (pane && pane.getAttribute('data-mobile-step')) || 'crop';
+      if (step !== 'crop') {
+        setNidMobileStep('crop');
+      } else {
+        var clr = $('#imgCombineClearBtn');
+        if (clr) clr.click();
+      }
+    });
+    on('nidMobUndoBtn', 'click', function () {
+      var b = $('#nidUndoBtn');
+      if (b && !b.disabled) b.click();
+    });
+    on('nidMobRedoBtn', 'click', function () {
+      var b = $('#nidRedoBtn');
+      if (b && !b.disabled) b.click();
+    });
+    on('nidMobFrontPill', 'click', function () {
+      if (!combineItems.length) {
+        var inp = $('#nidReplaceFrontInput') || $('#nidFrontInput');
+        if (inp) inp.click();
+        return;
+      }
+      activeNidIdx = 0;
+      if (nidColorTarget !== 'all') nidColorTarget = '0';
+      setNidMobileStep('crop');
+      renderNidCardTabs();
+      syncNidDeskewControl();
+      syncNidColorControlsFromTarget();
+      drawNidCropSourceCanvas();
+    });
+    on('nidMobBackPill', 'click', function () {
+      if (combineItems.length < 2) {
+        var inp = $('#nidReplaceBackInput') || $('#nidBackInput');
+        if (inp) inp.click();
+        return;
+      }
+      activeNidIdx = 1;
+      if (nidColorTarget !== 'all') nidColorTarget = '1';
+      setNidMobileStep('crop');
+      renderNidCardTabs();
+      syncNidDeskewControl();
+      syncNidColorControlsFromTarget();
+      drawNidCropSourceCanvas();
+    });
+    on('nidMobSwapBtn', 'click', function () {
+      var b = $('#imgCombineSwapBtn');
+      if (b && combineItems.length >= 2) b.click();
+    });
+    on('nidMobCamBtn', 'click', function () {
+      openNidCamera(combineItems.length === 1 ? 1 : -1);
+    });
+    on('nidMobPagesBtn', 'click', function () {
+      var pane = $('#img-pane-combine');
+      var curStep = (pane && pane.getAttribute('data-mobile-step')) || 'crop';
+      setNidMobileStep(curStep === 'pages' ? 'crop' : 'pages');
+    });
+    on('nidMobClosePagesBtn', 'click', function () {
+      setNidMobileStep('crop');
+    });
+    on('nidMobSnapEdges', 'click', function () { var b = $('#nidSnapEdgesBtn'); if (b) b.click(); });
+    on('nidMobSnapRatio', 'click', function () { var b = $('#nidSnapRatioBtn'); if (b) b.click(); });
+    on('nidMobFullCrop', 'click', function () { var b = $('#nidFullCropBtn'); if (b) b.click(); });
+    on('nidMobCloneSide', 'click', function () { var b = $('#nidCloneSameImgBtn'); if (b) b.click(); });
+    on('nidMobRotL', 'click', function () { var b = $('#nidRotLBtn'); if (b) b.click(); });
+    on('nidMobRotR', 'click', function () { var b = $('#nidRotRBtn'); if (b) b.click(); });
+    on('nidMobFlipH', 'click', function () { var b = $('#nidFlipHBtn'); if (b) b.click(); });
+    on('nidMobAutoCrop', 'click', function () { var b = $('#nidAutoCropBtn'); if (b) b.click(); });
+    on('nidMobNextStepBtn', 'click', function () {
+      setNidMobileStep('enhance', 'filters');
+      showToast(tr('ক্রপ সম্পন্ন — ফিল্টার ও A4 প্রিভিউ প্রস্তুত!', 'Crop complete — filters & A4 preview ready!'));
+    });
+    $$('[data-nid-mob-step]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        setNidMobileStep(btn.getAttribute('data-nid-mob-step') || 'crop');
+      });
+    });
+    $$('[data-nid-mob-insp]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tab = btn.getAttribute('data-nid-mob-insp') || 'filters';
+        setNidMobileStep('enhance', tab);
+      });
+    });
+    on('nidMobPdfBtn', 'click', function () {
+      var b = $('#imgCombineDownloadPdfBtn');
+      if (b) b.click();
+    });
+    on('nidMobJpgBtn', 'click', function () {
+      var b = $('#imgCombineDownloadBtn');
+      if (b) b.click();
     });
     wireDropzone($('#imgCombineDropzone'), $('#imgCombineInput'), addCombineFiles);
     if ($('#imgCombineDropzone')) {
@@ -5583,9 +5757,9 @@
   function onNidLangChange() {
         var pane = $('#img-pane-combine');
         if (pane) {
-          var isEn = isEnLang();
+          var enLang = isEn();
           pane.querySelectorAll('[data-i18n-title-bn],[data-i18n-title-en]').forEach(function (el) {
-            var t = isEn ? el.getAttribute('data-i18n-title-en') : el.getAttribute('data-i18n-title-bn');
+            var t = enLang ? el.getAttribute('data-i18n-title-en') : el.getAttribute('data-i18n-title-bn');
             if (t) el.setAttribute('title', t);
           });
         }

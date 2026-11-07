@@ -215,11 +215,12 @@
 </script>
 
 <section
-  class="img-pane th-nid-studio ds group/ds relative w-full text-slate-900 dark:text-studio-text antialiased select-none [&_[hidden]]:!hidden data-[has-pages=true]:lg:fixed data-[has-pages=true]:lg:inset-x-0 data-[has-pages=true]:lg:top-12 data-[has-pages=true]:lg:bottom-0 data-[has-pages=true]:lg:z-40 data-[has-pages=true]:lg:w-screen data-[has-pages=true]:lg:h-[calc(100dvh-3rem)] data-[has-pages=true]:h-[calc(100dvh-3rem)] data-[has-pages=true]:max-lg:h-auto data-[has-pages=true]:max-lg:min-h-[calc(100dvh-3.5rem)] data-[has-pages=true]:flex-1 data-[has-pages=true]:min-h-0 data-[has-pages=true]:flex data-[has-pages=true]:flex-col data-[has-pages=true]:overflow-hidden data-[has-pages=true]:bg-slate-100 dark:data-[has-pages=true]:bg-studio-bg"
+  class="img-pane th-nid-studio ds group/ds relative w-full text-slate-900 dark:text-studio-text antialiased select-none [&_[hidden]]:!hidden data-[has-pages=true]:lg:fixed data-[has-pages=true]:lg:inset-x-0 data-[has-pages=true]:lg:top-12 data-[has-pages=true]:lg:bottom-0 data-[has-pages=true]:lg:z-40 data-[has-pages=true]:lg:w-screen data-[has-pages=true]:lg:h-[calc(100dvh-3rem)] data-[has-pages=true]:max-lg:fixed data-[has-pages=true]:max-lg:inset-0 data-[has-pages=true]:max-lg:z-[70] data-[has-pages=true]:max-lg:w-screen data-[has-pages=true]:max-lg:h-[100dvh] data-[has-pages=true]:flex-1 data-[has-pages=true]:min-h-0 data-[has-pages=true]:flex data-[has-pages=true]:flex-col data-[has-pages=true]:overflow-hidden data-[has-pages=true]:bg-slate-100 dark:data-[has-pages=true]:bg-studio-bg"
   id="img-pane-scan"
   hidden={!active}
   aria-label={t.brandSub}
   data-view="split"
+  data-mobile-step="crop"
   data-scan-mode={mode}
   data-editing="false"
   data-sidebar-collapsed="false"
@@ -236,24 +237,85 @@
     class="fixed z-[160] pointer-events-none px-3 py-1.5 rounded-md bg-slate-900/95 dark:bg-slate-800 text-white text-[12.5px] font-semibold leading-tight shadow-lg border border-white/15 whitespace-nowrap transition-opacity duration-75"
   ></div>
 
-  <!-- COMPACT MOBILE/TABLET QUICK ACCESS BAR -->
-  <nav
-    class="ds-mobile-nav group-data-[has-pages=false]/ds:!hidden sticky top-0 z-40 hidden max-lg:grid max-lg:grid-cols-3 border-b border-slate-200 dark:border-studio-border bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-xs px-2 py-1 gap-1 shrink-0"
-    aria-label="Workspace Navigation"
+  <!-- CAMSCANNER MOBILE TOP APP BAR (< 1024px ONLY) -->
+  <header
+    class="ds-mobile-nav group-data-[has-pages=false]/ds:!hidden lg:hidden min-h-[48px] px-2.5 py-1 bg-[#12151e] text-white border-b border-white/10 flex items-center justify-between gap-1.5 shrink-0 z-40"
+    aria-label="Mobile Document Scanner Header"
   >
-    <button type="button" data-ds="toggle-sidebar" class={btnBase} data-i18n-title="navPages" title={t.navPages}>
-      <Icon name="lucide:layers" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
-      <span class="sr-only" data-i18n="navPages">{t.navPages}</span>
-    </button>
-    <button type="button" data-ds-jump=".ds-main" class={btnBase} data-i18n-title="navCanvas" title={t.navCanvas}>
-      <Icon name="lucide:crop" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-      <span class="sr-only" data-i18n="navCanvas">{t.navCanvas}</span>
-    </button>
-    <button type="button" data-ds="toggle-inspector" class={btnBase} data-i18n-title="navInspector" title={t.navInspector}>
-      <Icon name="lucide:sliders-horizontal" class="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" />
-      <span class="sr-only" data-i18n="navInspector">{t.navInspector}</span>
-    </button>
-  </nav>
+    <!-- Left: Back / New + Undo / Redo -->
+    <div class="inline-flex items-center gap-1 shrink-0">
+      <button
+        type="button"
+        data-ds="mob-back"
+        id="dsMobBackBtn"
+        class="inline-flex items-center justify-center gap-1 h-8 px-2.5 rounded-lg bg-white/10 hover:bg-white/15 active:bg-white/20 text-white text-[11.5px] font-bold border border-white/10 cursor-pointer"
+      >
+        <Icon name="lucide:arrow-left" class="w-4 h-4 shrink-0" />
+        <span id="dsMobBackTxt" data-i18n-bn="নতুন" data-i18n-en="New">নতুন</span>
+      </button>
+      <button
+        type="button"
+        data-ds="undo"
+        disabled
+        class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/8 hover:bg-white/15 text-slate-200 disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
+        title={t.undoTip}
+      >
+        <Icon name="lucide:undo-2" class="w-4 h-4" />
+      </button>
+      <button
+        type="button"
+        data-ds="redo"
+        disabled
+        class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/8 hover:bg-white/15 text-slate-200 disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
+        title={t.redoTip}
+      >
+        <Icon name="lucide:redo-2" class="w-4 h-4" />
+      </button>
+    </div>
+
+    <!-- Center: Page Indicator Pill + Add Page + Camera -->
+    <div class="inline-flex items-center gap-1 min-w-0">
+      <button
+        type="button"
+        data-ds="toggle-sidebar"
+        class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-[11.5px] font-bold border border-white/10 cursor-pointer shrink-0 whitespace-nowrap"
+      >
+        <Icon name="lucide:files" class="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+        <span id="dsMobPageBadge" class="tabular-nums whitespace-nowrap">পেজ ১/১</span>
+        <span class="text-[9px] opacity-70">▾</span>
+      </button>
+      <button
+        type="button"
+        data-ds="add"
+        class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/30 cursor-pointer shrink-0"
+        title="+ পেজ"
+        aria-label="+ পেজ"
+      >
+        <Icon name="lucide:plus" class="w-4 h-4 shrink-0" />
+      </button>
+      <button
+        type="button"
+        data-ds="camera"
+        class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 hover:bg-white/15 text-teal-300 border border-white/10 cursor-pointer shrink-0"
+        title={t.cameraTip}
+      >
+        <Icon name="lucide:camera" class="w-4 h-4" />
+      </button>
+    </div>
+
+    <!-- Right: Quick Export Modal Trigger -->
+    <div class="inline-flex items-center gap-1 shrink-0">
+      <button
+        type="button"
+        data-ds="open-export-modal"
+        class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs cursor-pointer"
+        aria-label="Export"
+        title="Export"
+      >
+        <Icon name="lucide:download" class="w-4 h-4" />
+      </button>
+    </div>
+  </header>
 
   <div
     class="ds-drawer-backdrop fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-80"
@@ -268,7 +330,7 @@
   >
     <!-- LEFT PANEL: NATIVE PAGE FILMSTRIP -->
     <aside
-      class="ds-pages group-data-[has-pages=false]/ds:!hidden bg-white dark:bg-studio-sidebar border-r border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden group-data-[sidebar-collapsed=true]/ds:lg:opacity-0 group-data-[sidebar-collapsed=true]/ds:lg:pointer-events-none group-data-[sidebar-collapsed=true]/ds:lg:border-r-0 max-lg:fixed max-lg:top-12 max-lg:left-0 max-lg:bottom-0 max-lg:w-[min(260px,86vw)] max-lg:z-90 max-lg:shadow-2xl max-lg:-translate-x-[104%] max-lg:group-data-[drawer=pages]/ds:translate-x-0 max-lg:transition-transform max-lg:duration-200"
+      class="ds-pages group-data-[has-pages=false]/ds:!hidden bg-white dark:bg-studio-sidebar border-r border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden group-data-[sidebar-collapsed=true]/ds:lg:opacity-0 group-data-[sidebar-collapsed=true]/ds:lg:pointer-events-none group-data-[sidebar-collapsed=true]/ds:lg:border-r-0 max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:bottom-0 max-lg:w-[min(276px,86vw)] max-lg:z-90 max-lg:shadow-2xl max-lg:-translate-x-[104%] max-lg:group-data-[drawer=pages]/ds:translate-x-0 max-lg:transition-transform max-lg:duration-200"
       id="dsPagesSidebar"
       aria-label={t.pagesTitle}
     >
@@ -334,9 +396,9 @@
 
     <!-- CENTER PANEL: NATIVE STUDIO COMMAND BAR & DUAL/SINGLE CANVAS -->
     <div class="ds-main min-w-0 min-h-0 flex flex-col bg-slate-100 dark:bg-studio-bg group-data-[has-pages=false]/ds:bg-transparent overflow-hidden">
-      <!-- STICKY COMPACT NATIVE DESKTOP & MOBILE ICON RIBBON (HOVER FOR TOOLTIP NAME) -->
+      <!-- STICKY COMPACT NATIVE DESKTOP & MOBILE ICON RIBBON (HIDDEN ON MOBILE WHEN NOT EDITING; MOBILE USES CAMSCANNER BARS) -->
       <div
-        class="ds-toolbar group-data-[has-pages=false]/ds:!hidden sticky top-0 z-30 min-h-[42px] px-2.5 py-1 border-b border-slate-200 dark:border-studio-border group-data-[editing=true]/ds:border-slate-300 dark:group-data-[editing=true]/ds:border-[#181818] bg-white/98 dark:bg-studio-sidebar/98 group-data-[editing=true]/ds:dark:bg-[#232323] backdrop-blur-xs flex items-center gap-1 flex-wrap max-lg:flex-nowrap max-lg:overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden shrink-0"
+        class="ds-toolbar group-data-[has-pages=false]/ds:!hidden max-lg:group-data-[editing=false]/ds:hidden sticky top-0 z-30 min-h-[42px] px-2.5 py-1 border-b border-slate-200 dark:border-studio-border group-data-[editing=true]/ds:border-slate-300 dark:group-data-[editing=true]/ds:border-[#181818] bg-white/98 dark:bg-studio-sidebar/98 group-data-[editing=true]/ds:dark:bg-[#232323] backdrop-blur-xs flex items-center gap-1 flex-wrap max-lg:flex-nowrap max-lg:overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden shrink-0"
         role="toolbar"
         aria-label="Document Editing Toolbar"
       >
@@ -693,7 +755,7 @@
 
       <!-- DUAL / SINGLE CANVAS WORKSPACE -->
       <div
-        class="ds-workspace flex-1 min-h-0 grid grid-cols-2 group-data-[view=crop]/ds:grid-cols-1 group-data-[view=preview]/ds:grid-cols-1 group-data-[editing=true]/ds:grid-cols-1 max-lg:grid-cols-1 max-lg:min-h-[480px] gap-1.5 p-1.5 group-data-[editing=true]/ds:gap-0 group-data-[editing=true]/ds:p-0 overflow-hidden"
+        class="ds-workspace flex-1 min-h-0 grid grid-cols-2 group-data-[view=crop]/ds:grid-cols-1 group-data-[view=preview]/ds:grid-cols-1 group-data-[editing=true]/ds:grid-cols-1 max-lg:grid-cols-1 gap-1.5 p-1.5 group-data-[editing=true]/ds:gap-0 group-data-[editing=true]/ds:p-0 overflow-hidden"
         id="dsWorkspace"
         hidden
       >
@@ -755,6 +817,41 @@
                     class="absolute min-h-0 min-w-0 p-0 pointer-events-auto touch-none w-6 h-2 rounded-full bg-white/95 border-2 border-emerald-600 shadow-[0_2px_6px_rgba(0,0,0,0.38)] cursor-pointer hover:bg-emerald-50 [&.is-active]:bg-emerald-50 [transform:translate(-50%,-50%)_rotate(var(--edge-deg,0deg))]"
                   ></button>
                 {/each}
+              </div>
+            </div>
+
+            <!-- CamScanner Mobile Floating Crop Assist Pills (< 1024px) -->
+            <div
+              class="lg:hidden absolute bottom-2.5 inset-x-2.5 z-20 flex items-center justify-center pointer-events-none"
+              aria-label="দ্রুত ক্রপ টুলস"
+            >
+              <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#12151e]/88 backdrop-blur-md border border-white/15 shadow-lg pointer-events-auto overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <button
+                  type="button"
+                  data-ds="toggle-fold-axis"
+                  id="dsMobFoldBtn"
+                  hidden={mode !== 'passport'}
+                  class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 text-[11px] font-bold shrink-0 cursor-pointer"
+                >
+                  <Icon name="lucide:book-open" class="w-3.5 h-3.5 text-amber-400" />
+                  <span id="dsMobFoldLabel">6-Pt ↔</span>
+                </button>
+                <button
+                  type="button"
+                  data-ds="full"
+                  class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                >
+                  <Icon name="lucide:maximize-2" class="w-3.5 h-3.5 text-sky-400" />
+                  <span data-i18n-bn="পুরো ছবি" data-i18n-en="Full Image">পুরো ছবি</span>
+                </button>
+                <button
+                  type="button"
+                  data-ds="reset-crop"
+                  class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                >
+                  <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 text-rose-400" />
+                  <span data-i18n-bn="ক্রপ রিসেট" data-i18n-en="Reset Crop">ক্রপ রিসেট</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1310,9 +1407,9 @@
         </section>
       </div>
 
-      <!-- BOTTOM WORKSPACE HUD & ZOOM BAR -->
+      <!-- BOTTOM WORKSPACE HUD & ZOOM BAR (DESKTOP ONLY) -->
       <footer
-        class="ds-status group-data-[has-pages=false]/ds:!hidden min-h-[34px] px-3 py-1 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-2 max-sm:flex-wrap text-[12.5px] text-slate-600 dark:text-studio-muted shrink-0"
+        class="ds-status group-data-[has-pages=false]/ds:!hidden max-lg:hidden min-h-[34px] px-3 py-1 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar flex items-center justify-between gap-2 max-sm:flex-wrap text-[12.5px] text-slate-600 dark:text-studio-muted shrink-0"
       >
         <div class="ds-status-left inline-flex items-center gap-2 flex-wrap">
           <div
@@ -1430,11 +1527,152 @@
           >
         </div>
       </footer>
+
+      <!-- CAMSCANNER MOBILE BOTTOM DOCK (< 1024px ONLY) -->
+      <div
+        id="dsMobileBottomDock"
+        class="lg:hidden group-data-[has-pages=false]/ds:!hidden bg-[#12151e] text-white border-t border-white/10 shrink-0 z-40 select-none"
+        aria-label="মোবাইল স্ক্যানার কন্ট্রোল ডক"
+      >
+        <!-- STEP 1: CROP MODE BOTTOM BAR -->
+        <div class="hidden group-data-[mobile-step=crop]/ds:flex items-center justify-between gap-1 px-2.5 py-2">
+          <button
+            type="button"
+            data-ds="left"
+            class="flex flex-col items-center justify-center gap-0.5 min-w-[52px] py-1 rounded-xl text-slate-200 hover:bg-white/10 active:scale-95 transition cursor-pointer"
+          >
+            <Icon name="lucide:rotate-ccw" class="w-4.5 h-4.5 text-amber-400" />
+            <span class="text-[10.5px] font-bold" data-i18n-bn="বামে" data-i18n-en="Left">বামে</span>
+          </button>
+          <button
+            type="button"
+            data-ds="right"
+            class="flex flex-col items-center justify-center gap-0.5 min-w-[52px] py-1 rounded-xl text-slate-200 hover:bg-white/10 active:scale-95 transition cursor-pointer"
+          >
+            <Icon name="lucide:rotate-cw" class="w-4.5 h-4.5 text-amber-400" />
+            <span class="text-[10.5px] font-bold" data-i18n-bn="ডানে" data-i18n-en="Right">ডানে</span>
+          </button>
+          <button
+            type="button"
+            data-ds="toggle-sidebar"
+            class="flex flex-col items-center justify-center gap-0.5 min-w-[52px] py-1 rounded-xl text-slate-200 hover:bg-white/10 active:scale-95 transition cursor-pointer"
+          >
+            <Icon name="lucide:layers" class="w-4.5 h-4.5 text-indigo-400" />
+            <span class="text-[10.5px] font-bold" data-i18n-bn="পেজ" data-i18n-en="Pages">পেজ</span>
+          </button>
+          <button
+            type="button"
+            data-ds="detect"
+            class="flex flex-col items-center justify-center gap-0.5 min-w-[60px] py-1 rounded-xl text-emerald-300 hover:bg-white/10 active:scale-95 transition cursor-pointer"
+          >
+            <Icon name="lucide:scan" class="w-4.5 h-4.5 text-emerald-400" />
+            <span class="text-[10.5px] font-bold" data-i18n-bn="অটো ক্রপ" data-i18n-en="Auto Crop">অটো ক্রপ</span>
+          </button>
+          <button
+            type="button"
+            data-ds="finish-crop"
+            class="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-[13px] shadow-[0_4px_14px_rgba(16,185,129,0.38)] active:scale-95 transition cursor-pointer shrink-0"
+          >
+            <Icon name="lucide:check" class="w-4.5 h-4.5 stroke-[2.75]" />
+            <span data-i18n-bn="পরবর্তী" data-i18n-en="Next">পরবর্তী</span>
+          </button>
+        </div>
+
+        <!-- STEP 2: ENHANCE & EXPORT BOTTOM DOCK (SWIPEABLE FILTER CAROUSEL + ACTION BAR) -->
+        <div class="hidden group-data-[mobile-step=enhance]/ds:flex flex-col">
+          <!-- Row 1: CamScanner Horizontal Filter Carousel -->
+          <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#171b26] border-b border-white/8 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {#each t.presets as preset, idx}
+              {@const mobColors = [
+                'text-violet-400',
+                'text-amber-400',
+                'text-sky-400',
+                'text-fuchsia-400',
+                'text-orange-400',
+                'text-indigo-400',
+                'text-cyan-400'
+              ]}
+              <button
+                type="button"
+                data-ds-mob-filter={preset.value}
+                aria-pressed={preset.value === 'magic_plus' ? 'true' : 'false'}
+                class="inline-flex items-center gap-1.5 h-7.5 px-2.5 rounded-full border border-white/12 bg-white/6 text-slate-200 text-[11.5px] font-bold whitespace-nowrap shrink-0 cursor-pointer transition aria-pressed:bg-emerald-500/20 aria-pressed:border-emerald-400 aria-pressed:text-emerald-300"
+              >
+                <Icon name={`lucide:${preset.icon}`} class="w-3.5 h-3.5 {mobColors[idx % mobColors.length]} shrink-0" />
+                <span data-i18n-preset-title={preset.value}>{preset.title}</span>
+              </button>
+            {/each}
+            <button
+              type="button"
+              id="dsMobCompareBtn"
+              aria-pressed="false"
+              class="inline-flex items-center gap-1 h-7.5 px-2.5 rounded-full border border-white/12 bg-white/6 text-indigo-300 text-[11px] font-bold whitespace-nowrap shrink-0 cursor-pointer ml-auto aria-pressed:bg-emerald-500/20 aria-pressed:border-emerald-400 aria-pressed:text-emerald-300"
+            >
+              <Icon name="lucide:split-square-horizontal" class="w-3.5 h-3.5" />
+              <span data-i18n-bn="তুলনা" data-i18n-en="Compare">তুলনা</span>
+            </button>
+          </div>
+
+          <!-- Row 2: 5-Button CamScanner Action Bar -->
+          <div class="flex items-center justify-between gap-1 px-2 py-1.5">
+            <button
+              type="button"
+              data-ds-view="crop"
+              class="flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1 rounded-xl text-slate-300 hover:bg-white/10 cursor-pointer transition"
+            >
+              <Icon name="lucide:crop" class="w-4 h-4 text-emerald-400" />
+              <span class="text-[10px] font-bold" data-i18n-bn="ক্রপ" data-i18n-en="Crop">ক্রপ</span>
+            </button>
+            <button
+              type="button"
+              data-ds="toggle-inspector"
+              class="flex flex-col items-center justify-center gap-0.5 min-w-[54px] py-1 rounded-xl text-slate-300 hover:bg-white/10 cursor-pointer transition"
+            >
+              <Icon name="lucide:sliders-horizontal" class="w-4 h-4 text-amber-400" />
+              <span class="text-[10px] font-bold" data-i18n-bn="টিউন ও ফিক্স" data-i18n-en="Adjust">টিউন ও ফিক্স</span>
+            </button>
+            <button
+              type="button"
+              data-ds="toggle-eraser"
+              class="flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1 rounded-xl text-slate-300 group-data-[editing=true]/ds:bg-indigo-500/25 group-data-[editing=true]/ds:text-indigo-300 hover:bg-white/10 cursor-pointer transition"
+            >
+              <Icon name="lucide:paintbrush" class="w-4 h-4 text-fuchsia-400" />
+              <span class="text-[10px] font-bold" data-i18n-bn="রিটাচ" data-i18n-en="Retouch">রিটাচ</span>
+            </button>
+            <button
+              type="button"
+              data-ds="open-export-modal"
+              class="flex flex-col items-center justify-center gap-0.5 min-w-[52px] py-1 rounded-xl text-slate-300 hover:bg-white/10 cursor-pointer transition"
+            >
+              <Icon name="lucide:file-cog" class="w-4 h-4 text-cyan-400" />
+              <span class="text-[10px] font-bold" data-i18n-bn="পেজ সেটআপ" data-i18n-en="Page Setup">পেজ সেটআপ</span>
+            </button>
+            <div class="inline-flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                data-ds="jpg"
+                class="inline-flex items-center justify-center gap-1 h-9 px-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-[11.5px] cursor-pointer active:scale-95 transition"
+              >
+                <Icon name="lucide:image-down" class="w-3.5 h-3.5 text-sky-400" />
+                <span>JPG</span>
+              </button>
+              <button
+                type="button"
+                data-ds="pdf"
+                class="inline-flex items-center justify-center gap-1 h-9 px-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-extrabold text-[12px] shadow-[0_4px_12px_rgba(99,102,241,0.4)] cursor-pointer active:scale-95 transition"
+              >
+                <Icon name="lucide:file-down" class="w-3.5 h-3.5" />
+                <span>PDF</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- RIGHT PANEL: PHOTOSHOP-STYLE 3-TAB INSPECTOR DOCK + LAYERS PANEL + EXPORT DOCK -->
+    <!-- RIGHT PANEL: PHOTOSHOP-STYLE 3-TAB INSPECTOR DOCK + LAYERS PANEL + EXPORT DOCK (BOTTOM SHEET ON MOBILE) -->
     <aside
-      class="ds-settings group-data-[has-pages=false]/ds:!hidden bg-white dark:bg-studio-sidebar border-l border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden max-lg:fixed max-lg:top-12 max-lg:right-0 max-lg:bottom-0 max-lg:w-[min(352px,94vw)] max-lg:z-90 max-lg:shadow-2xl max-lg:translate-x-[104%] max-lg:group-data-[drawer=inspector]/ds:translate-x-0 max-lg:transition-transform max-lg:duration-200"
+      class="ds-settings group-data-[has-pages=false]/ds:!hidden bg-white dark:bg-studio-sidebar border-l border-slate-200 dark:border-studio-border flex flex-col min-h-0 overflow-hidden max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:top-auto max-lg:w-full max-lg:h-[48dvh] max-lg:rounded-t-2xl max-lg:border-t max-lg:border-l-0 max-lg:z-90 max-lg:shadow-2xl max-lg:translate-y-[104%] max-lg:group-data-[drawer=inspector]/ds:translate-y-0 max-lg:transition-transform max-lg:duration-200 max-lg:overflow-y-auto"
       id="dsInspectorPanel"
       aria-label={t.inspectorTitle}
     >

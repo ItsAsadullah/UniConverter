@@ -45,6 +45,26 @@ const aliasToolId = ALIAS_ROUTE_TO_TOOL_ID[cleanPath];
 const matchedCatalogTool = aliasToolId
   ? ALL_TOOLS.find((t) => t.id === aliasToolId)
   : ALL_TOOLS.find((t) => t.href === cleanPath);
+
+// Native-app style mobile shell (< 1024px): app bar title, back target & active bottom tab
+const isHome = toolId === 'home';
+const mobTitleBn = matchedCatalogTool?.title || currentCategoryMeta?.title || 'TechHat Studio';
+const mobTitleEn = matchedCatalogTool?.titleEn || currentCategoryMeta?.titleEn || 'TechHat Studio';
+const mobBackHref = matchedCatalogTool && currentCategoryMeta ? currentCategoryMeta.href : '/';
+const mobActiveTab = isHome ? 'home' : (currentCategoryMeta?.id === 'pdf' ? 'pdf' : 'tools');
+const MOB_SCAN_ACTIONS = [
+  { href: '/image/scan', icon: 'lucide:scan', bn: 'ডকুমেন্ট স্ক্যান', en: 'Document Scan', subBn: 'কাগজ, রসিদ, সার্টিফিকেট', subEn: 'Paper, receipts, certificates', grad: 'from-blue-500 to-indigo-600' },
+  { href: '/image/combine', icon: 'lucide:id-card', bn: 'আইডি কার্ড', en: 'ID Card', subBn: 'সামনে ও পেছনে এক পাতায়', subEn: 'Front & back on one page', grad: 'from-cyan-500 to-teal-600' },
+  { href: '/image/passport', icon: 'lucide:book-open', bn: 'পাসপোর্ট', en: 'Passport', subBn: '৬-পয়েন্ট ভাঁজ ক্রপ', subEn: '6-point fold crop', grad: 'from-emerald-500 to-green-600' },
+  { href: '/pdf/other-to-pdf', icon: 'lucide:image-up', bn: 'ছবি থেকে PDF', en: 'Images to PDF', subBn: 'গ্যালারি থেকে ইমপোর্ট', subEn: 'Import from gallery', grad: 'from-rose-500 to-pink-600' }
+];
+// Client-side route map so the mobile app bar stays in sync during SPA (workbench-only) navigation
+const MOB_ROUTE_META = {
+  cats: CATEGORIES.map((c) => ({ id: c.id, href: c.href, bn: c.title, en: c.titleEn })),
+  tools: ALL_TOOLS.flatMap((t) => [t.href, ...(t.aliases || [])].map((h) => ({ h, id: t.id, bn: t.title, en: t.titleEn, cat: t.categoryId }))),
+  alias: ALIAS_ROUTE_TO_TOOL_ID
+};
+const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
 ---
 <!doctype html>
 <html lang="bn" data-lang="bn">
@@ -107,15 +127,65 @@ const matchedCatalogTool = aliasToolId
 <body
   data-astro-mpa="1"
   data-active-tool={toolId}
-  class="min-h-screen flex flex-col bg-slate-50 dark:bg-studio-bg text-slate-900 dark:text-studio-text antialiased selection:bg-emerald-500/20"
+  class="min-h-screen flex flex-col overflow-x-clip bg-slate-50 dark:bg-studio-bg text-slate-900 dark:text-studio-text antialiased selection:bg-emerald-500/20"
 >
-  <!-- ============================================================ GLOBAL HEADER (TAILWIND CSS v4) -->
-  <header class="sticky top-0 z-50 bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-md border-b border-slate-200 dark:border-studio-border shadow-2xs">
-    <div class="w-full h-16 px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-4">
-      <a class="inline-flex items-center gap-2.5 no-underline text-slate-900 dark:text-studio-text shrink-0" href="/" aria-label="TechHat Studio">
-        <img class="w-8 h-8 rounded-lg" src="/icons/icon-48.png" width="32" height="32" decoding="async" alt="">
-        <span class="text-lg font-extrabold tracking-tight whitespace-nowrap">
+  <!-- ============================================================ NATIVE-APP MOBILE APP BAR (< 1024px ONLY) -->
+  <header
+    id="mobAppBar"
+    class="lg:hidden sticky top-0 z-50 bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-md border-b border-slate-200/80 dark:border-studio-border pt-[env(safe-area-inset-top)]"
+  >
+    <div class="h-14 px-2 flex items-center gap-1.5">
+      <a href="/" data-mob-brand hidden={!isHome} class="[&[hidden]]:hidden inline-flex items-center gap-2 pl-1.5 no-underline text-slate-900 dark:text-studio-text min-w-0 flex-1" aria-label="TechHat Studio">
+        <img class="w-8 h-8 rounded-xl shrink-0 shadow-xs" src="/icons/icon-48.png" width="32" height="32" decoding="async" alt="">
+        <span class="text-[17px] font-extrabold tracking-tight whitespace-nowrap truncate">
           TechHat <b class="text-emerald-600 dark:text-studio-primary font-extrabold">Studio</b>
+        </span>
+      </a>
+      <a
+        href={mobBackHref}
+        id="mobAppBarBack"
+        data-mob-back
+        hidden={isHome}
+        class="[&[hidden]]:hidden inline-flex items-center justify-center w-10 h-10 rounded-full text-slate-700 dark:text-studio-text no-underline active:bg-slate-200/70 dark:active:bg-white/10 shrink-0"
+        aria-label="Back"
+      >
+        <Icon name="lucide:arrow-left" class="w-5.5 h-5.5" />
+      </a>
+      <div
+        id="mobAppBarTitle"
+        hidden={isHome}
+        class="[&[hidden]]:hidden flex-1 min-w-0 m-0 text-[16.5px] font-bold text-slate-900 dark:text-studio-text truncate"
+        data-i18n-bn={mobTitleBn}
+        data-i18n-en={mobTitleEn}
+      >
+        {mobTitleBn}
+      </div>
+      <button
+        type="button"
+        data-open-search
+        class="inline-flex items-center justify-center w-10 h-10 rounded-full text-slate-700 dark:text-studio-text bg-transparent border-0 active:bg-slate-200/70 dark:active:bg-white/10 cursor-pointer shrink-0"
+        aria-label="Search tools"
+      >
+        <Icon name="lucide:search" class="w-5 h-5" />
+      </button>
+      <button
+        type="button"
+        data-mob-sheet-open="mobMeSheet"
+        class="inline-flex items-center justify-center w-10 h-10 rounded-full text-slate-700 dark:text-studio-text bg-transparent border-0 active:bg-slate-200/70 dark:active:bg-white/10 cursor-pointer shrink-0"
+        aria-label="Settings"
+      >
+        <Icon name="lucide:settings-2" class="w-5 h-5" />
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================ GLOBAL HEADER (DESKTOP ≥ 1024px) -->
+  <header class="max-lg:hidden sticky top-0 z-50 bg-white/95 dark:bg-studio-sidebar/95 backdrop-blur-md border-b border-slate-200 dark:border-studio-border shadow-2xs">
+    <div class="w-full h-14 sm:h-16 px-3 sm:px-6 lg:px-10 flex items-center justify-between gap-2 sm:gap-4">
+      <a class="inline-flex items-center gap-2 sm:gap-2.5 no-underline text-slate-900 dark:text-studio-text min-w-0 shrink" href="/" aria-label="TechHat Studio">
+        <img class="w-8 h-8 rounded-lg shrink-0" src="/icons/icon-48.png" width="32" height="32" decoding="async" alt="">
+        <span class="text-base sm:text-lg font-extrabold tracking-tight whitespace-nowrap max-[359px]:hidden">
+          TechHat <b class="text-emerald-600 dark:text-studio-primary font-extrabold max-[419px]:hidden">Studio</b>
         </span>
       </a>
 
@@ -171,7 +241,7 @@ const matchedCatalogTool = aliasToolId
       </nav>
 
       <!-- Header Right Actions (Clean & Minimal: Language + Theme + Mobile Trigger) -->
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <button class="chip-btn" id="btnCalReset" type="button" hidden={toolId !== 'calendar'} data-i18n-title-bn="আজকের তারিখ" data-i18n-title-en="Today">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4"/></svg>
           <span data-i18n-bn="আজ" data-i18n-en="Today">আজ</span>
@@ -179,8 +249,8 @@ const matchedCatalogTool = aliasToolId
 
         <!-- UNIVERSAL LANGUAGE SWITCHER (বাংলা ⇄ EN) -->
         <div class="inline-flex items-center h-9.5 p-0.5 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border" id="globalLangSwitch" role="group" aria-label="Language Switcher">
-          <button type="button" class="th-lang-btn is-active h-8 px-3 border-0 rounded-md bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer transition-colors hover:text-slate-900 dark:hover:text-studio-text [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="bn" aria-pressed="true">বাংলা</button>
-          <button type="button" class="th-lang-btn h-8 px-3 border-0 rounded-md bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer transition-colors hover:text-slate-900 dark:hover:text-studio-text [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="en" aria-pressed="false">EN</button>
+          <button type="button" class="th-lang-btn is-active h-8 px-2 sm:px-3 border-0 rounded-md bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer transition-colors hover:text-slate-900 dark:hover:text-studio-text [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="bn" aria-pressed="true">বাংলা</button>
+          <button type="button" class="th-lang-btn h-8 px-2 sm:px-3 border-0 rounded-md bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer transition-colors hover:text-slate-900 dark:hover:text-studio-text [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="en" aria-pressed="false">EN</button>
         </div>
 
         <button
@@ -194,7 +264,7 @@ const matchedCatalogTool = aliasToolId
           <svg class="theme-toggle__sun w-4.5 h-4.5 text-amber-400 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor" fill-opacity="0.22" stroke="none"/><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
         </button>
 
-        <button class="inline-flex items-center justify-center w-9.5 h-9.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-100/80 dark:bg-studio-panel text-slate-600 dark:text-studio-muted cursor-pointer" id="installBtn" type="button" hidden title="Install App">
+        <button class="inline-flex [&[hidden]]:hidden items-center justify-center w-9.5 h-9.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-100/80 dark:bg-studio-panel text-slate-600 dark:text-studio-muted cursor-pointer" id="installBtn" type="button" hidden title="Install App">
           <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
         </button>
 
@@ -212,12 +282,12 @@ const matchedCatalogTool = aliasToolId
   </header>
 
   <!-- ============================================================ MAIN WORKBENCH -->
-  <main id="workbench" class="workbench flex-1 w-full max-w-none mx-auto px-4 sm:px-6 lg:px-10 pt-3 pb-8">
+  <main id="workbench" class="workbench flex-1 w-full max-w-none mx-auto px-4 sm:px-6 lg:px-10 pt-3 pb-8 max-lg:px-3 max-lg:pb-[calc(6rem+env(safe-area-inset-bottom))]">
     {toolId !== 'home' && currentCategoryMeta && (
       <nav
         id="globalBreadcrumbBar"
         aria-label="Breadcrumb"
-        class="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-studio-muted pt-0.5 pb-2 select-none"
+        class="max-lg:hidden flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-studio-muted pt-0.5 pb-2 select-none"
       >
         <a
           href="/"
@@ -276,7 +346,7 @@ const matchedCatalogTool = aliasToolId
 
           <div
             id="globalBreadcrumbDropdown"
-            class="th-nav-dropdown absolute top-full left-0 pt-1.5 w-60 opacity-0 invisible pointer-events-none group-hover/bc:opacity-100 group-hover/bc:visible group-hover/bc:pointer-events-auto group-[.is-open]/bc:opacity-100 group-[.is-open]/bc:visible group-[.is-open]/bc:pointer-events-auto transition-all duration-150 z-40"
+            class="th-nav-dropdown absolute top-full left-0 max-sm:left-auto max-sm:right-0 pt-1.5 w-60 max-w-[calc(100vw-1.5rem)] opacity-0 invisible pointer-events-none group-hover/bc:opacity-100 group-hover/bc:visible group-hover/bc:pointer-events-auto group-[.is-open]/bc:opacity-100 group-[.is-open]/bc:visible group-[.is-open]/bc:pointer-events-auto transition-all duration-150 z-40"
             role="menu"
           >
             <div class="p-1.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xl space-y-0.5">
@@ -479,7 +549,7 @@ const matchedCatalogTool = aliasToolId
   </dialog>
 
   <!-- ============================================================ MINIMALIST PRODUCTION FOOTER (TAILWIND v4) -->
-  <footer class="th-footer mt-8 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar py-4 px-4 sm:px-6 lg:px-10">
+  <footer class="th-footer max-lg:hidden mt-8 border-t border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar py-4 px-4 sm:px-6 lg:px-10">
     <div class="w-full flex items-center justify-between flex-wrap gap-3">
       <div class="flex items-center gap-2.5">
         <a class="inline-flex items-center gap-2 no-underline text-slate-900 dark:text-studio-text" href="/" aria-label="TechHat Studio">
@@ -515,7 +585,249 @@ const matchedCatalogTool = aliasToolId
     </div>
   </footer>
 
-  <div class="toast fixed bottom-5 right-5 sm:right-8 z-[100] px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold shadow-xl pointer-events-none" id="toast" role="status" aria-live="polite" hidden></div>
+  <div class="toast fixed bottom-5 right-5 sm:right-8 max-lg:bottom-[calc(5.75rem+env(safe-area-inset-bottom))] max-lg:right-1/2 max-lg:translate-x-1/2 z-[100] px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold shadow-xl pointer-events-none" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- ============================================================ NATIVE-APP MOBILE BOTTOM TAB BAR (< 1024px ONLY) -->
+  <nav
+    id="mobTabBar"
+    class="lg:hidden fixed inset-x-0 bottom-0 z-[60] bg-white/96 dark:bg-studio-sidebar/96 backdrop-blur-md border-t border-slate-200 dark:border-studio-border shadow-[0_-4px_18px_rgba(15,23,42,0.06)] pb-[env(safe-area-inset-bottom)]"
+    aria-label="App Navigation"
+  >
+    <div class="relative h-16 grid grid-cols-5 items-stretch">
+      {[
+        { key: 'home', href: '/', icon: 'lucide:home', bn: 'হোম', en: 'Home' },
+        { key: 'tools', href: '/#mobAllTools', icon: 'lucide:layout-grid', bn: 'টুলস', en: 'Tools' }
+      ].map((tab) => (
+        <a
+          href={tab.href}
+          data-mob-tab={tab.key}
+          aria-current={mobActiveTab === tab.key ? 'page' : undefined}
+          class="flex flex-col items-center justify-center gap-0.5 no-underline text-slate-500 dark:text-studio-muted aria-[current=page]:text-emerald-600 dark:aria-[current=page]:text-studio-primary active:scale-95 transition-transform"
+        >
+          <Icon name={tab.icon} class="w-5.5 h-5.5" />
+          <span class="text-[10.5px] font-bold" data-i18n-bn={tab.bn} data-i18n-en={tab.en}>{tab.bn}</span>
+        </a>
+      ))}
+
+      <!-- Center Floating Scan Button (CamScanner style) -->
+      <div class="flex items-start justify-center">
+        <button
+          type="button"
+          data-mob-sheet-open="mobScanSheet"
+          class="-mt-5 w-15 h-15 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-4 border-white dark:border-studio-sidebar shadow-[0_8px_22px_rgba(16,185,129,0.45)] inline-flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
+          aria-label="Scan"
+        >
+          <Icon name="lucide:camera" class="w-7 h-7 [&_*]:!stroke-white [&_*]:!fill-white/20" />
+        </button>
+      </div>
+
+      {[
+        { key: 'pdf', href: '/pdf', icon: 'lucide:file-text', bn: 'PDF', en: 'PDF' },
+        { key: 'me', href: '#', icon: 'lucide:settings-2', bn: 'সেটিংস', en: 'Settings', sheet: 'mobMeSheet' }
+      ].map((tab) => (
+        <a
+          href={tab.href}
+          data-mob-tab={tab.key}
+          data-mob-sheet-open={tab.sheet}
+          aria-current={mobActiveTab === tab.key ? 'page' : undefined}
+          class="flex flex-col items-center justify-center gap-0.5 no-underline text-slate-500 dark:text-studio-muted aria-[current=page]:text-emerald-600 dark:aria-[current=page]:text-studio-primary active:scale-95 transition-transform"
+        >
+          <Icon name={tab.icon} class="w-5.5 h-5.5" />
+          <span class="text-[10.5px] font-bold" data-i18n-bn={tab.bn} data-i18n-en={tab.en}>{tab.bn}</span>
+        </a>
+      ))}
+    </div>
+  </nav>
+
+  <!-- MOBILE SCAN ACTION SHEET -->
+  <dialog
+    id="mobScanSheet"
+    class="th-mob-sheet lg:hidden fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none p-0 border-0 rounded-t-3xl bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text shadow-2xl backdrop:bg-slate-950/55 backdrop:backdrop-blur-xs"
+    aria-label="Scan Options"
+  >
+    <div class="px-4 pt-2.5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+      <div class="mx-auto mb-3 w-10 h-1.5 rounded-full bg-slate-300 dark:bg-white/20" data-mob-sheet-close></div>
+      <h2 class="m-0 mb-3 text-[16px] font-extrabold" data-i18n-bn="কী স্ক্যান করবেন?" data-i18n-en="What do you want to scan?">কী স্ক্যান করবেন?</h2>
+      <div class="grid gap-2">
+        {MOB_SCAN_ACTIONS.map((a) => (
+          <a href={a.href} class="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 dark:bg-studio-panel border border-slate-200/80 dark:border-studio-border no-underline text-slate-900 dark:text-studio-text active:scale-[0.98] transition-transform">
+            <span class={`w-11 h-11 rounded-2xl bg-gradient-to-br ${a.grad} text-white inline-flex items-center justify-center shrink-0 shadow-sm [&_*]:!stroke-white`}>
+              <Icon name={a.icon} class="w-5.5 h-5.5" />
+            </span>
+            <span class="flex-1 min-w-0">
+              <b class="block text-[14px] font-bold" data-i18n-bn={a.bn} data-i18n-en={a.en}>{a.bn}</b>
+              <small class="block text-[12px] text-slate-500 dark:text-studio-muted truncate" data-i18n-bn={a.subBn} data-i18n-en={a.subEn}>{a.subBn}</small>
+            </span>
+            <Icon name="lucide:chevron-right" class="w-4.5 h-4.5 text-slate-400 shrink-0" />
+          </a>
+        ))}
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MOBILE SETTINGS SHEET -->
+  <dialog
+    id="mobMeSheet"
+    class="th-mob-sheet lg:hidden fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none p-0 border-0 rounded-t-3xl bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text shadow-2xl backdrop:bg-slate-950/55 backdrop:backdrop-blur-xs"
+    aria-label="Settings"
+  >
+    <div class="px-4 pt-2.5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+      <div class="mx-auto mb-3 w-10 h-1.5 rounded-full bg-slate-300 dark:bg-white/20" data-mob-sheet-close></div>
+      <div class="flex items-center gap-3 mb-4">
+        <img class="w-11 h-11 rounded-2xl shadow-xs" src="/icons/icon-48.png" width="44" height="44" loading="lazy" decoding="async" alt="">
+        <div class="min-w-0">
+          <b class="block text-[15px] font-extrabold">TechHat <span class="text-emerald-600 dark:text-studio-primary">Studio</span></b>
+          <small class="block text-[12px] text-slate-500 dark:text-studio-muted" data-i18n-bn="১০০% ব্রাউজার-ভিত্তিক প্রাইভেট প্রসেসিং" data-i18n-en="100% Client-Side Private Processing">১০০% ব্রাউজার-ভিত্তিক প্রাইভেট প্রসেসিং</small>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 dark:border-studio-border divide-y divide-slate-200 dark:divide-studio-border overflow-hidden">
+        <div class="flex items-center justify-between gap-3 px-3.5 py-3">
+          <span class="inline-flex items-center gap-2.5 text-[14px] font-semibold">
+            <Icon name="lucide:languages" class="w-5 h-5 text-indigo-500" />
+            <span data-i18n-bn="ভাষা" data-i18n-en="Language">ভাষা</span>
+          </span>
+          <div class="inline-flex items-center h-9 p-0.5 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border" role="group" aria-label="Language">
+            <button type="button" class="th-lang-btn is-active h-8 px-3 border-0 rounded-lg bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="bn">বাংলা</button>
+            <button type="button" class="th-lang-btn h-8 px-3 border-0 rounded-lg bg-transparent text-slate-600 dark:text-studio-muted text-xs font-bold cursor-pointer [&.is-active]:bg-white dark:[&.is-active]:bg-studio-surface [&.is-active]:text-slate-900 dark:[&.is-active]:text-studio-text [&.is-active]:shadow-2xs" data-set-lang="en">EN</button>
+          </div>
+        </div>
+        <button type="button" data-mob-theme class="w-full flex items-center justify-between gap-3 px-3.5 py-3 bg-transparent border-0 text-left text-slate-900 dark:text-studio-text cursor-pointer">
+          <span class="inline-flex items-center gap-2.5 text-[14px] font-semibold">
+            <Icon name="lucide:sun-moon" class="w-5 h-5 text-amber-500" />
+            <span data-i18n-bn="ডার্ক / লাইট মোড" data-i18n-en="Dark / Light Mode">ডার্ক / লাইট মোড</span>
+          </span>
+          <Icon name="lucide:chevron-right" class="w-4.5 h-4.5 text-slate-400" />
+        </button>
+        <button type="button" data-mob-install hidden class="w-full [&[hidden]]:hidden flex items-center justify-between gap-3 px-3.5 py-3 bg-transparent border-0 text-left text-slate-900 dark:text-studio-text cursor-pointer">
+          <span class="inline-flex items-center gap-2.5 text-[14px] font-semibold">
+            <Icon name="lucide:download" class="w-5 h-5 text-emerald-500" />
+            <span data-i18n-bn="অ্যাপ ইনস্টল করুন" data-i18n-en="Install App">অ্যাপ ইনস্টল করুন</span>
+          </span>
+          <Icon name="lucide:chevron-right" class="w-4.5 h-4.5 text-slate-400" />
+        </button>
+        <a href="/#mobAllTools" class="flex items-center justify-between gap-3 px-3.5 py-3 no-underline text-slate-900 dark:text-studio-text">
+          <span class="inline-flex items-center gap-2.5 text-[14px] font-semibold">
+            <Icon name="lucide:layout-grid" class="w-5 h-5 text-blue-500" />
+            <span data-i18n-bn="সব টুলস" data-i18n-en="All Tools">সব টুলস</span>
+          </span>
+          <Icon name="lucide:chevron-right" class="w-4.5 h-4.5 text-slate-400" />
+        </a>
+      </div>
+      <p class="m-0 mt-3 text-center text-[11.5px] text-slate-400">© {currentYear} TechHat</p>
+    </div>
+  </dialog>
+
+  <script type="application/json" id="mobRouteMeta" set:html={mobRouteMetaJson}></script>
+  <script is:inline>
+    (function () {
+      if (window.__thMobShell) return;
+      window.__thMobShell = true;
+      var META = {};
+      try { META = JSON.parse(document.getElementById('mobRouteMeta').textContent || '{}'); } catch (e) {}
+      var CAT_FOR_PREFIX = { '/calendar': 'dates', '/age-calculator': 'dates', '/date-calculator': 'dates', '/dates': 'dates', '/invoice': 'utilities', '/business': 'utilities' };
+      function norm(p) { p = (p || '/').split('?')[0].split('#')[0].replace(/\/+$/, ''); return p || '/'; }
+      function isEn() { return document.documentElement.getAttribute('data-lang') === 'en'; }
+      function catById(id) { return (META.cats || []).filter(function (c) { return c.id === (id === 'business' ? 'utilities' : id); })[0]; }
+
+      /* Keep the native-style app bar + bottom tab bar in sync with the current route */
+      function syncMobileShell() {
+        var path = norm(location.pathname);
+        var isHome = path === '/';
+        var tools = META.tools || [];
+        var aliasId = (META.alias || {})[path];
+        var tool = tools.filter(function (t) { return aliasId ? t.id === aliasId : t.h === path; })[0];
+        var cat = null;
+        if (tool) cat = catById(tool.cat);
+        if (!cat) cat = (META.cats || []).filter(function (c) { return c.href === path; })[0] || null;
+        if (!cat) {
+          var seg = '/' + (path.split('/')[1] || '');
+          var cid = CAT_FOR_PREFIX[seg] || seg.slice(1);
+          cat = catById(cid) || null;
+        }
+        var brand = document.querySelector('[data-mob-brand]');
+        var back = document.getElementById('mobAppBarBack');
+        var title = document.getElementById('mobAppBarTitle');
+        if (brand) brand.hidden = !isHome;
+        if (back) { back.hidden = isHome; back.setAttribute('href', tool && cat ? cat.href : '/'); }
+        if (title) {
+          title.hidden = isHome;
+          var bnT = tool ? tool.bn : (cat ? cat.bn : 'TechHat Studio');
+          var enT = tool ? tool.en : (cat ? cat.en : 'TechHat Studio');
+          title.setAttribute('data-i18n-bn', bnT);
+          title.setAttribute('data-i18n-en', enT);
+          title.textContent = isEn() ? enT : bnT;
+        }
+        var active = isHome ? 'home' : ((cat && cat.id === 'pdf') ? 'pdf' : 'tools');
+        document.querySelectorAll('[data-mob-tab]').forEach(function (a) {
+          if (a.getAttribute('data-mob-tab') === active) a.setAttribute('aria-current', 'page');
+          else a.removeAttribute('aria-current');
+        });
+      }
+
+      /* Track in-app (SPA) depth so the app-bar back arrow never leaves the site */
+      var spaDepth = 0;
+      var origPush = history.pushState;
+      history.pushState = function () {
+        var r = origPush.apply(this, arguments);
+        spaDepth++;
+        setTimeout(syncMobileShell, 0);
+        return r;
+      };
+      window.addEventListener('popstate', function () {
+        if (spaDepth > 0) spaDepth--;
+        setTimeout(syncMobileShell, 0);
+      });
+
+      function openSheet(id) {
+        var d = document.getElementById(id);
+        if (d && !d.open) { try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } }
+      }
+      function closeSheets() {
+        document.querySelectorAll('dialog.th-mob-sheet[open]').forEach(function (d) { d.close(); });
+      }
+      function scrollToAllTools() {
+        var el = document.getElementById('mobAllTools');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      document.addEventListener('click', function (e) {
+        var t = e.target;
+        if (!t.closest) return;
+        var opener = t.closest('[data-mob-sheet-open]');
+        if (opener && opener.getAttribute('data-mob-sheet-open')) {
+          e.preventDefault();
+          var install = document.querySelector('[data-mob-install]'), deskInstall = document.getElementById('installBtn');
+          if (install && deskInstall) install.hidden = deskInstall.hidden;
+          openSheet(opener.getAttribute('data-mob-sheet-open'));
+          return;
+        }
+        var sheet = t.closest('dialog.th-mob-sheet');
+        if (sheet && (t === sheet || t.closest('[data-mob-sheet-close]'))) { sheet.close(); return; }
+        if (t.closest('[data-mob-theme]')) { var tb = document.getElementById('themeToggle'); if (tb) tb.click(); return; }
+        if (t.closest('[data-mob-install]')) { var ib = document.getElementById('installBtn'); if (ib) ib.click(); return; }
+
+        var allToolsLink = t.closest('a[href="/#mobAllTools"]');
+        if (allToolsLink) {
+          e.preventDefault();
+          closeSheets();
+          if (norm(location.pathname) === '/') { scrollToAllTools(); return; }
+          var nav = window.TechHatNavigate ? window.TechHatNavigate('/') : null;
+          if (nav && nav.then) nav.then(function () { setTimeout(scrollToAllTools, 60); });
+          else location.href = '/#mobAllTools';
+          return;
+        }
+
+        var back = t.closest('[data-mob-back]');
+        if (back && spaDepth > 0) { e.preventDefault(); history.back(); return; }
+
+        if (sheet && t.closest('a[href]')) closeSheets();
+      });
+
+      if (location.hash === '#mobAllTools') setTimeout(scrollToAllTools, 120);
+      syncMobileShell();
+    })();
+  </script>
 
   <script is:inline src="/js/shell.js?v=70"></script>
   <slot name="scripts" />
