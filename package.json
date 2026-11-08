@@ -9,7 +9,7 @@
     "preview": "astro preview",
     "cap:sync": "astro build && cap sync android",
     "apk:debug": "astro build && cap sync android && cd android && gradlew.bat assembleDebug",
-    "test": "node tests/engine.test.js && node tests/office.test.js && node tests/document-scan.test.cjs && node tests/document-layers.test.cjs"
+    "test": "node tests/engine.test.js && node tests/office.test.js && node tests/document-scan.test.cjs && node tests/document-layers.test.cjs && node tests/vector.test.cjs && node tests/vector-export.test.cjs"
   },
   "dependencies": {
     "@astrojs/svelte": "^9.1.2",

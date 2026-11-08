@@ -105,6 +105,7 @@
     ['[data-img-tab="convert"] span', 'কনভার্ট ও ইফেক্ট', 'Convert & Effects'],
     ['[data-img-tab="combine"] span', 'ছবি জোড়া / NID', 'NID Card Sheet'],
     ['[data-img-tab="colors"] span', 'কালার পিকার', 'Color Picker'],
+    ['[data-img-tab="vector"] span', 'রাস্টার টু ভেক্টর', 'Raster to Vector'],
     // Calendar, Age, DateCalc, Invoice Headers
     ['.cal-hero__title', 'তারিখ কনভার্টার ও ক্যালেন্ডার', 'Date Converter & Calendar'],
     ['.age-hero__title', 'বয়স ও জন্মতারিখ ক্যালকুলেটর', 'Age & DOB Calculator'],
@@ -837,6 +838,7 @@
       imgCropInput: 'imgCropResetBtn',
       imgConvertInput: 'imgConvertResetBtn',
       imgColorsInput: 'imgColorsResetBtn',
+      vsInput: 'vsResetBtn',
       pdfMergeInput: 'pdfMergeClearBtn',
       img2pdfInput: 'img2pdfClearBtn'
     };

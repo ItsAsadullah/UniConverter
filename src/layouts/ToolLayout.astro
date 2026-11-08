@@ -88,8 +88,8 @@ const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
         document.documentElement.lang = lang;
 
         var prevVer = localStorage.getItem('thbc-cache-ver');
-        if (prevVer !== 'v56') {
-          localStorage.setItem('thbc-cache-ver', 'v56');
+        if (prevVer !== 'v57') {
+          localStorage.setItem('thbc-cache-ver', 'v57');
           var hadStale = false;
           var p = [];
           if (window.caches) {
@@ -921,7 +921,7 @@ const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
     })();
   </script>
 
-  <script is:inline src="/js/shell.js?v=71"></script>
+  <script is:inline src="/js/shell.js?v=72"></script>
   <slot name="scripts" />
 </body>
 </html>

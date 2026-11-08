@@ -68,7 +68,7 @@ export interface PdfSubToolMeta {
 
 export interface ImageSubToolMeta {
   slug: string;
-  tabId: 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'colors';
+  tabId: 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'colors' | 'vector';
   title: string;
   titleEn: string;
   desc: string;
@@ -355,6 +355,19 @@ export const IMAGE_SUBTOOLS: ImageSubToolMeta[] = [
     seoDesc: 'জাতীয় পরিচয়পত্র (NID) বা কার্ডের সামনের ও পেছনের অংশ ক্রপ করে সোজা করুন এবং A4 প্রিন্ট শিটে বসান।'
   },
   {
+    slug: 'vectorize',
+    tabId: 'vector',
+    title: 'রাস্টার টু ভেক্টর',
+    titleEn: 'Raster to Vector',
+    desc: 'ছবিকে SVG, EPS ও AI ভেক্টরে রূপান্তর',
+    descEn: 'Convert images to SVG, EPS & AI vectors',
+    lucideIcon: 'lucide:spline',
+    keywords: 'vector converter raster to vector image to svg png to svg jpg to eps ai file vectorize logo trace potrace ভেক্টর কনভার্টার ছবি থেকে ভেক্টর লোগো ট্রেসিং',
+    popular: true,
+    seoTitle: 'রাস্টার টু ভেক্টর কনভার্টার — ছবিকে SVG, EPS ও AI ভেক্টরে রূপান্তর | TechHat',
+    seoDesc: 'PNG, JPG বা WebP ছবিকে অফলাইনে সম্পাদনাযোগ্য SVG, EPS ও Adobe AI ভেক্টর ফাইলে রূপান্তর করুন — মনোক্রোম ও ফুল কালার ট্রেসিং, লাইভ প্রিভিউসহ।'
+  },
+  {
     slug: 'colors',
     tabId: 'colors',
     title: 'কালার পিকার',
@@ -462,7 +475,8 @@ export const ALL_TOOLS: StudioToolItem[] = [
       'crop': 'fuchsia',
       'convert': 'amber',
       'combine': 'cyan',
-      'colors': 'rose'
+      'colors': 'rose',
+      'vectorize': 'violet'
     };
     return {
       id: `image-${s.slug}`,

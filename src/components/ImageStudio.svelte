@@ -1,10 +1,11 @@
 <script lang="ts">
   import DocumentScanner from './DocumentScanner.svelte';
   import NidCardScanner from './NidCardScanner.svelte';
+  import VectorStudio from './VectorStudio.svelte';
   import Icon from './ui/Icon.svelte';
 
   interface Props {
-    initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'colors';
+    initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'colors' | 'vector';
   }
 
   let { initialTab = 'hub' }: Props = $props();
@@ -77,6 +78,14 @@
             </span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="আইডি কার্ড স্ক্যানার ও ছবি জোড়া" data-i18n-en="NID Card Scanner">আইডি কার্ড স্ক্যানার ও ছবি জোড়া</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="অটো এজ ডিটেকশন, ৪-কোণা পার্সপেক্টিভ ক্রপ ও কালার এডজাস্ট করে A4 পাতায় উপরে-নিচে বসান।" data-i18n-en="Auto edge detection, 4-corner perspective crop & color tuning on an A4 print sheet.">অটো এজ ডিটেকশন, ৪-কোণা পার্সপেক্টিভ ক্রপ ও কালার এডজাস্ট করে A4 পাতায় উপরে-নিচে বসান।</span>
+          </button>
+
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-violet-500 dark:hover:border-violet-400 cursor-pointer transition-colors" data-open-img="vector" data-accent="violet">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/15 to-indigo-500/15 text-violet-600 dark:text-violet-400 ring-1 ring-violet-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c4-8 6-8 9 0s5 8 9 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="3" cy="17" r="2" fill="currentColor" stroke="none"/><circle cx="12" cy="17" r="2" fill="currentColor" stroke="none"/><circle cx="21" cy="17" r="2" fill="currentColor" stroke="none"/></svg>
+            </span>
+            <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="রাস্টার টু ভেক্টর (SVG/EPS/AI)" data-i18n-en="Raster to Vector (SVG/EPS/AI)">রাস্টার টু ভেক্টর (SVG/EPS/AI)</span>
+            <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="PNG/JPG ছবিকে সম্পাদনাযোগ্য ভেক্টরে ট্রেস করুন — মনোক্রোম লোগো বা ফুল কালার, SVG/EPS/AI ডাউনলোড।" data-i18n-en="Trace PNG/JPG images into editable vectors — monochrome logos or full color, download SVG/EPS/AI.">PNG/JPG ছবিকে সম্পাদনাযোগ্য ভেক্টরে ট্রেস করুন — মনোক্রোম লোগো বা ফুল কালার, SVG/EPS/AI ডাউনলোড।</span>
           </button>
 
           <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-rose-500 dark:hover:border-rose-400 cursor-pointer transition-colors" data-open-img="colors" data-accent="red">
@@ -558,6 +567,11 @@
       <!-- ========================================== 5. ID CARD SCANNER & TOP-BOTTOM COMBINER -->
       {#if renderAll || initialTab === 'combine'}
       <NidCardScanner hidden={initialTab !== 'combine'} />
+      {/if}
+
+      <!-- ========================================== 7. RASTER TO VECTOR CONVERTER -->
+      {#if renderAll || initialTab === 'vector'}
+      <VectorStudio hidden={initialTab !== 'vector'} />
       {/if}
 
       <!-- ========================================== 6. COLOR PICKER & PALETTE -->

@@ -1,7 +1,7 @@
 /* TechHat Bangla Converter — service worker (offline app shell) */
 'use strict';
 
-var VERSION = 'thbc-v70';
+var VERSION = 'thbc-v74';
 var SHELL = 'shell-' + VERSION;
 var RUNTIME = 'runtime-' + VERSION;
 
@@ -19,6 +19,10 @@ var ASSETS = [
   'js/pdf-tools.js',
   'js/image-tools.js',
   'js/nid-scanner.js',
+  'js/vector-trace-core.js',
+  'js/vector-trace-worker.js',
+  'js/vector-export.js',
+  'js/vector-tools.js',
   'js/document-scan-core.js',
   'js/document-scan-worker.js',
   'js/document-scanner.js',

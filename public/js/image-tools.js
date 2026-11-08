@@ -149,7 +149,8 @@
     combine: '/image/combine',
     scan: '/image/scan',
     passport: '/image/passport',
-    colors: '/image/colors'
+    colors: '/image/colors',
+    vector: '/image/vectorize'
   };
   var IMG_SUB_TITLES = {
     scan: { bn: 'ডকুমেন্ট স্ক্যানার', en: 'Document Scanner' },
@@ -159,7 +160,8 @@
     crop: { bn: 'ক্রপ ও রাউন্ড ফটো', en: 'Crop & Circle Photo' },
     convert: { bn: 'ফরম্যাট ও ওয়াটারমার্ক', en: 'Convert & Watermark' },
     combine: { bn: 'NID কার্ড স্ক্যানার', en: 'NID Card Scanner' },
-    colors: { bn: 'কালার পিকার', en: 'Color Picker' }
+    colors: { bn: 'কালার পিকার', en: 'Color Picker' },
+    vector: { bn: 'রাস্টার টু ভেক্টর', en: 'Raster to Vector' }
   };
 
   function switchImgTab(tabId, skipUrl) {
@@ -217,8 +219,17 @@
       if (window.TechHatNidScanner && window.TechHatNidScanner.init) {
         window.TechHatNidScanner.init();
       } else {
-        loadScriptOnce('/js/nid-scanner.js?v=70').then(function () {
+        loadScriptOnce('/js/nid-scanner.js?v=71').then(function () {
           if (window.TechHatNidScanner && window.TechHatNidScanner.init) window.TechHatNidScanner.init();
+        });
+      }
+    }
+    if (currentTab === 'vector') {
+      if (window.TechHatVector && window.TechHatVector.init) {
+        window.TechHatVector.init();
+      } else {
+        loadScriptOnce('/js/vector-tools.js?v=74').then(function () {
+          if (window.TechHatVector && window.TechHatVector.init) window.TechHatVector.init();
         });
       }
     }
