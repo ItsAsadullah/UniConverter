@@ -4177,17 +4177,21 @@
     on('pdfEncryptResetBtn', 'click', function () { encryptState = null; renderEncryptUI(); });
     on('pdfEncryptRunBtn', 'click', runEncryptPdf);
 
-    window.addEventListener('th:langchange', function () {
-      if (mergeItems.length) renderMergeUI();
-      if (splitState) renderSplitUI();
-      if (compressState) renderCompressUI();
-      if (orgState) renderOrgUI();
-      if (p2oState) renderPdf2OtherUI();
-      if (imgItems.length) renderImg2PdfUI();
-      if (decryptState) renderDecryptUI();
-      if (encryptState) renderEncryptUI();
-      if (pagesDlgItem) renderPagesDialog();
-    });
+    if (!window._thPdfLangListenerBound) {
+      window._thPdfLangListenerBound = true;
+      window.addEventListener('th:langchange', function () {
+        if (!document.getElementById('tool-pdf')) return;
+        if (mergeItems.length) renderMergeUI();
+        if (splitState) renderSplitUI();
+        if (compressState) renderCompressUI();
+        if (orgState) renderOrgUI();
+        if (p2oState) renderPdf2OtherUI();
+        if (imgItems.length) renderImg2PdfUI();
+        if (decryptState) renderDecryptUI();
+        if (encryptState) renderEncryptUI();
+        if (pagesDlgItem) renderPagesDialog();
+      });
+    }
 
     var pdfRoot = $('#tool-pdf');
     var initTab = pdfRoot && pdfRoot.getAttribute('data-initial-tab');

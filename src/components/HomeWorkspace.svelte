@@ -12,18 +12,16 @@
   ];
 
   // ---------- Native-app (CamScanner-style) mobile home (< 1024px) ----------
-  const QUICK_TOOLS = [
-    { id: 'image-scan', bn: 'স্ক্যান', en: 'Scan', grad: 'from-blue-500 to-indigo-600' },
-    { id: 'image-combine', bn: 'আইডি কার্ড', en: 'ID Card', grad: 'from-cyan-500 to-teal-600' },
-    { id: 'image-passport', bn: 'পাসপোর্ট', en: 'Passport', grad: 'from-emerald-500 to-green-600' },
-    { id: 'pdf-other-to-pdf', bn: 'ছবি→PDF', en: 'Img→PDF', grad: 'from-rose-500 to-pink-600' },
-    { id: 'pdf-merge', bn: 'PDF মার্জ', en: 'Merge', grad: 'from-orange-500 to-red-500' },
-    { id: 'pdf-compress', bn: 'কম্প্রেস', en: 'Compress', grad: 'from-amber-500 to-orange-500' },
-    { id: 'bijoy-to-unicode', bn: 'বিজয়', en: 'Bijoy', grad: 'from-violet-500 to-purple-600' },
-    { id: 'image-resize', bn: 'রিসাইজ', en: 'Resize', grad: 'from-fuchsia-500 to-pink-600' }
-  ]
-    .map((q) => ({ ...q, tool: ALL_TOOLS.find((t) => t.id === q.id) }))
-    .filter((q) => q.tool);
+  const CAMSCANNER_TOP_TOOLS = [
+    { id: 'smart-scan', href: '#scan-sheet', sheet: 'mobScanSheet', icon: 'lucide:camera', bn: 'স্মার্ট স্ক্যান', en: 'Smart Scan', bg: 'bg-blue-500/12 dark:bg-blue-500/18 text-blue-600 dark:text-blue-400' },
+    { id: 'image-scan', href: '/image/scan', icon: 'lucide:scan-line', bn: 'ডকুমেন্ট স্ক্যানার', en: 'Doc Scanner', bg: 'bg-indigo-500/12 dark:bg-indigo-500/18 text-indigo-600 dark:text-indigo-400' },
+    { id: 'image-combine', href: '/image/combine', icon: 'lucide:id-card', bn: 'আইডি কার্ড', en: 'ID Card', bg: 'bg-teal-500/12 dark:bg-teal-500/18 text-teal-600 dark:text-teal-400' },
+    { id: 'image-passport', href: '/image/passport', icon: 'lucide:book-open-check', bn: 'পাসপোর্ট স্ক্যানার', en: 'Passport', bg: 'bg-emerald-500/12 dark:bg-emerald-500/18 text-emerald-600 dark:text-emerald-400' },
+    { id: 'pdf-studio', href: '/pdf', icon: 'lucide:file-text', bn: 'পিডিএফ টুলস', en: 'PDF Tools', bg: 'bg-rose-500/12 dark:bg-rose-500/18 text-rose-600 dark:text-rose-400' },
+    { id: 'image-studio', href: '/image', icon: 'lucide:image', bn: 'ইমেজ স্টুডিও', en: 'Image Studio', bg: 'bg-amber-500/12 dark:bg-amber-500/18 text-amber-600 dark:text-amber-400' },
+    { id: 'bijoy-to-unicode', href: '/bangla/bijoy-to-unicode', icon: 'lucide:languages', bn: 'বিজয় ও অফিস', en: 'Bijoy & Office', bg: 'bg-violet-500/12 dark:bg-violet-500/18 text-violet-600 dark:text-violet-400' },
+    { id: 'all-tools', href: '#mobAllTools', openAllTools: true, icon: 'lucide:layout-grid', bn: 'অল টুলস', en: 'All Tools', bg: 'bg-sky-500/12 dark:bg-sky-500/18 text-sky-600 dark:text-sky-400' }
+  ];
 
   const CAT_GRADS: Record<string, string> = {
     emerald: 'from-emerald-500 to-teal-600',
@@ -44,109 +42,138 @@
 </script>
 
 <!-- ============================================================ NATIVE-APP MOBILE HOME (< 1024px) -->
-<div class="lg:hidden -mx-3 -mt-3 pb-4" id="mobHome">
-  <!-- Search pill -->
-  <div class="px-3 pt-3 pb-2 bg-white dark:bg-studio-sidebar">
-    <button
-      type="button"
-      data-open-search
-      class="w-full h-11 px-4 rounded-full bg-slate-100 dark:bg-studio-panel border border-transparent text-slate-500 dark:text-studio-muted flex items-center gap-2.5 text-[14px] cursor-pointer active:bg-slate-200/80"
-      aria-label="Search tools"
-    >
-      <Icon name="lucide:search" class="w-4.5 h-4.5 text-slate-400 shrink-0" />
-      <span class="flex-1 text-left truncate" data-i18n-bn="টুল খুঁজুন…" data-i18n-en="Search tools…">টুল খুঁজুন…</span>
-    </button>
-  </div>
+<div class="lg:hidden -mx-3 -mt-3 min-h-[calc(100dvh-7.5rem)] flex flex-col bg-slate-100/70 dark:bg-studio-bg" id="mobHome">
+  <!-- ==================== VIEW 1: CAMSCANNER HOME (TOP 8 CORE FEATURES + SAVED DOCUMENTS) ==================== -->
+  <div id="mobHomeMainView" class="flex-1 flex flex-col">
+    <!-- Top Search & Cloud Backup Bar -->
+    <div class="px-3.5 pt-3 pb-2.5 bg-white dark:bg-studio-sidebar flex items-center gap-2">
+      <button
+        type="button"
+        data-open-search
+        class="flex-1 h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-studio-panel border border-slate-200/70 dark:border-studio-border text-slate-500 dark:text-studio-muted flex items-center gap-2 text-[13.5px] cursor-pointer active:scale-[0.99] transition-transform"
+        aria-label="Search documents or tools"
+      >
+        <Icon name="lucide:search" class="w-4 h-4 text-slate-400 shrink-0" />
+        <span class="flex-1 text-left truncate" data-i18n-bn="ডকুমেন্ট বা টুলস খুঁজুন…" data-i18n-en="Search documents or tools…">ডকুমেন্ট বা টুলস খুঁজুন…</span>
+      </button>
+      <button
+        type="button"
+        data-mob-sheet-open="mobCloudSheet"
+        id="mobCloudStatusBtn"
+        class="h-10 px-3 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer active:scale-95 transition-transform"
+        title="Cloudflare Cloud Backup"
+      >
+        <Icon name="lucide:cloud" class="w-4 h-4 text-emerald-500 shrink-0" />
+        <span id="mobCloudBadgeTxt" data-i18n-bn="ক্লাউড সেভ" data-i18n-en="Cloud Save">ক্লাউড সেভ</span>
+      </button>
+    </div>
 
-  <!-- Hero scan card -->
-  <section class="px-3 pt-2 pb-1 bg-white dark:bg-studio-sidebar">
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 text-white p-4 shadow-[0_10px_28px_rgba(16,185,129,0.28)]">
-      <div class="absolute -right-8 -top-10 w-40 h-40 rounded-full bg-white/12"></div>
-      <div class="absolute right-6 -bottom-12 w-28 h-28 rounded-full bg-white/10"></div>
-      <div class="relative">
-        <h1
-          class="m-0 text-[19px] font-extrabold leading-snug"
-          data-i18n-bn="ফোনই এখন স্ক্যানার"
-          data-i18n-en="Your phone is now a scanner"
-        >
-          ফোনই এখন স্ক্যানার
-        </h1>
-        <p
-          class="m-0 mt-1 mb-3.5 text-[12.5px] text-white/85 leading-snug max-w-[80%]"
-          data-i18n-bn="ডকুমেন্ট, আইডি কার্ড ও পাসপোর্ট স্ক্যান করে PDF বানান — সব কিছু ফোনেই, প্রাইভেট।"
-          data-i18n-en="Scan documents, ID cards & passports into PDF — all on your phone, private."
-        >
-          ডকুমেন্ট, আইডি কার্ড ও পাসপোর্ট স্ক্যান করে PDF বানান — সব কিছু ফোনেই, প্রাইভেট।
+    <!-- CamScanner Signature 2x4 Core Features Bar -->
+    <section class="px-3 pt-2 pb-4 bg-white dark:bg-studio-sidebar rounded-b-3xl border-b border-slate-200/70 dark:border-studio-border shadow-[0_4px_14px_rgba(15,23,42,0.04)]" aria-label="Core Features">
+      <div class="grid grid-cols-4 gap-y-3.5 gap-x-1.5">
+        {#each CAMSCANNER_TOP_TOOLS as item (item.id)}
+          <a
+            href={item.href}
+            data-mob-sheet-open={item.sheet}
+            data-mob-open-all-tools={item.openAllTools ? '1' : undefined}
+            class="flex flex-col items-center gap-1.5 py-1 rounded-2xl no-underline text-slate-800 dark:text-studio-text active:scale-95 transition-transform"
+          >
+            <span class="w-12 h-12 rounded-2xl {item.bg} inline-flex items-center justify-center shadow-2xs">
+              <Icon name={item.icon} class="w-6 h-6" />
+            </span>
+            <span class="text-[11.5px] font-bold text-center leading-tight px-0.5 line-clamp-1" data-i18n-bn={item.bn} data-i18n-en={item.en}>{item.bn}</span>
+          </a>
+        {/each}
+      </div>
+    </section>
+
+    <!-- Saved Recent Documents Section (CamScanner "Recents" Feed) -->
+    <section class="px-3.5 pt-4 pb-6 flex-1 flex flex-col" id="mobSavedDocsSection" aria-label="Recent Documents">
+      <div class="flex items-center justify-between gap-2 mb-2.5">
+        <div class="flex items-center gap-2">
+          <h2 class="m-0 text-[15px] font-extrabold text-slate-900 dark:text-studio-text" data-i18n-bn="সাম্প্রতিক ডকুমেন্টস" data-i18n-en="Recent Documents">সাম্প্রতিক ডকুমেন্টস</h2>
+          <span id="mobSavedDocsCount" class="px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-studio-panel text-slate-700 dark:text-studio-muted text-xs font-bold">০</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <label
+            for="mobVaultImportInput"
+            class="inline-flex items-center gap-1 h-8 px-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-bold text-slate-700 dark:text-studio-text cursor-pointer active:scale-95 transition-transform"
+          >
+            <Icon name="lucide:file-plus-2" class="w-3.5 h-3.5 text-emerald-500" />
+            <span data-i18n-bn="ফাইল যোগ" data-i18n-en="Import">ফাইল যোগ</span>
+          </label>
+          <input id="mobVaultImportInput" type="file" multiple accept="image/*,.pdf,.docx,.xlsx,.pptx" class="sr-only" />
+        </div>
+      </div>
+
+      <!-- Category Filter Pills for Saved Documents -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-1 no-scrollbar" id="mobDocFilterBar" role="tablist">
+        <button type="button" data-doc-filter="all" class="mob-doc-filter is-active h-7.5 px-3 rounded-full text-xs font-bold border border-transparent bg-slate-200/70 dark:bg-studio-panel text-slate-600 dark:text-studio-muted whitespace-nowrap cursor-pointer [&.is-active]:bg-emerald-600 [&.is-active]:text-white" data-i18n-bn="সব ফাইল" data-i18n-en="All Docs">সব ফাইল</button>
+        <button type="button" data-doc-filter="scan" class="mob-doc-filter h-7.5 px-3 rounded-full text-xs font-bold border border-transparent bg-slate-200/70 dark:bg-studio-panel text-slate-600 dark:text-studio-muted whitespace-nowrap cursor-pointer [&.is-active]:bg-emerald-600 [&.is-active]:text-white" data-i18n-bn="স্ক্যান ও ছবি" data-i18n-en="Scans">স্ক্যান ও ছবি</button>
+        <button type="button" data-doc-filter="nid" class="mob-doc-filter h-7.5 px-3 rounded-full text-xs font-bold border border-transparent bg-slate-200/70 dark:bg-studio-panel text-slate-600 dark:text-studio-muted whitespace-nowrap cursor-pointer [&.is-active]:bg-emerald-600 [&.is-active]:text-white" data-i18n-bn="NID ও পাসপোর্ট" data-i18n-en="ID & Passport">NID ও পাসপোর্ট</button>
+        <button type="button" data-doc-filter="pdf" class="mob-doc-filter h-7.5 px-3 rounded-full text-xs font-bold border border-transparent bg-slate-200/70 dark:bg-studio-panel text-slate-600 dark:text-studio-muted whitespace-nowrap cursor-pointer [&.is-active]:bg-emerald-600 [&.is-active]:text-white" data-i18n-bn="PDF ডকুমেন্ট" data-i18n-en="PDFs">PDF ডকুমেন্ট</button>
+      </div>
+
+      <!-- Saved Documents List (Populated by IndexedDB + Cloudflare R2/D1 Vault) -->
+      <div id="mobSavedDocsList" class="grid gap-2"></div>
+
+      <!-- Empty State when no documents are saved yet -->
+      <div id="mobSavedDocsEmpty" class="flex-1 flex flex-col items-center justify-center text-center py-8 px-4 rounded-3xl bg-white dark:bg-studio-sidebar border border-slate-200/80 dark:border-studio-border my-1">
+        <div class="w-15 h-15 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3">
+          <Icon name="lucide:folder-check" class="w-8 h-8" />
+        </div>
+        <h3 class="m-0 text-[15px] font-extrabold text-slate-900 dark:text-studio-text" data-i18n-bn="কোনো সেভ করা ডকুমেন্ট নেই" data-i18n-en="No Saved Documents Yet">কোনো সেভ করা ডকুমেন্ট নেই</h3>
+        <p class="m-0 mt-1 mb-4 text-xs text-slate-500 dark:text-studio-muted max-w-[260px] leading-relaxed" data-i18n-bn="আপনি যা স্ক্যান বা তৈরি করবেন তা স্বয়ংক্রিয়ভাবে এখানে এবং ক্লাউডে সেভ থাকবে—ফোন রিসেট করলেও হারাবে না।" data-i18n-en="Documents you scan or create are automatically saved here & backed up to the cloud.">
+          আপনি যা স্ক্যান বা তৈরি করবেন তা স্বয়ংক্রিয়ভাবে এখানে এবং ক্লাউডে সেভ থাকবে—ফোন রিসেট করলেও হারাবে না।
         </p>
         <div class="flex items-center gap-2">
           <button
             type="button"
             data-mob-sheet-open="mobScanSheet"
-            class="inline-flex items-center gap-2 h-11 px-4.5 rounded-2xl bg-white text-emerald-700 font-extrabold text-[14px] border-0 shadow-md cursor-pointer active:scale-95 transition-transform"
+            class="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-emerald-600 text-white text-xs font-bold border-0 shadow-sm cursor-pointer active:scale-95 transition-transform"
           >
-            <Icon name="lucide:camera" class="w-5 h-5" />
-            <span data-i18n-bn="স্ক্যান শুরু করুন" data-i18n-en="Start Scanning">স্ক্যান শুরু করুন</span>
+            <Icon name="lucide:camera" class="w-4 h-4 [&_*]:!stroke-white" />
+            <span data-i18n-bn="নতুন স্ক্যান করুন" data-i18n-en="New Scan">নতুন স্ক্যান করুন</span>
           </button>
-          <a
-            href="/image/scan"
-            class="inline-flex items-center gap-1.5 h-11 px-3.5 rounded-2xl bg-white/18 text-white font-bold text-[13px] no-underline border border-white/25 active:scale-95 transition-transform"
+          <label
+            for="mobVaultImportInput"
+            class="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-slate-100 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-slate-700 dark:text-studio-text text-xs font-bold cursor-pointer active:scale-95 transition-transform"
           >
-            <Icon name="lucide:image" class="w-4.5 h-4.5 [&_*]:!stroke-white" />
-            <span data-i18n-bn="গ্যালারি" data-i18n-en="Gallery">গ্যালারি</span>
-          </a>
+            <Icon name="lucide:upload" class="w-4 h-4" />
+            <span data-i18n-bn="ফাইল ইমপোর্ট" data-i18n-en="Import File">ফাইল ইমপোর্ট</span>
+          </label>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <!-- Quick tools grid -->
-  <section class="px-3 pt-4 pb-4 bg-white dark:bg-studio-sidebar rounded-b-3xl shadow-[0_6px_16px_rgba(15,23,42,0.04)]" aria-label="Quick Tools">
-    <div class="grid grid-cols-4 gap-y-4 gap-x-1">
-      {#each QUICK_TOOLS as q (q.id)}
-        <a href={q.tool?.href} class="flex flex-col items-center gap-1.5 no-underline text-slate-800 dark:text-studio-text active:scale-95 transition-transform">
-          <span class="w-13 h-13 rounded-2xl bg-gradient-to-br {q.grad} text-white inline-flex items-center justify-center shadow-sm [&_*]:!stroke-white">
-            <Icon name={q.tool?.lucideIcon || 'lucide:file'} class="w-6 h-6" />
-          </span>
-          <span class="text-[11.5px] font-semibold text-center leading-tight" data-i18n-bn={q.bn} data-i18n-en={q.en}>{q.bn}</span>
-        </a>
-      {/each}
+  <!-- ==================== VIEW 2: DEDICATED "ALL TOOLS" SCREEN (OPENS WHEN TAPPING "ALL TOOLS" OR TOOLS TAB) ==================== -->
+  <section id="mobAllTools" hidden class="[&[hidden]]:hidden px-3 pt-3 pb-6 flex-1" aria-label="All Tools">
+    <div class="flex items-center justify-between gap-2 mb-3 px-1">
+      <button
+        type="button"
+        data-mob-close-all-tools
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-bold text-slate-700 dark:text-studio-text cursor-pointer active:scale-95"
+      >
+        <Icon name="lucide:arrow-left" class="w-4 h-4" />
+        <span data-i18n-bn="হোমে ফিরুন" data-i18n-en="Back to Home">হোমে ফিরুন</span>
+      </button>
+      <h2 class="m-0 text-[15px] font-extrabold text-slate-900 dark:text-studio-text" data-i18n-bn="সকল টুলস" data-i18n-en="All Tools">সকল টুলস</h2>
+      <button
+        type="button"
+        data-open-search
+        class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-slate-600 dark:text-studio-muted cursor-pointer"
+        aria-label="Search"
+      >
+        <Icon name="lucide:search" class="w-4 h-4" />
+      </button>
     </div>
-  </section>
 
-  <!-- Recent (filled by shell.js from localStorage) -->
-  <section id="mobRecentSection" hidden class="[&[hidden]]:hidden px-3 pt-5" aria-label="Recent">
-    <div class="flex items-center justify-between mb-2 px-1">
-      <h2 class="m-0 text-[15px] font-extrabold text-slate-900 dark:text-studio-text" data-i18n-bn="সাম্প্রতিক" data-i18n-en="Recent">সাম্প্রতিক</h2>
-    </div>
-    <div id="mobRecentList" class="rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200/80 dark:border-studio-border divide-y divide-slate-100 dark:divide-studio-border overflow-hidden">
-      {#each ALL_TOOLS as tool (tool.id)}
-        <a
-          href={tool.href}
-          data-mob-recent-row={tool.id}
-          hidden
-          class="[&[hidden]]:hidden flex items-center gap-3 px-3 py-2.5 no-underline text-slate-900 dark:text-studio-text active:bg-slate-50 dark:active:bg-studio-panel"
-        >
-          <span class="w-10 h-10 rounded-xl bg-gradient-to-br {gradFor(tool.color)} text-white inline-flex items-center justify-center shrink-0 [&_*]:!stroke-white">
-            <Icon name={tool.lucideIcon} class="w-5 h-5" />
-          </span>
-          <span class="flex-1 min-w-0">
-            <b class="block text-[14px] font-bold truncate" data-i18n-bn={tool.title} data-i18n-en={tool.titleEn}>{tool.title}</b>
-            <small class="block text-[12px] text-slate-500 dark:text-studio-muted truncate" data-i18n-bn={tool.desc} data-i18n-en={tool.descEn}>{tool.desc}</small>
-          </span>
-          <Icon name="lucide:chevron-right" class="w-4.5 h-4.5 text-slate-400 shrink-0" />
-        </a>
-      {/each}
-    </div>
-  </section>
-
-  <!-- All tools, grouped by category -->
-  <section id="mobAllTools" class="px-3 pt-5 scroll-mt-16" aria-label="All Tools">
-    <h2 class="m-0 mb-2 px-1 text-[15px] font-extrabold text-slate-900 dark:text-studio-text" data-i18n-bn="সব টুলস" data-i18n-en="All Tools">সব টুলস</h2>
     <div class="grid gap-3">
       {#each CATEGORIES as cat (cat.id)}
         {@const items = ALL_TOOLS.filter((t) => t.categoryId === cat.id)}
         {#if items.length}
-          <div class="rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200/80 dark:border-studio-border p-3">
+          <div class="rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200/80 dark:border-studio-border p-3.5">
             <a href={cat.href} class="flex items-center justify-between mb-3 no-underline">
               <span class="inline-flex items-center gap-2 text-[13.5px] font-bold text-slate-800 dark:text-studio-text">
                 <Icon name={cat.lucideIcon} class="w-4.5 h-4.5 {getToolIconPalette(cat.color).text}" />
@@ -160,7 +187,7 @@
                   <span class="w-11 h-11 rounded-2xl {getToolIconPalette(tool.color).iconWrap} inline-flex items-center justify-center">
                     <Icon name={tool.lucideIcon} class="w-5.5 h-5.5" />
                   </span>
-                  <span class="w-full px-0.5 text-[11px] font-medium text-center leading-tight line-clamp-2" data-i18n-bn={tool.title} data-i18n-en={tool.titleEn}>{tool.title}</span>
+                  <span class="w-full px-0.5 text-[11.5px] font-medium text-center leading-tight line-clamp-2" data-i18n-bn={tool.title} data-i18n-en={tool.titleEn}>{tool.title}</span>
                 </a>
               {/each}
             </div>

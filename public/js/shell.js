@@ -508,7 +508,7 @@
       iconHtml: iconEl ? iconEl.innerHTML : ''
     };
     catalogById[id] = meta;
-    catalogByPath[href] = meta;
+    if (!catalogByPath[href]) catalogByPath[href] = meta;
   });
 
   var ALIAS_PATHS = {
@@ -1443,6 +1443,7 @@
         recordCurrentToolVisit();
         syncFavButtons();
         renderHomePersonalizedSections();
+        if (window.TechHatVault && window.TechHatVault.render) window.TechHatVault.render();
         bindDirectoryFilters();
         mountClipboardPasteButtons();
         applyGlobalLanguage(getCurrentLang(), true);
@@ -1556,4 +1557,447 @@
       showToast(isEn() ? 'App installed!' : 'অ্যাপ ইনস্টল হয়েছে!');
     });
   }
+
+  /* ============================================================================
+   * PERSISTENT DOCUMENT VAULT (IndexedDB) + CLOUDFLARE R2 / D1 CLOUD SYNC
+   * ============================================================================ */
+  (function initDocumentVault() {
+    var DB_NAME = 'thbc_doc_vault';
+    var DB_VER = 1;
+    var STORE = 'docs';
+    var SYNC_ACCOUNT_KEY = 'thbc-cloud-account';
+    var SYNC_ENDPOINT_KEY = 'thbc-cloud-endpoint';
+    var activeFilter = 'all';
+    var dbPromise = null;
+
+    function openVaultDB() {
+      if (dbPromise) return dbPromise;
+      dbPromise = new Promise(function (resolve, reject) {
+        if (!window.indexedDB) { reject(new Error('No IndexedDB')); return; }
+        var req = indexedDB.open(DB_NAME, DB_VER);
+        req.onupgradeneeded = function (e) {
+          var db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE)) {
+            var st = db.createObjectStore(STORE, { keyPath: 'id' });
+            st.createIndex('createdAt', 'createdAt', { unique: false });
+          }
+        };
+        req.onsuccess = function (e) { resolve(e.target.result); };
+        req.onerror = function (e) { reject(e.target.error); };
+      });
+      return dbPromise;
+    }
+
+    function listDocs() {
+      return openVaultDB().then(function (db) {
+        return new Promise(function (resolve) {
+          var tx = db.transaction(STORE, 'readonly');
+          var st = tx.objectStore(STORE);
+          var req = st.getAll();
+          req.onsuccess = function () {
+            var arr = (req.result || []).slice().sort(function (a, b) {
+              return (b.createdAt || 0) - (a.createdAt || 0);
+            });
+            resolve(arr);
+          };
+          req.onerror = function () { resolve([]); };
+        });
+      }).catch(function () { return []; });
+    }
+
+    function putDocRecord(doc) {
+      return openVaultDB().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(STORE, 'readwrite');
+          tx.objectStore(STORE).put(doc);
+          tx.oncomplete = function () { resolve(doc); };
+          tx.onerror = function (e) { reject(e.target.error); };
+        });
+      });
+    }
+
+    function deleteDocRecord(id) {
+      return openVaultDB().then(function (db) {
+        return new Promise(function (resolve) {
+          var tx = db.transaction(STORE, 'readwrite');
+          tx.objectStore(STORE).delete(id);
+          tx.oncomplete = function () { resolve(true); };
+          tx.onerror = function () { resolve(false); };
+        });
+      });
+    }
+
+    function makeThumbnail(blob, mime) {
+      return new Promise(function (resolve) {
+        if (!mime || mime.indexOf('image/') !== 0) { resolve(''); return; }
+        var url = URL.createObjectURL(blob);
+        var img = new Image();
+        img.onload = function () {
+          try {
+            var maxSide = 160;
+            var w = img.naturalWidth || 120;
+            var h = img.naturalHeight || 160;
+            var scale = Math.min(1, maxSide / Math.max(w, h));
+            var cw = Math.max(1, Math.round(w * scale));
+            var ch = Math.max(1, Math.round(h * scale));
+            var c = document.createElement('canvas');
+            c.width = cw;
+            c.height = ch;
+            var ctx = c.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, cw, ch);
+            ctx.drawImage(img, 0, 0, cw, ch);
+            URL.revokeObjectURL(url);
+            resolve(c.toDataURL('image/jpeg', 0.72));
+          } catch (e) {
+            URL.revokeObjectURL(url);
+            resolve('');
+          }
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); resolve(''); };
+        img.src = url;
+      });
+    }
+
+    function inferDocCategory(filename, mime, pathname) {
+      var p = normPath(pathname || location.pathname);
+      var lower = (filename || '').toLowerCase();
+      if (p.indexOf('/image/combine') === 0 || p.indexOf('/image/passport') === 0 || /nid|id[-_ ]?card|passport/.test(lower)) {
+        return 'nid';
+      }
+      if (p.indexOf('/pdf') === 0 || (mime && mime.indexOf('pdf') !== -1) || /\.pdf$/i.test(lower)) {
+        return 'pdf';
+      }
+      return 'scan';
+    }
+
+    function formatBytes(bytes) {
+      var b = Number(bytes) || 0;
+      if (b < 1024) return b + ' B';
+      if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+      return (b / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function formatDateShort(ts) {
+      try {
+        var d = new Date(ts || Date.now());
+        return d.toLocaleDateString(isEn() ? 'en-US' : 'bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function getCloudConfig() {
+      var account = '';
+      var endpoint = '';
+      try {
+        account = (localStorage.getItem(SYNC_ACCOUNT_KEY) || '').trim();
+        endpoint = (localStorage.getItem(SYNC_ENDPOINT_KEY) || '').trim().replace(/\/+$/, '');
+      } catch (e) {}
+      return { account: account, endpoint: endpoint };
+    }
+
+    function syncSingleDocToCloud(doc) {
+      var cfg = getCloudConfig();
+      if (!cfg.account || !cfg.endpoint || !doc || !doc.blob) return Promise.resolve(false);
+      var fd = new FormData();
+      fd.append('id', doc.id);
+      fd.append('account', cfg.account);
+      fd.append('title', doc.title || 'document');
+      fd.append('category', doc.category || 'scan');
+      fd.append('mime', doc.mime || 'application/octet-stream');
+      fd.append('size', String(doc.size || 0));
+      fd.append('createdAt', String(doc.createdAt || Date.now()));
+      fd.append('thumb', doc.thumb || '');
+      fd.append('file', doc.blob, doc.title || 'document');
+      return fetch(cfg.endpoint + '/api/docs', {
+        method: 'POST',
+        headers: { 'X-Sync-Account': cfg.account },
+        body: fd
+      }).then(function (r) {
+        if (!r.ok) return false;
+        doc.cloudSynced = true;
+        return putDocRecord(doc).then(function () { return true; });
+      }).catch(function () { return false; });
+    }
+
+    function syncAllWithCloud() {
+      var cfg = getCloudConfig();
+      var statusEl = $('#mobCloudStatusMsg');
+      var topBadge = $('#mobCloudSyncStatusText');
+      if (!cfg.account) {
+        if (statusEl) statusEl.textContent = isEn() ? 'Enter an email or Sync ID first' : 'প্রথমে আপনার ইমেইল বা সিঙ্ক আইডি লিখুন';
+        return Promise.resolve();
+      }
+      if (!cfg.endpoint) {
+        if (statusEl) statusEl.textContent = isEn() ? 'Sync ID saved locally. Add Cloudflare Worker URL to sync online.' : 'সিঙ্ক আইডি সেভ হয়েছে। অনলাইন ব্যাকআপের জন্য Worker URL দিন।';
+        if (topBadge) topBadge.textContent = isEn() ? 'Saved (' + cfg.account.slice(0, 10) + ')' : 'সেভড (' + cfg.account.slice(0, 10) + ')';
+        return Promise.resolve();
+      }
+      if (statusEl) statusEl.textContent = isEn() ? 'Syncing with Cloudflare R2 + D1…' : 'Cloudflare R2 + D1-এ সিঙ্ক হচ্ছে…';
+      return listDocs().then(function (localDocs) {
+        var uploads = localDocs.filter(function (d) { return !d.cloudSynced && d.blob; }).map(syncSingleDocToCloud);
+        return Promise.all(uploads);
+      }).then(function () {
+        return fetch(cfg.endpoint + '/api/docs?account=' + encodeURIComponent(cfg.account), {
+          headers: { 'X-Sync-Account': cfg.account }
+        }).then(function (r) { return r.ok ? r.json() : { docs: [] }; }).catch(function () { return { docs: [] }; });
+      }).then(function (remoteData) {
+        var remoteList = (remoteData && remoteData.docs) || [];
+        return listDocs().then(function (localDocs) {
+          var existingIds = {};
+          localDocs.forEach(function (d) { existingIds[d.id] = true; });
+          var pulls = remoteList.filter(function (rd) { return rd && rd.id && !existingIds[rd.id]; }).map(function (rd) {
+            return fetch(cfg.endpoint + '/api/docs/' + encodeURIComponent(rd.id) + '/file?account=' + encodeURIComponent(cfg.account), {
+              headers: { 'X-Sync-Account': cfg.account }
+            }).then(function (res) { return res.ok ? res.blob() : null; }).then(function (blob) {
+              if (!blob) return null;
+              return putDocRecord({
+                id: rd.id,
+                title: rd.title || 'Document',
+                category: rd.category || 'scan',
+                mime: rd.mime || blob.type || 'application/octet-stream',
+                size: rd.size || blob.size || 0,
+                createdAt: rd.createdAt || Date.now(),
+                thumb: rd.thumb || '',
+                cloudSynced: true,
+                blob: blob
+              });
+            }).catch(function () { return null; });
+          });
+          return Promise.all(pulls);
+        });
+      }).then(function () {
+        if (statusEl) statusEl.textContent = isEn() ? 'All documents synced with Cloudflare R2!' : 'সব ডকুমেন্ট Cloudflare R2-এ সফলভাবে সিঙ্ক হয়েছে!';
+        if (topBadge) topBadge.textContent = isEn() ? 'Cloud Synced' : 'ক্লাউড সিঙ্কড';
+        renderSavedDocsVault();
+      });
+    }
+
+    function saveBlobToVault(blob, filename, customCategory) {
+      if (!blob || !blob.size) return Promise.resolve(null);
+      var mime = blob.type || (/\.pdf$/i.test(filename || '') ? 'application/pdf' : 'image/jpeg');
+      var cat = customCategory || inferDocCategory(filename, mime, location.pathname);
+      var cleanTitle = (filename || ('Scan-' + new Date().toISOString().slice(0, 10))).trim();
+      return makeThumbnail(blob, mime).then(function (thumb) {
+        var doc = {
+          id: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+          title: cleanTitle,
+          category: cat,
+          mime: mime,
+          size: blob.size,
+          createdAt: Date.now(),
+          thumb: thumb,
+          cloudSynced: false,
+          blob: blob
+        };
+        return putDocRecord(doc).then(function () {
+          renderSavedDocsVault();
+          syncSingleDocToCloud(doc).then(function (ok) {
+            if (ok) renderSavedDocsVault();
+          });
+          return doc;
+        });
+      }).catch(function () { return null; });
+    }
+
+    function renderSavedDocsVault() {
+      var listEl = $('#mobSavedDocsList');
+      var emptyEl = $('#mobSavedDocsEmpty');
+      var countEl = $('#mobSavedDocsCount');
+      var topBadge = $('#mobCloudSyncStatusText');
+      var cfg = getCloudConfig();
+      if (topBadge && cfg.account) {
+        topBadge.textContent = cfg.endpoint ? (isEn() ? 'Cloud Synced' : 'ক্লাউড সিঙ্কড') : (isEn() ? 'Vault: ' + cfg.account.slice(0, 8) : 'ভল্ট: ' + cfg.account.slice(0, 8));
+      }
+      if (!listEl) return;
+
+      listDocs().then(function (docs) {
+        if (countEl) countEl.textContent = isEn() ? String(docs.length) : toBn(docs.length);
+        var filtered = docs.filter(function (d) {
+          return activeFilter === 'all' || d.category === activeFilter;
+        });
+        if (!filtered.length) {
+          listEl.innerHTML = '';
+          if (emptyEl) emptyEl.hidden = false;
+          return;
+        }
+        if (emptyEl) emptyEl.hidden = true;
+        var html = filtered.map(function (doc) {
+          var isPdf = (doc.mime && doc.mime.indexOf('pdf') !== -1) || /\.pdf$/i.test(doc.title || '');
+          var catBadgeBn = doc.category === 'nid' ? 'NID / পাসপোর্ট' : doc.category === 'pdf' ? 'PDF' : 'স্ক্যান';
+          var catBadgeEn = doc.category === 'nid' ? 'NID / ID' : doc.category === 'pdf' ? 'PDF' : 'Scan';
+          var thumbHtml = doc.thumb
+            ? '<img src="' + doc.thumb + '" alt="" class="w-12 h-14 rounded-xl object-cover border border-slate-200 dark:border-studio-border shrink-0 bg-slate-100" />'
+            : '<div class="w-12 h-14 rounded-xl ' + (isPdf ? 'bg-rose-500/12 text-rose-600 dark:text-rose-400' : 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400') + ' flex flex-col items-center justify-center shrink-0 border border-slate-200/70 dark:border-studio-border"><span class="text-[10px] font-extrabold uppercase">' + (isPdf ? 'PDF' : 'DOC') + '</span></div>';
+          var syncDot = doc.cloudSynced
+            ? '<span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400" title="Cloud Synced">☁️</span>'
+            : '';
+
+          return (
+            '<div class="flex items-center gap-3 p-2.5 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200/80 dark:border-studio-border shadow-2xs" data-vault-doc-id="' + doc.id + '">' +
+              thumbHtml +
+              '<div class="flex-1 min-w-0">' +
+                '<div class="flex items-center gap-1.5">' +
+                  '<b class="text-[13px] font-bold text-slate-900 dark:text-studio-text truncate">' + escapeHtml(doc.title || 'Document') + '</b>' +
+                  syncDot +
+                '</div>' +
+                '<div class="flex items-center flex-wrap gap-1.5 mt-1 text-[11px] text-slate-500 dark:text-studio-muted">' +
+                  '<span class="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-studio-panel text-[10px] font-bold text-slate-700 dark:text-studio-text">' + (isEn() ? catBadgeEn : catBadgeBn) + '</span>' +
+                  '<span>•</span>' +
+                  '<span>' + formatBytes(doc.size) + '</span>' +
+                  '<span>•</span>' +
+                  '<span>' + formatDateShort(doc.createdAt) + '</span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="flex items-center gap-1 shrink-0">' +
+                '<button type="button" data-vault-action="share" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-studio-panel border-0 text-slate-700 dark:text-studio-text inline-flex items-center justify-center cursor-pointer active:scale-95" title="Share" aria-label="Share">' +
+                  '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>' +
+                '</button>' +
+                '<button type="button" data-vault-action="download" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-emerald-500/12 border-0 text-emerald-700 dark:text-emerald-300 inline-flex items-center justify-center cursor-pointer active:scale-95" title="Download" aria-label="Download">' +
+                  '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m9 12v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>' +
+                '</button>' +
+                '<button type="button" data-vault-action="delete" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-rose-500/10 border-0 text-rose-600 dark:text-rose-400 inline-flex items-center justify-center cursor-pointer active:scale-95" title="Delete" aria-label="Delete">' +
+                  '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+                '</button>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+        listEl.innerHTML = html;
+      });
+    }
+
+    // Automatically intercept exported <a download> blobs across all tools so every scan/PDF/ID card is saved in the vault
+    var lastCapturedHref = '';
+    function tryCaptureDownloadAnchor(a) {
+      try {
+        if (!a || a.tagName !== 'A' || !a.hasAttribute('download')) return;
+        if (a.dataset && a.dataset.vaultIgnore === '1') return;
+        var href = a.getAttribute('href') || '';
+        if (!href || href === lastCapturedHref) return;
+        if (href.indexOf('blob:') !== 0 && href.indexOf('data:') !== 0) return;
+        lastCapturedHref = href;
+        var filename = a.getAttribute('download') || ('Document-' + Date.now());
+        fetch(href).then(function (r) { return r.blob(); }).then(function (blob) {
+          return saveBlobToVault(blob, filename);
+        }).catch(function () {});
+      } catch (e) {}
+    }
+
+    var origAnchorClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function () {
+      tryCaptureDownloadAnchor(this);
+      return origAnchorClick.apply(this, arguments);
+    };
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest ? e.target.closest('a[download]') : null;
+      if (a) tryCaptureDownloadAnchor(a);
+    }, true);
+
+    // Handle Vault UI actions (filter pills, file import, share, download, delete, cloud sync)
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t || !t.closest) return;
+
+      var filterBtn = t.closest('[data-doc-filter]');
+      if (filterBtn) {
+        activeFilter = filterBtn.getAttribute('data-doc-filter') || 'all';
+        $$('[data-doc-filter]').forEach(function (b) {
+          b.classList.toggle('is-active', b.getAttribute('data-doc-filter') === activeFilter);
+        });
+        renderSavedDocsVault();
+        return;
+      }
+
+      var actionBtn = t.closest('[data-vault-action]');
+      if (actionBtn) {
+        var act = actionBtn.getAttribute('data-vault-action');
+        var id = actionBtn.getAttribute('data-id');
+        if (!id) return;
+        if (act === 'delete') {
+          deleteDocRecord(id).then(function () {
+            var cfg = getCloudConfig();
+            if (cfg.account && cfg.endpoint) {
+              fetch(cfg.endpoint + '/api/docs/' + encodeURIComponent(id) + '?account=' + encodeURIComponent(cfg.account), {
+                method: 'DELETE',
+                headers: { 'X-Sync-Account': cfg.account }
+              }).catch(function () {});
+            }
+            renderSavedDocsVault();
+            showToast(isEn() ? 'Removed from vault' : 'ডকুমেন্ট মুছে ফেলা হয়েছে');
+          });
+          return;
+        }
+        listDocs().then(function (docs) {
+          var found = docs.filter(function (d) { return d.id === id; })[0];
+          if (!found || !found.blob) return;
+          if (act === 'download') {
+            var url = URL.createObjectURL(found.blob);
+            var a = document.createElement('a');
+            a.dataset.vaultIgnore = '1';
+            a.href = url;
+            a.download = found.title || 'document';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function () { URL.revokeObjectURL(url); }, 2500);
+          } else if (act === 'share') {
+            var file = new File([found.blob], found.title || 'document', { type: found.mime || found.blob.type || 'application/octet-stream' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              navigator.share({ title: found.title, files: [file] }).catch(function () {});
+            } else {
+              var dlUrl = URL.createObjectURL(found.blob);
+              var dl = document.createElement('a');
+              dl.dataset.vaultIgnore = '1';
+              dl.href = dlUrl;
+              dl.download = found.title || 'document';
+              document.body.appendChild(dl);
+              dl.click();
+              dl.remove();
+              setTimeout(function () { URL.revokeObjectURL(dlUrl); }, 2500);
+            }
+          }
+        });
+        return;
+      }
+
+      if (t.closest('#mobCloudSyncNowBtn')) {
+        var accInput = $('#mobCloudAccountInput');
+        var epInput = $('#mobCloudEndpointInput');
+        try {
+          if (accInput) localStorage.setItem(SYNC_ACCOUNT_KEY, accInput.value.trim());
+          if (epInput) localStorage.setItem(SYNC_ENDPOINT_KEY, epInput.value.trim());
+        } catch (err) {}
+        syncAllWithCloud();
+        return;
+      }
+    });
+
+    document.addEventListener('change', function (e) {
+      var input = e.target;
+      if (!input || input.id !== 'mobVaultImportInput' || !input.files || !input.files.length) return;
+      var files = Array.prototype.slice.call(input.files);
+      Promise.all(files.map(function (f) { return saveBlobToVault(f, f.name); })).then(function () {
+        input.value = '';
+        showToast(isEn() ? files.length + ' document(s) saved to vault' : toBn(files.length) + 'টি ডকুমেন্ট সেভ হয়েছে');
+      });
+    });
+
+    // Hydrate Cloud Sync Sheet inputs
+    var cfgInit = getCloudConfig();
+    var accEl = $('#mobCloudAccountInput');
+    var epEl = $('#mobCloudEndpointInput');
+    if (accEl && cfgInit.account) accEl.value = cfgInit.account;
+    if (epEl && cfgInit.endpoint) epEl.value = cfgInit.endpoint;
+
+    window.TechHatVault = {
+      save: saveBlobToVault,
+      list: listDocs,
+      render: renderSavedDocsVault,
+      sync: syncAllWithCloud
+    };
+
+    renderSavedDocsVault();
+  })();
 })();

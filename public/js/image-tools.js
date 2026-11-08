@@ -1671,6 +1671,7 @@
     if (!initialized) {
       initialized = true;
       window.addEventListener('th:langchange', function () {
+        if (!document.getElementById('tool-image')) return;
         if (currentTab && IMG_SUB_TITLES[currentTab]) {
           var tMeta = IMG_SUB_TITLES[currentTab];
           var bcTool = $('#globalBreadcrumbTool');

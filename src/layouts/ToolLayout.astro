@@ -706,6 +706,13 @@ const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
           </span>
           <Icon name="lucide:chevron-right" class="w-4.5 h-4.5 text-slate-400" />
         </button>
+        <button type="button" data-mob-sheet-open="mobCloudSheet" class="w-full flex items-center justify-between gap-3 px-3.5 py-3 bg-transparent border-0 text-left text-slate-900 dark:text-studio-text cursor-pointer">
+          <span class="inline-flex items-center gap-2.5 text-[14px] font-semibold">
+            <Icon name="lucide:cloud" class="w-5 h-5 text-emerald-500" />
+            <span data-i18n-bn="ক্লাউড ব্যাকআপ ও সিঙ্ক (Cloudflare)" data-i18n-en="Cloud Backup & Sync (Cloudflare)">ক্লাউড ব্যাকআপ ও সিঙ্ক (Cloudflare)</span>
+          </span>
+          <Icon name="lucide:chevron-right" class="w-4.5 h-4.5 text-slate-400" />
+        </button>
         <a href="/#mobAllTools" class="flex items-center justify-between gap-3 px-3.5 py-3 no-underline text-slate-900 dark:text-studio-text">
           <span class="inline-flex items-center gap-2.5 text-[14px] font-semibold">
             <Icon name="lucide:layout-grid" class="w-5 h-5 text-blue-500" />
@@ -715,6 +722,61 @@ const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
         </a>
       </div>
       <p class="m-0 mt-3 text-center text-[11.5px] text-slate-400">© {currentYear} TechHat</p>
+    </div>
+  </dialog>
+
+  <!-- MOBILE CLOUDFLARE R2 + D1 CLOUD SYNC SHEET -->
+  <dialog
+    id="mobCloudSheet"
+    class="th-mob-sheet lg:hidden fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none p-0 border-0 rounded-t-3xl bg-white dark:bg-studio-sidebar text-slate-900 dark:text-studio-text shadow-2xl backdrop:bg-slate-950/55 backdrop:backdrop-blur-xs"
+    aria-label="Cloud Backup & Sync"
+  >
+    <div class="px-4 pt-2.5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+      <div class="mx-auto mb-3 w-10 h-1.5 rounded-full bg-slate-300 dark:bg-white/20" data-mob-sheet-close></div>
+      <div class="flex items-center gap-3 mb-3">
+        <span class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white inline-flex items-center justify-center shrink-0 shadow-sm [&_*]:!stroke-white">
+          <Icon name="lucide:cloud-upload" class="w-5.5 h-5.5" />
+        </span>
+        <div class="min-w-0 flex-1">
+          <b class="block text-[15px] font-extrabold" data-i18n-bn="ক্লাউড ডকুমেন্ট ভল্ট (Cloudflare R2 + D1)" data-i18n-en="Cloud Document Vault (Cloudflare R2 + D1)">ক্লাউড ডকুমেন্ট ভল্ট (Cloudflare R2 + D1)</b>
+          <small class="block text-[11.5px] text-slate-500 dark:text-studio-muted" data-i18n-bn="ফোন রিসেট বা পরিবর্তন করলেও একই অ্যাকাউন্টে সব ডকুমেন্ট ফিরে পাবেন" data-i18n-en="Restore all documents on any device with your Sync ID">ফোন রিসেট বা পরিবর্তন করলেও একই অ্যাকাউন্টে সব ডকুমেন্ট ফিরে পাবেন</small>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border space-y-2.5">
+        <div>
+          <label for="mobCloudAccountInput" class="block text-[11.5px] font-bold text-slate-700 dark:text-studio-text mb-1" data-i18n-bn="আপনার ইমেইল বা সিঙ্ক আইডি (Sync ID)" data-i18n-en="Your Email or Sync ID">আপনার ইমেইল বা সিঙ্ক আইডি (Sync ID)</label>
+          <input
+            type="text"
+            id="mobCloudAccountInput"
+            placeholder="user@example.com / আপনার গোপন কোড"
+            class="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-[13px] font-semibold text-slate-900 dark:text-studio-text outline-none focus:border-emerald-500"
+          />
+        </div>
+        <div>
+          <label for="mobCloudEndpointInput" class="block text-[11.5px] font-bold text-slate-700 dark:text-studio-text mb-1" data-i18n-bn="Cloudflare Worker API URL (ঐচ্ছিক)" data-i18n-en="Cloudflare Worker API URL (Optional)">Cloudflare Worker API URL (ঐচ্ছিক)</label>
+          <input
+            type="url"
+            id="mobCloudEndpointInput"
+            placeholder="https://techhat-vault.your-subdomain.workers.dev"
+            class="w-full h-9.5 px-3 rounded-xl border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar text-[12px] text-slate-700 dark:text-studio-muted outline-none focus:border-emerald-500"
+          />
+        </div>
+        <div class="flex items-center justify-between gap-2 pt-1">
+          <span id="mobCloudStatusMsg" class="text-[11.5px] font-semibold text-emerald-600 dark:text-emerald-400" data-i18n-bn="লোকাল ডিভাইস ভল্ট সক্রিয় (IndexedDB)" data-i18n-en="Local Device Vault Active (IndexedDB)">লোকাল ডিভাইস ভল্ট সক্রিয় (IndexedDB)</span>
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              id="mobCloudSyncNowBtn"
+              class="h-9 px-3.5 rounded-xl bg-emerald-600 text-white text-[12px] font-bold border-0 cursor-pointer active:scale-95 transition-transform"
+              data-i18n-bn="সেভ ও সিঙ্ক করুন"
+              data-i18n-en="Save & Sync Now"
+            >
+              সেভ ও সিঙ্ক করুন
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </dialog>
 
@@ -786,9 +848,18 @@ const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
       function closeSheets() {
         document.querySelectorAll('dialog.th-mob-sheet[open]').forEach(function (d) { d.close(); });
       }
-      function scrollToAllTools() {
-        var el = document.getElementById('mobAllTools');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      function showMobAllTools(open) {
+        var homeMain = document.getElementById('mobHomeMainView');
+        var allTools = document.getElementById('mobAllTools');
+        if (!allTools) return;
+        if (homeMain) homeMain.hidden = !!open;
+        allTools.hidden = !open;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        var targetTab = open ? 'tools' : 'home';
+        document.querySelectorAll('[data-mob-tab]').forEach(function (a) {
+          if (a.getAttribute('data-mob-tab') === targetTab) a.setAttribute('aria-current', 'page');
+          else a.removeAttribute('aria-current');
+        });
       }
 
       document.addEventListener('click', function (e) {
@@ -807,13 +878,34 @@ const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
         if (t.closest('[data-mob-theme]')) { var tb = document.getElementById('themeToggle'); if (tb) tb.click(); return; }
         if (t.closest('[data-mob-install]')) { var ib = document.getElementById('installBtn'); if (ib) ib.click(); return; }
 
+        if (t.closest('[data-mob-open-all-tools]')) {
+          e.preventDefault();
+          showMobAllTools(true);
+          return;
+        }
+        if (t.closest('[data-mob-close-all-tools]')) {
+          e.preventDefault();
+          showMobAllTools(false);
+          return;
+        }
+
+        var homeTabLink = t.closest('a[data-mob-tab="home"]');
+        if (homeTabLink && norm(location.pathname) === '/') {
+          var allToolsEl = document.getElementById('mobAllTools');
+          if (allToolsEl && !allToolsEl.hidden) {
+            e.preventDefault();
+            showMobAllTools(false);
+            return;
+          }
+        }
+
         var allToolsLink = t.closest('a[href="/#mobAllTools"]');
         if (allToolsLink) {
           e.preventDefault();
           closeSheets();
-          if (norm(location.pathname) === '/') { scrollToAllTools(); return; }
+          if (norm(location.pathname) === '/') { showMobAllTools(true); return; }
           var nav = window.TechHatNavigate ? window.TechHatNavigate('/') : null;
-          if (nav && nav.then) nav.then(function () { setTimeout(scrollToAllTools, 60); });
+          if (nav && nav.then) nav.then(function () { setTimeout(function () { showMobAllTools(true); }, 60); });
           else location.href = '/#mobAllTools';
           return;
         }
@@ -824,12 +916,12 @@ const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
         if (sheet && t.closest('a[href]')) closeSheets();
       });
 
-      if (location.hash === '#mobAllTools') setTimeout(scrollToAllTools, 120);
+      if (location.hash === '#mobAllTools') setTimeout(function () { showMobAllTools(true); }, 120);
       syncMobileShell();
     })();
   </script>
 
-  <script is:inline src="/js/shell.js?v=70"></script>
+  <script is:inline src="/js/shell.js?v=71"></script>
   <slot name="scripts" />
 </body>
 </html>

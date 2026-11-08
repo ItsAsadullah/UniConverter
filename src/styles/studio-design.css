@@ -310,6 +310,52 @@
     flex-direction: column !important;
   }
 
+  /* Full-screen desktop studio layout for Bijoy ⇄ Unicode Converter */
+  @media (min-width: 1024px) {
+    html:has(#tool-bijoy:not([hidden])),
+    body:has(#tool-bijoy:not([hidden])) {
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      overflow: hidden !important;
+      scrollbar-gutter: auto !important;
+    }
+
+    body:has(#tool-bijoy:not([hidden])) > header {
+      flex-shrink: 0 !important;
+    }
+
+    .workbench:has(#tool-bijoy:not([hidden])) {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.625rem !important;
+      overflow: hidden !important;
+    }
+
+    .workbench:has(#tool-bijoy:not([hidden])) > #globalBreadcrumbBar {
+      flex-shrink: 0 !important;
+      padding-bottom: 0.375rem !important;
+    }
+
+    .workbench-grid:has(#tool-bijoy:not([hidden])),
+    .tool-stage:has(#tool-bijoy:not([hidden])) {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      height: 100% !important;
+    }
+
+    body:has(#tool-bijoy:not([hidden])) > .th-footer {
+      margin-top: 0 !important;
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.5rem !important;
+      flex-shrink: 0 !important;
+    }
+  }
+
   /* Compact Photoshop-style range sliders inside Document Scanner & NID Studio */
   :is(#img-pane-scan, #img-pane-combine) input[type="range"] {
     -webkit-appearance: none;

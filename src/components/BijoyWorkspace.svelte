@@ -22,7 +22,7 @@
 </script>
 
 <div
-  class="tool-view [&_[hidden]]:!hidden"
+  class="tool-view [&_[hidden]]:!hidden lg:flex lg:flex-col lg:flex-1 lg:min-h-0"
   id="tool-bijoy"
   data-initial-tab={initialTab}
   data-voice-focus={voiceFocus ? 'true' : 'false'}
@@ -30,12 +30,12 @@
   data-title-en={workspaceTitleEn}
 >
   <section
-    class="rounded-2xl border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar shadow-xs overflow-hidden"
+    class="rounded-2xl border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-sidebar shadow-xs overflow-hidden lg:flex lg:flex-col lg:flex-1 lg:min-h-0"
     aria-label="Converter"
   >
     <!-- ============================================================ UNIFIED STUDIO CONTROL BAR -->
     <div
-      class="bijoy-studio-bar flex flex-wrap lg:grid lg:grid-cols-[1fr_auto_1fr] items-center justify-between gap-2.5 px-4 py-2.5 bg-slate-100/80 dark:bg-studio-panel border-b border-slate-200 dark:border-studio-border"
+      class="bijoy-studio-bar shrink-0 flex flex-wrap lg:grid lg:grid-cols-[1fr_auto_1fr] items-center justify-between gap-2.5 px-4 py-2.5 bg-slate-100/80 dark:bg-studio-panel border-b border-slate-200 dark:border-studio-border"
     >
       <!-- Left: Mode Switcher Tabs -->
       <div class="flex items-center lg:justify-self-start">
@@ -201,11 +201,11 @@
     </div>
 
     <!-- ============================================================ TEXT PANEL -->
-    <div class="p-4" role="tabpanel" id="panel-text" aria-labelledby="tab-text" hidden={initialTab !== 'text'}>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="p-4 lg:flex lg:flex-col lg:flex-1 lg:min-h-0" role="tabpanel" id="panel-text" aria-labelledby="tab-text" hidden={initialTab !== 'text'}>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:flex-1 lg:min-h-0">
         <!-- Left Input Pane -->
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center justify-between gap-2 flex-wrap min-h-[34px]">
+        <div class="flex flex-col gap-2 min-w-0 lg:min-h-0 lg:h-full">
+          <div class="shrink-0 flex items-center justify-between gap-2 flex-wrap min-h-[34px]">
             <label class="text-sm font-bold text-slate-800 dark:text-studio-text" for="inputText" id="inputLabel">
               ইউনিকোড টেক্সট
             </label>
@@ -312,13 +312,13 @@
 
           <textarea
             id="inputText"
-            class="textbox is-unicode w-full min-h-[340px] p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y outline-none focus:border-emerald-500 [&.is-bijoy]:font-['SutonnyMJ',var(--font-sans)] [&.is-unicode]:font-[family-name:var(--preview-font,var(--font-sans))] placeholder:font-sans placeholder:text-[15px] placeholder:text-slate-400 dark:placeholder:text-slate-500 [&:placeholder-shown]:!font-sans"
+            class="textbox is-unicode w-full max-lg:h-[220px] max-lg:min-h-[180px] max-lg:max-h-[60vh] lg:flex-1 lg:min-h-0 lg:h-full p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y lg:resize-none overflow-y-auto outline-none focus:border-emerald-500 [&.is-bijoy]:font-['SutonnyMJ',var(--font-sans)] [&.is-unicode]:font-[family-name:var(--preview-font,var(--font-sans))] placeholder:font-sans placeholder:text-[15px] placeholder:text-slate-400 dark:placeholder:text-slate-500 [&:placeholder-shown]:!font-sans"
             spellcheck="false"
             autocomplete="off"
             autocapitalize="off"
             placeholder="ইউনিকোড বাংলা লিখুন বা পেস্ট করুন… (ইংরেজি অংশ আলাদা থাকবে)"
           ></textarea>
-          <div class="flex items-center justify-between text-xs text-slate-500 dark:text-studio-muted px-0.5">
+          <div class="shrink-0 flex items-center justify-between text-xs text-slate-500 dark:text-studio-muted px-0.5">
             <span id="inputCount">০ অক্ষর • ০ শব্দ</span>
             <span
               class="text-emerald-600 dark:text-emerald-400 font-semibold"
@@ -331,8 +331,8 @@
         </div>
 
         <!-- Right Output Pane -->
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center justify-between gap-2 flex-wrap min-h-[34px]">
+        <div class="flex flex-col gap-2 min-w-0 lg:min-h-0 lg:h-full">
+          <div class="shrink-0 flex items-center justify-between gap-2 flex-wrap min-h-[34px]">
             <label class="text-sm font-bold text-slate-800 dark:text-studio-text" for="outputText" id="outputLabel"
               >বিজয় আউটপুট <small class="text-xs font-medium text-slate-500 dark:text-studio-muted">(SutonnyMJ)</small></label
             >
@@ -386,7 +386,7 @@
           <textarea
             id="outputText"
             hidden
-            class="textbox textbox--out is-bijoy w-full min-h-[340px] p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y outline-none focus:border-emerald-500 transition-[border-color,box-shadow] duration-300 [&.flash]:border-emerald-500 [&.flash]:ring-2 [&.flash]:ring-emerald-500/20 [&.is-bijoy]:font-['SutonnyMJ',var(--font-sans)] [&.is-unicode]:font-[family-name:var(--preview-font,var(--font-sans))] placeholder:font-sans placeholder:text-[15px] placeholder:text-slate-400 dark:placeholder:text-slate-500 [&:placeholder-shown]:!font-sans"
+            class="textbox textbox--out is-bijoy w-full max-lg:h-[220px] max-lg:min-h-[180px] max-lg:max-h-[60vh] lg:flex-1 lg:min-h-0 lg:h-full p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y lg:resize-none overflow-y-auto outline-none focus:border-emerald-500 transition-[border-color,box-shadow] duration-300 [&.flash]:border-emerald-500 [&.flash]:ring-2 [&.flash]:ring-emerald-500/20 [&.is-bijoy]:font-['SutonnyMJ',var(--font-sans)] [&.is-unicode]:font-[family-name:var(--preview-font,var(--font-sans))] placeholder:font-sans placeholder:text-[15px] placeholder:text-slate-400 dark:placeholder:text-slate-500 [&:placeholder-shown]:!font-sans"
             readonly
             spellcheck="false"
             placeholder="রূপান্তরিত লেখা এখানে দেখাবে…"
@@ -403,9 +403,9 @@
             placeholder="রূপান্তরিত লেখা এখানে দেখাবে…"
             data-i18n-placeholder-bn="রূপান্তরিত লেখা এখানে দেখাবে…"
             data-i18n-placeholder-en="Converted text will appear here…"
-            class="textbox textbox--out is-bijoy w-full min-h-[340px] p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y overflow-y-auto whitespace-pre-wrap break-words outline-none focus:border-emerald-500 transition-[border-color,box-shadow] duration-300 [&.flash]:border-emerald-500 [&.flash]:ring-2 [&.flash]:ring-emerald-500/20 empty:before:content-[attr(placeholder)] empty:before:font-sans empty:before:text-[15px] empty:before:text-slate-400 dark:empty:before:text-slate-500 empty:before:pointer-events-none select-text"
+            class="textbox textbox--out is-bijoy w-full max-lg:h-[220px] max-lg:min-h-[180px] max-lg:max-h-[60vh] lg:flex-1 lg:min-h-0 lg:h-full p-3.5 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-studio-panel text-slate-900 dark:text-studio-text text-[length:var(--text-size,18px)] leading-relaxed resize-y lg:resize-none overflow-y-auto whitespace-pre-wrap break-words outline-none focus:border-emerald-500 transition-[border-color,box-shadow] duration-300 [&.flash]:border-emerald-500 [&.flash]:ring-2 [&.flash]:ring-emerald-500/20 empty:before:content-[attr(placeholder)] empty:before:font-sans empty:before:text-[15px] empty:before:text-slate-400 dark:empty:before:text-slate-500 empty:before:pointer-events-none select-text"
           ></div>
-          <div class="flex items-center justify-between text-xs text-slate-500 dark:text-studio-muted px-0.5">
+          <div class="shrink-0 flex items-center justify-between text-xs text-slate-500 dark:text-studio-muted px-0.5">
             <span id="outputCount">০ অক্ষর • ০ শব্দ</span>
             <span id="timing"></span>
           </div>
@@ -414,7 +414,7 @@
 
       <!-- Bottom Font & Size Bar -->
       <div
-        class="mt-4 pt-3 border-t border-slate-200 dark:border-studio-border flex flex-wrap items-center gap-4 text-xs text-slate-700 dark:text-studio-text"
+        class="shrink-0 mt-3 pt-2.5 border-t border-slate-200 dark:border-studio-border flex flex-wrap items-center gap-4 text-xs text-slate-700 dark:text-studio-text"
       >
         <label class="inline-flex items-center gap-2 font-semibold">
           <span data-i18n-bn="আউটপুট ফন্ট" data-i18n-en="Output Font">আউটপুট ফন্ট</span>
@@ -437,10 +437,10 @@
     </div>
 
     <!-- ============================================================ FILE PANEL -->
-    <div class="p-4" role="tabpanel" id="panel-file" aria-labelledby="tab-file" hidden={initialTab !== 'file'}>
-      <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-5">
+    <div class="p-4 lg:flex lg:flex-col lg:flex-1 lg:min-h-0 lg:overflow-hidden" role="tabpanel" id="panel-file" aria-labelledby="tab-file" hidden={initialTab !== 'file'}>
+      <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-5 lg:flex-1 lg:min-h-0 lg:h-full">
         <label
-          class="drop flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 text-center cursor-pointer transition-colors hover:border-emerald-500 hover:bg-emerald-500/5"
+          class="drop flex flex-col items-center justify-center gap-3 p-8 lg:h-full lg:min-h-0 lg:sticky lg:top-0 rounded-2xl border-2 border-dashed border-slate-300 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/50 text-center cursor-pointer transition-colors hover:border-emerald-500 hover:bg-emerald-500/5"
           id="dropZone"
           for="fileInput"
         >
@@ -482,8 +482,8 @@
           >
         </label>
 
-        <div class="flex flex-col gap-4">
-          <div class="grid gap-3 p-4 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/60 dark:bg-studio-panel">
+        <div class="flex flex-col gap-3 min-w-0 lg:h-full lg:min-h-0">
+          <div class="shrink-0 grid gap-3 p-4 rounded-xl border border-slate-200 dark:border-studio-border bg-slate-50/60 dark:bg-studio-panel">
             <label class="grid gap-1 text-xs font-semibold text-slate-700 dark:text-studio-text" id="unicodeFontField" hidden>
               <span data-i18n-bn="আউটপুট ইউনিকোড ফন্ট" data-i18n-en="Output Unicode Font">আউটপুট ইউনিকোড ফন্ট</span>
               <select
@@ -536,9 +536,9 @@
             </fieldset>
           </div>
 
-          <ul class="queue m-0 p-0 list-none grid gap-2" id="queue" aria-live="polite"></ul>
+          <ul class="queue m-0 p-0 list-none grid gap-2 content-start lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:pr-1" id="queue" aria-live="polite"></ul>
 
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="shrink-0 pt-1 flex flex-wrap items-center gap-2">
             <button
               class="inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-emerald-600 dark:bg-emerald-500 text-white dark:text-white text-xs font-bold cursor-pointer hover:enabled:bg-emerald-700 dark:hover:enabled:bg-emerald-400 disabled:opacity-45 disabled:cursor-not-allowed transition-colors"
               id="convertFilesBtn"
