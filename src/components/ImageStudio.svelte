@@ -1,11 +1,14 @@
 <script lang="ts">
   import DocumentScanner from './DocumentScanner.svelte';
   import NidCardScanner from './NidCardScanner.svelte';
+  import PassportPhotoStudio from './PassportPhotoStudio.svelte';
+  import RemoveBackgroundStudio from './RemoveBackgroundStudio.svelte';
+  import PhotoCardStudio from './PhotoCardStudio.svelte';
   import VectorStudio from './VectorStudio.svelte';
   import Icon from './ui/Icon.svelte';
 
   interface Props {
-    initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'colors' | 'vector';
+    initialTab?: 'hub' | 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'passport-photo' | 'remove-bg' | 'colors' | 'vector' | 'photo-card';
   }
 
   let { initialTab = 'hub' }: Props = $props();
@@ -18,8 +21,8 @@
   const btnIcon =
     'inline-flex items-center justify-center w-8 h-8 min-w-[32px] min-h-[32px] p-0 rounded-md border border-transparent bg-transparent text-slate-700 dark:text-studio-text cursor-pointer transition-all duration-100 hover:enabled:bg-slate-100 dark:hover:enabled:bg-studio-surface hover:enabled:border-slate-200/80 dark:hover:enabled:border-studio-border hover:enabled:text-slate-950 dark:hover:enabled:text-white disabled:opacity-35 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-500';
 </script>
-<div class="tool-view w-full" id="tool-image" data-initial-tab={initialTab}>
-  <section class="card util-card pdf-studio-card img-studio-card rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xs p-3.5 sm:p-5" aria-label="Image Studio">
+<div class="tool-view w-full group/imgtool" id="tool-image" data-initial-tab={initialTab}>
+  <section class="card util-card pdf-studio-card img-studio-card rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-xs p-3.5 sm:p-5 group-data-[initial-tab=photo-card]/imgtool:!p-0 group-data-[initial-tab=photo-card]/imgtool:!border-0 group-data-[initial-tab=photo-card]/imgtool:!bg-transparent group-data-[initial-tab=photo-card]/imgtool:!shadow-none" aria-label="Image Studio">
     <div class="util-body pdf-studio-body">
       {#if renderAll || initialTab === 'scan' || initialTab === 'passport'}<DocumentScanner active={initialTab === 'scan' || initialTab === 'passport'} mode={initialTab === 'passport' ? 'passport' : 'scan'} />{/if}
       <!-- ========================================== 0. HUB OVERVIEW -->
@@ -39,6 +42,21 @@
             <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-amber-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/><path d="m9 11 2 2 4-4"/></svg></span>
             <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="পাসপোর্ট মেকার ও স্ক্যানার" data-i18n-en="Passport Maker & Scanner">পাসপোর্ট মেকার ও স্ক্যানার</span>
             <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="৬-পয়েন্ট পার্সপেক্টিভ ক্রপ ও মাঝের ভাঁজ সংশোধন করে মোবাইল ক্যামেরার পাসপোর্ট ছবিকে প্রফেশনাল স্ক্যান আউটপুটে রূপান্তর করুন।" data-i18n-en="6-point perspective crop & center fold rectification to turn mobile passport photos into flat scanned documents.">৬-পয়েন্ট পার্সপেক্টিভ ক্রপ ও মাঝের ভাঁজ সংশোধন করে মোবাইল ক্যামেরার পাসপোর্ট ছবিকে প্রফেশনাল স্ক্যান আউটপুটে রূপান্তর করুন।</span>
+          </button>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-sky-500 dark:hover:border-sky-400 cursor-pointer transition-colors" data-open-img="passport-photo" data-accent="blue">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500/15 to-blue-500/15 text-sky-600 dark:text-sky-400 ring-1 ring-sky-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2.5" fill="currentColor" fill-opacity="0.16" stroke="none"/><rect x="4" y="2" width="16" height="20" rx="2.5"/><circle cx="12" cy="9.5" r="3.2"/><path d="M7.5 18.5c.9-2.5 2.5-3.8 4.5-3.8s3.6 1.3 4.5 3.8"/></svg></span>
+            <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="পাসপোর্ট সাইজ ছবি" data-i18n-en="Passport Size Photo">পাসপোর্ট সাইজ ছবি</span>
+            <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="পাসপোর্ট (38×48 mm), স্ট্যাম্প ও ভিসা সাইজ ছবি তৈরি, ১-ক্লিকে ব্যাকগ্রাউন্ড রিমুভ ও A4/4R প্রিন্ট শিট মেকার।" data-i18n-en="Create passport (38×48 mm), stamp & visa size photos with 1-click AI background removal & A4/4R print sheet maker.">পাসপোর্ট (38×48 mm), স্ট্যাম্প ও ভিসা সাইজ ছবি তৈরি, ১-ক্লিকে ব্যাকগ্রাউন্ড রিমুভ ও A4/4R প্রিন্ট শিট মেকার।</span>
+          </button>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-indigo-500 dark:hover:border-indigo-400 cursor-pointer transition-colors" data-open-img="remove-bg" data-accent="indigo">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/15 to-violet-500/15 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" fill="currentColor" fill-opacity="0.16" stroke="none"/><path d="M12 3v18"/><circle cx="12" cy="10" r="3"/><path d="M7.5 19c1-2.5 2.5-3.8 4.5-3.8s3.5 1.3 4.5 3.8"/></svg></span>
+            <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="AI ব্যাকগ্রাউন্ড রিমুভার" data-i18n-en="AI Background Remover">AI ব্যাকগ্রাউন্ড রিমুভার</span>
+            <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="১-ক্লিকে যেকোনো ছবির ব্যাকগ্রাউন্ড রিমুভ করুন (১০০% ফ্রি)। স্বচ্ছ PNG, সাদা বা স্টুডিও কালার ব্যাকগ্রাউন্ড দিন।" data-i18n-en="Remove image background in 1 click (100% Free). Export transparent PNG or add solid/gradient studio backdrops.">১-ক্লিকে যেকোনো ছবির ব্যাকগ্রাউন্ড রিমুভ করুন (১০০% ফ্রি)। স্বচ্ছ PNG, সাদা বা স্টুডিও কালার ব্যাকগ্রাউন্ড দিন।</span>
+          </button>
+          <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-rose-500 dark:hover:border-rose-400 cursor-pointer transition-colors" data-open-img="photo-card" data-accent="rose">
+            <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500/15 to-amber-500/15 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2.5" fill="currentColor" fill-opacity="0.16" stroke="none"/><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M3 14h18"/><path d="M7 18h10"/><circle cx="8.5" cy="8.5" r="2"/></svg></span>
+            <span class="pdf-hub-card__title text-sm font-bold text-slate-900 dark:text-studio-text mb-1" data-i18n-bn="ফটো কার্ড মেকার (নিউজ ও ফাউন্ডেশন)" data-i18n-en="Photo Card Maker (News & Foundation)">ফটো কার্ড মেকার (নিউজ ও ফাউন্ডেশন)</span>
+            <span class="pdf-hub-card__desc text-xs text-slate-500 dark:text-studio-muted leading-relaxed" data-i18n-bn="স্বেচ্ছাসেবী ফাউন্ডেশন, নিউজ পোর্টাল, উক্তি ও ফ্যাক্ট-চেকের ৩০টি টেম্পলেট; ক্যানভার মতো লোগো ও ডিজাইন সেভ সুবিধা।" data-i18n-en="30 templates for Charity Foundations, News Portals, Quotes & Fact-Check with Canva-style saved logos, uploads & designs.">স্বেচ্ছাসেবী ফাউন্ডেশন, নিউজ পোর্টাল, উক্তি ও ফ্যাক্ট-চেকের ৩০টি টেম্পলেট; ক্যানভার মতো লোগো ও ডিজাইন সেভ সুবিধা।</span>
           </button>
           <button type="button" class="pdf-hub-card flex flex-col items-start text-left p-4 rounded-xl bg-slate-50/70 dark:bg-studio-panel border border-slate-200 dark:border-studio-border hover:border-blue-500 dark:hover:border-blue-400 cursor-pointer transition-colors" data-open-img="resize" data-preset="job-photo" data-accent="teal">
             <span class="pdf-hub-card__icon w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-sky-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20 flex items-center justify-center mb-2.5 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2">
@@ -620,6 +638,21 @@
           </div>
         </div>
       </div>
+      {/if}
+
+      <!-- ========================================== 8. PASSPORT SIZE PHOTO MAKER -->
+      {#if renderAll || initialTab === 'passport-photo'}
+      <PassportPhotoStudio hidden={initialTab !== 'passport-photo'} />
+      {/if}
+
+      <!-- ========================================== 9. AI BACKGROUND REMOVER STUDIO -->
+      {#if renderAll || initialTab === 'remove-bg'}
+      <RemoveBackgroundStudio hidden={initialTab !== 'remove-bg'} />
+      {/if}
+
+      <!-- ========================================== 10. PHOTO CARD MAKER STUDIO -->
+      {#if renderAll || initialTab === 'photo-card'}
+      <PhotoCardStudio hidden={initialTab !== 'photo-card'} />
       {/if}
 
     </div>

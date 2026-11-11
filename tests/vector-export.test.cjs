@@ -222,4 +222,22 @@ test('recolouring a gradient layer shifts its stops instead of flattening it', (
   assert.deepEqual(res.paths[1].gradient.stops[0].c, [50, 80, 220]);
 });
 
+// 16. Centerline stroke layers export as stroked open paths in SVG / EPS / AI
+test('stroke layers export as open stroked paths in SVG, EPS and AI', () => {
+  const img = makeImage(120, 60, WHITE);
+  fillRect(img, 10, 28, 110, 32, BLACK);
+  const res = C.trace(img, { mode: 'mono', minArea: 3, strokes: true, fills: false, strokeWidth: 10 });
+  const svg = E.toSvg(res);
+  assert.match(svg, /fill="none" stroke="#000000" stroke-width="[\d.]+" stroke-linecap="round"/);
+  const d = svg.match(/stroke-linejoin="round" d="([^"]+)"/)[1];
+  assert.ok(!/Z$/.test(d), 'open path has no Z');
+  const eps = E.toEps(res);
+  assert.match(eps, /setlinewidth 1 setlinecap 1 setlinejoin/);
+  assert.match(eps, /\nstroke\n/);
+  assert.ok(!/closepath\nstroke/.test(eps), 'open stroke not closed');
+  const ai = E.toAi(res);
+  assert.match(ai, / w 1 J 1 j/);
+  assert.match(ai, /\nS\n/);
+});
+
 console.log(passed + ' vector export tests passed');

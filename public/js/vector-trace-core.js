@@ -313,7 +313,7 @@
   // Median-cut palette + 2-pass k-means refine over a 32³ LUT.
   // Returns { palette: [[r,g,b]...], index: Uint8Array (255 = transparent) }.
   function quantize(data, w, h, k) {
-    k = clamp(k | 0, 2, 64);
+    k = clamp(k | 0, 2, 128);
     var n = w * h;
     var samples = [];
     var stride = Math.max(1, Math.floor(Math.sqrt(n / 20000)));
@@ -451,7 +451,9 @@
     }
     var DX = [1, 0, -1, 0], DY = [0, 1, 0, -1];
     var loops = [];
-    var maxLen = 4 * (w + h) + 16;
+    // Upper bound = total number of crack edges. (A perimeter-based bound
+    // silently dropped long, jagged outlines — brush strokes, script text.)
+    var maxLen = 2 * (w + 1) * (h + 1) + 16;
     for (var py = 0; py <= h; py++) {
       for (var px = 0; px <= w; px++) {
         var cell = py * PW + px;
@@ -791,7 +793,7 @@
     var ax = pts[0], ay = pts[1];
     var dx = pts[count * 2] - ax, dy = pts[count * 2 + 1] - ay;
     var len = Math.hypot(dx, dy);
-    if (len < 1.5) return true;
+    if (len < 1.5) return count < 4;   // a long span that returns to its start is a loop, never a line
     for (var i = 1; i < count; i++) {
       var d = Math.abs((pts[i * 2] - ax) * dy - (pts[i * 2 + 1] - ay) * dx) / len;
       if (d > thr) return false;
@@ -799,10 +801,10 @@
     return true;
   }
 
-  function pushBeziers(segs, beziers) {
+  function pushBeziers(segs, beziers, snapLines) {
     for (var bi = 0; bi < beziers.length; bi++) {
       var bz = beziers[bi];
-      if (isStraight(bz)) segs.push({ l: [round3(bz[6]), round3(bz[7])] });
+      if (isStraight(bz, snapLines)) segs.push({ l: [round3(bz[6]), round3(bz[7])] });
       else segs.push({ c: [round3(bz[2]), round3(bz[3]), round3(bz[4]), round3(bz[5]), round3(bz[6]), round3(bz[7])] });
     }
   }
@@ -816,6 +818,7 @@
     var n = loop.length / 2;
     var tol = clamp(opts.tolerance == null ? 1 : opts.tolerance, 0.05, 20);
     var sharp = opts.sharpCorners !== false;
+    var snap = !!opts.snapLines;   // Illustrator "Snap Curves To Lines"
     var segs = [];
     if (n < 8) {
       for (var q = 1; q < n; q++) segs.push({ l: [loop[q * 2], loop[q * 2 + 1]] });
@@ -845,7 +848,7 @@
         var tE = tans[(s + 1) % 4];
         var bz = [];
         fitCurve(span, 0, cnt, tans[s], [-tE[0], -tE[1]], tol, bz);
-        pushBeziers(segs, bz);
+        pushBeziers(segs, bz, snap);
       }
     } else {
       var nc = corners.length;
@@ -866,7 +869,7 @@
       } else {
         for (var c2 = 0; c2 < nc; c2++) cpos.push([loop[corners[c2] * 2], loop[corners[c2] * 2 + 1]]);
       }
-      var straightThr = clamp(tol * 0.7, 0.45, 1.2);
+      var straightThr = snap ? clamp(tol * 1.6, 1.0, 2.6) : clamp(tol * 0.7, 0.45, 1.2);
       var spans = [];
       for (var s2 = 0; s2 < nc; s2++) {
         var a = corners[s2], b = corners[(s2 + 1) % nc];
@@ -882,13 +885,14 @@
         spans.push({ pts: pts, count: count, straight: spanIsStraight(pts, count, straightThr) });
       }
       // Snap nearly horizontal / vertical straight edges to exact axes.
-      if (sharp) {
+      if (sharp || snap) {
+        var axTol = snap ? 0.09 : 0.035;
         for (var s3 = 0; s3 < nc; s3++) {
           if (!spans[s3].straight) continue;
           var A = cpos[s3], B = cpos[(s3 + 1) % nc];
           var ddx = B[0] - A[0], ddy = B[1] - A[1];
-          if (Math.abs(ddy) <= Math.abs(ddx) * 0.035) { var my = (A[1] + B[1]) / 2; A[1] = my; B[1] = my; }
-          else if (Math.abs(ddx) <= Math.abs(ddy) * 0.035) { var mx = (A[0] + B[0]) / 2; A[0] = mx; B[0] = mx; }
+          if (Math.abs(ddy) <= Math.abs(ddx) * axTol) { var my = (A[1] + B[1]) / 2; A[1] = my; B[1] = my; }
+          else if (Math.abs(ddx) <= Math.abs(ddy) * axTol) { var mx = (A[0] + B[0]) / 2; A[0] = mx; B[0] = mx; }
         }
       }
       startX = cpos[0][0]; startY = cpos[0][1];
@@ -907,7 +911,7 @@
         var t2 = norm2(P[(cn - m) * 2] - P[cn * 2], P[(cn - m) * 2 + 1] - P[cn * 2 + 1]);
         var bzs = [];
         fitCurve(P, 0, cn, t1, t2, tol, bzs);
-        pushBeziers(segs, bzs);
+        pushBeziers(segs, bzs, snap);
       }
     }
     if (!segs.length) return null;
@@ -949,13 +953,14 @@
     return l > 1e-9 ? [x / l, y / l] : [1, 0];
   }
 
-  function isStraight(bz) {
+  function isStraight(bz, loose) {
     // both control points hug the chord → emit a line segment (crisper edges,
-    // smaller files). Tolerance scales with length but is capped at 0.8 px.
+    // smaller files). Tolerance scales with length but is capped at 0.8 px
+    // (2.2 px with "Snap Curves To Lines").
     var dx = bz[6] - bz[0], dy = bz[7] - bz[1];
     var len = Math.hypot(dx, dy);
     if (len < 1e-9) return true;
-    var lim = Math.max(0.25, Math.min(len * 0.03, 0.8));
+    var lim = loose ? Math.max(0.6, Math.min(len * 0.07, 2.2)) : Math.max(0.25, Math.min(len * 0.03, 0.8));
     var d1 = Math.abs((bz[2] - bz[0]) * dy - (bz[3] - bz[1]) * dx) / len;
     var d2 = Math.abs((bz[4] - bz[0]) * dy - (bz[5] - bz[1]) * dx) / len;
     return d1 < lim && d2 < lim;
@@ -1138,12 +1143,23 @@
 
   function traceColor(data, w, h, opts) {
     var N = w * h;
-    var q = quantize(data, w, h, opts.colors || 8);
+    var fixedPal = opts.fixedPalette && opts.fixedPalette.length ? opts.fixedPalette.slice(0, 254) : null;
+    var q = fixedPal
+      ? { palette: fixedPal.map(function (c) { return [c[0] | 0, c[1] | 0, c[2] | 0]; }), index: assignLut(data, w, h, fixedPal) }
+      : quantize(data, w, h, opts.colors || 8);
     var cls = q.index;
+    // Illustrator "Ignore White": white palette entries become transparent holes
+    if (opts.ignoreWhite) {
+      var whiteIdx = q.palette.map(function (c) {
+        var mx = Math.max(c[0], c[1], c[2]), mn = Math.min(c[0], c[1], c[2]);
+        return (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) >= 232 && mx - mn <= 22;
+      });
+      for (var wp = 0; wp < N; wp++) if (cls[wp] !== 255 && whiteIdx[cls[wp]]) cls[wp] = 255;
+    }
     var minArea = Math.max(0, Math.round(opts.minArea || 0));
-    var gradients = opts.gradients !== false;
+    var gradients = opts.gradients !== false && !fixedPal;
     var stackedMode = opts.stacking !== 'cutout';
-    var traceOpts = { tolerance: opts.tolerance, cornerThreshold: opts.cornerThreshold, sharpCorners: opts.sharpCorners };
+    var traceOpts = { tolerance: opts.tolerance, cornerThreshold: opts.cornerThreshold, sharpCorners: opts.sharpCorners, snapLines: opts.snapLines };
     var x, y, p, i;
 
     // 1. connected components of equal palette index (4-connectivity)
@@ -1623,6 +1639,7 @@
       for (var mi3 = 0; mi3 < mask.length; mi3++) if (mask[mi3]) mask[mi3] = 1;
       traced[k7] = traceMask(mask, cw, chh, traceOpts, x0, y0);
     }
+    if (opts._debug) { opts._debug.label = label; opts._debug.rootIdx = rootIdx; opts._debug.traced = traced; opts._debug.keyOf = keyOf; }
 
     // 10. topological emission grouped by colour key → valid z-order with the
     //     fewest possible layers.
@@ -1671,21 +1688,274 @@
       if (fills[group[0]].gradient) pathObj.gradient = fills[group[0]].gradient;
       paths.push(pathObj);
     }
+    // Limited / custom ("Document Library") palette: every solid layer uses an
+    // exact palette swatch, like Illustrator's swatch-restricted tracing.
+    if (fixedPal || opts.snapPalette) {
+      for (var sp2 = 0; sp2 < paths.length; sp2++) {
+        if (paths[sp2].gradient) continue;
+        var f0 = paths[sp2].fill, bestC = q.palette[0], bestD = Infinity;
+        for (var pc = 0; pc < q.palette.length; pc++) {
+          var dd0 = colorDist(f0[0], f0[1], f0[2], q.palette[pc][0], q.palette[pc][1], q.palette[pc][2]);
+          if (dd0 < bestD) { bestD = dd0; bestC = q.palette[pc]; }
+        }
+        paths[sp2].fill = [bestC[0], bestC[1], bestC[2]];
+      }
+    }
     return finish(paths, w, h, q.palette);
+  }
+
+  /* ============================ 10. CENTERLINE STROKES (B&W) ============================ */
+
+  // Chamfer distance (px) from every foreground pixel to the nearest background
+  // pixel (outside the image counts as background). Edge pixels = 1.
+  function distanceMap(mask, w, h) {
+    var N = w * h, d = new Float32Array(N), D2 = Math.SQRT2, x, y, p, v, t;
+    for (p = 0; p < N; p++) d[p] = mask[p] ? 1e9 : 0;
+    for (y = 0; y < h; y++) {
+      for (x = 0; x < w; x++) {
+        p = y * w + x; if (!d[p]) continue; v = d[p];
+        t = x > 0 ? d[p - 1] + 1 : 1; if (t < v) v = t;
+        t = y > 0 ? d[p - w] + 1 : 1; if (t < v) v = t;
+        t = (x > 0 && y > 0) ? d[p - w - 1] + D2 : D2; if (t < v) v = t;
+        t = (x < w - 1 && y > 0) ? d[p - w + 1] + D2 : D2; if (t < v) v = t;
+        d[p] = v;
+      }
+    }
+    for (y = h - 1; y >= 0; y--) {
+      for (x = w - 1; x >= 0; x--) {
+        p = y * w + x; if (!d[p]) continue; v = d[p];
+        t = x < w - 1 ? d[p + 1] + 1 : 1; if (t < v) v = t;
+        t = y < h - 1 ? d[p + w] + 1 : 1; if (t < v) v = t;
+        t = (x < w - 1 && y < h - 1) ? d[p + w + 1] + D2 : D2; if (t < v) v = t;
+        t = (x > 0 && y < h - 1) ? d[p + w - 1] + D2 : D2; if (t < v) v = t;
+        d[p] = v;
+      }
+    }
+    return d;
+  }
+
+  // Zhang–Suen thinning → 1-px skeleton, then staircase cleanup so every
+  // interior skeleton pixel has exactly two neighbours.
+  function thinMask(mask, w, h) {
+    var N = w * h, img = new Uint8Array(N), list = [], p, i;
+    for (p = 0; p < N; p++) if (mask[p]) { img[p] = 1; list.push(p); }
+    var at = function (x, y) { return (x < 0 || y < 0 || x >= w || y >= h) ? 0 : img[y * w + x]; };
+    var changed = true, del = [];
+    while (changed) {
+      changed = false;
+      for (var step = 0; step < 2; step++) {
+        del.length = 0;
+        for (i = 0; i < list.length; i++) {
+          p = list[i]; if (!img[p]) continue;
+          var x = p % w, y = (p / w) | 0;
+          var P2 = at(x, y - 1), P3 = at(x + 1, y - 1), P4 = at(x + 1, y), P5 = at(x + 1, y + 1);
+          var P6 = at(x, y + 1), P7 = at(x - 1, y + 1), P8 = at(x - 1, y), P9 = at(x - 1, y - 1);
+          var B = P2 + P3 + P4 + P5 + P6 + P7 + P8 + P9;
+          if (B < 2 || B > 6) continue;
+          var A = (!P2 && P3) + (!P3 && P4) + (!P4 && P5) + (!P5 && P6) + (!P6 && P7) + (!P7 && P8) + (!P8 && P9) + (!P9 && P2);
+          if (A !== 1) continue;
+          if (step === 0 ? (P2 * P4 * P6 || P4 * P6 * P8) : (P2 * P4 * P8 || P2 * P6 * P8)) continue;
+          del.push(p);
+        }
+        for (i = 0; i < del.length; i++) img[del[i]] = 0;
+        if (del.length) changed = true;
+      }
+      list = list.filter(function (q) { return img[q]; });
+    }
+    // staircase cleanup: drop L-corner pixels whose neighbours stay connected
+    var L = [[0, -1, 1, 0, 1, -1], [1, 0, 0, 1, 1, 1], [0, 1, -1, 0, -1, 1], [-1, 0, 0, -1, -1, -1]];
+    for (i = 0; i < list.length; i++) {
+      p = list[i]; if (!img[p]) continue;
+      var px = p % w, py = (p / w) | 0;
+      for (var li = 0; li < 4; li++) {
+        var c = L[li];
+        if (!at(px + c[0], py + c[1]) || !at(px + c[2], py + c[3]) || at(px + c[4], py + c[5])) continue;
+        var ok = true;
+        for (var oy = -1; oy <= 1 && ok; oy++) {
+          for (var ox = -1; ox <= 1; ox++) {
+            if ((!ox && !oy) || !at(px + ox, py + oy)) continue;
+            if ((ox === c[0] && oy === c[1]) || (ox === c[2] && oy === c[3])) continue;
+            var adjA = Math.abs(ox - c[0]) <= 1 && Math.abs(oy - c[1]) <= 1;
+            var adjB = Math.abs(ox - c[2]) <= 1 && Math.abs(oy - c[3]) <= 1;
+            if (!adjA && !adjB) { ok = false; break; }
+          }
+        }
+        if (ok) { img[p] = 0; break; }
+      }
+    }
+    return img;
+  }
+
+  // Skeleton pixel graph → polylines (arrays of pixel indices).
+  function skeletonPolylines(skel, w, h) {
+    var N = w * h, pixels = [], p, k;
+    for (p = 0; p < N; p++) if (skel[p]) pixels.push(p);
+    var nb = function (q) {
+      var x = q % w, y = (q / w) | 0, out = [];
+      for (var oy = -1; oy <= 1; oy++) for (var ox = -1; ox <= 1; ox++) {
+        if (!ox && !oy) continue;
+        var nx = x + ox, ny = y + oy;
+        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+        if (skel[ny * w + nx]) out.push(ny * w + nx);
+      }
+      return out;
+    };
+    var deg = new Map();
+    pixels.forEach(function (q) { deg.set(q, nb(q).length); });
+    var used = new Set();
+    var key = function (a, b) { return a < b ? a * N + b : b * N + a; };
+    var visited = new Uint8Array(N);
+    var lines = [];
+    function walk(start, next) {
+      var line = [start, next];
+      used.add(key(start, next));
+      var prev = start, cur = next;
+      while (deg.get(cur) === 2 && cur !== start) {
+        visited[cur] = 1;
+        var ns = nb(cur), nx = -1;
+        for (var i = 0; i < ns.length; i++) {
+          if (ns[i] === prev || used.has(key(cur, ns[i]))) continue;
+          nx = ns[i]; break;
+        }
+        if (nx < 0) break;
+        used.add(key(cur, nx));
+        line.push(nx); prev = cur; cur = nx;
+      }
+      return line;
+    }
+    for (k = 0; k < pixels.length; k++) {
+      p = pixels[k];
+      var dg = deg.get(p);
+      if (dg === 2) continue;
+      if (dg === 0) { lines.push({ px: [p, p], closed: false }); continue; }
+      var ns0 = nb(p);
+      for (var j = 0; j < ns0.length; j++) {
+        if (used.has(key(p, ns0[j]))) continue;
+        lines.push({ px: walk(p, ns0[j]), closed: false });
+      }
+    }
+    for (k = 0; k < pixels.length; k++) {
+      p = pixels[k];
+      if (deg.get(p) !== 2 || visited[p]) continue;
+      visited[p] = 1;
+      var line = walk(p, nb(p)[0]);
+      var closed = line[line.length - 1] === p;
+      if (closed) line.pop();
+      lines.push({ px: line, closed: closed });
+    }
+    return lines;
+  }
+
+  // Polyline (pixel indices) → open/closed subpath of fitted cubic beziers.
+  function polylineToSubpath(pl, w, opts) {
+    var idx = pl.px.slice();
+    if (pl.closed) idx.push(idx[0]);
+    var cnt = idx.length - 1;
+    var pts = new Float64Array(idx.length * 2);
+    for (var i = 0; i < idx.length; i++) { pts[i * 2] = (idx[i] % w) + 0.5; pts[i * 2 + 1] = ((idx[i] / w) | 0) + 0.5; }
+    var segs = [];
+    if (cnt < 1 || (cnt === 1 && idx[0] === idx[1])) {
+      segs.push({ l: [round3(pts[0] + 0.01), round3(pts[1])] });
+      return { start: [round3(pts[0]), round3(pts[1])], segs: segs, closed: false, nodes: 2 };
+    }
+    smoothSpanFixed(pts, cnt, 2);
+    var tol = clamp(opts.tolerance == null ? 1 : opts.tolerance, 0.2, 20);
+    if (cnt < 3 || spanIsStraight(pts, cnt, opts.snapLines ? 1.4 : 0.7)) {
+      segs.push({ l: [round3(pts[cnt * 2]), round3(pts[cnt * 2 + 1])] });
+    } else {
+      var m = Math.min(3, cnt);
+      var t1 = norm2(pts[m * 2] - pts[0], pts[m * 2 + 1] - pts[1]);
+      var t2 = norm2(pts[(cnt - m) * 2] - pts[cnt * 2], pts[(cnt - m) * 2 + 1] - pts[cnt * 2 + 1]);
+      var bz = [];
+      fitCurve(pts, 0, cnt, t1, t2, tol, bz);
+      pushBeziers(segs, bz, opts.snapLines);
+    }
+    return { start: [round3(pts[0]), round3(pts[1])], segs: segs, closed: !!pl.closed, nodes: segs.length + 1 };
+  }
+
+  // Splits a B&W mask into thin parts (→ centerline strokes ≤ strokeWidth)
+  // and thick parts (→ filled outlines). strokesOnly → every part is a stroke.
+  function traceStrokes(mask, w, h, opts, traceOpts, color) {
+    var N = w * h, maxW = Math.max(1, +opts.strokeWidth || 10);
+    var dist = distanceMap(mask, w, h);
+    var skel = thinMask(mask, w, h);
+    // 8-connected components of the mask
+    var comp = new Int32Array(N).fill(-1), stack = new Int32Array(N), C = 0, compMax = [];
+    for (var p = 0; p < N; p++) {
+      if (!mask[p] || comp[p] >= 0) continue;
+      var sp = 0; stack[sp++] = p; comp[p] = C; var mx = 0;
+      while (sp) {
+        var q = stack[--sp], qx = q % w, qy = (q / w) | 0;
+        if (skel[q] && dist[q] > mx) mx = dist[q];
+        for (var oy = -1; oy <= 1; oy++) for (var ox = -1; ox <= 1; ox++) {
+          var nx = qx + ox, ny = qy + oy;
+          if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+          var r = ny * w + nx;
+          if (mask[r] && comp[r] < 0) { comp[r] = C; stack[sp++] = r; }
+        }
+      }
+      compMax.push(2 * mx - 1);
+      C++;
+    }
+    var asStroke = new Uint8Array(C);
+    for (var c = 0; c < C; c++) asStroke[c] = (opts.strokesOnly || compMax[c] <= maxW + 0.5) ? 1 : 0;
+    var thick = new Uint8Array(N), thin = new Uint8Array(N), anyThick = false;
+    for (var p2 = 0; p2 < N; p2++) {
+      if (!mask[p2]) continue;
+      if (asStroke[comp[p2]]) { if (skel[p2]) thin[p2] = 1; } else { thick[p2] = 1; anyThick = true; }
+    }
+    var out = [];
+    if (anyThick && !opts.strokesOnly) {
+      var tr = traceMask(thick, w, h, traceOpts);
+      if (tr.subpaths.length) out.push({ fill: color.slice(), subpaths: tr.subpaths, area: tr.area, hidden: false });
+    }
+    // group stroke polylines by (rounded) width → one stroke layer per width
+    var lines = skeletonPolylines(thin, w, h);
+    var groups = {};
+    for (var li = 0; li < lines.length; li++) {
+      var pl = lines[li];
+      if (!pl.closed && pl.px.length < 3) {
+        var e0 = pl.px[0], e1 = pl.px[pl.px.length - 1];
+        var nb0 = 0, nb1 = 0;
+        for (var oy2 = -1; oy2 <= 1; oy2++) for (var ox2 = -1; ox2 <= 1; ox2++) {
+          if (!ox2 && !oy2) continue;
+          var a0x = (e0 % w) + ox2, a0y = ((e0 / w) | 0) + oy2, a1x = (e1 % w) + ox2, a1y = ((e1 / w) | 0) + oy2;
+          if (a0x >= 0 && a0y >= 0 && a0x < w && a0y < h && thin[a0y * w + a0x]) nb0++;
+          if (a1x >= 0 && a1y >= 0 && a1x < w && a1y < h && thin[a1y * w + a1x]) nb1++;
+        }
+        if (nb0 > 2 && nb1 > 2) continue; // tiny junction-to-junction link
+      }
+      var ws = 0;
+      for (var pi = 0; pi < pl.px.length; pi++) ws += Math.max(1, 2 * dist[pl.px[pi]] - 1);
+      var sw = Math.max(1, Math.round((ws / pl.px.length) * 2) / 2);
+      if (opts.strokesOnly) sw = Math.min(sw, maxW);
+      var sub = polylineToSubpath(pl, w, traceOpts);
+      if (!groups[sw]) groups[sw] = [];
+      groups[sw].push(sub);
+    }
+    Object.keys(groups).sort(function (a, b) { return b - a; }).forEach(function (k) {
+      out.push({ fill: color.slice(), stroke: color.slice(), strokeWidth: +k, isStroke: true, subpaths: groups[k], area: 0, hidden: false });
+    });
+    return out;
   }
 
   // Top-level API. image = { data: Uint8ClampedArray RGBA, w, h }.
   // opts: {
-  //   mode: 'mono' | 'color',
-  //   colors: 2..64 (color mode),
+  //   mode: 'color' | 'gray' | 'mono' (Black & White),
+  //   colors: 2..128 (color mode), grays: 2..128 (gray mode),
   //   gradients: bool (color mode; default true) — keep smooth colour ramps as
   //              linear / radial gradient fills instead of many solid bands,
+  //   fixedPalette: [[r,g,b]...] (custom "Document Library" swatches),
+  //   snapPalette: bool (Limited palette — layers use exact palette colours),
   //   sharpCorners: bool (default true) — corner refinement + axis snapping,
+  //   snapLines: bool — Illustrator "Snap Curves To Lines",
+  //   ignoreWhite: bool — white areas become transparent (no white layers),
+  //   fills / strokes / strokeWidth (B&W) — centerline stroke tracing,
   //   threshold: null | 0..100 (mono; null = Otsu auto),
   //   invert: bool (mono — trace light-on-dark),
   //   minArea: px (speckle suppression),
   //   cornerThreshold: deg, tolerance: px,
-  //   stacking: 'cutout' | 'stacked',
+  //   stacking: 'cutout' (Abutting) | 'stacked' (Overlapping),
   //   preprocess: { scale, brightness, contrast, bgMode, bgColor, bgTolerance, median, blur }
   // }
   function trace(image, opts) {
@@ -1693,17 +1963,44 @@
     var pre = preprocess(image.data, image.w, image.h, opts.preprocess || {});
     var w = pre.w, h = pre.h, data = pre.data;
     var minArea = Math.max(0, Math.round(opts.minArea || 0));
-    var traceOpts = { tolerance: opts.tolerance, cornerThreshold: opts.cornerThreshold, sharpCorners: opts.sharpCorners };
+    var traceOpts = { tolerance: opts.tolerance, cornerThreshold: opts.cornerThreshold, sharpCorners: opts.sharpCorners, snapLines: opts.snapLines };
+
+    if (opts.mode === 'gray') {
+      for (var g = 0; g < data.length; g += 4) {
+        var lum = Math.round(0.299 * data[g] + 0.587 * data[g + 1] + 0.114 * data[g + 2]);
+        data[g] = data[g + 1] = data[g + 2] = lum;
+      }
+      var gopts = {};
+      for (var k in opts) gopts[k] = opts[k];
+      gopts.colors = clamp(opts.grays || opts.colors || 8, 2, 128);
+      gopts.gradients = false;
+      gopts.fixedPalette = null;
+      return traceColor(data, w, h, gopts);
+    }
 
     if (opts.mode !== 'color') {
       var mask = binarize(data, w, h, { threshold: opts.threshold, invert: opts.invert });
       despeckle(mask, w, h, minArea);
-      var traced = traceMask(mask, w, h, traceOpts);
       var paths = [];
-      if (traced.subpaths.length) {
-        paths.push({ fill: [0, 0, 0], subpaths: traced.subpaths, area: traced.area, hidden: false });
+      var fg = [0, 0, 0];
+      var bgc = [255, 255, 255];
+      // "Ignore White" off → white areas are traced too (white layer below black)
+      if (opts.ignoreWhite === false) {
+        var wm = new Uint8Array(w * h);
+        var abut = opts.stacking === 'cutout';
+        for (var i = 0, p4 = 3; i < wm.length; i++, p4 += 4) wm[i] = data[p4] >= 128 && (!abut || !mask[i]) ? 1 : 0;
+        despeckle(wm, w, h, minArea);
+        var tw = traceMask(wm, w, h, traceOpts);
+        if (tw.subpaths.length) paths.push({ fill: bgc, subpaths: tw.subpaths, area: tw.area, hidden: false });
       }
-      return finish(paths, w, h, [[0, 0, 0]]);
+      if (opts.strokes) {
+        var sp = traceStrokes(mask, w, h, { strokeWidth: opts.strokeWidth, strokesOnly: opts.fills === false }, traceOpts, fg);
+        for (var s = 0; s < sp.length; s++) paths.push(sp[s]);
+      } else {
+        var traced = traceMask(mask, w, h, traceOpts);
+        if (traced.subpaths.length) paths.push({ fill: fg, subpaths: traced.subpaths, area: traced.area, hidden: false });
+      }
+      return finish(paths, w, h, [fg]);
     }
     return traceColor(data, w, h, opts);
   }
@@ -1740,6 +2037,9 @@
     traceLoop: traceLoop,
     traceMask: traceMask,
     trace: trace,
+    distanceMap: distanceMap,
+    thinMask: thinMask,
+    traceStrokes: traceStrokes,
     colorDist: colorDist
   };
 });

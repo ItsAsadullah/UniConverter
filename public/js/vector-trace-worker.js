@@ -1,5 +1,5 @@
 /* TechHat Vector Trace Worker — runs the tracing pipeline off the UI thread. */
-importScripts('/js/vector-trace-core.js?v=74');
+importScripts('/js/vector-trace-core.js?v=76');
 
 self.onmessage = function (event) {
   var m = event.data;

@@ -574,14 +574,14 @@
                   <button
                     type="button"
                     id="nidMagSnapBtn"
-                    aria-pressed="true"
+                    aria-pressed="false"
                     class="{btnIcon} aria-pressed:bg-emerald-500/12 aria-pressed:border-emerald-500/35 aria-pressed:text-emerald-700 dark:aria-pressed:text-emerald-300"
-                    title="ম্যাগনেটিক স্ন্যাপ: চালু"
+                    title="ম্যাগনেটিক স্ন্যাপ: বন্ধ"
                     data-i18n-title-bn="ম্যাগনেটিক স্ন্যাপ চালু/বন্ধ করুন"
                     data-i18n-title-en="Magnetic Edge Snap"
                   >
                     <Icon name="lucide:magnet" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span class="nid-btn-txt sr-only" data-i18n-bn="স্ন্যাপ: চালু" data-i18n-en="Snap: On">স্ন্যাপ: চালু</span>
+                    <span class="nid-btn-txt sr-only" data-i18n-bn="স্ন্যাপ: বন্ধ" data-i18n-en="Snap: Off">স্ন্যাপ: বন্ধ</span>
                   </button>
                 </div>
 

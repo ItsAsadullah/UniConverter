@@ -1,47 +1,40 @@
 /* TechHat Bangla Converter — service worker (offline app shell) */
 'use strict';
 
-var VERSION = 'thbc-v74';
+var VERSION = 'thbc-v78';
 var SHELL = 'shell-' + VERSION;
 var RUNTIME = 'runtime-' + VERSION;
+var IS_DEV = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || /^192\.168\./.test(self.location.hostname);
 
-var ASSETS = [
+// Precache ONLY the app shell needed for a first offline paint. Tool engines (public/js/*)
+// and vendor libs (pdf.js, pdf-lib, jszip) are cached at runtime the first time a tool uses
+// them, so opening one tool no longer downloads every other tool's engine.
+// ('index.html' is intentionally omitted: with cleanUrls it redirects to '/', which is './'.)
+var PRECACHE = [
   './',
-  'index.html',
-  'SutonnyMJ-Regular.ttf',
-  'SutonnyMJ-Italic.ttf',
+  'js/th-store.js',
   'js/shell.js',
-  'js/bijoy-engine.js',
-  'js/office.js',
-  'js/formats.js',
-  'js/app.js',
-  'js/pdf-convert.js',
-  'js/pdf-tools.js',
-  'js/image-tools.js',
-  'js/nid-scanner.js',
-  'js/vector-trace-core.js',
-  'js/vector-trace-worker.js',
-  'js/vector-export.js',
-  'js/vector-tools.js',
-  'js/document-scan-core.js',
-  'js/document-scan-worker.js',
-  'js/document-scanner.js',
-  'js/tools.js',
-  'vendor/jszip.min.js',
-  'vendor/pdf-lib.min.js',
-  'vendor/pdf.min.js',
-  'vendor/pdf.worker.min.js',
+  'js/th-cloud.js',
+  'SutonnyMJ-Regular.ttf',
   'manifest.webmanifest',
   'icons/icon-48.png',
   'icons/icon-180.png',
-  'icons/icon-192.png',
-  'icons/icon-512.png'
+  'icons/icon-192.png'
 ];
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(SHELL)
-      .then(function (cache) { return cache.addAll(ASSETS.map(function (u) { return new Request(u, { cache: 'reload' }); })); })
+      .then(function (cache) {
+        // Resilient install: one missing/failed entry must not abort the whole SW install.
+        return Promise.allSettled(PRECACHE.map(function (u) {
+          var req = new Request(u, { cache: 'reload' });
+          return fetch(req).then(function (res) {
+            if (!res || !res.ok) throw new Error('precache ' + u + ' -> ' + (res && res.status));
+            return cache.put(req, res);
+          });
+        }));
+      })
       .then(function () { return self.skipWaiting(); })
   );
 });
@@ -59,6 +52,21 @@ function isFontRequest(url) {
   return url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
 }
 
+// Immutable-by-URL assets: ?v=NN versioned engines, content-hashed Astro bundles, pinned vendor libs.
+function isImmutableAsset(url) {
+  return /(?:^|&)v=/.test(url.search.slice(1)) ||
+    url.pathname.indexOf('/_astro/') === 0 ||
+    url.pathname.indexOf('/vendor/') === 0;
+}
+
+function putRuntime(request, res) {
+  if (res && res.ok) {
+    var copy = res.clone();
+    caches.open(RUNTIME).then(function (c) { c.put(request, copy); });
+  }
+  return res;
+}
+
 // stale-while-revalidate: answer from cache instantly, refresh in background
 function staleWhileRevalidate(request) {
   return caches.open(RUNTIME).then(function (cache) {
@@ -69,6 +77,16 @@ function staleWhileRevalidate(request) {
       }).catch(function () { return cached; });
       return cached || network;
     });
+  });
+}
+
+// cache-first for versioned/immutable assets: cached on first use, served instantly afterwards.
+// Offline with a different ?v= than cached, fall back to any cached copy of the same path.
+function cacheFirst(request) {
+  return caches.match(request).then(function (hit) {
+    if (hit) return hit;
+    return fetch(request).then(function (res) { return putRuntime(request, res); })
+      .catch(function () { return caches.match(request, { ignoreSearch: true }); });
   });
 }
 
@@ -94,22 +112,21 @@ self.addEventListener('fetch', function (event) {
         return res;
       }).catch(function () {
         return caches.match(req, { ignoreSearch: true }).then(function (m) {
-          return m || caches.match('./', { ignoreSearch: true }) || caches.match('index.html', { ignoreSearch: true });
+          return m || caches.match('./', { ignoreSearch: true });
         });
       })
     );
     return;
   }
 
-  // static assets: network first for CSS/JS so updates appear immediately, fallback to cache offline
+  if (!IS_DEV && isImmutableAsset(url)) {
+    event.respondWith(cacheFirst(req));
+    return;
+  }
+
+  // other static assets: network first so updates appear immediately, cache at runtime, fallback offline
   event.respondWith(
-    fetch(req).then(function (res) {
-      if (res && res.ok) {
-        var copy = res.clone();
-        caches.open(RUNTIME).then(function (c) { c.put(req, copy); });
-      }
-      return res;
-    }).catch(function () {
+    fetch(req).then(function (res) { return putRuntime(req, res); }).catch(function () {
       return caches.match(req, { ignoreSearch: true });
     })
   );

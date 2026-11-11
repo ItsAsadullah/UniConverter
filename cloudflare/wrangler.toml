@@ -1,17 +1,22 @@
-name = "techhat-studio-vault"
+name = "techhat-tools-sync"
 main = "worker.js"
 compatibility_date = "2025-01-01"
 
-# 1. Create D1 Database:
-#    npx wrangler d1 create techhat_vault_db
-#    npx wrangler d1 execute techhat_vault_db --file=./schema.sql
+# Public, non-secret configuration
+[vars]
+FIREBASE_PROJECT_ID = "tools-techhat"
+ALLOWED_ORIGINS = "https://tools.techhat.com.bd,https://localhost,capacitor://localhost,http://192.168.1.192:4321"
+
+# D1 database (metadata + project state). Created with:
+#   npx wrangler d1 create techhat_tools_db
+#   npx wrangler d1 execute techhat_tools_db --remote --file=./schema.sql
 [[d1_databases]]
 binding = "DB"
-database_name = "techhat_vault_db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_name = "thbc-sync-db"
+database_id = "960f453c-f206-4b86-bfbd-5449273761ab"
 
-# 2. Create R2 Bucket (10 GB Free Tier):
-#    npx wrangler r2 bucket create techhat-vault-files
+# R2 bucket (document binaries). Created with:
+#   npx wrangler r2 bucket create thbc-sync-blobs
 [[r2_buckets]]
 binding = "BUCKET"
-bucket_name = "techhat-vault-files"
+bucket_name = "thbc-sync-blobs"

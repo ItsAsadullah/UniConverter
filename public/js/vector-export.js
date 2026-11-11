@@ -29,7 +29,11 @@
       if (s.c) d += 'C' + n(s.c[0]) + ' ' + n(s.c[1]) + ' ' + n(s.c[2]) + ' ' + n(s.c[3]) + ' ' + n(s.c[4]) + ' ' + n(s.c[5]);
       else d += 'L' + n(s.l[0]) + ' ' + n(s.l[1]);
     }
-    return d + 'Z';
+    return d + (sp.closed === false ? '' : 'Z');
+  }
+
+  function svgStrokeAttrs(p) {
+    return ' fill="none" stroke="' + hex(p.stroke || p.fill) + '" stroke-width="' + n(p.strokeWidth || 1) + '" stroke-linecap="round" stroke-linejoin="round"';
   }
 
   function toSvg(result, opts) {
@@ -46,6 +50,13 @@
     var i = 0;
     while (i < paths.length) {
       var p = paths[i];
+      if (p.isStroke) {
+        var dsS = [];
+        for (var ss = 0; ss < p.subpaths.length; ss++) dsS.push(subpathToSvgD(p.subpaths[ss]));
+        body.push('<path' + svgStrokeAttrs(p) + ' d="' + dsS.join('') + '"/>\n');
+        i++;
+        continue;
+      }
       if (p.gradient) {
         var id = 'thg' + (++gid);
         defs.push(svgGradient(p.gradient, id));
@@ -57,7 +68,7 @@
       }
       var color = hex(p.fill);
       var group = [];
-      while (i < paths.length && !paths[i].gradient && hex(paths[i].fill) === color) { group.push(paths[i]); i++; }
+      while (i < paths.length && !paths[i].gradient && !paths[i].isStroke && hex(paths[i].fill) === color) { group.push(paths[i]); i++; }
       var hasHoles = group.some(function (gp) { return gp.subpaths.length > 1; });
       var g = '<g fill="' + color + '"' + (hasHoles ? ' fill-rule="evenodd"' : '') + '>\n';
       for (var j = 0; j < group.length; j++) {
@@ -138,7 +149,7 @@
         ops.push(n(s.l[0]) + ' ' + n(flip(s.l[1])) + ' lineto');
       }
     }
-    ops.push('closepath');
+    if (sp.closed !== false) ops.push('closepath');
     return ops;
   }
 
@@ -169,6 +180,15 @@
     for (var i = 0; i < paths.length; i++) {
       out += 'gsave\n';
       var hasHoles = paths[i].subpaths.length > 1;
+      if (paths[i].isStroke) {
+        var sc = paths[i].stroke || paths[i].fill;
+        if (cmyk) { var ck = rgbToCmyk(sc); out += n(ck[0]) + ' ' + n(ck[1]) + ' ' + n(ck[2]) + ' ' + n(ck[3]) + ' setcmykcolor\n'; }
+        else out += n(sc[0] / 255) + ' ' + n(sc[1] / 255) + ' ' + n(sc[2] / 255) + ' setrgbcolor\n';
+        out += n(paths[i].strokeWidth || 1) + ' setlinewidth 1 setlinecap 1 setlinejoin\nnewpath\n';
+        for (var si = 0; si < paths[i].subpaths.length; si++) out += subpathToEpsOps(paths[i].subpaths[si], h).join('\n') + '\n';
+        out += 'stroke\ngrestore\n';
+        continue;
+      }
       if (paths[i].gradient) {
         // clip to the shape, then paint a smooth PostScript-3 shading
         out += 'newpath\n';
@@ -212,7 +232,14 @@
     var paths = visiblePaths(result);
     for (var i = 0; i < paths.length; i++) {
       var grad = paths[i].gradient;
-      if (!grad) {
+      var isStroke = !!paths[i].isStroke;
+      if (isStroke) {
+        var sc = paths[i].stroke || paths[i].fill;
+        if (cmyk) { var ck = rgbToCmyk(sc); cs.push(n(ck[0]) + ' ' + n(ck[1]) + ' ' + n(ck[2]) + ' ' + n(ck[3]) + ' K'); }
+        else cs.push(n(sc[0] / 255) + ' ' + n(sc[1] / 255) + ' ' + n(sc[2] / 255) + ' RG');
+        cs.push(n(paths[i].strokeWidth || 1) + ' w 1 J 1 j');
+        grad = null;
+      } else if (!grad) {
         if (cmyk) {
           var c = rgbToCmyk(paths[i].fill);
           cs.push(n(c[0]) + ' ' + n(c[1]) + ' ' + n(c[2]) + ' ' + n(c[3]) + ' k');
@@ -231,9 +258,11 @@
           if (s.c) cs.push(n(s.c[0]) + ' ' + n(h - s.c[1]) + ' ' + n(s.c[2]) + ' ' + n(h - s.c[3]) + ' ' + n(s.c[4]) + ' ' + n(h - s.c[5]) + ' c');
           else cs.push(n(s.l[0]) + ' ' + n(h - s.l[1]) + ' l');
         }
-        cs.push('h');
+        if (sp.closed !== false) cs.push('h');
       }
-      if (grad) {
+      if (isStroke) {
+        cs.push('S');
+      } else if (grad) {
         shadings.push(shadingDict(grad, h, cmyk));
         cs.push(hasHoles ? 'W* n' : 'W n');
         cs.push('/Sh' + shadings.length + ' sh');
@@ -302,6 +331,7 @@
       });
     }
     path.fill = nf;
+    if (path.stroke) path.stroke = nf.slice();
     return path;
   }
 

@@ -10,6 +10,11 @@
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var BN = '০১২৩৪৫৬৭৮৯';
   function toBn(n) { return String(n).replace(/\d/g, function (d) { return BN[d]; }); }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
   function normPath(p) {
     if (!p) return '/';
     var clean = String(p).split('#')[0].split('?')[0].replace(/\/+$/, '');
@@ -546,8 +551,10 @@
     if (!matchedId) return;
     var recents = getRecents().filter(function (id) { return id !== matchedId; });
     recents.unshift(matchedId);
-    try { localStorage.setItem(RECENT_KEY, JSON.stringify(recents.slice(0, 6))); } catch (e) {}
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(recents.slice(0, 7))); } catch (e) {}
   }
+
+  var DEFAULT_QUICK_TOOLS = ['image-scan', 'image-passport', 'image-combine', 'image-vectorize', 'pdf-merge', 'bijoy-to-unicode', 'image-resize'];
 
   function buildMiniToolCard(meta, isFav) {
     var en = isEn();
@@ -587,7 +594,7 @@
     var recSec = $('#homeRecentSection');
     var recGrid = $('#homeRecentGrid');
     var favs = getFavs();
-    var recents = getRecents();
+    var recents = getRecents().filter(function (id) { return !!catalogById[id]; }).slice(0, 7);
 
     if (favSec && favGrid) {
       var validFavs = favs.map(function (id) { return catalogById[id]; }).filter(Boolean);
@@ -641,6 +648,28 @@
       saveFavs(favs);
       syncFavButtons();
       renderHomePersonalizedSections();
+      return;
+    }
+
+    var toggleAllBtn = e.target.closest ? e.target.closest('[data-desk-toggle-all-tools]') : null;
+    if (toggleAllBtn) {
+      e.preventDefault();
+      var panel = $('#deskAllToolsPanel');
+      if (!panel) return;
+      var nowOpen = panel.hidden;
+      panel.hidden = !nowOpen;
+      var recWorkSec = $('#deskRecentWorkSection');
+      if (recWorkSec) recWorkSec.hidden = nowOpen;
+      var tileBtn = $('#deskAllToolsTileBtn');
+      if (tileBtn) {
+        tileBtn.classList.toggle('ring-2', nowOpen);
+        tileBtn.classList.toggle('ring-sky-500', nowOpen);
+        tileBtn.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
+      }
+      if (nowOpen) {
+        var searchIn = $('[data-dir-search]', panel);
+        if (searchIn) searchIn.focus({ preventScroll: true });
+      }
       return;
     }
 
@@ -728,6 +757,9 @@
     }
     dirContainer._runFilter = runFilter;
     runFilter();
+    dirContainer.setAttribute('data-dir-ready', '1');
+    var hp = document.getElementById('th-head-prepaint');
+    if (hp) hp.remove();
   }
   window.addEventListener('th:langchange', function () {
     var dirContainer = $('[data-directory-root]');
@@ -1289,6 +1321,9 @@
     if (($('#tool-calendar') || $('#tool-age') || $('#tool-datecalc') || $('#tool-invoice')) && window.TechHatTools && window.TechHatTools.initPage) {
       window.TechHatTools.initPage();
     }
+    if ($('#thFullDashboardPage') && window.TechHatCloud && window.TechHatCloud.renderDashboard) {
+      window.TechHatCloud.renderDashboard();
+    }
   }
 
   var BANGLA_ROUTES = {
@@ -1346,6 +1381,7 @@
       '/image/scan': 'scan',
       '/image/scanner': 'scan',
       '/image/passport': 'passport',
+      '/image/passport-photo': 'passport-photo',
       '/image/resize': 'resize',
       '/image/compress': 'compress',
       '/image/crop': 'crop',
@@ -1544,7 +1580,7 @@
     window.addEventListener('beforeinstallprompt', function (e) {
       e.preventDefault();
       installEvt = e;
-      installBtn.hidden = false;
+      installBtn.dataset.canInstall = '1';
     });
     installBtn.addEventListener('click', function () {
       if (!installEvt) return;
@@ -1561,72 +1597,44 @@
   }
 
   /* ============================================================================
-   * PERSISTENT DOCUMENT VAULT (IndexedDB) + CLOUDFLARE R2 / D1 CLOUD SYNC
+   * PERSISTENT DOCUMENT VAULT — backed by th-store.js (IndexedDB `thbc_store`).
+   * Cloud sync (Firebase sign-in + Cloudflare D1/R2) lives in th-cloud.js.
    * ============================================================================ */
   (function initDocumentVault() {
-    var DB_NAME = 'thbc_doc_vault';
-    var DB_VER = 1;
-    var STORE = 'docs';
-    var SYNC_ACCOUNT_KEY = 'thbc-cloud-account';
-    var SYNC_ENDPOINT_KEY = 'thbc-cloud-endpoint';
     var activeFilter = 'all';
-    var dbPromise = null;
-
-    function openVaultDB() {
-      if (dbPromise) return dbPromise;
-      dbPromise = new Promise(function (resolve, reject) {
-        if (!window.indexedDB) { reject(new Error('No IndexedDB')); return; }
-        var req = indexedDB.open(DB_NAME, DB_VER);
-        req.onupgradeneeded = function (e) {
-          var db = e.target.result;
-          if (!db.objectStoreNames.contains(STORE)) {
-            var st = db.createObjectStore(STORE, { keyPath: 'id' });
-            st.createIndex('createdAt', 'createdAt', { unique: false });
-          }
-        };
-        req.onsuccess = function (e) { resolve(e.target.result); };
-        req.onerror = function (e) { reject(e.target.error); };
-      });
-      return dbPromise;
-    }
+    var Store = window.TechHatStore;
+    var PROJECT_TOOLS = {
+      vectorize: { bn: 'রাস্টার টু ভেক্টর', en: 'Raster to Vector', href: '/image/vectorize' },
+      photocard: { bn: 'ফটো কার্ড মেকার', en: 'Photo Card Maker', href: '/image/photo-card' },
+      bijoy: { bn: 'বিজয় ↔ ইউনিকোড', en: 'Bijoy ↔ Unicode', href: '/bangla/bijoy-to-unicode' },
+      scan: { bn: 'ডকুমেন্ট স্ক্যানার', en: 'Document Scanner', href: '/image/scan' },
+      passport: { bn: 'পাসপোর্ট স্ক্যানার', en: 'Passport Scanner', href: '/image/passport' },
+      nid: { bn: 'আইডি কার্ড কম্বাইনার', en: 'ID Card Combiner', href: '/image/combine' }
+    };
 
     function listDocs() {
-      return openVaultDB().then(function (db) {
-        return new Promise(function (resolve) {
-          var tx = db.transaction(STORE, 'readonly');
-          var st = tx.objectStore(STORE);
-          var req = st.getAll();
-          req.onsuccess = function () {
-            var arr = (req.result || []).slice().sort(function (a, b) {
-              return (b.createdAt || 0) - (a.createdAt || 0);
-            });
-            resolve(arr);
-          };
-          req.onerror = function () { resolve([]); };
-        });
-      }).catch(function () { return []; });
+      if (!Store) return Promise.resolve([]);
+      return Store.list('files').catch(function () { return []; });
+    }
+
+    function listProjects() {
+      if (!Store) return Promise.resolve([]);
+      return Store.list('projects').catch(function () { return []; });
     }
 
     function putDocRecord(doc) {
-      return openVaultDB().then(function (db) {
-        return new Promise(function (resolve, reject) {
-          var tx = db.transaction(STORE, 'readwrite');
-          tx.objectStore(STORE).put(doc);
-          tx.oncomplete = function () { resolve(doc); };
-          tx.onerror = function (e) { reject(e.target.error); };
-        });
-      });
+      return Store ? Store.save('files', doc) : Promise.resolve(doc);
     }
 
-    function deleteDocRecord(id) {
-      return openVaultDB().then(function (db) {
-        return new Promise(function (resolve) {
-          var tx = db.transaction(STORE, 'readwrite');
-          tx.objectStore(STORE).delete(id);
-          tx.oncomplete = function () { resolve(true); };
-          tx.onerror = function () { resolve(false); };
-        });
-      });
+    function deleteVaultRecord(store, id) {
+      return Store ? Store.remove(store || 'files', id).then(function () { return true; }) : Promise.resolve(false);
+    }
+
+    // Binary may still be in the cloud (synced from another device).
+    function withBlob(doc, storeName) {
+      if (!doc || doc.blob || !doc.blobRemote || !window.TechHatCloud) return Promise.resolve(doc);
+      showToast(isEn() ? 'Downloading from cloud…' : 'ক্লাউড থেকে ডাউনলোড হচ্ছে…');
+      return window.TechHatCloud.ensureBlob(storeName || 'files', doc);
     }
 
     function makeThumbnail(blob, mime) {
@@ -1689,93 +1697,6 @@
       }
     }
 
-    function getCloudConfig() {
-      var account = '';
-      var endpoint = '';
-      try {
-        account = (localStorage.getItem(SYNC_ACCOUNT_KEY) || '').trim();
-        endpoint = (localStorage.getItem(SYNC_ENDPOINT_KEY) || '').trim().replace(/\/+$/, '');
-      } catch (e) {}
-      return { account: account, endpoint: endpoint };
-    }
-
-    function syncSingleDocToCloud(doc) {
-      var cfg = getCloudConfig();
-      if (!cfg.account || !cfg.endpoint || !doc || !doc.blob) return Promise.resolve(false);
-      var fd = new FormData();
-      fd.append('id', doc.id);
-      fd.append('account', cfg.account);
-      fd.append('title', doc.title || 'document');
-      fd.append('category', doc.category || 'scan');
-      fd.append('mime', doc.mime || 'application/octet-stream');
-      fd.append('size', String(doc.size || 0));
-      fd.append('createdAt', String(doc.createdAt || Date.now()));
-      fd.append('thumb', doc.thumb || '');
-      fd.append('file', doc.blob, doc.title || 'document');
-      return fetch(cfg.endpoint + '/api/docs', {
-        method: 'POST',
-        headers: { 'X-Sync-Account': cfg.account },
-        body: fd
-      }).then(function (r) {
-        if (!r.ok) return false;
-        doc.cloudSynced = true;
-        return putDocRecord(doc).then(function () { return true; });
-      }).catch(function () { return false; });
-    }
-
-    function syncAllWithCloud() {
-      var cfg = getCloudConfig();
-      var statusEl = $('#mobCloudStatusMsg');
-      var topBadge = $('#mobCloudSyncStatusText');
-      if (!cfg.account) {
-        if (statusEl) statusEl.textContent = isEn() ? 'Enter an email or Sync ID first' : 'প্রথমে আপনার ইমেইল বা সিঙ্ক আইডি লিখুন';
-        return Promise.resolve();
-      }
-      if (!cfg.endpoint) {
-        if (statusEl) statusEl.textContent = isEn() ? 'Sync ID saved locally. Add Cloudflare Worker URL to sync online.' : 'সিঙ্ক আইডি সেভ হয়েছে। অনলাইন ব্যাকআপের জন্য Worker URL দিন।';
-        if (topBadge) topBadge.textContent = isEn() ? 'Saved (' + cfg.account.slice(0, 10) + ')' : 'সেভড (' + cfg.account.slice(0, 10) + ')';
-        return Promise.resolve();
-      }
-      if (statusEl) statusEl.textContent = isEn() ? 'Syncing with Cloudflare R2 + D1…' : 'Cloudflare R2 + D1-এ সিঙ্ক হচ্ছে…';
-      return listDocs().then(function (localDocs) {
-        var uploads = localDocs.filter(function (d) { return !d.cloudSynced && d.blob; }).map(syncSingleDocToCloud);
-        return Promise.all(uploads);
-      }).then(function () {
-        return fetch(cfg.endpoint + '/api/docs?account=' + encodeURIComponent(cfg.account), {
-          headers: { 'X-Sync-Account': cfg.account }
-        }).then(function (r) { return r.ok ? r.json() : { docs: [] }; }).catch(function () { return { docs: [] }; });
-      }).then(function (remoteData) {
-        var remoteList = (remoteData && remoteData.docs) || [];
-        return listDocs().then(function (localDocs) {
-          var existingIds = {};
-          localDocs.forEach(function (d) { existingIds[d.id] = true; });
-          var pulls = remoteList.filter(function (rd) { return rd && rd.id && !existingIds[rd.id]; }).map(function (rd) {
-            return fetch(cfg.endpoint + '/api/docs/' + encodeURIComponent(rd.id) + '/file?account=' + encodeURIComponent(cfg.account), {
-              headers: { 'X-Sync-Account': cfg.account }
-            }).then(function (res) { return res.ok ? res.blob() : null; }).then(function (blob) {
-              if (!blob) return null;
-              return putDocRecord({
-                id: rd.id,
-                title: rd.title || 'Document',
-                category: rd.category || 'scan',
-                mime: rd.mime || blob.type || 'application/octet-stream',
-                size: rd.size || blob.size || 0,
-                createdAt: rd.createdAt || Date.now(),
-                thumb: rd.thumb || '',
-                cloudSynced: true,
-                blob: blob
-              });
-            }).catch(function () { return null; });
-          });
-          return Promise.all(pulls);
-        });
-      }).then(function () {
-        if (statusEl) statusEl.textContent = isEn() ? 'All documents synced with Cloudflare R2!' : 'সব ডকুমেন্ট Cloudflare R2-এ সফলভাবে সিঙ্ক হয়েছে!';
-        if (topBadge) topBadge.textContent = isEn() ? 'Cloud Synced' : 'ক্লাউড সিঙ্কড';
-        renderSavedDocsVault();
-      });
-    }
-
     function saveBlobToVault(blob, filename, customCategory) {
       if (!blob || !blob.size) return Promise.resolve(null);
       var mime = blob.type || (/\.pdf$/i.test(filename || '') ? 'application/pdf' : 'image/jpeg');
@@ -1783,90 +1704,186 @@
       var cleanTitle = (filename || ('Scan-' + new Date().toISOString().slice(0, 10))).trim();
       return makeThumbnail(blob, mime).then(function (thumb) {
         var doc = {
-          id: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+          id: Store ? Store.newId('doc') : 'doc_' + Date.now(),
           title: cleanTitle,
           category: cat,
           mime: mime,
           size: blob.size,
-          createdAt: Date.now(),
           thumb: thumb,
-          cloudSynced: false,
           blob: blob
         };
-        return putDocRecord(doc).then(function () {
+        return putDocRecord(doc).then(function (saved) {
           renderSavedDocsVault();
-          syncSingleDocToCloud(doc).then(function (ok) {
-            if (ok) renderSavedDocsVault();
-          });
-          return doc;
+          return saved;
         });
       }).catch(function () { return null; });
     }
 
-    function renderSavedDocsVault() {
-      var listEl = $('#mobSavedDocsList');
-      var emptyEl = $('#mobSavedDocsEmpty');
-      var countEl = $('#mobSavedDocsCount');
-      var topBadge = $('#mobCloudSyncStatusText');
-      var cfg = getCloudConfig();
-      if (topBadge && cfg.account) {
-        topBadge.textContent = cfg.endpoint ? (isEn() ? 'Cloud Synced' : 'ক্লাউড সিঙ্কড') : (isEn() ? 'Vault: ' + cfg.account.slice(0, 8) : 'ভল্ট: ' + cfg.account.slice(0, 8));
-      }
-      if (!listEl) return;
+    var VAULT_META_KEY = 'thbc-vault-meta-cache';
 
-      listDocs().then(function (docs) {
-        if (countEl) countEl.textContent = isEn() ? String(docs.length) : toBn(docs.length);
-        var filtered = docs.filter(function (d) {
-          return activeFilter === 'all' || d.category === activeFilter;
+    function saveVaultMetaCache(combined) {
+      try {
+        var slim = (combined || []).slice(0, 32).map(function (item) {
+          return {
+            id: item.id,
+            _store: item._store,
+            title: item.title || '',
+            category: item.category || '',
+            tool: item.tool || '',
+            mime: item.mime || '',
+            size: item.size || 0,
+            thumb: item.thumb || '',
+            createdAt: item.createdAt || 0,
+            updatedAt: item.updatedAt || 0,
+            syncedAt: item.syncedAt || 0,
+            blobRemote: !!item.blobRemote
+          };
         });
-        if (!filtered.length) {
-          listEl.innerHTML = '';
-          if (emptyEl) emptyEl.hidden = false;
-          return;
-        }
-        if (emptyEl) emptyEl.hidden = true;
-        var html = filtered.map(function (doc) {
-          var isPdf = (doc.mime && doc.mime.indexOf('pdf') !== -1) || /\.pdf$/i.test(doc.title || '');
-          var catBadgeBn = doc.category === 'nid' ? 'NID / পাসপোর্ট' : doc.category === 'pdf' ? 'PDF' : 'স্ক্যান';
-          var catBadgeEn = doc.category === 'nid' ? 'NID / ID' : doc.category === 'pdf' ? 'PDF' : 'Scan';
-          var thumbHtml = doc.thumb
-            ? '<img src="' + doc.thumb + '" alt="" class="w-12 h-14 rounded-xl object-cover border border-slate-200 dark:border-studio-border shrink-0 bg-slate-100" />'
-            : '<div class="w-12 h-14 rounded-xl ' + (isPdf ? 'bg-rose-500/12 text-rose-600 dark:text-rose-400' : 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400') + ' flex flex-col items-center justify-center shrink-0 border border-slate-200/70 dark:border-studio-border"><span class="text-[10px] font-extrabold uppercase">' + (isPdf ? 'PDF' : 'DOC') + '</span></div>';
-          var syncDot = doc.cloudSynced
-            ? '<span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400" title="Cloud Synced">☁️</span>'
-            : '';
+        localStorage.setItem(VAULT_META_KEY, JSON.stringify(slim));
+      } catch (e) {}
+    }
 
-          return (
-            '<div class="flex items-center gap-3 p-2.5 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200/80 dark:border-studio-border shadow-2xs" data-vault-doc-id="' + doc.id + '">' +
-              thumbHtml +
-              '<div class="flex-1 min-w-0">' +
-                '<div class="flex items-center gap-1.5">' +
-                  '<b class="text-[13px] font-bold text-slate-900 dark:text-studio-text truncate">' + escapeHtml(doc.title || 'Document') + '</b>' +
-                  syncDot +
-                '</div>' +
-                '<div class="flex items-center flex-wrap gap-1.5 mt-1 text-[11px] text-slate-500 dark:text-studio-muted">' +
-                  '<span class="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-studio-panel text-[10px] font-bold text-slate-700 dark:text-studio-text">' + (isEn() ? catBadgeEn : catBadgeBn) + '</span>' +
-                  '<span>•</span>' +
-                  '<span>' + formatBytes(doc.size) + '</span>' +
-                  '<span>•</span>' +
-                  '<span>' + formatDateShort(doc.createdAt) + '</span>' +
-                '</div>' +
+    function applyVaultItemsToDom(combined) {
+      var mobListEl = $('#mobSavedDocsList');
+      var mobEmptyEl = $('#mobSavedDocsEmpty');
+      var mobCountEl = $('#mobSavedDocsCount');
+      var deskListEl = $('#deskSavedDocsList');
+      var deskEmptyEl = $('#deskSavedDocsEmpty');
+      var deskCountEl = $('#deskSavedDocsCount');
+      if (!mobListEl && !deskListEl) return;
+
+      var totalTxt = isEn() ? String(combined.length) : toBn(combined.length);
+      if (mobCountEl) mobCountEl.textContent = totalTxt;
+      if (deskCountEl) deskCountEl.textContent = totalTxt;
+
+      var searchEl = $('#deskWorkSearchInput');
+      var q = searchEl ? (searchEl.value || '').trim().toLowerCase() : '';
+
+      var filtered = combined.filter(function (item) {
+        var isProj = item._store === 'projects';
+        var catMatch = false;
+        if (activeFilter === 'all') {
+          catMatch = true;
+        } else if (activeFilter === 'projects') {
+          catMatch = isProj;
+        } else if (activeFilter === 'scan') {
+          catMatch = (!isProj && (item.category === 'scan' || item.category === 'vector')) || (isProj && (item.tool === 'vectorize' || item.tool === 'scan'));
+        } else if (activeFilter === 'nid') {
+          catMatch = (!isProj && item.category === 'nid') || (isProj && (item.tool === 'nid' || item.tool === 'passport'));
+        } else if (activeFilter === 'pdf') {
+          catMatch = !isProj && item.category === 'pdf';
+        }
+        if (!catMatch) return false;
+        if (!q) return true;
+        var tMeta = PROJECT_TOOLS[item.tool];
+        var hay = ((item.title || '') + ' ' + (item.category || '') + ' ' + (item.tool || '') + ' ' + (tMeta ? tMeta.bn + ' ' + tMeta.en : '')).toLowerCase();
+        return hay.indexOf(q) !== -1;
+      });
+
+      if (!filtered.length) {
+        if (mobListEl) mobListEl.innerHTML = '';
+        if (mobEmptyEl) mobEmptyEl.hidden = false;
+        if (deskListEl) deskListEl.innerHTML = '';
+        if (deskEmptyEl) deskEmptyEl.hidden = false;
+        return;
+      }
+      if (mobEmptyEl) mobEmptyEl.hidden = true;
+      if (deskEmptyEl) deskEmptyEl.hidden = true;
+
+      var html = filtered.map(function (doc) {
+        var isProj = doc._store === 'projects';
+        var tMeta = PROJECT_TOOLS[doc.tool];
+        var isPdf = !isProj && ((doc.mime && doc.mime.indexOf('pdf') !== -1) || /\.pdf$/i.test(doc.title || ''));
+        var catBadgeBn = isProj
+          ? ('চলমান · ' + (tMeta ? tMeta.bn : 'প্রজেক্ট'))
+          : (doc.category === 'nid' ? 'NID / পাসপোর্ট' : doc.category === 'pdf' ? 'PDF' : doc.category === 'vector' ? 'ভেক্টর' : 'স্ক্যান');
+        var catBadgeEn = isProj
+          ? ('WIP · ' + (tMeta ? tMeta.en : 'Project'))
+          : (doc.category === 'nid' ? 'NID / ID' : doc.category === 'pdf' ? 'PDF' : doc.category === 'vector' ? 'Vector' : 'Scan');
+        var thumbHtml = doc.thumb
+          ? '<img src="' + doc.thumb + '" alt="" class="w-12 h-14 rounded-xl object-cover border border-slate-200 dark:border-studio-border shrink-0 bg-slate-100" />'
+          : '<div class="w-12 h-14 rounded-xl ' + (isProj ? 'bg-violet-500/12 text-violet-600 dark:text-violet-400' : isPdf ? 'bg-rose-500/12 text-rose-600 dark:text-rose-400' : 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400') + ' flex flex-col items-center justify-center shrink-0 border border-slate-200/70 dark:border-studio-border"><span class="text-[10px] font-extrabold uppercase">' + (isProj ? 'WIP' : isPdf ? 'PDF' : 'DOC') + '</span></div>';
+        var syncDot = (doc.blobRemote || (doc.syncedAt && doc.syncedAt >= doc.updatedAt))
+          ? '<span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400" title="Cloud Synced">☁️</span>'
+          : '';
+        var displayTitle = doc.title || (tMeta ? (isEn() ? tMeta.en : tMeta.bn) : 'Document');
+        var sizePart = doc.size ? ('<span>•</span><span>' + formatBytes(doc.size) + '</span>') : '';
+        var actionsHtml = isProj
+          ? (
+              '<button type="button" data-vault-action="open" data-store="projects" data-id="' + doc.id + '" class="h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 border-0 text-white text-xs font-bold inline-flex items-center justify-center cursor-pointer active:scale-95">' +
+                (isEn() ? 'Open' : 'খুলুন') +
+              '</button>' +
+              '<button type="button" data-vault-action="delete" data-store="projects" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-rose-500/10 border-0 text-rose-600 dark:text-rose-400 inline-flex items-center justify-center cursor-pointer active:scale-95" title="Delete" aria-label="Delete">' +
+                '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+              '</button>'
+            )
+          : (
+              '<button type="button" data-vault-action="share" data-store="files" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-studio-panel border-0 text-slate-700 dark:text-studio-text inline-flex items-center justify-center cursor-pointer active:scale-95" title="Share" aria-label="Share">' +
+                '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>' +
+              '</button>' +
+              '<button type="button" data-vault-action="download" data-store="files" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-emerald-500/12 border-0 text-emerald-700 dark:text-emerald-300 inline-flex items-center justify-center cursor-pointer active:scale-95" title="Download" aria-label="Download">' +
+                '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m9 12v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>' +
+              '</button>' +
+              '<button type="button" data-vault-action="delete" data-store="files" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-rose-500/10 border-0 text-rose-600 dark:text-rose-400 inline-flex items-center justify-center cursor-pointer active:scale-95" title="Delete" aria-label="Delete">' +
+                '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+              '</button>'
+            );
+
+        return (
+          '<div class="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200/80 dark:border-studio-border hover:border-emerald-500/50 transition-colors shadow-2xs" data-vault-doc-id="' + doc.id + '">' +
+            thumbHtml +
+            '<div class="flex-1 min-w-0">' +
+              '<div class="flex items-center gap-1.5">' +
+                '<b class="text-[13px] font-bold text-slate-900 dark:text-studio-text truncate">' + escapeHtml(displayTitle) + '</b>' +
+                syncDot +
               '</div>' +
-              '<div class="flex items-center gap-1 shrink-0">' +
-                '<button type="button" data-vault-action="share" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-studio-panel border-0 text-slate-700 dark:text-studio-text inline-flex items-center justify-center cursor-pointer active:scale-95" title="Share" aria-label="Share">' +
-                  '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>' +
-                '</button>' +
-                '<button type="button" data-vault-action="download" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-emerald-500/12 border-0 text-emerald-700 dark:text-emerald-300 inline-flex items-center justify-center cursor-pointer active:scale-95" title="Download" aria-label="Download">' +
-                  '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m9 12v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>' +
-                '</button>' +
-                '<button type="button" data-vault-action="delete" data-id="' + doc.id + '" class="w-8 h-8 rounded-xl bg-rose-500/10 border-0 text-rose-600 dark:text-rose-400 inline-flex items-center justify-center cursor-pointer active:scale-95" title="Delete" aria-label="Delete">' +
-                  '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
-                '</button>' +
+              '<div class="flex items-center flex-wrap gap-1.5 mt-1 text-[11px] text-slate-500 dark:text-studio-muted">' +
+                '<span class="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-studio-panel text-[10px] font-bold text-slate-700 dark:text-studio-text">' + (isEn() ? catBadgeEn : catBadgeBn) + '</span>' +
+                sizePart +
+                '<span>•</span>' +
+                '<span>' + formatDateShort(doc.updatedAt || doc.createdAt) + '</span>' +
               '</div>' +
-            '</div>'
-          );
-        }).join('');
-        listEl.innerHTML = html;
+            '</div>' +
+            '<div class="flex items-center gap-1 shrink-0">' +
+              actionsHtml +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+      if (mobListEl && mobListEl.innerHTML !== html) mobListEl.innerHTML = html;
+      if (deskListEl && deskListEl.innerHTML !== html) deskListEl.innerHTML = html;
+    }
+
+    function renderSavedDocsVault() {
+      var mobListEl = $('#mobSavedDocsList');
+      var deskListEl = $('#deskSavedDocsList');
+      var topBadge = $('#mobCloudSyncStatusText');
+      if (topBadge) {
+        var signedIn = window.TechHatCloud && window.TechHatCloud.uid();
+        topBadge.textContent = signedIn ? (isEn() ? 'Cloud Sync On' : 'ক্লাউড সিঙ্ক চালু') : (isEn() ? 'Saved on device' : 'ডিভাইসে সেভ');
+      }
+      if (!mobListEl && !deskListEl) return;
+
+      // Instant synchronous pre-paint from localStorage metadata cache so cards never pop in late
+      try {
+        var rawCache = localStorage.getItem(VAULT_META_KEY);
+        if (rawCache) {
+          var cached = JSON.parse(rawCache);
+          if (Array.isArray(cached)) applyVaultItemsToDom(cached);
+        }
+      } catch (e) {}
+
+      Promise.all([listDocs(), listProjects()]).then(function (res) {
+        var docs = res[0] || [];
+        var projects = res[1] || [];
+        var combined = [];
+        projects.forEach(function (p) { combined.push(Object.assign({}, p, { _store: 'projects' })); });
+        docs.forEach(function (d) { combined.push(Object.assign({}, d, { _store: 'files' })); });
+        combined.sort(function (a, b) {
+          return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
+        });
+        saveVaultMetaCache(combined);
+        applyVaultItemsToDom(combined);
       });
     }
 
@@ -1897,7 +1914,13 @@
       if (a) tryCaptureDownloadAnchor(a);
     }, true);
 
-    // Handle Vault UI actions (filter pills, file import, share, download, delete, cloud sync)
+    document.addEventListener('input', function (e) {
+      if (e.target && e.target.id === 'deskWorkSearchInput') {
+        renderSavedDocsVault();
+      }
+    });
+
+    // Handle Vault UI actions (filter pills, file import, open project, share, download, delete, cloud sync)
     document.addEventListener('click', function (e) {
       var t = e.target;
       if (!t || !t.closest) return;
@@ -1916,25 +1939,51 @@
       if (actionBtn) {
         var act = actionBtn.getAttribute('data-vault-action');
         var id = actionBtn.getAttribute('data-id');
+        var storeName = actionBtn.getAttribute('data-store') || 'files';
         if (!id) return;
-        if (act === 'delete') {
-          deleteDocRecord(id).then(function () {
-            var cfg = getCloudConfig();
-            if (cfg.account && cfg.endpoint) {
-              fetch(cfg.endpoint + '/api/docs/' + encodeURIComponent(id) + '?account=' + encodeURIComponent(cfg.account), {
-                method: 'DELETE',
-                headers: { 'X-Sync-Account': cfg.account }
-              }).catch(function () {});
-            }
-            renderSavedDocsVault();
-            showToast(isEn() ? 'Removed from vault' : 'ডকুমেন্ট মুছে ফেলা হয়েছে');
+        if (act === 'open' && storeName === 'projects') {
+          listProjects().then(function (projs) {
+            var foundProj = projs.filter(function (p) { return p.id === id; })[0];
+            if (!foundProj) return;
+            try { sessionStorage.setItem('thbc-open-project', foundProj.id); } catch (err) {}
+            var tMeta = PROJECT_TOOLS[foundProj.tool];
+            var targetHref = tMeta ? tMeta.href : '/';
+            navigateSPA(targetHref, true);
           });
           return;
         }
+        if (act === 'delete') {
+          var ask = window.TechHatConfirm
+            ? window.TechHatConfirm({
+                tone: 'rose',
+                titleBn: 'ডকুমেন্টটি মুছে ফেলবেন?',
+                titleEn: 'Delete this item?',
+                descBn: 'এই কাজ বা ডকুমেন্টটি মুছে ফেলতে চান? সাইন-ইন করা থাকলে আপনার সব ডিভাইস থেকেও এটি মুছে যাবে।',
+                descEn: 'Remove this work or document? If signed in, it will also be deleted from all your synced devices.',
+                okBn: 'মুছে ফেলুন',
+                okEn: 'Delete',
+                cancelBn: 'বাতিল',
+                cancelEn: 'Cancel'
+              })
+            : Promise.resolve(true);
+          ask.then(function (yes) {
+            if (!yes) return;
+            deleteVaultRecord(storeName, id).then(function () {
+              renderSavedDocsVault();
+              showToast(isEn() ? 'Removed from recent work' : 'সাম্প্রতিক কাজ থেকে মুছে ফেলা হয়েছে');
+            });
+          });
+          return;
+        }
+        if (act === 'share' && window.TechHatShare) {
+          window.TechHatShare(storeName, id);
+          return;
+        }
         listDocs().then(function (docs) {
-          var found = docs.filter(function (d) { return d.id === id; })[0];
+          return withBlob(docs.filter(function (d) { return d.id === id; })[0], storeName);
+        }).then(function (found) {
           if (!found || !found.blob) return;
-          if (act === 'download') {
+          if (act === 'download' || act === 'share') {
             var url = URL.createObjectURL(found.blob);
             var a = document.createElement('a');
             a.dataset.vaultIgnore = '1';
@@ -1944,34 +1993,13 @@
             a.click();
             a.remove();
             setTimeout(function () { URL.revokeObjectURL(url); }, 2500);
-          } else if (act === 'share') {
-            var file = new File([found.blob], found.title || 'document', { type: found.mime || found.blob.type || 'application/octet-stream' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              navigator.share({ title: found.title, files: [file] }).catch(function () {});
-            } else {
-              var dlUrl = URL.createObjectURL(found.blob);
-              var dl = document.createElement('a');
-              dl.dataset.vaultIgnore = '1';
-              dl.href = dlUrl;
-              dl.download = found.title || 'document';
-              document.body.appendChild(dl);
-              dl.click();
-              dl.remove();
-              setTimeout(function () { URL.revokeObjectURL(dlUrl); }, 2500);
-            }
           }
         });
         return;
       }
 
       if (t.closest('#mobCloudSyncNowBtn')) {
-        var accInput = $('#mobCloudAccountInput');
-        var epInput = $('#mobCloudEndpointInput');
-        try {
-          if (accInput) localStorage.setItem(SYNC_ACCOUNT_KEY, accInput.value.trim());
-          if (epInput) localStorage.setItem(SYNC_ENDPOINT_KEY, epInput.value.trim());
-        } catch (err) {}
-        syncAllWithCloud();
+        if (window.TechHatCloud) window.TechHatCloud.openAccount();
         return;
       }
     });
@@ -1986,19 +2014,19 @@
       });
     });
 
-    // Hydrate Cloud Sync Sheet inputs
-    var cfgInit = getCloudConfig();
-    var accEl = $('#mobCloudAccountInput');
-    var epEl = $('#mobCloudEndpointInput');
-    if (accEl && cfgInit.account) accEl.value = cfgInit.account;
-    if (epEl && cfgInit.endpoint) epEl.value = cfgInit.endpoint;
-
     window.TechHatVault = {
       save: saveBlobToVault,
       list: listDocs,
       render: renderSavedDocsVault,
-      sync: syncAllWithCloud
+      sync: function () { return window.TechHatCloud ? window.TechHatCloud.syncNow() : Promise.resolve(false); }
     };
+
+    if (Store) {
+      Store.onChange(function (d) {
+        if (d.store === 'files' || d.store === 'projects') renderSavedDocsVault();
+      });
+    }
+    window.addEventListener('th:langchange', renderSavedDocsVault);
 
     renderSavedDocsVault();
   })();

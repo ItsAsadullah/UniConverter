@@ -285,4 +285,97 @@ test('anti-aliased flat logo yields one layer per colour with sharp corners', ()
   assert.ok(yellow.subpaths[0].segs.length <= 4, 'triangle ≤ 4 segments');
 });
 
+// 16. Grayscale mode: all layers are neutral grays
+test('grayscale mode produces only neutral gray layers', () => {
+  const img = makeImage(120, 80, WHITE);
+  fillRect(img, 10, 10, 50, 70, RED);
+  fillRect(img, 60, 10, 110, 70, BLUE);
+  const r = C.trace(img, { mode: 'gray', grays: 4, minArea: 8, tolerance: 1 });
+  assert.ok(r.paths.length >= 2);
+  for (const p of r.paths) assert.ok(p.fill[0] === p.fill[1] && p.fill[1] === p.fill[2], `gray fill ${p.fill}`);
+});
+
+// 17. Ignore White (color): no white layer, white areas become holes
+test('ignoreWhite drops white layers in color mode', () => {
+  const img = makeImage(100, 100, WHITE);
+  fillRect(img, 20, 20, 80, 80, GREEN);
+  fillRect(img, 40, 40, 60, 60, WHITE);
+  const r = C.trace(img, { mode: 'color', colors: 4, minArea: 8, tolerance: 1, ignoreWhite: true });
+  assert.ok(r.paths.length >= 1);
+  for (const p of r.paths) assert.ok(!(p.fill[0] > 230 && p.fill[1] > 230 && p.fill[2] > 230), 'no white layer');
+  const g = r.paths.find(p => p.fill[1] > 150);
+  assert.equal(g.subpaths.length, 2, 'green square keeps a hole');
+});
+
+// 18. Limited / custom palette: fills are exact swatches
+test('custom palette snaps every layer to a swatch', () => {
+  const img = makeImage(100, 60, WHITE);
+  fillRect(img, 10, 10, 45, 50, [200, 40, 50, 255]);
+  fillRect(img, 55, 10, 90, 50, [40, 50, 190, 255]);
+  const pal = [[255, 255, 255], [255, 0, 0], [0, 0, 255]];
+  const r = C.trace(img, { mode: 'color', fixedPalette: pal, minArea: 8, tolerance: 1 });
+  for (const p of r.paths) assert.ok(pal.some(c => c.join() === p.fill.join()), `fill ${p.fill} is a swatch`);
+  assert.ok(r.paths.some(p => p.fill.join() === '255,0,0') && r.paths.some(p => p.fill.join() === '0,0,255'));
+});
+
+// 19. B&W without Ignore White traces a white layer under the black one
+test('mono with ignoreWhite=false adds a white layer below black', () => {
+  const img = makeImage(80, 80, WHITE);
+  fillCircle(img, 40, 40, 20, BLACK);
+  const r = C.trace(img, { mode: 'mono', minArea: 5, ignoreWhite: false });
+  assert.equal(r.paths.length, 2);
+  assert.deepEqual(r.paths[0].fill, [255, 255, 255]);
+  assert.deepEqual(r.paths[1].fill, [0, 0, 0]);
+});
+
+// 20. Centerline strokes: a thin line becomes one open stroke path
+test('strokes mode turns a thin line into an open centerline stroke', () => {
+  const img = makeImage(120, 60, WHITE);
+  fillRect(img, 10, 28, 110, 32, BLACK);       // 4 px thick horizontal bar
+  const r = C.trace(img, { mode: 'mono', minArea: 3, strokes: true, fills: false, strokeWidth: 10 });
+  const s = r.paths.filter(p => p.isStroke);
+  assert.ok(s.length >= 1, 'stroke layer');
+  const subs = s.flatMap(p => p.subpaths);
+  assert.ok(subs.length >= 1 && subs.length <= 2, `subpaths ${subs.length}`);
+  assert.equal(subs[0].closed, false);
+  assert.ok(s[0].strokeWidth >= 2 && s[0].strokeWidth <= 6, `width ${s[0].strokeWidth}`);
+  let minX = 1e9, maxX = -1e9;
+  for (const sp of subs) { const pts = [sp.start].concat(sp.segs.map(q => q.l || q.c.slice(4))); for (const pt of pts) { minX = Math.min(minX, pt[0]); maxX = Math.max(maxX, pt[0]); assert.ok(Math.abs(pt[1] - 30) < 2.5, `y ${pt[1]} on centerline`); } }
+  assert.ok(maxX - minX > 80, `span ${maxX - minX}`);
+});
+
+// 21. Fills + strokes: thick blobs stay filled, thin lines become strokes
+test('fills+strokes keeps thick shapes as fills and thin ones as strokes', () => {
+  const img = makeImage(160, 80, WHITE);
+  fillCircle(img, 40, 40, 25, BLACK);
+  fillRect(img, 90, 38, 150, 41, BLACK);
+  const r = C.trace(img, { mode: 'mono', minArea: 3, strokes: true, fills: true, strokeWidth: 8 });
+  assert.ok(r.paths.some(p => !p.isStroke), 'fill layer for the disc');
+  assert.ok(r.paths.some(p => p.isStroke), 'stroke layer for the line');
+});
+
+// 22. Regression: very long jagged outlines (brush strokes / script text) must
+//     not be dropped — perimeter can far exceed 4·(w+h)
+test('long jagged outline (comb) is traced, not silently dropped', () => {
+  const img = makeImage(200, 120, WHITE);
+  fillRect(img, 10, 10, 190, 20, BLACK);
+  for (let x = 10; x < 190; x += 4) fillRect(img, x, 20, x + 2, 110, BLACK);   // 45 teeth → perimeter ≈ 8000
+  const r = C.trace(img, { mode: 'mono', minArea: 2, tolerance: 1 });
+  assert.equal(r.paths.length, 1);
+  const area = r.paths[0].subpaths.reduce((s, sp) => s + sp.area, 0);
+  assert.ok(area > 1800 + 45 * 180 * 0.8, `comb area ${area}`);
+});
+
+// 23. Regression: a crescent with only its two tips as corners must not
+//     collapse into a single zero-length line
+test('crescent / swoosh keeps its full outline', () => {
+  const img = makeImage(160, 160, WHITE);
+  fillCircle(img, 80, 80, 60, [250, 200, 20, 255]);
+  fillCircle(img, 100, 70, 55, WHITE);
+  const r = C.trace(img, { mode: 'color', colors: 4, minArea: 8, tolerance: 1, cornerThreshold: 50 });
+  const y = r.paths.find(p => p.fill[0] > 200 && p.fill[1] > 150 && p.fill[2] < 100);
+  assert.ok(y, 'yellow crescent layer');
+  for (const sp of y.subpaths) assert.ok(sp.segs.length >= 2, `segments ${sp.segs.length}`);
+});
+
 console.log(passed + ' vector trace tests passed');

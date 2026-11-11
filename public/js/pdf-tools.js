@@ -127,6 +127,54 @@
     return libsPromise;
   }
 
+  /* Per-tab support scripts. /pdf/[tool] pages only ship the scripts their own sub-tool needs;
+   * when the user switches sub-tool in-page (or drops a file), the missing ones load on demand.
+   * Same ?v= tokens as the page <script> tags so TechHatEnsureScript de-duplicates them. */
+  var DEP_SRC = {
+    zip: assetBase + 'vendor/jszip.min.js',
+    bijoy: assetBase + 'js/bijoy-engine.js?v=70',
+    convert: assetBase + 'js/pdf-convert.js?v=70'
+  };
+  var DEP_READY = {
+    zip: function () { return !!window.JSZip; },
+    bijoy: function () { return !!window.BijoyEngine; },
+    convert: function () { return !!window.TechHatPDFConvert; }
+  };
+  var TAB_DEPS = {
+    merge: ['zip', 'bijoy', 'convert'],
+    other2pdf: ['zip', 'bijoy', 'convert'],
+    pdf2other: ['zip', 'bijoy'],
+    split: ['zip']
+  };
+  var depPromises = {};
+  function ensureDep(name) {
+    if (DEP_READY[name]()) return Promise.resolve();
+    if (depPromises[name]) return depPromises[name];
+    var src = DEP_SRC[name];
+    var p = window.TechHatEnsureScript ? window.TechHatEnsureScript(src) : loadScript(src);
+    depPromises[name] = Promise.resolve(p).then(function () {
+      if (!DEP_READY[name]()) { depPromises[name] = null; }
+    }, function () { depPromises[name] = null; });
+    return depPromises[name];
+  }
+  function ensureTabDeps(tab) {
+    var list = TAB_DEPS[tab] || [];
+    // sequential: pdf-convert expects JSZip/BijoyEngine to be present when it runs conversions
+    return list.reduce(function (chain, name) {
+      return chain.then(function () { return ensureDep(name); });
+    }, Promise.resolve());
+  }
+  /** Wraps a handler so it only runs once the given tab's support scripts are loaded. */
+  function withDeps(tab, fn) {
+    return function () {
+      var self = this, args = arguments;
+      var list = TAB_DEPS[tab] || [];
+      var ready = list.every(function (n) { return DEP_READY[n](); });
+      if (ready) return fn.apply(self, args);
+      return ensureTabDeps(tab).then(function () { return fn.apply(self, args); });
+    };
+  }
+
   /* ==================================================================
    * DOCUMENT & PAGE MODEL
    *   doc  = { id, name, buffer(ArrayBuffer), pdfjs, numPages, thumbs:{idx:Promise}, thumbUrls:{idx:url} }
@@ -1529,6 +1577,7 @@
       }
     }
     if (currentSubTab !== 'hub') ensurePdfLibs().catch(function () {});
+    if (TAB_DEPS[currentSubTab]) ensureTabDeps(currentSubTab).catch(function () {});
   }
 
   /** Loads a single PDF File into { doc, name, size, pages }. */
@@ -4200,6 +4249,18 @@
       switchPdfTab(initTab, initOpt || undefined, true);
     }
   }
+
+  // Entry points that rely on lazily-shipped support scripts (JSZip / Bijoy engine / pdf-convert).
+  // Re-bound once at module load; the wrappers run synchronously when the scripts are already present.
+  addMergeFiles = withDeps('merge', addMergeFiles);
+  runMergePdf = withDeps('merge', runMergePdf);
+  runSplitPdf = withDeps('split', runSplitPdf);
+  loadPdf2OtherFile = withDeps('pdf2other', loadPdf2OtherFile);
+  runPdf2Other = withDeps('pdf2other', runPdf2Other);
+  addImg2PdfFiles = withDeps('other2pdf', addImg2PdfFiles);
+  runImg2Pdf = withDeps('other2pdf', runImg2Pdf);
+  loadDoc2PdfFile = withDeps('other2pdf', loadDoc2PdfFile);
+  runDoc2Pdf = withDeps('other2pdf', runDoc2Pdf);
 
   window.TechHatPDF = { init: init, switchTab: switchPdfTab };
 

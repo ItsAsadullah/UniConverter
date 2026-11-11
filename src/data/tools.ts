@@ -68,7 +68,7 @@ export interface PdfSubToolMeta {
 
 export interface ImageSubToolMeta {
   slug: string;
-  tabId: 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'colors' | 'vector';
+  tabId: 'resize' | 'compress' | 'crop' | 'convert' | 'combine' | 'scan' | 'passport' | 'passport-photo' | 'remove-bg' | 'colors' | 'vector' | 'photo-card';
   title: string;
   titleEn: string;
   desc: string;
@@ -292,6 +292,45 @@ export const IMAGE_SUBTOOLS: ImageSubToolMeta[] = [
     seoDesc: 'মোবাইল ক্যামেরায় তোলা পাসপোর্টের ছবি ৬-পয়েন্ট পার্সপেক্টিভ ক্রপ ও মাঝের ভাঁজ সংশোধন করে প্রফেশনাল স্ক্যানার কোয়ালিটি আউটপুট তৈরি করুন।'
   },
   {
+    slug: 'passport-photo',
+    tabId: 'passport-photo',
+    title: 'পাসপোর্ট সাইজ ছবি',
+    titleEn: 'Passport Size Photo',
+    desc: '১-ক্লিক ব্যাকগ্রাউন্ড রিমুভ, পোশাক AI ও A4/4R প্রিন্ট শিট মেকার',
+    descEn: 'Passport & stamp size photo maker with 1-click AI background removal & A4/4R print sheet',
+    lucideIcon: 'lucide:user-check',
+    keywords: 'passport size photo maker stamp size photo 38x48mm 450x570 background change a4 print sheet পাসপোর্ট সাইজ ছবি স্ট্যাম্প সাইজ ছবি প্রিন্ট শিট',
+    popular: true,
+    seoTitle: 'পাসপোর্ট ও স্ট্যাম্প সাইজ ছবি মেকার (A4 ও 4R প্রিন্ট শিট) | TechHat',
+    seoDesc: 'এক ক্লিকে পাসপোর্ট সাইজ (38×48 mm) ও স্ট্যাম্প সাইজ (20×25 mm) ছবি তৈরি করুন, AI দিয়ে ব্যাকগ্রাউন্ড রঙ পরিবর্তন করুন এবং A4 বা 4R পেপারে প্রিন্ট করুন।'
+  },
+  {
+    slug: 'remove-bg',
+    tabId: 'remove-bg',
+    title: 'AI ব্যাকগ্রাউন্ড রিমুভার',
+    titleEn: 'Remove Background',
+    desc: '১-ক্লিকে ছবির ব্যাকগ্রাউন্ড রিমুভ, স্বচ্ছ PNG ও স্টুডিও কালার',
+    descEn: '1-click AI background remover, transparent PNG, hair matting & custom backdrop',
+    lucideIcon: 'lucide:wand-sparkles',
+    keywords: 'remove background bg remover transparent png cutout iloveimg photo background eraser ব্যাকগ্রাউন্ড রিমুভার ছবি থেকে ব্যাকগ্রাউন্ড মুছুন',
+    popular: true,
+    seoTitle: 'AI ব্যাকগ্রাউন্ড রিমুভার (Remove Background) — ১-ক্লিকে স্বচ্ছ PNG ও কালার পরিবর্তন | TechHat',
+    seoDesc: 'যেকোনো ছবির ব্যাকগ্রাউন্ড ১ ক্লিকে স্বয়ংক্রিয়ভাবে রিমুভ করুন (১০০% ফ্রি)। চুল ও সূক্ষ্ম প্রান্ত ঠিক রেখে স্বচ্ছ PNG, সাদা বা নীল ব্যাকগ্রাউন্ডে ডাউনলোড করুন।'
+  },
+  {
+    slug: 'photo-card',
+    tabId: 'photo-card',
+    title: 'ফটো কার্ড মেকার',
+    titleEn: 'Photo Card Maker',
+    desc: 'নিউজ পোর্টাল, স্বেচ্ছাসেবী ফাউন্ডেশন, রক্তদান ও উক্তির ৩০টি রেডিমেড টেম্পলেট ও লোগো সেভ স্টুডিও',
+    descEn: '30 ready-made News, Charity Foundation, Blood Appeal & Quote templates with Canva-like Logo & Design saving',
+    lucideIcon: 'lucide:layout-template',
+    keywords: 'photo card maker news card template charity foundation card blood donation card quote card maker social media post maker ফটো কার্ড মেকার নিউজ কার্ড স্বেচ্ছাসেবী ফাউন্ডেশন রক্তদান কার্ড',
+    popular: true,
+    seoTitle: 'ফটো কার্ড মেকার (Photo Card Maker) — নিউজ, ফাউন্ডেশন, রক্তদান ও উক্তি টেম্পলেট | TechHat',
+    seoDesc: 'নিউজ পোর্টাল, স্বেচ্ছাসেবী ফাউন্ডেশন, রক্তদান কর্মসূচি, ত্রাণ আবেদন, ফ্যাক্ট-চেক ও উক্তির ৩০টি রেডিমেড টেম্পলেটে লোগো ও ছবি বসিয়ে ক্যানভার মতো ডিজাইন সেভ ও HD ডাউনলোড করুন।'
+  },
+  {
     slug: 'resize',
     tabId: 'resize',
     title: 'ইমেজ রিসাইজার',
@@ -470,6 +509,9 @@ export const ALL_TOOLS: StudioToolItem[] = [
     const imgColorMap: Record<string, ToolColor> = {
       'scan': 'blue',
       'passport': 'emerald',
+      'passport-photo': 'sky',
+      'remove-bg': 'indigo',
+      'photo-card': 'rose',
       'resize': 'violet',
       'compress': 'orange',
       'crop': 'fuchsia',

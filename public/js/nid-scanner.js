@@ -66,7 +66,7 @@
    * ================================================================== */
   var combineItems = []; // [{ item, rot:0, flipH:1, fineAngle:0, pts:[{x,y},{x,y},{x,y},{x,y}], autoDetected:bool, cw, ch, snapField }]
   var activeNidIdx = 0;
-  var nidMagSnapEnabled = true;
+  var nidMagSnapEnabled = false;
   var nidCropDragActive = false;
   var nidExportPendingAfterDrag = false;
   var combineOut = { blob: null, url: null };
@@ -414,7 +414,8 @@
             vEdge = ax > noiseFloor * 0.6 ? Math.max(0, ax - 0.45 * ay) : 0;
 
             var pChroma = Math.max(r, g, b) - Math.min(r, g, b);
-            var cDist = (pChroma < 30 && (r + g + b) >= 380) ? Math.hypot(r - bgR, g - bgG, b - bgB) : 0;
+            var bgLum0 = bgR + bgG + bgB;
+            var cDist = (bgLum0 < 430 && pChroma < 30 && (r + g + b) >= Math.max(380, bgLum0 + 50)) ? Math.hypot(r - bgR, g - bgG, b - bgB) : 0;
             var cTerm = cDist > 26 ? Math.min(50, (cDist - 26) * 0.58) : 0;
             var hvAlign = (hEdge + vEdge) / (gVal + 1);
             sVal = effG * (0.85 + 0.90 * hvAlign) + cTerm;
@@ -513,9 +514,13 @@
       }
 
       var a4Cfg = NID_DETECTION_PROFILES.sceneStrategies.A4_FLATBED_SCAN;
-      function scoreCandidateBox(x0, y0, x1, y1) {
+      function scoreCandidateBox(x0, y0, x1, y1, isVertMode) {
         var w = x1 - x0, h = y1 - y0;
-        if (w < aw * a4Cfg.minWidthFrac || h < ah * a4Cfg.minHeightFrac) return -1;
+        if (!isVertMode) {
+          if (w < aw * a4Cfg.minWidthFrac || h < ah * a4Cfg.minHeightFrac) return -1;
+        } else {
+          if (h < ah * a4Cfg.minWidthFrac || w < aw * a4Cfg.minHeightFrac) return -1;
+        }
         var area = w * h;
         var frameArea = aw * ah;
         if (area < frameArea * a4Cfg.minAreaFrac || area > frameArea * 0.96) return -1;
@@ -525,8 +530,8 @@
               seedPx.y < y0 + h * 0.08 || seedPx.y > y1 - h * 0.08) return -1;
         }
 
-        var aspect = w / Math.max(1, h);
-        var isLandscape = aspect >= 1.28 && aspect <= 1.88 && w >= aw * a4Cfg.minWidthFrac;
+        var aspect = isVertMode ? (h / Math.max(1, w)) : (w / Math.max(1, h));
+        var isLandscape = aspect >= 1.28 && aspect <= 1.88;
         if (!isLandscape) return -1;
         var normAspect = aspect;
 
@@ -583,20 +588,47 @@
           var topDiffToCard = Math.hypot(tR - inR, tG - inG, tB - inB);
           var botDiffToCard = Math.hypot(bR - inR, bG - inG, bB - inB);
           var topBotAsym = Math.hypot(tR - bR, tG - bG, tB - bB);
-          if (topDiffToCard < 24 && botDiffToCard > 60 && topBotAsym > 48) {
-            cutPenalty *= 0.48;
+          var bgLum = bgR + bgG + bgB;
+          var topOutSt = rectSum(satStruct, x0, oy0, x1, y0) / topStripArea;
+          var botOutSt = rectSum(satStruct, x0, y1, x1, oy1) / botStripArea;
+          if (bgLum < 430 || topOutSt > inMean * 0.45) {
+            if (topDiffToCard < 24 && botDiffToCard > 60 && topBotAsym > 48) {
+              cutPenalty *= 0.48;
+            }
           }
-          if (botDiffToCard < 24 && topDiffToCard > 60 && topBotAsym > 48) {
-            cutPenalty *= 0.48;
+          if (bgLum < 430 || botOutSt > inMean * 0.45) {
+            if (botDiffToCard < 24 && topDiffToCard > 60 && topBotAsym > 48) {
+              cutPenalty *= 0.48;
+            }
           }
           var topDiffToBg = Math.hypot(tR - bgR, tG - bgG, tB - bgB);
           var botDiffToBg = Math.hypot(bR - bgR, bG - bgG, bB - bgB);
-          if (topBotAsym > 85 && botDiffToBg < 30 && topDiffToBg > 85 && (tR + tG + tB) >= (inR + inG + inB) - 30) {
+          if (topBotAsym > 85 && botDiffToBg < 35 && topDiffToBg > 85 && (tR + tG + tB) >= (inR + inG + inB) - 35) {
             cutPenalty *= 0.22;
+          }
+          if (topBotAsym > 85 && topDiffToBg < 35 && botDiffToBg > 85 && (bR + bG + bB) >= (inR + inG + inB) - 35) {
+            cutPenalty *= 0.22;
+          }
+          if (bgLum < 380 && topDiffToCard < 38 && botDiffToCard < 38 && topDiffToBg > 75 && botDiffToBg > 75) {
+            cutPenalty *= 0.15;
+          }
+        }
+        var leftStripArea = Math.max(1, (x0 - ox0) * h);
+        var rightStripArea = Math.max(1, (ox1 - x1) * h);
+        var leftOutSt = (x0 - ox0 >= 4) ? rectSum(satStruct, ox0, y0, x0, y1) / leftStripArea : inMean * 0.85;
+        var rightOutSt = (ox1 - x1 >= 4) ? rectSum(satStruct, x1, y0, ox1, y1) / rightStripArea : inMean * 0.85;
+        var topOutSt0 = (y0 - oy0 >= 4) ? rectSum(satStruct, x0, oy0, x1, y0) / topStripArea : inMean * 0.85;
+        var botOutSt0 = (oy1 - y1 >= 4) ? rectSum(satStruct, x0, y1, x1, oy1) / botStripArea : inMean * 0.85;
+
+        if (w >= aw * 0.68 && Math.max(topOutSt0, botOutSt0) < inMean * 0.48 && Math.min(leftOutSt, rightOutSt) < inMean * 0.58) {
+          var clean3Mean = (topOutSt0 + botOutSt0 + Math.min(leftOutSt, rightOutSt)) / 3;
+          if (clean3Mean < outerMean) {
+            outerMean = clean3Mean * 0.75 + outerMean * 0.25;
+            structContrast = (inMean + 4.5) / (outerMean + 5.5);
           }
         }
 
-        // Penalize candidate boxes whose top+bottom (or left+right) inner 12% margins are both dark background around a bright center card
+        // Penalize candidate boxes whose top+bottom (or left+right) inner 12% margins are both dark background or blank table/pouch
         var inBandH12 = Math.max(3, Math.round(h * 0.12));
         var inBandW12 = Math.max(3, Math.round(w * 0.12));
         var midY0 = y0 + Math.round(h * 0.25), midY1 = y1 - Math.round(h * 0.25);
@@ -605,8 +637,12 @@
         var midAreaW = Math.max(1, h * (midX1 - midX0));
         var midLumH = (rectSum(satR, x0, midY0, x1, midY1) + rectSum(satG, x0, midY0, x1, midY1) + rectSum(satB, x0, midY0, x1, midY1)) / midAreaH;
         var midLumW = (rectSum(satR, midX0, y0, midX1, y1) + rectSum(satG, midX0, y0, midX1, y1) + rectSum(satB, midX0, y0, midX1, y1)) / midAreaW;
-        var topInLum = (rectSum(satR, x0, y0, x1, y0 + inBandH12) + rectSum(satG, x0, y0, x1, y0 + inBandH12) + rectSum(satB, x0, y0, x1, y0 + inBandH12)) / Math.max(1, w * inBandH12);
-        var botInLum = (rectSum(satR, x0, y1 - inBandH12, x1, y1) + rectSum(satG, x0, y1 - inBandH12, x1, y1) + rectSum(satB, x0, y1 - inBandH12, x1, y1)) / Math.max(1, w * inBandH12);
+        var topArea12 = Math.max(1, w * inBandH12);
+        var botArea12 = Math.max(1, w * inBandH12);
+        var topInLum = (rectSum(satR, x0, y0, x1, y0 + inBandH12) + rectSum(satG, x0, y0, x1, y0 + inBandH12) + rectSum(satB, x0, y0, x1, y0 + inBandH12)) / topArea12;
+        var botInLum = (rectSum(satR, x0, y1 - inBandH12, x1, y1) + rectSum(satG, x0, y1 - inBandH12, x1, y1) + rectSum(satB, x0, y1 - inBandH12, x1, y1)) / botArea12;
+        var topInStruct = rectSum(satStruct, x0, y0, x1, y0 + inBandH12) / topArea12;
+        var botInStruct = rectSum(satStruct, x0, y1 - inBandH12, x1, y1) / botArea12;
         var leftArea12 = Math.max(1, h * inBandW12);
         var rightArea12 = Math.max(1, h * inBandW12);
         var leftInR = rectSum(satR, x0, y0, x0 + inBandW12, y1) / leftArea12;
@@ -615,6 +651,8 @@
         var rightInR = rectSum(satR, x1 - inBandW12, y0, x1, y1) / rightArea12;
         var rightInG = rectSum(satG, x1 - inBandW12, y0, x1, y1) / rightArea12;
         var rightInB = rectSum(satB, x1 - inBandW12, y0, x1, y1) / rightArea12;
+        var leftInStruct = rectSum(satStruct, x0, y0, x0 + inBandW12, y1) / leftArea12;
+        var rightInStruct = rectSum(satStruct, x1 - inBandW12, y0, x1, y1) / rightArea12;
         var leftInLum = leftInR + leftInG + leftInB;
         var rightInLum = rightInR + rightInG + rightInB;
         var leftDiffBg12 = Math.hypot(leftInR - bgR, leftInG - bgG, leftInB - bgB);
@@ -624,21 +662,30 @@
             (midLumW - leftInLum > 165 && midLumW - rightInLum > 165)) {
           cutPenalty *= 0.16;
         }
-        if ((midLumH - topInLum > 115 && botInLum - topInLum > 100) ||
-            (midLumH - botInLum > 115 && topInLum - botInLum > 100) ||
-            (midLumW - leftInLum > 95 && rightInLum - leftInLum > 95 && (leftInLum < 320 || leftDiffBg12 < 52)) ||
-            (midLumW - rightInLum > 95 && leftInLum - rightInLum > 95 && (rightInLum < 320 || rightDiffBg12 < 52)) ||
-            lrWarmthAsym > 26) {
+        if (midLumH - topInLum > 65 && midLumH - botInLum > 65 && (topInStruct < inMean * 0.72 || botInStruct < inMean * 0.72)) {
+          cutPenalty *= 0.28;
+        }
+        if ((topInLum - midLumH > 65 && topInStruct < inMean * 0.60) ||
+            (botInLum - midLumH > 65 && botInStruct < inMean * 0.60) ||
+            (leftInStruct < inMean * 0.28 && w > aw * 0.76) ||
+            (leftInStruct < inMean * 0.35 && rightInStruct < inMean * 0.55 && w > aw * 0.86)) {
+          cutPenalty *= 0.28;
+        }
+        if ((midLumH - topInLum > 115 && botInLum - topInLum > 100 && (topInLum < 310 || topInStruct < inMean * 0.75)) ||
+            (midLumH - botInLum > 115 && topInLum - botInLum > 100 && (botInLum < 310 || botInStruct < inMean * 0.75)) ||
+            (midLumW - leftInLum > 95 && rightInLum - leftInLum > 95 && (leftInLum < 320 || leftDiffBg12 < 52) && leftInStruct < inMean * 0.65) ||
+            (midLumW - rightInLum > 95 && leftInLum - rightInLum > 95 && (rightInLum < 320 || rightDiffBg12 < 52) && rightInStruct < inMean * 0.65) ||
+            (lrWarmthAsym > 26 && (bgR + bgG + bgB) < 430 && Math.min(leftInStruct, rightInStruct) < inMean * 0.55)) {
           cutPenalty *= 0.22;
         }
 
         var inLum = inR + inG + inB;
         var outLum = outR + outG + outB;
-        if (outLum > inLum + 18) {
+        if (outLum > inLum + 18 && (inLum < 360 || outerMean > inMean * 0.75)) {
           cutPenalty *= 0.16;
         }
-        if (area / frameArea < 0.85 && localColorDiff < 34 && outerMean > noiseFloor * 0.60) {
-          cutPenalty *= 0.14;
+        if (area / frameArea < 0.85 && outerMean > inMean * 0.82 && Math.max(Math.min(topOutSt0, botOutSt0), Math.min(leftOutSt, rightOutSt)) > inMean * 0.45) {
+          cutPenalty *= 0.12;
         }
         var blueExcess = Math.max(0, inB - Math.max(inR, inG));
         var paperBonus = blueExcess > 16 ? Math.max(0.30, 1 - (blueExcess - 16) * 0.03) : 1.15;
@@ -688,13 +735,35 @@
           var stepY = Math.max(4, Math.round(candH * 0.065));
           for (var y0 = marginY; y0 + candH <= maxY; y0 += stepY) {
             for (var x0 = marginX; x0 + candW <= maxX; x0 += stepX) {
-              var sc = scoreCandidateBox(x0, y0, x0 + candW, y0 + candH);
+              var sc = scoreCandidateBox(x0, y0, x0 + candW, y0 + candH, false);
               if (sc > bestScore) {
                 bestScore = sc;
                 bestBox = { x0: x0, y0: y0, x1: x0 + candW, y1: y0 + candH, score: sc };
               }
             }
           }
+        }
+      }
+
+      if (allowAutoRotate === true && !excludeQuad && !seedPt) {
+        var bestVertScore = -1;
+        for (var vsIdx = 0; vsIdx < scales.length; vsIdx++) {
+          var vCandH = Math.min(maxY - marginY, Math.round(ah * scales[vsIdx]));
+          for (var vrIdx = 0; vrIdx < ratios.length; vrIdx++) {
+            var vCandW = Math.round(vCandH / ratios[vrIdx]);
+            if (vCandW < aw * a4Cfg.minHeightFrac || vCandW > maxX - marginX) continue;
+            var vStepX = Math.max(4, Math.round(vCandW * 0.075));
+            var vStepY = Math.max(4, Math.round((ah - vCandH) > 20 ? vCandH * 0.075 : 4));
+            for (var vy0 = marginY; vy0 + vCandH <= maxY; vy0 += vStepY) {
+              for (var vx0 = marginX; vx0 + vCandW <= maxX; vx0 += vStepX) {
+                var vsc = scoreCandidateBox(vx0, vy0, vx0 + vCandW, vy0 + vCandH, true);
+                if (vsc > bestVertScore) bestVertScore = vsc;
+              }
+            }
+          }
+        }
+        if (bestVertScore > bestScore * 1.08) {
+          return autoDetectCardQuad(img, (normRot + 90) % 360, flipH, null, null, 'check180');
         }
       }
 
@@ -3128,6 +3197,10 @@
     var srcCanvas = $('#nidCropSourceCanvas');
     var entry = combineItems[activeNidIdx];
     if (!loupe || !srcCanvas) return;
+    if (!window._nidEnableLoupe) {
+      loupe.hidden = true;
+      return;
+    }
     loupe.hidden = false;
     var cw = srcCanvas.width || 300;
     var ch = srcCanvas.height || 220;

@@ -10,7 +10,7 @@
 </script>
 
 <article
-  class="th-tool-card group relative flex flex-col justify-between p-5 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-2xs transition-all duration-150 hover:shadow-md {palette.cardHover} hover:bg-slate-50/60 dark:hover:bg-studio-panel"
+  class="th-tool-card group relative flex flex-col justify-between p-5 rounded-2xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border shadow-2xs transition-colors duration-150 hover:shadow-md {palette.cardHover} hover:bg-slate-50/60 dark:hover:bg-studio-panel"
   data-tool-card
   data-tool-id={tool.id}
   data-cat={tool.categoryId}

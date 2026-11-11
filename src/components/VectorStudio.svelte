@@ -142,7 +142,7 @@
   ];
 
   const adjustments = [
-    { key: 'colors', id: 'vsColors', icon: 'lucide:palette', color: 'text-violet-600 dark:text-violet-400', bn: 'রঙের সংখ্যা', en: 'Colors', outId: 'vsColorsLabel', initVal: '12', min: 2, max: 64, step: 1, val: 12, initPct: 16.1 },
+    { key: 'colors', id: 'vsColors', icon: 'lucide:palette', color: 'text-violet-600 dark:text-violet-400', bn: 'রঙের সংখ্যা', en: 'Colors', outId: 'vsColorsLabel', initVal: '12', min: 2, max: 128, step: 1, val: 12, initPct: 7.9 },
     { key: 'tolerance', id: 'vsTolerance', icon: 'lucide:spline', color: 'text-emerald-600 dark:text-emerald-400', bn: 'স্মুথনেস', en: 'Smoothness', outId: 'vsToleranceValue', initVal: '1.0', min: 1, max: 50, step: 1, val: 10, initPct: 18.4 },
     { key: 'corner', id: 'vsCorner', icon: 'lucide:triangle', color: 'text-amber-500 dark:text-amber-400', bn: 'কর্নার শার্পনেস', en: 'Corner Angle', outId: 'vsCornerValue', initVal: '60°', min: 20, max: 160, step: 1, val: 60, initPct: 28.6 },
     { key: 'minArea', id: 'vsMinArea', icon: 'lucide:sparkles', color: 'text-rose-500 dark:text-rose-400', bn: 'স্পেকল ক্লিন', en: 'Speckle px', outId: 'vsMinAreaValue', initVal: '8px', min: 0, max: 200, step: 1, val: 8, initPct: 4 },
@@ -150,6 +150,69 @@
     { key: 'scale', id: 'vsScale', icon: 'lucide:maximize-2', color: 'text-blue-600 dark:text-blue-400', bn: 'স্কেল / HD', en: 'Scale (%)', outId: 'vsScaleValue', initVal: '100%', min: 25, max: 300, step: 5, val: 100, initPct: 27.3 },
     { key: 'contrast', id: 'vsContrast', icon: 'lucide:contrast', color: 'text-indigo-600 dark:text-indigo-400', bn: 'কনট্রাস্ট', en: 'Contrast', outId: 'vsContrastValue', initVal: '15', min: -100, max: 100, step: 1, val: 15, initPct: 57.5 },
     { key: 'brightness', id: 'vsBrightness', icon: 'lucide:sun-medium', color: 'text-orange-500 dark:text-orange-400', bn: 'ব্রাইটনেস', en: 'Brightness', outId: 'vsBrightnessValue', initVal: '0', min: -100, max: 100, step: 1, val: 0, initPct: 50 }
+  ];
+
+  // Adobe Illustrator Image Trace — quick preset icons (top row)
+  const itQuick = [
+    { id: 'auto', icon: 'lucide:sparkles', bn: 'অটো কালার', en: 'Auto Color' },
+    { id: 'ai_high_photo', icon: 'lucide:camera', bn: 'হাই কালার', en: 'High Color' },
+    { id: 'ai_low_photo', icon: 'lucide:layout-grid', bn: 'লো কালার', en: 'Low Color' },
+    { id: 'ai_gray', icon: 'lucide:droplet', bn: 'গ্রেস্কেল', en: 'Grayscale' },
+    { id: 'ai_default', icon: 'lucide:contrast', bn: 'সাদা-কালো', en: 'Black and White' },
+    { id: 'ai_line_art', icon: 'lucide:pencil', bn: 'আউটলাইন', en: 'Outline' }
+  ];
+
+  const itPresetGroups = [
+    {
+      label: 'Adobe Illustrator',
+      items: [
+        { v: 'ai_default', t: 'Default (ডিফল্ট)' },
+        { v: 'ai_high_photo', t: 'High Fidelity Photo' },
+        { v: 'ai_low_photo', t: 'Low Fidelity Photo' },
+        { v: 'ai_3_colors', t: '3 Colors' },
+        { v: 'ai_6_colors', t: '6 Colors' },
+        { v: 'ai_16_colors', t: '16 Colors' },
+        { v: 'ai_gray', t: 'Shades of Gray' },
+        { v: 'ai_bw_logo', t: 'Black and White Logo' },
+        { v: 'ai_sketch', t: 'Sketched Art' },
+        { v: 'ai_silhouette', t: 'Silhouettes' },
+        { v: 'ai_line_art', t: 'Line Art' },
+        { v: 'ai_technical', t: 'Technical Drawing' }
+      ]
+    },
+    {
+      label: 'TechHat Logo HD',
+      items: [
+        { v: 'auto', t: 'One-Click Auto (স্মার্ট)' },
+        { v: 'logo_hd', t: 'Logo & Icon HD' },
+        { v: 'mono_logo', t: 'Sharp Icon / Stamp' },
+        { v: 'flat_icon', t: 'Flat Icon & Badge' },
+        { v: 'line_art', t: 'Signature & Line Art' },
+        { v: 'detailed_art', t: 'Detailed Art (24)' },
+        { v: 'sharp_geo', t: 'Geometric Logo' }
+      ]
+    }
+  ];
+
+  const itViews = [
+    { v: 'split', t: 'Before / After (তুলনা)' },
+    { v: 'result', t: 'Tracing Result' },
+    { v: 'result-outlines', t: 'Tracing Result with Outlines' },
+    { v: 'outlines', t: 'Outlines' },
+    { v: 'outlines-source', t: 'Outlines with Source Image' },
+    { v: 'source', t: 'Source Image' }
+  ];
+
+  // Illustrator-style slider rows: [id, bn, en, min, max, step, value, unit, showWhen]
+  const itSliders = [
+    { id: 'itColors', bn: 'রং', en: 'Colors', min: 2, max: 128, step: 1, val: 12, unit: '', when: 'color', lo: 'কম', hi: 'বেশি' },
+    { id: 'itGrays', bn: 'গ্রে', en: 'Grays', min: 2, max: 128, step: 1, val: 12, unit: '', when: 'gray', lo: 'কম', hi: 'বেশি' },
+    { id: 'itThreshold', bn: 'থ্রেশহোল্ড', en: 'Threshold', min: 0, max: 255, step: 1, val: 128, unit: '', when: 'mono', lo: 'কম', hi: 'বেশি' }
+  ];
+  const itAdvSliders = [
+    { id: 'itPaths', bn: 'পাথ', en: 'Paths', min: 0, max: 100, step: 1, val: 50, unit: '%', lo: 'Low', hi: 'High' },
+    { id: 'itCorners', bn: 'কর্নার', en: 'Corners', min: 0, max: 100, step: 1, val: 75, unit: '%', lo: 'Less', hi: 'More' },
+    { id: 'itNoise', bn: 'নয়েজ', en: 'Noise', min: 1, max: 200, step: 1, val: 8, unit: 'px', lo: '1', hi: '200' }
   ];
 
   const psBtn =
@@ -1071,7 +1134,7 @@
             title="Before / After Split Position"
           >
             <span data-i18n-bn="তুলনা:" data-i18n-en="Split:">তুলনা:</span>
-            <input type="range" min="0" max="100" value="50" class="w-20 cursor-pointer" id="vsSplit" aria-label="Before / after split" />
+            <input type="range" min="0" max="100" step="0.1" value="50" class="w-20 cursor-pointer" id="vsSplit" aria-label="Before / after split" />
           </label>
 
           <span
@@ -1131,8 +1194,18 @@
             <button
               type="button"
               role="tab"
-              data-vs-insp-tab="filters"
+              data-vs-insp-tab="trace"
               aria-selected="true"
+              class="inline-flex items-center gap-1 h-7 px-2 rounded-t-md border border-b-0 border-transparent text-[11.5px] font-bold whitespace-nowrap shrink-0 text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
+            >
+              <Icon name="lucide:scan-line" class="w-3.5 h-3.5 text-orange-500 shrink-0" />
+              <span data-i18n-bn="ইমেজ ট্রেস" data-i18n-en="Image Trace">ইমেজ ট্রেস</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              data-vs-insp-tab="filters"
+              aria-selected="false"
               class="inline-flex items-center gap-1 h-7 px-2 rounded-t-md border border-b-0 border-transparent text-[11.5px] font-bold whitespace-nowrap shrink-0 text-slate-600 dark:text-slate-400 bg-transparent cursor-pointer hover:text-slate-900 dark:hover:text-white aria-selected:bg-white dark:aria-selected:bg-studio-panel aria-selected:border-slate-200 dark:aria-selected:border-studio-border aria-selected:text-emerald-600 dark:aria-selected:text-emerald-400 transition-colors"
             >
               <Icon name="lucide:wand-sparkles" class="w-3.5 h-3.5 text-violet-500 shrink-0" />
@@ -1179,8 +1252,194 @@
           </div>
         </div>
 
+        <!-- TAB PANE 0: ADOBE ILLUSTRATOR-STYLE IMAGE TRACE PANEL -->
+        <section data-vs-insp-pane="trace" id="itPanel" class="bg-white dark:bg-studio-panel overflow-y-auto max-h-[46dvh] shrink-0 text-[11.5px] text-slate-700 dark:text-[#d6d6d6]">
+          <!-- Quick preset icons (Auto Color · High Color · Low Color · Grayscale · B&W · Outline) -->
+          <div class="px-2 pt-2 pb-1.5 flex items-center justify-between gap-1 border-b border-slate-100 dark:border-[#1a1a1a]">
+            {#each itQuick as q}
+              <button
+                type="button"
+                data-it-quick={q.id}
+                title={`${q.bn} (${q.en})`}
+                class="flex-1 h-8 inline-flex items-center justify-center rounded-[4px] border border-slate-200 dark:border-[#141414] bg-slate-50 dark:bg-[#2b2b2b] hover:bg-white dark:hover:bg-[#3a3a3a] hover:border-orange-400/70 cursor-pointer transition-colors"
+              >
+                <Icon name={q.icon} class="w-4 h-4 shrink-0" />
+              </button>
+            {/each}
+          </div>
+
+          <div class="p-2 space-y-1.5">
+            <!-- Preset -->
+            <label class="grid grid-cols-[64px_1fr] items-center gap-1.5">
+              <span class={psLbl} data-i18n-bn="প্রিসেট:" data-i18n-en="Preset:">প্রিসেট:</span>
+              <select id="itPreset" class="{psSel} w-full">
+                <option value="custom" data-i18n-bn="[কাস্টম]" data-i18n-en="[Custom]">[কাস্টম]</option>
+                {#each itPresetGroups as g}
+                  <optgroup label={g.label}>
+                    {#each g.items as it}
+                      <option value={it.v} selected={it.v === 'auto'}>{it.t}</option>
+                    {/each}
+                  </optgroup>
+                {/each}
+              </select>
+            </label>
+
+            <!-- View + hold-to-see-source eye -->
+            <div class="grid grid-cols-[64px_1fr_auto] items-center gap-1.5">
+              <label for="itView" class={psLbl} data-i18n-bn="ভিউ:" data-i18n-en="View:">ভিউ:</label>
+              <select id="itView" class="{psSel} w-full">
+                {#each itViews as v}
+                  <option value={v.v} selected={v.v === 'split'}>{v.t}</option>
+                {/each}
+              </select>
+              <button type="button" id="itEye" class="{psBtn} !w-[25px] !px-0" title="চেপে ধরে মূল ছবি দেখুন (Hold to view Source Image)">
+                <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <!-- Mode -->
+            <label class="grid grid-cols-[64px_1fr] items-center gap-1.5">
+              <span class={psLbl} data-i18n-bn="মোড:" data-i18n-en="Mode:">মোড:</span>
+              <select id="itMode" class="{psSel} w-full">
+                <option value="color" data-i18n-bn="কালার (Color)" data-i18n-en="Color">কালার (Color)</option>
+                <option value="gray" data-i18n-bn="গ্রেস্কেল (Grayscale)" data-i18n-en="Grayscale">গ্রেস্কেল (Grayscale)</option>
+                <option value="mono" data-i18n-bn="সাদা-কালো (Black and White)" data-i18n-en="Black and White">সাদা-কালো (Black and White)</option>
+              </select>
+            </label>
+
+            <!-- Palette (Color mode) -->
+            <label class="grid grid-cols-[64px_1fr] items-center gap-1.5" data-it-when="color">
+              <span class={psLbl} data-i18n-bn="প্যালেট:" data-i18n-en="Palette:">প্যালেট:</span>
+              <select id="itPalette" class="{psSel} w-full">
+                <option value="auto" data-i18n-bn="অটোমেটিক (Automatic)" data-i18n-en="Automatic">অটোমেটিক (Automatic)</option>
+                <option value="limited" data-i18n-bn="লিমিটেড (Limited)" data-i18n-en="Limited">লিমিটেড (Limited)</option>
+                <option value="full" data-i18n-bn="ফুল টোন (Full Tone)" data-i18n-en="Full Tone">ফুল টোন (Full Tone)</option>
+                <option value="custom" data-i18n-bn="ডকুমেন্ট লাইব্রেরি (Swatches)" data-i18n-en="Document Library">ডকুমেন্ট লাইব্রেরি (Swatches)</option>
+              </select>
+            </label>
+
+            <!-- Custom swatch library -->
+            <div class="rounded-[4px] border border-slate-200 dark:border-[#141414] bg-slate-50/70 dark:bg-[#1e1e1e] p-1.5 space-y-1" data-it-when="color" data-it-pal="custom" hidden>
+              <div id="itSwatches" class="flex flex-wrap gap-1 min-h-[20px] items-center"></div>
+              <div class="flex items-center gap-1">
+                <label class="{psBtn} relative" title="সোয়াচ যোগ করুন (Add swatch)">
+                  <Icon name="lucide:plus" class="w-3.5 h-3.5" />
+                  <span data-i18n-bn="সোয়াচ" data-i18n-en="Swatch">সোয়াচ</span>
+                  <input type="color" id="itSwatchAdd" value="#1d4ed8" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                </label>
+                <button type="button" data-it="extract" class={psBtn} title="ছবি থেকে রং নিন (Extract colors from image)">
+                  <Icon name="lucide:pipette" class="w-3.5 h-3.5" />
+                  <span data-i18n-bn="ছবি থেকে" data-i18n-en="From Image">ছবি থেকে</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Colors / Grays / Threshold -->
+            {#each itSliders as s}
+              <div class="grid grid-cols-[64px_1fr_46px] items-center gap-1.5" data-it-when={s.when}>
+                <label for={s.id} class={psLbl} data-i18n-bn={s.bn + ':'} data-i18n-en={s.en + ':'}>{s.bn}:</label>
+                <div class="flex flex-col">
+                  <input id={s.id} type="range" min={s.min} max={s.max} step={s.step} value={s.val} class="w-full h-4 accent-orange-500 cursor-pointer" />
+                  <span class="flex justify-between text-[9.5px] text-slate-400 dark:text-slate-500 leading-none"><span>{s.lo}</span><span>{s.hi}</span></span>
+                </div>
+                <input id={s.id + 'Num'} type="number" min={s.min} max={s.max} step={s.step} value={s.val} class="{psSel} w-full !px-1 text-right tabular-nums" aria-label={s.en} />
+              </div>
+            {/each}
+            <label class="flex items-center gap-1.5 pl-[70px]" data-it-when="mono">
+              <input id="itAutoThr" type="checkbox" class="w-3.5 h-3.5 accent-orange-500 cursor-pointer" />
+              <span data-i18n-bn="অটো থ্রেশহোল্ড (Otsu)" data-i18n-en="Auto Threshold (Otsu)">অটো থ্রেশহোল্ড (Otsu)</span>
+            </label>
+            <label class="flex items-center gap-1.5 pl-[70px]" data-it-when="color">
+              <input id="itGradients" type="checkbox" checked class="w-3.5 h-3.5 accent-orange-500 cursor-pointer" />
+              <span data-i18n-bn="গ্রেডিয়েন্ট রাখুন (Keep Gradients)" data-i18n-en="Keep Gradients">গ্রেডিয়েন্ট রাখুন (Keep Gradients)</span>
+            </label>
+
+            <!-- Advanced -->
+            <details open class="group/adv rounded-[4px] border border-slate-200 dark:border-[#141414] bg-slate-50/50 dark:bg-[#232323]">
+              <summary class="list-none cursor-pointer select-none px-2 py-1 font-bold text-slate-700 dark:text-slate-200 inline-flex items-center gap-1 w-full">
+                <Icon name="lucide:chevron-right" class="w-3.5 h-3.5 transition-transform group-open/adv:rotate-90" />
+                <span data-i18n-bn="অ্যাডভান্সড" data-i18n-en="Advanced">অ্যাডভান্সড</span>
+              </summary>
+              <div class="px-2 pb-2 space-y-1.5">
+                {#each itAdvSliders as s}
+                  <div class="grid grid-cols-[56px_1fr_46px] items-center gap-1.5">
+                    <label for={s.id} class={psLbl} data-i18n-bn={s.bn + ':'} data-i18n-en={s.en + ':'}>{s.bn}:</label>
+                    <div class="flex flex-col">
+                      <input id={s.id} type="range" min={s.min} max={s.max} step={s.step} value={s.val} class="w-full h-4 accent-orange-500 cursor-pointer" />
+                      <span class="flex justify-between text-[9.5px] text-slate-400 dark:text-slate-500 leading-none"><span>{s.lo}</span><span>{s.hi}</span></span>
+                    </div>
+                    <div class="relative">
+                      <input id={s.id + 'Num'} type="number" min={s.min} max={s.max} step={s.step} value={s.val} class="{psSel} w-full !px-1 !pr-4 text-right tabular-nums" aria-label={s.en} />
+                      <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[9.5px] text-slate-400 pointer-events-none">{s.unit}</span>
+                    </div>
+                  </div>
+                {/each}
+
+                <!-- Method: Abutting / Overlapping -->
+                <div class="grid grid-cols-[56px_1fr] items-center gap-1.5">
+                  <span class={psLbl} data-i18n-bn="মেথড:" data-i18n-en="Method:">মেথড:</span>
+                  <div class="inline-flex gap-1">
+                    <button type="button" data-it-method="abut" aria-pressed="false" class="{psBtn} aria-pressed:!border-orange-500 aria-pressed:!bg-orange-500/15" title="Abutting — পাশাপাশি কাটা পাথ (Cutout)">
+                      <svg viewBox="0 0 20 14" class="w-5 h-3.5"><rect x="1" y="1" width="9" height="12" fill="currentColor" opacity=".35"/><rect x="10" y="1" width="9" height="12" fill="currentColor" opacity=".8"/></svg>
+                      <span data-i18n-bn="অ্যাবাটিং" data-i18n-en="Abutting">অ্যাবাটিং</span>
+                    </button>
+                    <button type="button" data-it-method="overlap" aria-pressed="true" class="{psBtn} aria-pressed:!border-orange-500 aria-pressed:!bg-orange-500/15" title="Overlapping — স্ট্যাকড পাথ, গ্যাপ নেই (Stacked)">
+                      <svg viewBox="0 0 20 14" class="w-5 h-3.5"><rect x="1" y="1" width="13" height="12" fill="currentColor" opacity=".35"/><rect x="7" y="3" width="12" height="10" fill="currentColor" opacity=".8"/></svg>
+                      <span data-i18n-bn="ওভারল্যাপিং" data-i18n-en="Overlapping">ওভারল্যাপিং</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Create: Fills / Strokes (B&W) -->
+                <div class="grid grid-cols-[56px_1fr] items-center gap-1.5" data-it-when="mono">
+                  <span class={psLbl} data-i18n-bn="তৈরি:" data-i18n-en="Create:">তৈরি:</span>
+                  <div class="inline-flex items-center gap-3">
+                    <label class="inline-flex items-center gap-1 cursor-pointer"><input id="itFills" type="checkbox" checked class="w-3.5 h-3.5 accent-orange-500" /><span data-i18n-bn="ফিল" data-i18n-en="Fills">ফিল</span></label>
+                    <label class="inline-flex items-center gap-1 cursor-pointer"><input id="itStrokes" type="checkbox" class="w-3.5 h-3.5 accent-orange-500" /><span data-i18n-bn="স্ট্রোক" data-i18n-en="Strokes">স্ট্রোক</span></label>
+                  </div>
+                </div>
+                <div class="grid grid-cols-[56px_1fr_46px] items-center gap-1.5" data-it-when="mono" data-it-strokes-row>
+                  <label for="itStrokeW" class={psLbl} data-i18n-bn="স্ট্রোক:" data-i18n-en="Stroke:">স্ট্রোক:</label>
+                  <input id="itStrokeW" type="range" min="1" max="100" step="1" value="10" class="w-full h-4 accent-orange-500 cursor-pointer" />
+                  <div class="relative">
+                    <input id="itStrokeWNum" type="number" min="1" max="100" step="1" value="10" class="{psSel} w-full !px-1 !pr-4 text-right tabular-nums" aria-label="Stroke width" />
+                    <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[9.5px] text-slate-400 pointer-events-none">px</span>
+                  </div>
+                </div>
+
+                <!-- Options -->
+                <div class="grid grid-cols-[56px_1fr] items-start gap-1.5">
+                  <span class="{psLbl} pt-0.5" data-i18n-bn="অপশন:" data-i18n-en="Options:">অপশন:</span>
+                  <div class="flex flex-col gap-1">
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer"><input id="itSnapLines" type="checkbox" class="w-3.5 h-3.5 accent-orange-500" /><span data-i18n-bn="কার্ভকে লাইনে স্ন্যাপ (Snap Curves To Lines)" data-i18n-en="Snap Curves To Lines">কার্ভকে লাইনে স্ন্যাপ (Snap Curves To Lines)</span></label>
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer"><input id="itIgnoreWhite" type="checkbox" class="w-3.5 h-3.5 accent-orange-500" /><span data-i18n-bn="সাদা বাদ দিন (Ignore White)" data-i18n-en="Ignore White">সাদা বাদ দিন (Ignore White)</span></label>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- Info: Paths / Anchors / Colors -->
+            <div class="grid grid-cols-3 gap-1 rounded-[4px] border border-slate-200 dark:border-[#141414] bg-slate-50 dark:bg-[#1e1e1e] px-2 py-1 tabular-nums">
+              <span><span class="text-slate-400" data-i18n-bn="পাথ:" data-i18n-en="Paths:">পাথ:</span> <b id="itStatPaths" class="text-slate-800 dark:text-white">0</b></span>
+              <span><span class="text-slate-400" data-i18n-bn="অ্যাঙ্কর:" data-i18n-en="Anchors:">অ্যাঙ্কর:</span> <b id="itStatAnchors" class="text-slate-800 dark:text-white">0</b></span>
+              <span><span class="text-slate-400" data-i18n-bn="রং:" data-i18n-en="Colors:">রং:</span> <b id="itStatColors" class="text-slate-800 dark:text-white">0</b></span>
+            </div>
+
+            <!-- Preview + Trace -->
+            <div class="flex items-center justify-between gap-2">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer font-semibold">
+                <input id="itPreview" type="checkbox" checked class="w-3.5 h-3.5 accent-orange-500" />
+                <span data-i18n-bn="প্রিভিউ" data-i18n-en="Preview">প্রিভিউ</span>
+              </label>
+              <button type="button" data-it="trace" class="{psBtn} !h-7 !px-4 !bg-orange-500 !border-orange-600 !text-white font-bold hover:!bg-orange-600">
+                <span data-i18n-bn="ট্রেস" data-i18n-en="Trace">ট্রেস</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
         <!-- TAB PANE 1: HIGH-QUALITY LOGO & ICON PRESETS + TRACING MODE -->
-        <section data-vs-insp-pane="filters" class="bg-white dark:bg-studio-panel overflow-hidden shrink-0">
+        <section data-vs-insp-pane="filters" hidden class="bg-white dark:bg-studio-panel overflow-hidden shrink-0">
           <div class="px-2.5 py-1 bg-slate-50/70 dark:bg-studio-sidebar/60 border-b border-slate-100 dark:border-studio-border flex items-center justify-between gap-1.5">
             <span class="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-slate-600 dark:text-studio-muted">
               <span data-i18n-bn="লোগো ও আইকন ভেক্টর প্রিসেট" data-i18n-en="Logo & Icon Vector Presets">লোগো ও আইকন ভেক্টর প্রিসেট</span>

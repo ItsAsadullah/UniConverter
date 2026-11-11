@@ -9,7 +9,13 @@
     "preview": "astro preview",
     "cap:sync": "astro build && cap sync android",
     "apk:debug": "astro build && cap sync android && cd android && gradlew.bat assembleDebug",
-    "test": "node tests/engine.test.js && node tests/office.test.js && node tests/document-scan.test.cjs && node tests/document-layers.test.cjs && node tests/vector.test.cjs && node tests/vector-export.test.cjs"
+    "test": "node tests/engine.test.js && node tests/office.test.js && node tests/document-scan.test.cjs && node tests/document-layers.test.cjs && node tests/vector.test.cjs && node tests/vector-export.test.cjs && node tests/cloud-sync.test.cjs && node tests/photo-card-studio.test.cjs && node tests/photo-card-metadata.test.cjs && node tests/photo-card-m2-visuals.test.cjs && node tests/photo-card-m3-templates.test.cjs && node tests/photo-card-m4-export.test.cjs",
+    "test:photo-card": "node tests/photo-card-studio.test.cjs && node tests/photo-card-metadata.test.cjs && node tests/photo-card-m2-visuals.test.cjs && node tests/photo-card-m3-templates.test.cjs && node tests/photo-card-m4-export.test.cjs",
+    "test:studio": "node tests/photo-card-studio.test.cjs",
+    "test:metadata": "node tests/photo-card-metadata.test.cjs",
+    "test:visuals": "node tests/photo-card-m2-visuals.test.cjs",
+    "test:m3": "node tests/photo-card-m3-templates.test.cjs",
+    "test:m4": "node tests/photo-card-m4-export.test.cjs"
   },
   "dependencies": {
     "@astrojs/svelte": "^9.1.2",

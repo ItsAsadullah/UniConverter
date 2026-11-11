@@ -15,6 +15,16 @@ interface Props {
 }
 
 const { sub } = Astro.props;
+// Per-tool engine loading: pdf-tools.js (the studio controller) is always needed; the support
+// scripts below are only shipped to the sub-tools that use them. When the user switches sub-tool
+// in-page, pdf-tools.js lazy-loads the missing ones (see ensureTabDeps in public/js/pdf-tools.js).
+//   JSZip       → merge/other2pdf (office files), split (ZIP), pdf2other (image ZIP / docx)
+//   Bijoy engine→ merge/other2pdf (Bijoy runs), pdf2other (Bijoy text detection/convert)
+//   pdf-convert → merge/other2pdf ("anything → PDF")
+const tab = sub.tabId;
+const needsZip = tab === 'merge' || tab === 'other2pdf' || tab === 'split' || tab === 'pdf2other';
+const needsBijoy = tab === 'merge' || tab === 'other2pdf' || tab === 'pdf2other';
+const needsConvert = tab === 'merge' || tab === 'other2pdf';
 ---
 <ToolLayout
   toolId="pdf"
@@ -25,9 +35,9 @@ const { sub } = Astro.props;
   <PdfStudio initialTab={sub.tabId} />
 
   <Fragment slot="scripts">
-    <script is:inline src="/vendor/jszip.min.js" defer></script>
-    <script is:inline src="/js/bijoy-engine.js?v=70" defer></script>
-    <script is:inline src="/js/pdf-convert.js?v=70" defer></script>
-    <script is:inline src="/js/pdf-tools.js?v=70" defer></script>
+    {needsZip && <script is:inline src="/vendor/jszip.min.js" defer></script>}
+    {needsBijoy && <script is:inline src="/js/bijoy-engine.js?v=70" defer></script>}
+    {needsConvert && <script is:inline src="/js/pdf-convert.js?v=70" defer></script>}
+    <script is:inline src="/js/pdf-tools.js?v=77" defer></script>
   </Fragment>
 </ToolLayout>

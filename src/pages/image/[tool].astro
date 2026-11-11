@@ -23,6 +23,10 @@ interface Props {
 }
 
 const { sub } = Astro.props;
+// Per-tool engine loading: each page ships only the engines its own sub-tool needs.
+// Other sub-tools lazy-load their engines on demand (see switchImgTab in public/js/image-tools.js).
+// JSZip is only used by Compress (download-all ZIP) and the Document/Passport scanner (ZIP export).
+const needsZip = sub.tabId === 'compress' || sub.tabId === 'scan' || sub.tabId === 'passport';
 ---
 <ToolLayout
   toolId="image"
@@ -34,19 +38,29 @@ const { sub } = Astro.props;
   <ImageStudio initialTab={sub.tabId} />
 
   <Fragment slot="scripts">
-    <script is:inline src="/vendor/jszip.min.js" defer></script>
-    <script is:inline src="/js/image-tools.js?v=74" defer></script>
+    {needsZip && <script is:inline src="/vendor/jszip.min.js" defer></script>}
+    {(sub.tabId === 'remove-bg' || sub.tabId === 'passport-photo') && (
+      <script is:inline src="/js/bg-remover-engine.js?v=87" defer></script>
+    )}
+    {sub.tabId === 'photo-card' && (
+      <>
+        <script is:inline src="/js/photo-card-metadata.js?v=98" defer></script>
+        <script is:inline src="/js/photo-card-engine.js?v=98" defer></script>
+      </>
+    )}
+    <script is:inline src="/js/ps-studio-engine.js?v=87" defer></script>
+    <script is:inline src="/js/image-tools.js?v=98" defer></script>
     {sub.tabId === 'combine' && (
       <script is:inline src="/js/nid-scanner.js?v=71" defer></script>
     )}
     {sub.tabId === 'vector' && (
-      <script is:inline src="/js/vector-tools.js?v=74" defer></script>
+      <script is:inline src="/js/vector-tools.js?v=78" defer></script>
     )}
     {(sub.tabId === 'scan' || sub.tabId === 'passport') && (
       <>
         <script is:inline src="/js/bijoy-engine.js?v=70" defer></script>
         <script is:inline src="/js/document-scan-core.js?v=70" defer></script>
-        <script is:inline src="/js/document-scanner.js?v=70" defer></script>
+        <script is:inline src="/js/document-scanner.js?v=77" defer></script>
       </>
     )}
   </Fragment>
