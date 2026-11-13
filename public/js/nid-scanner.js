@@ -42,7 +42,32 @@
   }
   function loadImageFile(file) {
     if (window.TechHatScanGeometry && window.TechHatScanGeometry.load) return window.TechHatScanGeometry.load(file);
-    return Promise.reject(new Error("TechHatScanGeometry not loaded"));
+    if (window.TechHatImageUtils && window.TechHatImageUtils.loadImageFile) return window.TechHatImageUtils.loadImageFile(file);
+    return new Promise(function (resolve, reject) {
+      if (!file || !/^image\//i.test(file.type || '')) {
+        reject(new Error(tr('অনুগ্রহ করে একটি বৈধ ছবি ফাইল নির্বাচন করুন', 'Please select a valid image file')));
+        return;
+      }
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        resolve({
+          file: file,
+          name: file.name || 'image.png',
+          size: file.size || 0,
+          type: file.type || 'image/png',
+          width: img.naturalWidth || img.width,
+          height: img.naturalHeight || img.height,
+          url: url,
+          img: img
+        });
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error(tr('ছবিটি পড়া যায়নি', 'Could not decode image')));
+      };
+      img.src = url;
+    });
   }
   function canvasToBlob(canvas, mime, quality) {
     if (window.TechHatImageUtils && window.TechHatImageUtils.canvasToBlob) return window.TechHatImageUtils.canvasToBlob(canvas, mime, quality);
@@ -55,7 +80,39 @@
     if (dlg && dlg.showModal) { if (!dlg.open) dlg.showModal(); } else if (dlg) dlg.setAttribute('open', '');
   }
   function wireDropzone(zone, input, onFiles) {
-    if (window.TechHatImageUtils && window.TechHatImageUtils.wireDropzone) { window.TechHatImageUtils.wireDropzone(zone, input, onFiles); return; }
+    if (window.TechHatImageUtils && window.TechHatImageUtils.wireDropzone) {
+      window.TechHatImageUtils.wireDropzone(zone, input, onFiles);
+      return;
+    }
+    if (!zone || !input) return;
+    if (!input._thInputWired) {
+      input._thInputWired = true;
+      input.addEventListener('change', function () {
+        if (input.files && input.files.length) {
+          onFiles(Array.prototype.slice.call(input.files));
+          input.value = '';
+        }
+      });
+    }
+    if (zone._thDropWired) return;
+    zone._thDropWired = true;
+    if (zone.tagName !== 'LABEL') {
+      zone.addEventListener('click', function (e) {
+        if (e.target && e.target.closest && e.target.closest('button, label, input, a, select, textarea')) return;
+        input.click();
+      });
+    }
+    ['dragenter', 'dragover'].forEach(function (ev) {
+      zone.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); zone.classList.add('is-over'); });
+    });
+    ['dragleave', 'drop'].forEach(function (ev) {
+      zone.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); zone.classList.remove('is-over'); });
+    });
+    zone.addEventListener('drop', function (e) {
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+        onFiles(Array.prototype.slice.call(e.dataTransfer.files));
+      }
+    });
   }
   function switchImgTab(tabId) {
     if (window.TechHatImage && window.TechHatImage.switchTab) window.TechHatImage.switchTab(tabId);
@@ -101,6 +158,8 @@
     c.width = w;
     c.height = h;
     var ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = true;
+    if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
     ctx.save();
     ctx.translate(w / 2, h / 2);
     if (flipH === -1) ctx.scale(-1, 1);
@@ -199,10 +258,10 @@
         minMidLum: 420
       },
       A4_FLATBED_SCAN: {
-        minWidthFrac: 0.38,
-        minHeightFrac: 0.18,
-        minAreaFrac: 0.065,
-        scales: [0.30, 0.36, 0.41, 0.46, 0.52, 0.58, 0.65, 0.72, 0.80, 0.88, 0.94, 0.98],
+        minWidthFrac: 0.28,
+        minHeightFrac: 0.125,
+        minAreaFrac: 0.038,
+        scales: [0.30, 0.36, 0.41, 0.46, 0.52, 0.58, 0.65, 0.685, 0.72, 0.80, 0.88, 0.94, 0.98],
         ratios: [1.585, 1.50, 1.66, 1.42]
       },
       SURFACE_PERSPECTIVE: {
@@ -220,8 +279,17 @@
     window.NID_DETECTION_PROFILES = NID_DETECTION_PROFILES;
   }
 
-  function autoDetectCardQuad(img, rotDeg, flipH, excludeQuad, seedPt, allowAutoRotate) {
+  var nidCardOrient = 'landscape';
+  function getNidCardOrient(entry) {
+    return (entry && (entry.cardOrient === 'portrait' || entry.cardOrient === 'landscape'))
+      ? entry.cardOrient
+      : (nidCardOrient === 'portrait' ? 'portrait' : 'landscape');
+  }
+
+  function autoDetectCardQuad(img, rotDeg, flipH, excludeQuad, seedPt, allowAutoRotate, orientMode) {
     var normRot = (((rotDeg || 0) % 360) + 360) % 360;
+    var activeOrient = orientMode === 'portrait' || orientMode === 'landscape' ? orientMode : getNidCardOrient();
+    var isPortraitTarget = activeOrient === 'portrait';
     try {
       var c = buildRotatedCanvas(img, normRot, 340, flipH || 1);
       var aw = c.width;
@@ -365,9 +433,9 @@
         }
       }
       var chosenBorder = (darkOuterN > totalOuterN * 0.52 && bestDarkBorder) ? bestDarkBorder : bestBorder;
-      var bgR = chosenBorder ? (chosenBorder.r / chosenBorder.n) : 180;
-      var bgG = chosenBorder ? (chosenBorder.g / chosenBorder.n) : 180;
-      var bgB = chosenBorder ? (chosenBorder.b / chosenBorder.n) : 180;
+      var bgR = chosenBorder ? (chosenBorder.r / chosenBorder.n) : (totalOuterN === 0 ? 0 : 180);
+      var bgG = chosenBorder ? (chosenBorder.g / chosenBorder.n) : (totalOuterN === 0 ? 0 : 180);
+      var bgB = chosenBorder ? (chosenBorder.b / chosenBorder.n) : (totalOuterN === 0 ? 0 : 180);
 
       // Optional exclusion mask when searching for a 2nd card on the same sheet
       var exMinX = -1, exMaxX = -1, exMinY = -1, exMaxY = -1;
@@ -415,8 +483,18 @@
 
             var pChroma = Math.max(r, g, b) - Math.min(r, g, b);
             var bgLum0 = bgR + bgG + bgB;
+            var bgChroma0 = Math.max(bgR, bgG, bgB) - Math.min(bgR, bgG, bgB);
             var cDist = (bgLum0 < 430 && pChroma < 30 && (r + g + b) >= Math.max(380, bgLum0 + 50)) ? Math.hypot(r - bgR, g - bgG, b - bgB) : 0;
             var cTerm = cDist > 26 ? Math.min(50, (cDist - 26) * 0.58) : 0;
+            if (bgLum0 >= 510 && bgChroma0 <= 36) {
+              var drB = r - bgR, dgB = g - bgG, dbB = b - bgB;
+              var chrShiftB = Math.hypot(drB - dgB, drB - dbB, dgB - dbB);
+              var lumDropB = Math.max(0, bgLum0 - (r + g + b)) * 0.22;
+              var fbDiff = Math.max(chrShiftB * 1.15, lumDropB);
+              if (fbDiff > 12) {
+                cTerm = Math.max(cTerm, Math.min(26, (fbDiff - 12) * 0.78));
+              }
+            }
             var hvAlign = (hEdge + vEdge) / (gVal + 1);
             sVal = effG * (0.85 + 0.90 * hvAlign) + cTerm;
           }
@@ -442,21 +520,24 @@
         return sat[ay1 * sw + ax1] - sat[ay0 * sw + ax1] - sat[ay1 * sw + ax0] + sat[ay0 * sw + ax0];
       }
 
-      // Stage 1: Auto-rotation for vertical cards (90° CW / 90° CCW) into horizontal axis
+      // Stage 1: Auto-rotation for sideways cards (90° CW / 90° CCW) into target card axis
       var cx0R = Math.round(marginX + actW * 0.15);
       var cx1R = Math.round(maxX - actW * 0.15);
       var cy0R = Math.round(marginY + actH * 0.15);
       var cy1R = Math.round(maxY - actH * 0.15);
       var centralHoriz = rectSum(satHoriz, cx0R, cy0R, cx1R, cy1R);
       var centralVert = rectSum(satVert, cx0R, cy0R, cx1R, cy1R);
-      if (allowAutoRotate === true && !excludeQuad && !seedPt) {
-        if (centralVert > centralHoriz * NID_DETECTION_PROFILES.sceneStrategies.AUTO_ROTATE_90_180_270.vhRatioThreshold) {
-          return autoDetectCardQuad(img, (normRot + 90) % 360, flipH, null, null, 'check180');
+      if (allowAutoRotate === true && !excludeQuad && !seedPt && !isPortraitTarget) {
+        var fastRotThresh = actW < actH * 0.85
+          ? NID_DETECTION_PROFILES.sceneStrategies.AUTO_ROTATE_90_180_270.vhRatioThreshold
+          : Math.max(1.85, NID_DETECTION_PROFILES.sceneStrategies.AUTO_ROTATE_90_180_270.vhRatioThreshold);
+        if (centralVert > centralHoriz * fastRotThresh) {
+          return autoDetectCardQuad(img, (normRot + 90) % 360, flipH, null, null, 'check180', activeOrient);
         }
       }
 
       // Stage 1.5: Scene Strategy `FULL_BLEED_SCAN` — handle already-cropped / full-frame scanned ID cards (Front & Back)
-      var actAspect = actW / Math.max(1, actH);
+      var actAspect = isPortraitTarget ? (actH / Math.max(1, actW)) : (actW / Math.max(1, actH));
       var fbCfg = NID_DETECTION_PROFILES.sceneStrategies.FULL_BLEED_SCAN;
       if (!excludeQuad && !seedPt && actAspect >= fbCfg.aspectRange[0] && actAspect <= fbCfg.aspectRange[1]) {
         var fbBoxRGB = function (rx0, ry0, rx1, ry1) {
@@ -476,24 +557,25 @@
         var fbBotM = fbBoxRGB(0.05, 0.964, 0.95, 0.996);
         var fbLeftM = fbBoxRGB(0.004, 0.05, 0.036, 0.95);
         var fbRightM = fbBoxRGB(0.964, 0.05, 0.996, 0.95);
-        // Sample 4 structural bands (top header/barcode, bottom DOB/NID/MRZ/barcode, left portrait/text, right chip/emblem/text)
-        var fbTop28 = fbBoxRGB(0.06, 0.03, 0.94, 0.28);
-        var fbBot32 = fbBoxRGB(0.06, 0.66, 0.94, 0.95);
-        var fbLeft28 = fbBoxRGB(0.03, 0.06, 0.28, 0.94);
-        var fbRight28 = fbBoxRGB(0.72, 0.06, 0.97, 0.94);
+        // Sample 4 peripheral rings (3%..15% from each edge) — a true full-bleed card has structure near all 4 edges,
+        // whereas an uncropped card sitting on a sheet/table has blank margin in at least 2 of these outer 15% rings.
+        var fbTop28 = fbBoxRGB(0.06, 0.03, 0.94, 0.15);
+        var fbBot32 = fbBoxRGB(0.06, 0.85, 0.94, 0.97);
+        var fbLeft28 = fbBoxRGB(0.03, 0.06, 0.15, 0.94);
+        var fbRight28 = fbBoxRGB(0.85, 0.06, 0.97, 0.94);
         var minOuterLum = Math.min(fbTopM.lum, fbBotM.lum, fbLeftM.lum, fbRightM.lum);
         var maxOuterChroma = Math.max(fbTopM.chroma, fbBotM.chroma, fbLeftM.chroma, fbRightM.chroma);
         if (minOuterLum >= fbCfg.minOuterMarginLum &&
             maxOuterChroma <= fbCfg.maxOuterMarginChroma &&
             fbMid.lum >= fbCfg.minMidLum &&
-            fbTop28.st > noiseFloor * 0.45 &&
-            fbBot32.st > noiseFloor * 0.45 &&
-            fbLeft28.st > noiseFloor * 0.40 &&
-            fbRight28.st > noiseFloor * 0.40) {
+            fbTop28.st > noiseFloor * 0.65 &&
+            fbBot32.st > noiseFloor * 0.65 &&
+            fbLeft28.st > noiseFloor * 0.55 &&
+            fbRight28.st > noiseFloor * 0.55) {
           var fbTopHalfH = rectSum(satHoriz, marginX, marginY, maxX, marginY + (actH >> 1));
           var fbBotHalfH = rectSum(satHoriz, marginX, marginY + (actH >> 1), maxX, maxY);
-          if (allowAutoRotate && fbBotHalfH > fbTopHalfH * 1.45) {
-            return autoDetectCardQuad(img, (normRot + 180) % 360, flipH, null, null, false);
+          if (allowAutoRotate && (!isPortraitTarget ? (fbBotHalfH > fbTopHalfH * 1.45) : (allowAutoRotate === 'check180' && fbBotHalfH > fbTopHalfH * 1.75))) {
+            return autoDetectCardQuad(img, (normRot + 180) % 360, flipH, null, null, false, activeOrient);
           }
           var defaultPadX = Math.max(3, Math.round(aw * 0.015));
           var defaultPadY = Math.max(3, Math.round(ah * 0.015));
@@ -519,11 +601,15 @@
         if (!isVertMode) {
           if (w < aw * a4Cfg.minWidthFrac || h < ah * a4Cfg.minHeightFrac) return -1;
         } else {
-          if (h < ah * a4Cfg.minWidthFrac || w < aw * a4Cfg.minHeightFrac) return -1;
+          var minWPort = isPortraitTarget ? aw * (a4Cfg.minHeightFrac * 0.65) : aw * a4Cfg.minHeightFrac;
+          var minHPort = isPortraitTarget ? ah * (a4Cfg.minWidthFrac * 0.65) : ah * a4Cfg.minWidthFrac;
+          if (h < minHPort || w < minWPort) return -1;
         }
         var area = w * h;
         var frameArea = aw * ah;
-        if (area < frameArea * a4Cfg.minAreaFrac || area > frameArea * 0.96) return -1;
+        var minAreaReq = isPortraitTarget ? frameArea * (a4Cfg.minAreaFrac * 0.48) : frameArea * a4Cfg.minAreaFrac;
+        var maxAreaReq = isPortraitTarget ? frameArea * 0.985 : frameArea * 0.96;
+        if (area < minAreaReq || area > maxAreaReq) return -1;
 
         if (seedPx) {
           if (seedPx.x < x0 + w * 0.08 || seedPx.x > x1 - w * 0.08 ||
@@ -619,8 +705,25 @@
         var rightOutSt = (ox1 - x1 >= 4) ? rectSum(satStruct, x1, y0, ox1, y1) / rightStripArea : inMean * 0.85;
         var topOutSt0 = (y0 - oy0 >= 4) ? rectSum(satStruct, x0, oy0, x1, y0) / topStripArea : inMean * 0.85;
         var botOutSt0 = (oy1 - y1 >= 4) ? rectSum(satStruct, x0, y1, x1, oy1) / botStripArea : inMean * 0.85;
+        if (x0 - ox0 >= 4 && ox1 - x1 >= 4) {
+          var lR = rectSum(satR, ox0, y0, x0, y1) / leftStripArea;
+          var lG = rectSum(satG, ox0, y0, x0, y1) / leftStripArea;
+          var lB = rectSum(satB, ox0, y0, x0, y1) / leftStripArea;
+          var rR = rectSum(satR, x1, y0, ox1, y1) / rightStripArea;
+          var rG = rectSum(satG, x1, y0, ox1, y1) / rightStripArea;
+          var rB = rectSum(satB, x1, y0, ox1, y1) / rightStripArea;
+          var leftDiffToCard = Math.hypot(lR - inR, lG - inG, lB - inB);
+          var rightDiffToCard = Math.hypot(rR - inR, rG - inG, rB - inB);
+          var leftRightAsym = Math.hypot(lR - rR, lG - rG, lB - rB);
+          if (leftOutSt > inMean * 0.78 && leftDiffToCard < 28 && rightDiffToCard > 60 && leftRightAsym > 48) {
+            cutPenalty *= 0.42;
+          }
+          if (rightOutSt > inMean * 0.78 && rightDiffToCard < 28 && leftDiffToCard > 60 && leftRightAsym > 48) {
+            cutPenalty *= 0.42;
+          }
+        }
 
-        if (w >= aw * 0.68 && Math.max(topOutSt0, botOutSt0) < inMean * 0.48 && Math.min(leftOutSt, rightOutSt) < inMean * 0.58) {
+        if (w >= aw * 0.65 && Math.max(topOutSt0, botOutSt0) < inMean * 0.52 && Math.min(leftOutSt, rightOutSt) < inMean * 0.58) {
           var clean3Mean = (topOutSt0 + botOutSt0 + Math.min(leftOutSt, rightOutSt)) / 3;
           if (clean3Mean < outerMean) {
             outerMean = clean3Mean * 0.75 + outerMean * 0.25;
@@ -639,8 +742,18 @@
         var midLumW = (rectSum(satR, midX0, y0, midX1, y1) + rectSum(satG, midX0, y0, midX1, y1) + rectSum(satB, midX0, y0, midX1, y1)) / midAreaW;
         var topArea12 = Math.max(1, w * inBandH12);
         var botArea12 = Math.max(1, w * inBandH12);
-        var topInLum = (rectSum(satR, x0, y0, x1, y0 + inBandH12) + rectSum(satG, x0, y0, x1, y0 + inBandH12) + rectSum(satB, x0, y0, x1, y0 + inBandH12)) / topArea12;
-        var botInLum = (rectSum(satR, x0, y1 - inBandH12, x1, y1) + rectSum(satG, x0, y1 - inBandH12, x1, y1) + rectSum(satB, x0, y1 - inBandH12, x1, y1)) / botArea12;
+        var topInR = rectSum(satR, x0, y0, x1, y0 + inBandH12) / topArea12;
+        var topInG = rectSum(satG, x0, y0, x1, y0 + inBandH12) / topArea12;
+        var topInB = rectSum(satB, x0, y0, x1, y0 + inBandH12) / topArea12;
+        var topInLum = topInR + topInG + topInB;
+        var botInR = rectSum(satR, x0, y1 - inBandH12, x1, y1) / botArea12;
+        var botInG = rectSum(satG, x0, y1 - inBandH12, x1, y1) / botArea12;
+        var botInB = rectSum(satB, x0, y1 - inBandH12, x1, y1) / botArea12;
+        var botInLum = botInR + botInG + botInB;
+        var topInChroma = Math.max(topInR, topInG, topInB) - Math.min(topInR, topInG, topInB);
+        var botInChroma = Math.max(botInR, botInG, botInB) - Math.min(botInR, botInG, botInB);
+        var topDiffBg12 = Math.hypot(topInR - bgR, topInG - bgG, topInB - bgB);
+        var botDiffBg12 = Math.hypot(botInR - bgR, botInG - bgG, botInB - bgB);
         var topInStruct = rectSum(satStruct, x0, y0, x1, y0 + inBandH12) / topArea12;
         var botInStruct = rectSum(satStruct, x0, y1 - inBandH12, x1, y1) / botArea12;
         var leftArea12 = Math.max(1, h * inBandW12);
@@ -658,11 +771,12 @@
         var leftDiffBg12 = Math.hypot(leftInR - bgR, leftInG - bgG, leftInB - bgB);
         var rightDiffBg12 = Math.hypot(rightInR - bgR, rightInG - bgG, rightInB - bgB);
         var lrWarmthAsym = Math.abs((leftInR - leftInB) - (rightInR - rightInB));
-        if ((midLumH - topInLum > 165 && midLumH - botInLum > 165) ||
-            (midLumW - leftInLum > 165 && midLumW - rightInLum > 165)) {
+        var isColoredPortraitHeaders = isPortraitTarget && (bgLum >= 460 || (topInChroma > 36 && topDiffBg12 > 52 && botInChroma > 36 && botDiffBg12 > 52));
+        if ((midLumH - topInLum > 165 && midLumH - botInLum > 165 && !isColoredPortraitHeaders && (bgLum < 460 || Math.max(topInChroma, botInChroma) < 32)) ||
+            (midLumW - leftInLum > 165 && midLumW - rightInLum > 165 && (bgLum < 460 || !isPortraitTarget))) {
           cutPenalty *= 0.16;
         }
-        if (midLumH - topInLum > 65 && midLumH - botInLum > 65 && (topInStruct < inMean * 0.72 || botInStruct < inMean * 0.72)) {
+        if ((midLumH - topInLum > 65 && midLumH - botInLum > 65 && ((bgR + bgG + bgB) < 460 || (topInLum > bgR + bgG + bgB - 40 && botInLum > bgR + bgG + bgB - 40)) && (topInStruct < inMean * 0.72 || botInStruct < inMean * 0.72))) {
           cutPenalty *= 0.28;
         }
         if ((topInLum - midLumH > 65 && topInStruct < inMean * 0.60) ||
@@ -671,8 +785,10 @@
             (leftInStruct < inMean * 0.35 && rightInStruct < inMean * 0.55 && w > aw * 0.86)) {
           cutPenalty *= 0.28;
         }
-        if ((midLumH - topInLum > 115 && botInLum - topInLum > 100 && (topInLum < 310 || topInStruct < inMean * 0.75)) ||
-            (midLumH - botInLum > 115 && topInLum - botInLum > 100 && (botInLum < 310 || botInStruct < inMean * 0.75)) ||
+        var topDarkDeskLeak = (bgLum < 460 && !(isPortraitTarget && topInChroma > 36 && topDiffBg12 > 52)) || topDiffBg12 < 52 || (!isPortraitTarget && topInChroma < 28 && topInStruct < inMean * 0.55);
+        var botDarkDeskLeak = (bgLum < 460 && !(isPortraitTarget && botInChroma > 36 && botDiffBg12 > 52)) || botDiffBg12 < 52 || (!isPortraitTarget && botInChroma < 28 && botInStruct < inMean * 0.55);
+        if ((topDarkDeskLeak && midLumH - topInLum > 115 && botInLum - topInLum > 100 && (topInLum < 310 || topInStruct < inMean * 0.75)) ||
+            (botDarkDeskLeak && midLumH - botInLum > 115 && topInLum - botInLum > 100 && (botInLum < 310 || botInStruct < inMean * 0.75)) ||
             (midLumW - leftInLum > 95 && rightInLum - leftInLum > 95 && (leftInLum < 320 || leftDiffBg12 < 52) && leftInStruct < inMean * 0.65) ||
             (midLumW - rightInLum > 95 && leftInLum - rightInLum > 95 && (rightInLum < 320 || rightDiffBg12 < 52) && rightInStruct < inMean * 0.65) ||
             (lrWarmthAsym > 26 && (bgR + bgG + bgB) < 430 && Math.min(leftInStruct, rightInStruct) < inMean * 0.55)) {
@@ -688,8 +804,8 @@
           cutPenalty *= 0.12;
         }
         var blueExcess = Math.max(0, inB - Math.max(inR, inG));
-        var paperBonus = blueExcess > 16 ? Math.max(0.30, 1 - (blueExcess - 16) * 0.03) : 1.15;
-        var effColorDiff = outLum > inLum + 10 ? 0 : localColorDiff;
+        var paperBonus = (isVertMode && isPortraitTarget && inLum > 420) ? 1.15 : (blueExcess > 16 ? Math.max(0.30, 1 - (blueExcess - 16) * 0.03) : 1.15);
+        var effColorDiff = outLum > inLum + 10 ? ((isVertMode && isPortraitTarget && inLum > 460 && outerMean < inMean * 0.42 && Math.max(topInChroma, botInChroma) > 36) ? localColorDiff * 0.8 : 0) : localColorDiff;
         var colorContrastBoost = 1 + Math.min(2.2, effColorDiff / 36);
 
         // 4-side tangential boundary frame energy
@@ -700,8 +816,114 @@
         var leftEdge = rectSum(satVert, x0 - bandX, y0, x0 + bandX, y1) / Math.max(1, h * bandX * 2);
         var rightEdge = rectSum(satVert, x1 - bandX, y0, x1 + bandX, y1) / Math.max(1, h * bandX * 2);
 
+        // Multi-object & passport-photo rejection: reject boxes that bridge across an empty background gap
+        // (e.g. two side-by-side passport photos on an A4 scan), pad a narrow portrait with blank paper,
+        // or contain royal-blue studio portrait backdrops / extreme two-photo half splits.
+        var bgChromaBox = Math.max(bgR, bgG, bgB) - Math.min(bgR, bgG, bgB);
+        var hasStudioBlueStrip = false;
+        var hitLongGap = false;
+        for (var slIdx = 0; slIdx < 13; slIdx++) {
+          var f0 = 0.12 + slIdx * 0.056, f1 = f0 + 0.08;
+          var slSt, slR, slG, slB, slEdgeA, slEdgeB;
+          if (!isVertMode) {
+            var slX0 = x0 + Math.round(w * f0), slX1 = Math.max(slX0 + 1, x0 + Math.round(w * f1));
+            var slW = slX1 - slX0, slArea = Math.max(1, slW * h);
+            slSt = rectSum(satStruct, slX0, y0, slX1, y1) / slArea;
+            slR = rectSum(satR, slX0, y0, slX1, y1) / slArea;
+            slG = rectSum(satG, slX0, y0, slX1, y1) / slArea;
+            slB = rectSum(satB, slX0, y0, slX1, y1) / slArea;
+            slEdgeA = rectSum(satHoriz, slX0, y0 - bandY, slX1, y0 + bandY) / Math.max(1, slW * bandY * 2);
+            slEdgeB = rectSum(satHoriz, slX0, y1 - bandY, slX1, y1 + bandY) / Math.max(1, slW * bandY * 2);
+          } else {
+            var slY0 = y0 + Math.round(h * f0), slY1 = Math.max(slY0 + 1, y0 + Math.round(h * f1));
+            var slH = slY1 - slY0, slAreaV = Math.max(1, w * slH);
+            slSt = rectSum(satStruct, x0, slY0, x1, slY1) / slAreaV;
+            slR = rectSum(satR, x0, slY0, x1, slY1) / slAreaV;
+            slG = rectSum(satG, x0, slY0, x1, slY1) / slAreaV;
+            slB = rectSum(satB, x0, slY0, x1, slY1) / slAreaV;
+            slEdgeA = rectSum(satVert, x0 - bandX, slY0, x0 + bandX, slY1) / Math.max(1, bandX * 2 * slH);
+            slEdgeB = rectSum(satVert, x1 - bandX, slY0, x1 + bandX, slY1) / Math.max(1, bandX * 2 * slH);
+          }
+          var slDistBg = Math.min(
+            Math.hypot(slR - bgR, slG - bgG, slB - bgB),
+            Math.hypot(slR - outR, slG - outG, slB - outB)
+          );
+          if (!hitLongGap && slDistBg < 24 && slSt < Math.max(1.4, inMean * 0.18) && slEdgeA < 1.35 && slEdgeB < 1.35) {
+            hitLongGap = true;
+          }
+          if (bgChromaBox < 28 && (slB - Math.max(slR, slG)) > 22) {
+            hasStudioBlueStrip = true;
+          }
+        }
+        if (hitLongGap) {
+          cutPenalty *= 0.02;
+        }
+        if (hasStudioBlueStrip && !isPortraitTarget) {
+          cutPenalty *= 0.22;
+        }
+        // Short-axis sliding band check: reject multi-row bridges (e.g. 2 passport photos above + narrow blank paper gap + card header below)
+        for (var shIdx = 0; shIdx < 13; shIdx++) {
+          var sf0 = 0.13 + shIdx * 0.055, sf1 = sf0 + 0.085;
+          var shSt, shR, shG, shB;
+          if (!isVertMode) {
+            var shX0 = x0 + Math.round(w * 0.12), shX1 = Math.max(shX0 + 1, x1 - Math.round(w * 0.12));
+            var shY0 = y0 + Math.round(h * sf0), shY1 = Math.max(shY0 + 1, y0 + Math.round(h * sf1));
+            var shArea = Math.max(1, (shX1 - shX0) * (shY1 - shY0));
+            shSt = rectSum(satStruct, shX0, shY0, shX1, shY1) / shArea;
+            shR = rectSum(satR, shX0, shY0, shX1, shY1) / shArea;
+            shG = rectSum(satG, shX0, shY0, shX1, shY1) / shArea;
+            shB = rectSum(satB, shX0, shY0, shX1, shY1) / shArea;
+          } else {
+            var svX0 = x0 + Math.round(w * sf0), svX1 = Math.max(svX0 + 1, x0 + Math.round(w * sf1));
+            var svY0 = y0 + Math.round(h * 0.12), svY1 = Math.max(svY0 + 1, y1 - Math.round(h * 0.12));
+            var svArea = Math.max(1, (svX1 - svX0) * (svY1 - svY0));
+            shSt = rectSum(satStruct, svX0, svY0, svX1, svY1) / svArea;
+            shR = rectSum(satR, svX0, svY0, svX1, svY1) / svArea;
+            shG = rectSum(satG, svX0, svY0, svX1, svY1) / svArea;
+            shB = rectSum(satB, svX0, svY0, svX1, svY1) / svArea;
+          }
+          var shDistBg = Math.min(
+            Math.hypot(shR - bgR, shG - bgG, shB - bgB),
+            Math.hypot(shR - outR, shG - outG, shB - outB)
+          );
+          if (shDistBg < 20 && shSt < Math.max(1.1, inMean * 0.11)) {
+            cutPenalty *= 0.02;
+            break;
+          }
+        }
+        var halfAreaLong = Math.max(1, area * 0.5);
+        var h0R, h0G, h0B, h1R, h1G, h1B;
+        if (!isVertMode) {
+          h0R = rectSum(satR, x0, y0, mx, y1) / halfAreaLong;
+          h0G = rectSum(satG, x0, y0, mx, y1) / halfAreaLong;
+          h0B = rectSum(satB, x0, y0, mx, y1) / halfAreaLong;
+          h1R = rectSum(satR, mx, y0, x1, y1) / halfAreaLong;
+          h1G = rectSum(satG, mx, y0, x1, y1) / halfAreaLong;
+          h1B = rectSum(satB, mx, y0, x1, y1) / halfAreaLong;
+        } else {
+          h0R = rectSum(satR, x0, y0, x1, my) / halfAreaLong;
+          h0G = rectSum(satG, x0, y0, x1, my) / halfAreaLong;
+          h0B = rectSum(satB, x0, y0, x1, my) / halfAreaLong;
+          h1R = rectSum(satR, x0, my, x1, y1) / halfAreaLong;
+          h1G = rectSum(satG, x0, my, x1, y1) / halfAreaLong;
+          h1B = rectSum(satB, x0, my, x1, y1) / halfAreaLong;
+        }
+        var halfDiffLimit = (isVertMode && isPortraitTarget) ? 95 : 62;
+        if (Math.hypot(h0R - h1R, h0G - h1G, h0B - h1B) > halfDiffLimit) {
+          cutPenalty *= 0.25;
+        }
+
         var activeSides = (topEdge > 1.8 ? 1 : 0) + (botEdge > 1.8 ? 1 : 0) +
                           (leftEdge > 1.8 ? 1 : 0) + (rightEdge > 1.8 ? 1 : 0);
+        if (isVertMode && isPortraitTarget) {
+          // Reject narrow vertical sub-slices across a horizontal landscape card where both side exteriors carry dense card text
+          if (leftOutSt > inMean * 0.72 && rightOutSt > inMean * 0.72 && leftEdge < 1.8 && rightEdge < 1.8 && structContrast < 1.15) {
+            return -1;
+          }
+          if (activeSides < 2 && structContrast < 1.12 && localColorDiff < 10) {
+            return -1;
+          }
+        }
         var sideMult = activeSides === 4 ? 1.35 : (activeSides === 3 ? 1.12 : 0.78);
         var frameStrength = (1 + (topEdge + botEdge + leftEdge + rightEdge) * 0.06) * sideMult;
 
@@ -725,45 +947,90 @@
       var bestScore = -1;
 
       var ratios = a4Cfg.ratios;
-      var scales = a4Cfg.scales;
-      for (var sIdx = 0; sIdx < scales.length; sIdx++) {
-        var candW = Math.min(maxX - marginX, Math.round(aw * scales[sIdx]));
-        for (var rIdx = 0; rIdx < ratios.length; rIdx++) {
-          var candH = Math.round(candW / ratios[rIdx]);
-          if (candH < ah * a4Cfg.minHeightFrac || candH > maxY - marginY) continue;
-          var stepX = Math.max(3, Math.round((aw - candW) > 20 ? candW * 0.065 : 3));
-          var stepY = Math.max(4, Math.round(candH * 0.065));
-          for (var y0 = marginY; y0 + candH <= maxY; y0 += stepY) {
-            for (var x0 = marginX; x0 + candW <= maxX; x0 += stepX) {
-              var sc = scoreCandidateBox(x0, y0, x0 + candW, y0 + candH, false);
-              if (sc > bestScore) {
-                bestScore = sc;
-                bestBox = { x0: x0, y0: y0, x1: x0 + candW, y1: y0 + candH, score: sc };
-              }
-            }
-          }
-        }
-      }
+      var scales = isPortraitTarget ? [0.18, 0.21, 0.24, 0.27].concat(a4Cfg.scales) : a4Cfg.scales;
 
-      if (allowAutoRotate === true && !excludeQuad && !seedPt) {
-        var bestVertScore = -1;
-        for (var vsIdx = 0; vsIdx < scales.length; vsIdx++) {
-          var vCandH = Math.min(maxY - marginY, Math.round(ah * scales[vsIdx]));
-          for (var vrIdx = 0; vrIdx < ratios.length; vrIdx++) {
-            var vCandW = Math.round(vCandH / ratios[vrIdx]);
-            if (vCandW < aw * a4Cfg.minHeightFrac || vCandW > maxX - marginX) continue;
-            var vStepX = Math.max(4, Math.round(vCandW * 0.075));
-            var vStepY = Math.max(4, Math.round((ah - vCandH) > 20 ? vCandH * 0.075 : 4));
-            for (var vy0 = marginY; vy0 + vCandH <= maxY; vy0 += vStepY) {
-              for (var vx0 = marginX; vx0 + vCandW <= maxX; vx0 += vStepX) {
-                var vsc = scoreCandidateBox(vx0, vy0, vx0 + vCandW, vy0 + vCandH, true);
-                if (vsc > bestVertScore) bestVertScore = vsc;
+      if (!isPortraitTarget) {
+        for (var sIdx = 0; sIdx < scales.length; sIdx++) {
+          var candW = Math.min(maxX - marginX, Math.round(aw * scales[sIdx]));
+          for (var rIdx = 0; rIdx < ratios.length; rIdx++) {
+            var candH = Math.round(candW / ratios[rIdx]);
+            if (candH < ah * a4Cfg.minHeightFrac || candH > maxY - marginY) continue;
+            var stepX = Math.max(3, Math.round((aw - candW) > 20 ? candW * 0.065 : 3));
+            var stepY = Math.max(4, Math.round(candH * 0.065));
+            for (var y0 = marginY; y0 + candH <= maxY; y0 += stepY) {
+              for (var x0 = marginX; x0 + candW <= maxX; x0 += stepX) {
+                var sc = scoreCandidateBox(x0, y0, x0 + candW, y0 + candH, false);
+                if (sc > bestScore) {
+                  bestScore = sc;
+                  bestBox = { x0: x0, y0: y0, x1: x0 + candW, y1: y0 + candH, score: sc };
+                }
               }
             }
           }
         }
-        if (bestVertScore > bestScore * 1.08) {
-          return autoDetectCardQuad(img, (normRot + 90) % 360, flipH, null, null, 'check180');
+
+        if (allowAutoRotate === true && !excludeQuad && !seedPt) {
+          var bestVertScore = -1;
+          for (var vsIdx = 0; vsIdx < scales.length; vsIdx++) {
+            var vCandH = Math.min(maxY - marginY, Math.round(ah * scales[vsIdx]));
+            for (var vrIdx = 0; vrIdx < ratios.length; vrIdx++) {
+              var vCandW = Math.round(vCandH / ratios[vrIdx]);
+              if (vCandW < aw * a4Cfg.minHeightFrac || vCandW > maxX - marginX) continue;
+              var vStepX = Math.max(4, Math.round(vCandW * 0.075));
+              var vStepY = Math.max(4, Math.round((ah - vCandH) > 20 ? vCandH * 0.075 : 4));
+              for (var vy0 = marginY; vy0 + vCandH <= maxY; vy0 += vStepY) {
+                for (var vx0 = marginX; vx0 + vCandW <= maxX; vx0 += vStepX) {
+                  var vsc = scoreCandidateBox(vx0, vy0, vx0 + vCandW, vy0 + vCandH, true);
+                  if (vsc > bestVertScore) bestVertScore = vsc;
+                }
+              }
+            }
+          }
+          if (bestVertScore > bestScore * 1.08) {
+            return autoDetectCardQuad(img, (normRot + 90) % 360, flipH, null, null, 'check180', activeOrient);
+          }
+        }
+      } else {
+        // Portrait ID card mode: search upright vertical ID boxes (`h > w`, ~54×85.6mm) directly without rotating sideways
+        for (var psIdx = 0; psIdx < scales.length; psIdx++) {
+          var pCandH = Math.min(maxY - marginY, Math.round(ah * scales[psIdx]));
+          for (var prIdx = 0; prIdx < ratios.length; prIdx++) {
+            var pCandW = Math.round(pCandH / ratios[prIdx]);
+            if (pCandW < aw * (a4Cfg.minHeightFrac * 0.65) || pCandW > maxX - marginX) continue;
+            var pStepX = Math.max(3, Math.round((aw - pCandW) > 20 ? pCandW * 0.065 : 3));
+            var pStepY = Math.max(4, Math.round(pCandH * 0.065));
+            for (var py0 = marginY; py0 + pCandH <= maxY; py0 += pStepY) {
+              for (var px0 = marginX; px0 + pCandW <= maxX; px0 += pStepX) {
+                var psc = scoreCandidateBox(px0, py0, px0 + pCandW, py0 + pCandH, true);
+                if (psc > bestScore) {
+                  bestScore = psc;
+                  bestBox = { x0: px0, y0: py0, x1: px0 + pCandW, y1: py0 + pCandH, score: psc };
+                }
+              }
+            }
+          }
+        }
+
+        if (allowAutoRotate === true && !excludeQuad && !seedPt) {
+          var bestHorizPortScore = -1;
+          for (var hsIdx = 0; hsIdx < scales.length; hsIdx++) {
+            var hCandW = Math.min(maxX - marginX, Math.round(aw * scales[hsIdx]));
+            for (var hrIdx = 0; hrIdx < ratios.length; hrIdx++) {
+              var hCandH = Math.round(hCandW / ratios[hrIdx]);
+              if (hCandH < ah * (a4Cfg.minHeightFrac * 0.65) || hCandH > maxY - marginY) continue;
+              var hStepX = Math.max(4, Math.round((aw - hCandW) > 20 ? hCandW * 0.075 : 4));
+              var hStepY = Math.max(4, Math.round(hCandH * 0.075));
+              for (var hy0 = marginY; hy0 + hCandH <= maxY; hy0 += hStepY) {
+                for (var hx0 = marginX; hx0 + hCandW <= maxX; hx0 += hStepX) {
+                  var hsc = scoreCandidateBox(hx0, hy0, hx0 + hCandW, hy0 + hCandH, false);
+                  if (hsc > bestHorizPortScore) bestHorizPortScore = hsc;
+                }
+              }
+            }
+          }
+          if (bestScore <= 0 && bestHorizPortScore > 0 && actW > actH * 1.15) {
+            return autoDetectCardQuad(img, (normRot + 90) % 360, flipH, null, null, 'check180', activeOrient);
+          }
         }
       }
 
@@ -778,9 +1045,11 @@
                 var nx0 = base.x0 + dx0, ny0 = base.y0 + dy0;
                 var nx1 = base.x1 + dx1, ny1 = base.y1 + dy1;
                 if (nx0 < marginX || ny0 < marginY || nx1 > maxX || ny1 > maxY) continue;
-                var nAsp = (nx1 - nx0) / Math.max(1, ny1 - ny0);
+                var nAsp = isPortraitTarget
+                  ? (ny1 - ny0) / Math.max(1, nx1 - nx0)
+                  : (nx1 - nx0) / Math.max(1, ny1 - ny0);
                 if (nAsp < 1.36 || nAsp > 1.68) continue;
-                var nsc = scoreCandidateBox(nx0, ny0, nx1, ny1);
+                var nsc = scoreCandidateBox(nx0, ny0, nx1, ny1, isPortraitTarget);
                 if (nsc > bestScore) {
                   bestScore = nsc;
                   bestBox = { x0: nx0, y0: ny0, x1: nx1, y1: ny1, score: nsc };
@@ -818,45 +1087,116 @@
           var botBandU = uReg(0.08, 0.74, 0.92, 0.95);
           var topHalfU = uReg(0.06, 0.05, 0.94, 0.48);
           var botHalfU = uReg(0.06, 0.52, 0.94, 0.95);
-          var leftPhotoU = uReg(0.05, 0.24, 0.34, 0.86);
-          var rightPhotoU = uReg(0.66, 0.14, 0.95, 0.76);
-          var tlEmblemU = uReg(0.04, 0.05, 0.22, 0.30);
-          var brEmblemU = uReg(0.78, 0.70, 0.96, 0.95);
-
           var topVsBotU = (topBandU.hEdge - botBandU.hEdge) * 1.1 + (topBandU.edge - botBandU.edge) * 0.35 + (topHalfU.hEdge - botHalfU.hEdge);
-          var tlVsBrU = (tlEmblemU.hEdge - brEmblemU.hEdge) * 1.1 + (tlEmblemU.edge - brEmblemU.edge) * 0.4 + (tlEmblemU.redEx - brEmblemU.redEx) * 4.5;
-          var photoLumDiff = Math.abs(leftPhotoU.edge - rightPhotoU.edge) > 3.5 ? Math.max(-35, Math.min(110, rightPhotoU.lum - leftPhotoU.lum)) * 0.35 : 0;
-          var leftVsRightU = (leftPhotoU.edge - rightPhotoU.edge) * 1.6 + photoLumDiff;
-          var uprightScore = topVsBotU + tlVsBrU + leftVsRightU;
 
-          var flipThreshold = allowAutoRotate === 'check180' ? 0 : -20;
-          if (uprightScore < flipThreshold) {
-            return autoDetectCardQuad(img, (normRot + 180) % 360, flipH, null, null, false);
+          if (!isPortraitTarget) {
+            var leftPhotoU = uReg(0.05, 0.24, 0.34, 0.86);
+            var rightPhotoU = uReg(0.66, 0.14, 0.95, 0.76);
+            var tlEmblemU = uReg(0.04, 0.05, 0.22, 0.30);
+            var brEmblemU = uReg(0.78, 0.70, 0.96, 0.95);
+
+            var tlVsBrU = (tlEmblemU.hEdge - brEmblemU.hEdge) * 1.1 + (tlEmblemU.edge - brEmblemU.edge) * 0.4 + (tlEmblemU.redEx - brEmblemU.redEx) * 4.5;
+            var photoLumDiff = Math.abs(leftPhotoU.edge - rightPhotoU.edge) > 3.5 ? Math.max(-35, Math.min(110, rightPhotoU.lum - leftPhotoU.lum)) * 0.35 : 0;
+            var leftVsRightU = (leftPhotoU.edge - rightPhotoU.edge) * 1.6 + photoLumDiff;
+            var uprightScore = topVsBotU + tlVsBrU + leftVsRightU;
+
+            var flipThreshold = allowAutoRotate === 'check180' ? 0 : -20;
+            if (uprightScore < flipThreshold) {
+              return autoDetectCardQuad(img, (normRot + 180) % 360, flipH, null, null, false, activeOrient);
+            }
+          } else if (allowAutoRotate === 'check180' && topVsBotU < -24) {
+            return autoDetectCardQuad(img, (normRot + 180) % 360, flipH, null, null, false, activeOrient);
           }
         }
-        var cx = (bestBox.x0 + bestBox.x1) * 0.5;
-        var cy = (bestBox.y0 + bestBox.y1) * 0.5;
+        // Stage 3: High-Resolution Sub-Degree Radon Tilt, Glare/Chroma-Aware Edge Peak & 7-Slice Perspective RANSAC
+        var isSmallCardOnPage = (bw * bh) < (aw * ah * 0.24);
+        var hiMaxDim = isSmallCardOnPage ? 920 : 680;
+        var hiCanvas = buildRotatedCanvas(img, normRot, hiMaxDim, flipH || 1);
+        var s3w = hiCanvas.width, s3h = hiCanvas.height;
+        var scaleX3 = s3w / aw, scaleY3 = s3h / ah;
+        var pxS = Math.max(1, Math.min(s3w, s3h) / 255);
+        var s3Data = data;
+        var s3GxSigned = gxSigned, s3GySigned = gySigned, s3GradMag = gradMag, s3StructMap = structMap;
+        var bx0_3 = bestBox.x0, by0_3 = bestBox.y0, bx1_3 = bestBox.x1, by1_3 = bestBox.y1;
+        var s3MarginX = marginX, s3MarginY = marginY, s3MaxX = maxX, s3MaxY = maxY;
+
+        if (s3w !== aw || s3h !== ah) {
+          var hiCtx = hiCanvas.getContext('2d', { willReadFrequently: true });
+          s3Data = hiCtx.getImageData(0, 0, s3w, s3h).data;
+          bx0_3 = Math.round(bestBox.x0 * scaleX3);
+          by0_3 = Math.round(bestBox.y0 * scaleY3);
+          bx1_3 = Math.round(bestBox.x1 * scaleX3);
+          by1_3 = Math.round(bestBox.y1 * scaleY3);
+          s3MarginX = Math.round(marginX * scaleX3);
+          s3MarginY = Math.round(marginY * scaleY3);
+          s3MaxX = Math.min(s3w - 2, Math.round(maxX * scaleX3));
+          s3MaxY = Math.min(s3h - 2, Math.round(maxY * scaleY3));
+
+          var pad3X = Math.max(16, Math.round((bx1_3 - bx0_3) * 0.24));
+          var pad3Y = Math.max(16, Math.round((by1_3 - by0_3) * 0.26));
+          var rx0_3 = Math.max(1, bx0_3 - pad3X), ry0_3 = Math.max(1, by0_3 - pad3Y);
+          var rx1_3 = Math.min(s3w - 1, bx1_3 + pad3X), ry1_3 = Math.min(s3h - 1, by1_3 + pad3Y);
+
+          s3GxSigned = new Float32Array(s3w * s3h);
+          s3GySigned = new Float32Array(s3w * s3h);
+          s3GradMag = new Float32Array(s3w * s3h);
+          s3StructMap = new Float32Array(s3w * s3h);
+
+          for (var hy = ry0_3; hy < ry1_3; hy++) {
+            var hr0 = (hy - 1) * s3w, hr1 = hy * s3w, hr2 = (hy + 1) * s3w;
+            for (var hx = rx0_3; hx < rx1_3; hx++) {
+              var hBestSx = 0, hBestSy = 0, hMaxAx = 0, hMaxAy = 0;
+              for (var hc = 0; hc < 3; hc++) {
+                var hp00 = s3Data[(hr0 + hx - 1) * 4 + hc], hp01 = s3Data[(hr0 + hx) * 4 + hc], hp02 = s3Data[(hr0 + hx + 1) * 4 + hc];
+                var hp10 = s3Data[(hr1 + hx - 1) * 4 + hc],                                     hp12 = s3Data[(hr1 + hx + 1) * 4 + hc];
+                var hp20 = s3Data[(hr2 + hx - 1) * 4 + hc], hp21 = s3Data[(hr2 + hx) * 4 + hc], hp22 = s3Data[(hr2 + hx + 1) * 4 + hc];
+                var hsx = ((hp02 + 2 * hp12 + hp22) - (hp00 + 2 * hp10 + hp20)) * 0.25;
+                var hsy = ((hp20 + 2 * hp21 + hp22) - (hp00 + 2 * hp01 + hp02)) * 0.25;
+                if (Math.abs(hsx) > hMaxAx) { hMaxAx = Math.abs(hsx); hBestSx = hsx; }
+                if (Math.abs(hsy) > hMaxAy) { hMaxAy = Math.abs(hsy); hBestSy = hsy; }
+              }
+              var hIdx = hr1 + hx;
+              s3GxSigned[hIdx] = hBestSx;
+              s3GySigned[hIdx] = hBestSy;
+              var hgm = Math.hypot(hMaxAx, hMaxAy);
+              s3GradMag[hIdx] = hgm;
+              s3StructMap[hIdx] = hgm > noiseFloor ? Math.min(95, hgm - noiseFloor) : 0;
+            }
+          }
+        }
+
+        var bw3 = Math.max(20, bx1_3 - bx0_3);
+        var bh3 = Math.max(16, by1_3 - by0_3);
+        var cx = (bx0_3 + bx1_3) * 0.5;
+        var cy = (by0_3 + by1_3) * 0.5;
         var cardArea = Math.max(1, bw * bh);
         var cardR = rectSum(satR, bestBox.x0, bestBox.y0, bestBox.x1, bestBox.y1) / cardArea;
         var cardG = rectSum(satG, bestBox.x0, bestBox.y0, bestBox.x1, bestBox.y1) / cardArea;
         var cardB = rectSum(satB, bestBox.x0, bestBox.y0, bestBox.x1, bestBox.y1) / cardArea;
         var meanCardLum = cardR + cardG + cardB;
         var subR = 0, subG = 0, subB = 0, subN = 0;
+        var pureSubSamples = [];
 
         var actX = [], actY = [], actGx = [], actGy = [];
-        for (var py = bestBox.y0; py < bestBox.y1; py++) {
-          for (var px = bestBox.x0; px < bestBox.x1; px++) {
-            var pIdx2 = py * aw + px;
+        var stepAct = s3w > 420 ? 2 : 1;
+        for (var py = by0_3; py < by1_3; py += stepAct) {
+          for (var px = bx0_3; px < bx1_3; px += stepAct) {
+            var pIdx2 = py * s3w + px;
             var pi2_4 = pIdx2 * 4;
-            var pLum = data[pi2_4] + data[pi2_4 + 1] + data[pi2_4 + 2];
+            var pr2 = s3Data[pi2_4], pg2 = s3Data[pi2_4 + 1], pb2 = s3Data[pi2_4 + 2];
+            var pLum = pr2 + pg2 + pb2;
             if (pLum >= meanCardLum) {
-              subR += data[pi2_4]; subG += data[pi2_4 + 1]; subB += data[pi2_4 + 2]; subN++;
+              subR += pr2; subG += pg2; subB += pb2; subN++;
+              var pChr2 = Math.max(pr2, pg2, pb2) - Math.min(pr2, pg2, pb2);
+              if (pChr2 <= 24 && s3GradMag[pIdx2] <= noiseFloor * 1.65) {
+                pureSubSamples.push({ r: pr2, g: pg2, b: pb2, lum: pLum });
+              }
             }
-            if (gradMag[pIdx2] > noiseFloor * 1.2) {
+            if (s3GradMag[pIdx2] > noiseFloor * 1.2) {
               actX.push(px - cx);
               actY.push(py - cy);
-              actGx.push(gxSigned[pIdx2]);
-              actGy.push(gySigned[pIdx2]);
+              actGx.push(s3GxSigned[pIdx2]);
+              actGy.push(s3GySigned[pIdx2]);
             }
           }
         }
@@ -865,19 +1205,33 @@
           cardG = subG / subN;
           cardB = subB / subN;
         }
+        var cardSubR = cardR, cardSubG = cardG, cardSubB = cardB;
+        if (pureSubSamples.length >= 20) {
+          pureSubSamples.sort(function (a, b) { return a.lum - b.lum; });
+          var psStart = Math.floor(pureSubSamples.length * 0.45);
+          var psEnd = Math.max(psStart + 1, Math.floor(pureSubSamples.length * 0.94));
+          var psR = 0, psG = 0, psB = 0, psN = 0;
+          for (var psi = psStart; psi < psEnd; psi++) {
+            psR += pureSubSamples[psi].r;
+            psG += pureSubSamples[psi].g;
+            psB += pureSubSamples[psi].b;
+            psN++;
+          }
+          if (psN > 0) {
+            cardSubR = psR / psN;
+            cardSubG = psG / psN;
+            cardSubB = psB / psN;
+          }
+        }
 
         var bestAngle = 0;
         if (actX.length >= 24) {
-          var nBins = 56;
+          var nBins = 64;
           var histU = new Float32Array(nBins);
           var histV = new Float32Array(nBins);
-          var maxSpan = Math.hypot(bw, bh) * 0.55;
-          var scoreAtZero = 0;
-          var bestRadonScore = -1;
-          var bestDeg = 0;
-
-          for (var deg = -28; deg <= 28; deg += 1) {
-            var rad = (deg * Math.PI) / 180;
+          var maxSpan = Math.hypot(bw3, bh3) * 0.55;
+          var evalRadonDeg = function (degVal) {
+            var rad = (degVal * Math.PI) / 180;
             var cosA = Math.cos(rad), sinA = Math.sin(rad);
             histU.fill(0);
             histV.fill(0);
@@ -895,32 +1249,131 @@
             for (var b = 0; b < nBins; b++) {
               rScore += histV[b] * histV[b] + histU[b] * histU[b] * 0.65;
             }
-            if (deg === 0) scoreAtZero = rScore;
+            return rScore;
+          };
+
+          var scoreAtZero = evalRadonDeg(0);
+          var bestRadonScore = scoreAtZero;
+          var bestDeg = 0;
+
+          for (var deg = -28; deg <= 28; deg += 1) {
+            var rScore = deg === 0 ? scoreAtZero : evalRadonDeg(deg);
             if (rScore > bestRadonScore) {
               bestRadonScore = rScore;
               bestDeg = deg;
             }
           }
-          if (Math.abs(bestDeg) >= 2 && bestRadonScore > scoreAtZero * 1.12) {
+          // Sub-degree 0.25° refinement around bestDeg so 0.5°..2.0° card tilts lock cleanly
+          var coarseCenter = bestDeg;
+          for (var fDeg = coarseCenter - 1.25; fDeg <= coarseCenter + 1.25; fDeg += 0.25) {
+            var fScore = evalRadonDeg(fDeg);
+            if (fScore > bestRadonScore) {
+              bestRadonScore = fScore;
+              bestDeg = fDeg;
+            }
+          }
+          if ((Math.abs(bestDeg) >= 2 && bestRadonScore > scoreAtZero * 1.10) ||
+              (Math.abs(bestDeg) >= 0.5 && bestRadonScore > scoreAtZero * 1.035)) {
             bestAngle = (bestDeg * Math.PI) / 180;
           }
         }
 
         var cosB = Math.cos(bestAngle), sinB = Math.sin(bestAngle);
-        var minU = -bw * 0.5, maxU = bw * 0.5;
-        var minV = -bh * 0.5, maxV = bh * 0.5;
+        var minU = -bw3 * 0.5, maxU = bw3 * 0.5;
+        var minV = -bh3 * 0.5, maxV = bh3 * 0.5;
 
-        if (Math.abs(bestAngle) > 0.03) {
-          var roiX0 = Math.max(marginX, Math.round(bestBox.x0 - bw * 0.18));
-          var roiY0 = Math.max(marginY, Math.round(bestBox.y0 - bh * 0.18));
-          var roiX1 = Math.min(maxX, Math.round(bestBox.x1 + bw * 0.18));
-          var roiY1 = Math.min(maxY, Math.round(bestBox.y1 + bh * 0.18));
+        var cardLum = cardR + cardG + cardB;
+        var cardSubLum = cardSubR + cardSubG + cardSubB;
+        var cardChroma = Math.max(cardR, cardG, cardB) - Math.min(cardR, cardG, cardB);
+        var cardSubChroma = Math.max(cardSubR, cardSubG, cardSubB) - Math.min(cardSubR, cardSubG, cardSubB);
+        var cardRG = cardR - cardG, cardRB = cardR - cardB, cardGB = cardG - cardB;
+        var cardBgDist = Math.hypot(cardR - bgR, cardG - bgG, cardB - bgB);
+        var bgLumGlobal = bgR + bgG + bgB;
+        var bgChromaGlobal = Math.max(bgR, bgG, bgB) - Math.min(bgR, bgG, bgB);
+        var isWhitePageBg = (cardBgDist < 68 && (bw * bh) < (aw * ah) * 0.56) ||
+                            (bgLumGlobal >= 520 && bgChromaGlobal <= 36 && (bw * bh) < (aw * ah) * 0.62);
+
+        var flatbedColorDist = function (r, g, b, refR, refG, refB) {
+          var dr = r - refR, dg = g - refG, db = b - refB;
+          var euc = Math.hypot(dr, dg, db);
+          var dChr = Math.hypot(dr - dg, dr - db, dg - db);
+          return Math.hypot(euc * 0.75, dChr * 1.85);
+        };
+
+        var sampleLocalSideBg = function (isHorizontal, outSign) {
+          var dMin = Math.round(13 * pxS), dMax = Math.round(28 * pxS);
+          var sx0, sy0, sx1, sy1;
+          if (isHorizontal) {
+            sx0 = Math.max(s3MarginX + 2, bx0_3);
+            sx1 = Math.min(s3MaxX - 2, bx1_3);
+            if (outSign < 0) {
+              sy0 = Math.max(s3MarginY + 2, by0_3 - dMax);
+              sy1 = Math.max(sy0, by0_3 - dMin);
+            } else {
+              sy0 = Math.min(s3MaxY - 2, by1_3 + dMin);
+              sy1 = Math.min(s3MaxY - 2, by1_3 + dMax);
+            }
+          } else {
+            sy0 = Math.max(s3MarginY + 2, by0_3);
+            sy1 = Math.min(s3MaxY - 2, by1_3);
+            if (outSign < 0) {
+              sx0 = Math.max(s3MarginX + 2, bx0_3 - dMax);
+              sx1 = Math.max(sx0, bx0_3 - dMin);
+            } else {
+              sx0 = Math.min(s3MaxX - 2, bx1_3 + dMin);
+              sx1 = Math.min(s3MaxX - 2, bx1_3 + dMax);
+            }
+          }
+          var sumR = 0, sumG = 0, sumB = 0, cnt = 0;
+          for (var yy = sy0; yy < sy1; yy += 2) {
+            for (var xx = sx0; xx < sx1; xx += 2) {
+              if (s3GradMag[yy * s3w + xx] <= noiseFloor * 1.8) {
+                var o4 = (yy * s3w + xx) * 4;
+                sumR += s3Data[o4]; sumG += s3Data[o4 + 1]; sumB += s3Data[o4 + 2];
+                cnt++;
+              }
+            }
+          }
+          if (cnt >= 14) {
+            return { r: sumR / cnt, g: sumG / cnt, b: sumB / cnt };
+          }
+          return { r: bgR, g: bgG, b: bgB };
+        };
+
+        var bgChroma3 = Math.max(bgR, bgG, bgB) - Math.min(bgR, bgG, bgB);
+        var bgRG3 = bgR - bgG, bgRB3 = bgR - bgB, bgGB3 = bgG - bgB;
+        var cardSurfaceDist = function (r, g, b) {
+          var rawD = Math.hypot(r - cardR, g - cardG, b - cardB);
+          var subD = Math.hypot(r - cardSubR, g - cardSubG, b - cardSubB);
+          var cShift = Math.hypot((r - g) - cardRG, (r - b) - cardRB, (g - b) - cardGB);
+          var ch = Math.max(r, g, b) - Math.min(r, g, b);
+          var lm = r + g + b;
+          if (!isWhitePageBg && lm >= cardLum * 0.90 && r > 202 && g > 202 && b > 196 && ch <= Math.max(20, cardChroma + 12) && cShift <= 20) {
+            return Math.min(rawD, subD, 22);
+          }
+          if (isWhitePageBg) {
+            var subFlatD = flatbedColorDist(r, g, b, cardSubR, cardSubG, cardSubB);
+            if (ch > bgChroma3 + 10) {
+              var dBgChr = Math.hypot((r - g) - bgRG3, (r - b) - bgRB3, (g - b) - bgGB3);
+              var isWarmPouchTint = (cardSubG <= Math.max(cardSubR, cardSubB) + 3 && lm >= bgLumGlobal - 90 && r >= g && g >= b && dBgChr < 28 && subFlatD > 30);
+              if (!isWarmPouchTint) return Math.min(rawD, subFlatD);
+            }
+            return subFlatD;
+          }
+          return Math.max(Math.min(rawD, subD * 1.05), cShift * 1.28);
+        };
+
+        if (Math.abs(bestAngle) > 0.055) {
+          var roiX0 = Math.max(s3MarginX, Math.round(bx0_3 - bw3 * 0.18));
+          var roiY0 = Math.max(s3MarginY, Math.round(by0_3 - bh3 * 0.18));
+          var roiX1 = Math.min(s3MaxX, Math.round(bx1_3 + bw3 * 0.18));
+          var roiY1 = Math.min(s3MaxY, Math.round(by1_3 + bh3 * 0.18));
           var uVals = [], vVals = [];
-          for (var ry = roiY0; ry < roiY1; ry++) {
-            for (var rx = roiX0; rx < roiX1; rx++) {
-              var ri = (ry * aw + rx) * 4;
-              var dCard = Math.hypot(data[ri] - cardR, data[ri + 1] - cardG, data[ri + 2] - cardB);
-              if ((dCard < 55 && structMap[ry * aw + rx] > noiseFloor * 0.6) || gradMag[ry * aw + rx] > noiseFloor * 1.45) {
+          for (var ry = roiY0; ry < roiY1; ry += stepAct) {
+            for (var rx = roiX0; rx < roiX1; rx += stepAct) {
+              var ri = (ry * s3w + rx) * 4;
+              var dCard = cardSurfaceDist(s3Data[ri], s3Data[ri + 1], s3Data[ri + 2]);
+              if ((dCard < 52 && s3StructMap[ry * s3w + rx] > noiseFloor * 0.6) || (dCard < 62 && s3GradMag[ry * s3w + rx] > noiseFloor * 1.45)) {
                 var dx = rx - cx, dy = ry - cy;
                 uVals.push(dx * cosB + dy * sinB);
                 vVals.push(-dx * sinB + dy * cosB);
@@ -939,18 +1392,29 @@
 
         var spanU = Math.max(20, maxU - minU);
         var spanV = Math.max(16, maxV - minV);
-        var cardLum = cardR + cardG + cardB;
-        var cardChroma = Math.max(cardR, cardG, cardB) - Math.min(cardR, cardG, cardB);
-        var cardBgDist = Math.hypot(cardR - bgR, cardG - bgG, cardB - bgB);
-        var isWhitePageBg = (cardBgDist < 65 && (bw * bh) < (aw * ah) * 0.48);
 
-        var findBestBoundaryPeak = function (baseCoord, searchIn, searchOut, tStart, tEnd, isHorizontal, outSign) {
+        var cardPxS = Math.max(0.95, Math.min(pxS, Math.min(Math.max(spanU, spanV) / 170, Math.min(spanU, spanV) / 112)));
+        var cPx = isWhitePageBg ? cardPxS : pxS;
+        var dNear = 1.15 * cPx;
+        var dIn1 = 1.25 * cPx, dIn2 = (isWhitePageBg ? 2.5 : 2.6) * cPx, dIn3 = (isWhitePageBg ? 5.0 : 5.5) * cPx;
+        var dOut1 = (isWhitePageBg ? 1.35 : 1.6) * cPx;
+        var dOut2 = (isWhitePageBg ? 2.55 : 3.0) * cPx;
+        var dOutM = (isWhitePageBg ? 3.95 : 4.6) * cPx;
+        var dOutF = (isWhitePageBg ? 6.2 : 7.5) * cPx;
+        var dOutW = 8.8 * cPx;
+
+        var findBestBoundaryPeak = function (baseCoord, searchIn, searchOut, tStart, tEnd, isHorizontal, outSign, sideBg) {
+          var sBgR = sideBg ? sideBg.r : bgR, sBgG = sideBg ? sideBg.g : bgG, sBgB = sideBg ? sideBg.b : bgB;
+          var sBgLum = sBgR + sBgG + sBgB;
+          var sBgChroma = Math.max(sBgR, sBgG, sBgB) - Math.min(sBgR, sBgG, sBgB);
+          var subToSideBgDist = flatbedColorDist(cardSubR, cardSubG, cardSubB, sBgR, sBgG, sBgB);
           var bestCoord = baseCoord;
           var bestVal = -1;
-          var steps = 16;
+          var steps = 18;
+          var dStepPeak = cPx > 1.55 ? 0.75 : 0.5;
           var biasX = isHorizontal ? (-sinB * outSign * 1e-4) : (cosB * outSign * 1e-4);
           var biasY = isHorizontal ? (cosB * outSign * 1e-4) : (sinB * outSign * 1e-4);
-          for (var d = -searchIn; d <= searchOut; d += 0.5) {
+          for (var d = -searchIn; d <= searchOut; d += dStepPeak) {
             var coord = baseCoord + outSign * d;
             var sumScore = 0, valid = 0;
             for (var s = 1; s < steps; s++) {
@@ -960,20 +1424,28 @@
               var ix = Math.round(cx + u * cosB - v * sinB + biasX);
               var iy = Math.round(cy + u * sinB + v * cosB + biasY);
 
-              var uIn = isHorizontal ? t : (coord - outSign * 1.0);
-              var vIn = isHorizontal ? (coord - outSign * 1.0) : t;
-              var uIn2 = isHorizontal ? t : (coord - outSign * 2.5);
-              var vIn2 = isHorizontal ? (coord - outSign * 2.5) : t;
-              var uIn3 = isHorizontal ? t : (coord - outSign * 5.5);
-              var vIn3 = isHorizontal ? (coord - outSign * 5.5) : t;
-              var uOut1 = isHorizontal ? t : (coord + outSign * 1.5);
-              var vOut1 = isHorizontal ? (coord + outSign * 1.5) : t;
-              var uOut = isHorizontal ? t : (coord + outSign * 3.0);
-              var vOut = isHorizontal ? (coord + outSign * 3.0) : t;
-              var uOutM = isHorizontal ? t : (coord + outSign * 4.5);
-              var vOutM = isHorizontal ? (coord + outSign * 4.5) : t;
-              var uOutF = isHorizontal ? t : (coord + outSign * 7.5);
-              var vOutF = isHorizontal ? (coord + outSign * 7.5) : t;
+              var uNearIn = isHorizontal ? t : (coord - outSign * dNear);
+              var vNearIn = isHorizontal ? (coord - outSign * dNear) : t;
+              var uNearOut = isHorizontal ? t : (coord + outSign * dNear);
+              var vNearOut = isHorizontal ? (coord + outSign * dNear) : t;
+              var uIn = isHorizontal ? t : (coord - outSign * dIn1);
+              var vIn = isHorizontal ? (coord - outSign * dIn1) : t;
+              var uIn2 = isHorizontal ? t : (coord - outSign * dIn2);
+              var vIn2 = isHorizontal ? (coord - outSign * dIn2) : t;
+              var uIn3 = isHorizontal ? t : (coord - outSign * dIn3);
+              var vIn3 = isHorizontal ? (coord - outSign * dIn3) : t;
+              var uOut1 = isHorizontal ? t : (coord + outSign * dOut1);
+              var vOut1 = isHorizontal ? (coord + outSign * dOut1) : t;
+              var uOut = isHorizontal ? t : (coord + outSign * dOut2);
+              var vOut = isHorizontal ? (coord + outSign * dOut2) : t;
+              var uOutM = isHorizontal ? t : (coord + outSign * dOutM);
+              var vOutM = isHorizontal ? (coord + outSign * dOutM) : t;
+              var uOutF = isHorizontal ? t : (coord + outSign * dOutF);
+              var vOutF = isHorizontal ? (coord + outSign * dOutF) : t;
+              var ixNearIn = Math.max(0, Math.min(s3w - 1, Math.round(cx + uNearIn * cosB - vNearIn * sinB + biasX)));
+              var iyNearIn = Math.max(0, Math.min(s3h - 1, Math.round(cy + uNearIn * sinB + vNearIn * cosB + biasY)));
+              var ixNearOut = Math.max(0, Math.min(s3w - 1, Math.round(cx + uNearOut * cosB - vNearOut * sinB + biasX)));
+              var iyNearOut = Math.max(0, Math.min(s3h - 1, Math.round(cy + uNearOut * sinB + vNearOut * cosB + biasY)));
               var ixIn = Math.round(cx + uIn * cosB - vIn * sinB + biasX);
               var iyIn = Math.round(cy + uIn * sinB + vIn * cosB + biasY);
               var ixIn2 = Math.round(cx + uIn2 * cosB - vIn2 * sinB + biasX);
@@ -984,65 +1456,198 @@
               var rawIyOut1 = Math.round(cy + uOut1 * sinB + vOut1 * cosB + biasY);
               var rawIxOut = Math.round(cx + uOut * cosB - vOut * sinB + biasX);
               var rawIyOut = Math.round(cy + uOut * sinB + vOut * cosB + biasY);
-              var ixOut1 = Math.max(0, Math.min(aw - 1, rawIxOut1));
-              var iyOut1 = Math.max(0, Math.min(ah - 1, rawIyOut1));
-              var ixOut = Math.max(0, Math.min(aw - 1, rawIxOut));
-              var iyOut = Math.max(0, Math.min(ah - 1, rawIyOut));
+              var ixOut1 = Math.max(0, Math.min(s3w - 1, rawIxOut1));
+              var iyOut1 = Math.max(0, Math.min(s3h - 1, rawIyOut1));
+              var ixOut = Math.max(0, Math.min(s3w - 1, rawIxOut));
+              var iyOut = Math.max(0, Math.min(s3h - 1, rawIyOut));
               var rawIxOutM = Math.round(cx + uOutM * cosB - vOutM * sinB + biasX);
               var rawIyOutM = Math.round(cy + uOutM * sinB + vOutM * cosB + biasY);
               var rawIxOutF = Math.round(cx + uOutF * cosB - vOutF * sinB + biasX);
               var rawIyOutF = Math.round(cy + uOutF * sinB + vOutF * cosB + biasY);
-              var outTouchesFrameBorder = (rawIxOut < 1 || rawIxOut >= aw - 1 || rawIyOut < 1 || rawIyOut >= ah - 1);
+              var outTouchesFrameBorder = (rawIxOut < 1 || rawIxOut >= s3w - 1 || rawIyOut < 1 || rawIyOut >= s3h - 1);
 
-              if (ix >= 1 && ix < aw - 1 && iy >= 1 && iy < ah - 1 &&
-                  ixIn >= 0 && ixIn < aw && iyIn >= 0 && iyIn < ah &&
-                  ixIn2 >= 0 && ixIn2 < aw && iyIn2 >= 0 && iyIn2 < ah &&
-                  ixIn3 >= 0 && ixIn3 < aw && iyIn3 >= 0 && iyIn3 < ah) {
-                var pIdx3 = iy * aw + ix;
+              if (ix >= 1 && ix < s3w - 1 && iy >= 1 && iy < s3h - 1 &&
+                  ixIn >= 0 && ixIn < s3w && iyIn >= 0 && iyIn < s3h &&
+                  ixIn2 >= 0 && ixIn2 < s3w && iyIn2 >= 0 && iyIn2 < s3h &&
+                  ixIn3 >= 0 && ixIn3 < s3w && iyIn3 >= 0 && iyIn3 < s3h) {
+                var pIdx3 = iy * s3w + ix;
                 var gTang = isHorizontal
-                  ? Math.abs(-gxSigned[pIdx3] * sinB + gySigned[pIdx3] * cosB)
-                  : Math.abs(gxSigned[pIdx3] * cosB + gySigned[pIdx3] * sinB);
+                  ? Math.abs(-s3GxSigned[pIdx3] * sinB + s3GySigned[pIdx3] * cosB)
+                  : Math.abs(s3GxSigned[pIdx3] * cosB + s3GySigned[pIdx3] * sinB);
                 var gOrtho = isHorizontal
-                  ? Math.abs(gxSigned[pIdx3] * cosB + gySigned[pIdx3] * sinB)
-                  : Math.abs(-gxSigned[pIdx3] * sinB + gySigned[pIdx3] * cosB);
+                  ? Math.abs(s3GxSigned[pIdx3] * cosB + s3GySigned[pIdx3] * sinB)
+                  : Math.abs(-s3GxSigned[pIdx3] * sinB + s3GySigned[pIdx3] * cosB);
                 var pureG = Math.max(0, gTang - 0.35 * gOrtho);
 
                 var i0_4 = pIdx3 * 4;
-                var iIn4 = (iyIn * aw + ixIn) * 4;
-                var iIn2_4 = (iyIn2 * aw + ixIn2) * 4;
-                var iIn3_4 = (iyIn3 * aw + ixIn3) * 4;
-                var iOut1_4 = (iyOut1 * aw + ixOut1) * 4;
-                var iOut4 = (iyOut * aw + ixOut) * 4;
-                var r0 = data[i0_4], g0 = data[i0_4 + 1], b0 = data[i0_4 + 2];
-                var r1 = data[iIn4], g1 = data[iIn4 + 1], b1 = data[iIn4 + 2];
-                var r2 = data[iIn2_4], g2 = data[iIn2_4 + 1], b2 = data[iIn2_4 + 2];
-                var r3 = data[iIn3_4], g3 = data[iIn3_4 + 1], b3 = data[iIn3_4 + 2];
-                var rOut1 = data[iOut1_4], gOut1 = data[iOut1_4 + 1], bOut1 = data[iOut1_4 + 2];
-                var rOut = data[iOut4], gOut = data[iOut4 + 1], bOut = data[iOut4 + 2];
-                var step1 = Math.hypot(rOut1 - r1, gOut1 - g1, bOut1 - b1);
-                var step2 = Math.hypot(rOut - r1, gOut - g1, bOut - b1);
-                var directStep = step1 * 0.65 + step2 * 0.35;
-                var distIn = Math.hypot(r1 - cardR, g1 - cardG, b1 - cardB);
-                var distIn2 = Math.hypot(r2 - cardR, g2 - cardG, b2 - cardB);
-                var distIn3 = Math.hypot(r3 - cardR, g3 - cardG, b3 - cardB);
-                var distOut1 = Math.hypot(rOut1 - cardR, gOut1 - cardG, bOut1 - cardB);
-                var distOut = Math.hypot(rOut - cardR, gOut - cardG, bOut - cardB);
-                var dOutBg1 = Math.hypot(rOut1 - bgR, gOut1 - bgG, bOut1 - bgB);
-                var dOutBg2 = Math.hypot(rOut - bgR, gOut - bgG, bOut - bgB);
-                var colorTransition = Math.max(0, (distOut1 * 0.65 + distOut * 0.35) - distIn);
-                var pDist1 = (r1 > 212 && g1 > 205 && (b1 - r1) <= 8) ? Math.min(distIn, 38) : distIn;
-                var pDist2 = (r2 > 212 && g2 > 205 && (b2 - r2) <= 8) ? Math.min(distIn2, 38) : distIn2;
-                var pDist3 = (r3 > 212 && g3 > 205 && (b3 - r3) <= 8) ? Math.min(distIn3, 38) : distIn3;
-                var nearIn = Math.min(pDist1, pDist2);
-                var deepIn = Math.min(pDist2, pDist3);
+                var iNearIn4 = (iyNearIn * s3w + ixNearIn) * 4;
+                var iNearOut4 = (iyNearOut * s3w + ixNearOut) * 4;
+                var iIn4 = (iyIn * s3w + ixIn) * 4;
+                var iIn2_4 = (iyIn2 * s3w + ixIn2) * 4;
+                var iIn3_4 = (iyIn3 * s3w + ixIn3) * 4;
+                var iOut1_4 = (iyOut1 * s3w + ixOut1) * 4;
+                var iOut4 = (iyOut * s3w + ixOut) * 4;
+                var r0 = s3Data[i0_4], g0 = s3Data[i0_4 + 1], b0 = s3Data[i0_4 + 2];
+                var rNIn = s3Data[iNearIn4], gNIn = s3Data[iNearIn4 + 1], bNIn = s3Data[iNearIn4 + 2];
+                var rNOut = s3Data[iNearOut4], gNOut = s3Data[iNearOut4 + 1], bNOut = s3Data[iNearOut4 + 2];
+                var r1 = s3Data[iIn4], g1 = s3Data[iIn4 + 1], b1 = s3Data[iIn4 + 2];
+                var r2 = s3Data[iIn2_4], g2 = s3Data[iIn2_4 + 1], b2 = s3Data[iIn2_4 + 2];
+                var r3 = s3Data[iIn3_4], g3 = s3Data[iIn3_4 + 1], b3 = s3Data[iIn3_4 + 2];
+                var rOut1 = s3Data[iOut1_4], gOut1 = s3Data[iOut1_4 + 1], bOut1 = s3Data[iOut1_4 + 2];
+                var rOut = s3Data[iOut4], gOut = s3Data[iOut4 + 1], bOut = s3Data[iOut4 + 2];
+                var lum0 = r0 + g0 + b0;
+                var lumNIn = rNIn + gNIn + bNIn;
+                var lum1 = r1 + g1 + b1;
+                var lum2 = r2 + g2 + b2;
+                var lum3 = r3 + g3 + b3;
+                var lumOut1 = rOut1 + gOut1 + bOut1;
+                var lumOut2 = rOut + gOut + bOut;
+
+                // Prevent dark internal ink strokes (e.g. bottom NID No digits, MRZ, or 1px black border)
+                // from inflating step contrast against the bright card margin outside them
+                var refR1 = r1, refG1 = g1, refB1 = b1;
+                var refRNIn = rNIn, refGNIn = gNIn, refBNIn = bNIn;
+                if (cardSubLum >= 460 && lumOut1 > lum1 + 52 && lum1 < cardSubLum * 0.78) {
+                  if (lum2 >= cardSubLum * 0.84) {
+                    refR1 = r2; refG1 = g2; refB1 = b2;
+                  } else {
+                    refR1 = cardSubR; refG1 = cardSubG; refB1 = cardSubB;
+                  }
+                }
+                if (cardSubLum >= 460 && (rNOut + gNOut + bNOut) > lumNIn + 52 && lumNIn < cardSubLum * 0.78) {
+                  refRNIn = refR1; refGNIn = refG1; refBNIn = refB1;
+                }
+
+                var tightStep = isWhitePageBg
+                  ? flatbedColorDist(rNOut, gNOut, bNOut, refRNIn, refGNIn, refBNIn)
+                  : Math.hypot(rNOut - refRNIn, gNOut - refGNIn, bNOut - refBNIn);
+                var step1 = isWhitePageBg
+                  ? flatbedColorDist(rOut1, gOut1, bOut1, refR1, refG1, refB1)
+                  : Math.hypot(rOut1 - refR1, gOut1 - refG1, bOut1 - refB1);
+                var step2 = isWhitePageBg
+                  ? flatbedColorDist(rOut, gOut, bOut, refR1, refG1, refB1)
+                  : Math.hypot(rOut - refR1, gOut - refG1, bOut - refB1);
+                if (!isWhitePageBg) {
+                  var cStep1 = Math.hypot((rOut1 - gOut1) - (refR1 - refG1), (rOut1 - bOut1) - (refR1 - refB1), (gOut1 - bOut1) - (refG1 - refB1));
+                  var cStep2 = Math.hypot((rOut - gOut) - (refR1 - refG1), (rOut - bOut) - (refR1 - refB1), (gOut - bOut) - (refG1 - refB1));
+                  step1 = Math.max(step1, cStep1 * 0.92);
+                  step2 = Math.max(step2, cStep2 * 0.92);
+                }
+                var distIn = cardSurfaceDist(r1, g1, b1);
+                var distIn2 = cardSurfaceDist(r2, g2, b2);
+                var distIn3 = cardSurfaceDist(r3, g3, b3);
+                var distOut1 = cardSurfaceDist(rOut1, gOut1, bOut1);
+                var distOut = cardSurfaceDist(rOut, gOut, bOut);
+                // On bright pages/lids, prevent plunging from bright card into dark internal ink (e.g. top edge of NID No digits)
+                // from masquerading as a huge background step/color transition
+                if (isWhitePageBg && sBgLum >= 530 && cardSubLum >= 500) {
+                  var darkPlungeThr = Math.min(cardSubLum, sBgLum) * 0.78;
+                  var maxPlungeStep = Math.max(subToSideBgDist * 1.25, 26);
+                  var lumNOut0 = rNOut + gNOut + bNOut;
+                  if (lumNOut0 < darkPlungeThr) tightStep = Math.min(tightStep, maxPlungeStep);
+                  if (lumOut1 < darkPlungeThr) {
+                    step1 = Math.min(step1, maxPlungeStep);
+                    distOut1 = Math.min(distOut1, maxPlungeStep);
+                  }
+                  if (lumOut2 < darkPlungeThr) {
+                    step2 = Math.min(step2, maxPlungeStep);
+                    distOut = Math.min(distOut, maxPlungeStep);
+                  }
+                }
+                var directStep = tightStep * 0.45 + step1 * 0.35 + step2 * 0.20;
+                var dOutBg1 = isWhitePageBg ? flatbedColorDist(rOut1, gOut1, bOut1, sBgR, sBgG, sBgB) : Math.hypot(rOut1 - sBgR, gOut1 - sBgG, bOut1 - sBgB);
+                var dOutBg2 = isWhitePageBg ? flatbedColorDist(rOut, gOut, bOut, sBgR, sBgG, sBgB) : Math.hypot(rOut - sBgR, gOut - sBgG, bOut - sBgB);
+                var colorTransition = Math.max(0, (distOut1 * 0.60 + distOut * 0.40) - Math.min(distIn, distIn2));
+                var nearIn = Math.min(distIn, distIn2);
+                var deepIn = Math.min(distIn2, distIn3);
                 var worstIn = nearIn * 0.72 + deepIn * 0.28;
-                var paperMatch = (nearIn < 46 && worstIn < 54) ? 1.45 : (worstIn < 66 ? 0.78 : 0.22);
+                var paperMatch = (nearIn < 44 && worstIn < 52) ? 1.45 : (worstIn < 64 ? 0.68 : 0.16);
+                // Locally shadowed card rim (e.g. cast shadow on left side of plastic holder while card steps sharply up)
+                if (paperMatch < 1.0 && sBgLum < cardSubLum * 0.74 && lum1 >= sBgLum + 52 && lum1 >= lumOut1 + 28 && lum3 >= lum1 - 18) {
+                  paperMatch = 1.15;
+                }
+                if (isPortraitTarget) {
+                  var inChr1 = Math.max(r1, g1, b1) - Math.min(r1, g1, b1);
+                  var inChr2 = Math.max(r2, g2, b2) - Math.min(r2, g2, b2);
+                  var outChr1 = Math.max(rOut1, gOut1, bOut1) - Math.min(rOut1, gOut1, bOut1);
+                  var dInBg1 = isWhitePageBg ? flatbedColorDist(r1, g1, b1, sBgR, sBgG, sBgB) : Math.hypot(r1 - sBgR, g1 - sBgG, b1 - sBgB);
+                  var dInBg2 = isWhitePageBg ? flatbedColorDist(r2, g2, b2, sBgR, sBgG, sBgB) : Math.hypot(r2 - sBgR, g2 - sBgG, b2 - sBgB);
+                  // Colored ID header/footer banner against outer background sBg: reward true banner-to-desk edge and penalize interior white-to-banner seam
+                  if (paperMatch < 1.0 && Math.max(inChr1, inChr2) > 28 && Math.max(dInBg1, dInBg2) > 48 && dOutBg1 < 30 && dOutBg2 < 32) {
+                    paperMatch = Math.max(paperMatch, 1.35);
+                    colorTransition = Math.max(colorTransition, Math.max(0, Math.max(dInBg1, dInBg2) - dOutBg1) * 0.65);
+                  }
+                  if (paperMatch > 0.25 && outChr1 > 28 && dOutBg1 > 48 && dOutBg2 > 48) {
+                    paperMatch *= 0.08;
+                  }
+                }
+
+                // Prevent wide step1/step2 from pulling a boundary peak 3px away from the actual local transition
+                if (pureG < noiseFloor * 0.45 && tightStep < (isWhitePageBg ? 4.5 : 9)) {
+                  paperMatch *= 0.14;
+                }
 
                 // Penalize dark background pixels just outside the card where only the 3x3 Sobel neighbor touched the card
-                var d0Card = Math.hypot(r0 - cardR, g0 - cardG, b0 - cardB);
-                var d0Bg = Math.hypot(r0 - bgR, g0 - bgG, b0 - bgB);
-                if (d0Card > d0Bg * 1.15 && (r0 + g0 + b0) < cardLum * 0.52) {
+                var d0Card = cardSurfaceDist(r0, g0, b0);
+                var d0Bg = Math.hypot(r0 - sBgR, g0 - sBgG, b0 - sBgB);
+                if (d0Card > d0Bg * 1.15 && lum0 < cardLum * 0.52) {
                   paperMatch *= 0.45;
+                }
+
+                var sampleRelRGB = isWhitePageBg ? function (offsetPx) {
+                  var uP = isHorizontal ? t : (coord + outSign * offsetPx);
+                  var vP = isHorizontal ? (coord + outSign * offsetPx) : t;
+                  var rxP = Math.round(cx + uP * cosB - vP * sinB + biasX);
+                  var ryP = Math.round(cy + uP * sinB + vP * cosB + biasY);
+                  var cxP = Math.max(0, Math.min(s3w - 1, rxP));
+                  var cyP = Math.max(0, Math.min(s3h - 1, ryP));
+                  var iP = (cyP * s3w + cxP) * 4;
+                  return {
+                    r: s3Data[iP], g: s3Data[iP + 1], b: s3Data[iP + 2],
+                    lum: s3Data[iP] + s3Data[iP + 1] + s3Data[iP + 2],
+                    inBounds: rxP >= 2 && rxP < s3w - 2 && ryP >= 2 && ryP < s3h - 2
+                  };
+                } : null;
+
+                // On white flatbed / paper scans, reject outer translucent lamination pouch / plastic rail -> scanner bed transitions
+                // (where the interior inside `coord` is neutral or warm-aged translucent plastic over `sBg` before transitioning inward onto opaque `cardSub`)
+                if (isWhitePageBg && cardSubLum >= sBgLum - 55) {
+                  var lumInAvg = (lum1 + lum2) * 0.5;
+                  var lumOutAvg = (lumOut1 + lumOut2) * 0.5;
+                  var inCh1 = Math.max(r1, g1, b1) - Math.min(r1, g1, b1);
+                  var inCh2 = Math.max(r2, g2, b2) - Math.min(r2, g2, b2);
+                  var inChromaAvg = (inCh1 + inCh2) * 0.5;
+                  var subDistIn1 = flatbedColorDist(r1, g1, b1, cardSubR, cardSubG, cardSubB);
+                  var subDistIn2 = flatbedColorDist(r2, g2, b2, cardSubR, cardSubG, cardSubB);
+                  if (lumInAvg >= sBgLum * 0.42 && lumInAvg <= sBgLum - 18 && lumInAvg <= cardSubLum - 20 &&
+                      lumOutAvg > lumInAvg + 12 && inChromaAvg <= sBgChroma + 6.5 &&
+                      Math.min(subDistIn1, subDistIn2) > 20) {
+                    paperMatch *= 0.06;
+                  }
+                  var lumIn23 = (lum2 + lum3) * 0.5;
+                  var subDistIn3 = flatbedColorDist(r3, g3, b3, cardSubR, cardSubG, cardSubB);
+                  var bgDistIn2 = flatbedColorDist(r2, g2, b2, sBgR, sBgG, sBgB);
+                  var bgDistIn3 = flatbedColorDist(r3, g3, b3, sBgR, sBgG, sBgB);
+                  var minSubIn23 = Math.min(subDistIn2, subDistIn3);
+                  var minBgIn23 = Math.min(bgDistIn2, bgDistIn3);
+                  if (paperMatch > 0 && cardSubG <= Math.max(cardSubR, cardSubB) + 3 &&
+                      sBgLum >= 530 && lumIn23 >= sBgLum * 0.78 && lumIn23 <= sBgLum - 12 &&
+                      lumOutAvg >= lumIn23 + 8 && minSubIn23 >= 25 &&
+                      (minBgIn23 < minSubIn23 * 0.85 || (r2 >= g2 && g2 >= b2 && cardSubB >= cardSubR - 3))) {
+                    var innerPaperHits = 0;
+                    for (var dInP = 5.5 * cPx; dInP <= 26.0 * cPx; dInP += 2.0 * cPx) {
+                      var pInP = sampleRelRGB(-dInP);
+                      if (!pInP.inBounds || pInP.lum < cardSubLum * 0.38) break;
+                      if (flatbedColorDist(pInP.r, pInP.g, pInP.b, cardSubR, cardSubG, cardSubB) < 22 &&
+                          flatbedColorDist(pInP.r, pInP.g, pInP.b, r2, g2, b2) >= 22) {
+                        innerPaperHits++;
+                        if (innerPaperHits >= 2) {
+                          paperMatch = 0;
+                          break;
+                        }
+                      }
+                    }
+                  }
                 }
 
                 // When the card physically touches the image border, treat the frame boundary as a strong outer step
@@ -1051,47 +1656,165 @@
                     directStep = Math.max(directStep, cardBgDist * 0.65);
                     colorTransition = Math.max(colorTransition, cardBgDist * 0.55);
                   }
+                } else if (isWhitePageBg) {
+                  // Flatbed / bright-page internal ink rejection (NID No digits, MRZ text, barcode, Old NID 1px black printed border):
+                  var sampleOutRGB = sampleRelRGB;
+                  var pOut15 = sampleOutRGB((dOut1 + dOut2) * 0.5);
+                  var pOut32 = sampleOutRGB((dOut2 + dOutM) * 0.5);
+                  var pOutM = sampleOutRGB(dOutM);
+                  var pOutF = sampleOutRGB(dOutF);
+                  var pOutW = sampleOutRGB(dOutW);
+
+                  var isTranslucentPouchOverBed = function (pr, pg, pb) {
+                    if (cardSubG > Math.max(cardSubR, cardSubB) + 3) return false;
+                    var pLum = pr + pg + pb;
+                    if (pLum < sBgLum * 0.76 || pLum > sBgLum - 9) return false;
+                    var dSub = flatbedColorDist(pr, pg, pb, cardSubR, cardSubG, cardSubB);
+                    if (dSub < 25) return false;
+                    var dBg = Math.min(
+                      flatbedColorDist(pr, pg, pb, sBgR, sBgG, sBgB),
+                      flatbedColorDist(pr, pg, pb, bgR, bgG, bgB)
+                    );
+                    if (dBg < dSub * 0.82) return true;
+                    return (pr >= pg && pg >= pb && cardSubB >= cardSubR - 3 && (pr - pb) >= (cardSubR - cardSubB) + 10);
+                  };
+
+                  var isProbeStillCard = function (pr, pg, pb) {
+                    if (isTranslucentPouchOverBed(pr, pg, pb)) return false;
+                    var pLum = pr + pg + pb;
+                    var pCh = Math.max(pr, pg, pb) - Math.min(pr, pg, pb);
+                    var dBg = flatbedColorDist(pr, pg, pb, sBgR, sBgG, sBgB);
+                    var dGlobBg = flatbedColorDist(pr, pg, pb, bgR, bgG, bgB);
+                    var minBgD = Math.min(dBg, dGlobBg);
+                    var dSub = flatbedColorDist(pr, pg, pb, cardSubR, cardSubG, cardSubB);
+                    // Bright colored guilloche/artwork or non-lid pastel card rim outside `coord` = still inside card
+                    if (sBgChroma < 26 && pLum >= sBgLum * 0.76 && pCh > sBgChroma + 9 && minBgD > 16) {
+                      return true;
+                    }
+                    if (subToSideBgDist >= 11 && pLum >= Math.min(cardSubLum, sBgLum) * 0.92 && minBgD >= 17 && dSub < minBgD * 0.95) {
+                      return true;
+                    }
+                    if (pLum < cardSubLum * 0.85) return false;
+                    if (subToSideBgDist >= 11) {
+                      return dSub < 21 && dSub < dBg * 0.75;
+                    }
+                    return dSub < 14 && Math.abs(pCh - cardSubChroma) < 10;
+                  };
+
+                  var cOut1 = isProbeStillCard(rOut1, gOut1, bOut1) ? 1 : 0;
+                  var cOut2 = isProbeStillCard(rOut, gOut, bOut) ? 1 : 0;
+                  var cOutM = (pOutM.inBounds && isProbeStillCard(pOutM.r, pOutM.g, pOutM.b)) ? 1 : 0;
+                  var cOutF = (pOutF.inBounds && isProbeStillCard(pOutF.r, pOutF.g, pOutF.b)) ? 1 : 0;
+                  var cOutW = (pOutW.inBounds && isProbeStillCard(pOutW.r, pOutW.g, pOutW.b)) ? 1 : 0;
+                  var cardProbesOut = cOut1 + cOut2 + cOutM + cOutF + cOutW;
+                  var lumNOut = rNOut + gNOut + bNOut;
+                  var minStrokeLum = Math.min(lum0, lumNIn, lum1);
+                  var minValleyLum = Math.min(minStrokeLum, lumNOut, lumOut1);
+                  var inDarkInk = minStrokeLum < cardSubLum * 0.85;
+
+                  // Thin dark printed line / text stroke inside a narrow (e.g. 2.5-3px) or pastel card margin:
+                  // 1) Dark valley (either at `coord` or 1-1.5px outside `coord` when sitting on the inner edge of a 1px black frame)
+                  //    with matching bright card paper on BOTH sides:
+                  if (minValleyLum < cardSubLum * 0.86 && Math.max(lum1, lum2) >= cardSubLum * 0.87) {
+                    var outerIsValley = Math.min(lumNOut, lumOut1) < minStrokeLum - 12;
+                    var candProbes = outerIsValley ? [pOut15, { r: rOut, g: gOut, b: bOut, lum: lumOut2 }, pOut32, pOutM]
+                                                   : [{ r: rNOut, g: gNOut, b: bNOut, lum: lumNOut }, { r: rOut1, g: gOut1, b: bOut1, lum: lumOut1 }, pOut15, { r: rOut, g: gOut, b: bOut, lum: lumOut2 }, pOut32];
+                    var inPaperR = lum2 >= lum1 ? r2 : r1, inPaperG = lum2 >= lum1 ? g2 : g1, inPaperB = lum2 >= lum1 ? b2 : b1;
+                    for (var cpIdx = 0; cpIdx < candProbes.length; cpIdx++) {
+                      var cp = candProbes[cpIdx];
+                      if (cp.lum >= minValleyLum + 40 && cp.lum >= cardSubLum * 0.86 &&
+                          !isTranslucentPouchOverBed(cp.r, cp.g, cp.b) &&
+                          flatbedColorDist(cp.r, cp.g, cp.b, inPaperR, inPaperG, inPaperB) < 24 &&
+                          (subToSideBgDist < 10 || flatbedColorDist(cp.r, cp.g, cp.b, sBgR, sBgG, sBgB) >= 13)) {
+                        paperMatch = 0;
+                        break;
+                      }
+                    }
+                  }
+                  // 2) Dark ink stroke / signature / colored guilloche (both TOP and BOTTOM edges of `NID No` digits, signature, MRZ)
+                  //    followed outward by a card margin plateau that later steps onto `sBg`:
+                  var outNearCh = Math.max(
+                    Math.max(rOut1, gOut1, bOut1) - Math.min(rOut1, gOut1, bOut1),
+                    Math.max(rOut, gOut, bOut) - Math.min(rOut, gOut, bOut)
+                  );
+                  var minNearValley = Math.min(minStrokeLum, lumNOut, lumOut1, lumOut2, pOut15.lum, pOut32.lum, pOutM.lum);
+                  var hasNearDarkInk = minNearValley < cardSubLum * 0.88;
+                  if (paperMatch > 0 && sBgLum >= 540 &&
+                      (hasNearDarkInk || (sBgChroma < 22 && outNearCh >= sBgChroma + 8))) {
+                    var seenMargin = false, marginLum = 0, marginR = 0, marginG = 0, marginB = 0;
+                    for (var dScan = 1.8 * cPx; dScan <= 24.0 * cPx; dScan += 1.6 * cPx) {
+                      var pScan = sampleOutRGB(dScan);
+                      if (!pScan.inBounds) break;
+                      var scanBedDist = flatbedColorDist(pScan.r, pScan.g, pScan.b, sBgR, sBgG, sBgB);
+                      if (!seenMargin) {
+                        if (pScan.lum >= sBgLum * 0.74 &&
+                            (!hasNearDarkInk || pScan.lum >= minNearValley + 36) &&
+                            scanBedDist >= 11.5 &&
+                            (minNearValley < cardSubLum * 0.70 || !isTranslucentPouchOverBed(pScan.r, pScan.g, pScan.b))) {
+                          seenMargin = true;
+                          marginLum = pScan.lum;
+                          marginR = pScan.r; marginG = pScan.g; marginB = pScan.b;
+                        }
+                      } else {
+                        var marginToBedDist = flatbedColorDist(pScan.r, pScan.g, pScan.b, marginR, marginG, marginB);
+                        if (scanBedDist < 16 && (Math.abs(pScan.lum - marginLum) >= 13 || marginToBedDist >= 13)) {
+                          paperMatch = 0;
+                          break;
+                        }
+                      }
+                    }
+                  }
+
+                  if (paperMatch > 0) {
+                    if (subToSideBgDist >= 11) {
+                      if (cardProbesOut >= 2 || (cOut1 && inDarkInk) || (cOut2 && inDarkInk)) {
+                        paperMatch = 0;
+                      } else if (cOutM || cOutF || cOutW) {
+                        paperMatch *= 0.05;
+                      }
+                    } else if (cardProbesOut >= 2 && hasNearDarkInk) {
+                      // Identical white card on identical white lid: check if any edge exists further out before rejecting
+                      var hasOuterEdge = false;
+                      for (var dChk = dOut2; dChk <= 22.0 * cPx; dChk += 1.25 * cPx) {
+                        var uChk = isHorizontal ? t : (coord + outSign * dChk);
+                        var vChk = isHorizontal ? (coord + outSign * dChk) : t;
+                        var ixChk = Math.round(cx + uChk * cosB - vChk * sinB);
+                        var iyChk = Math.round(cy + uChk * sinB + vChk * cosB);
+                        if (ixChk >= 2 && ixChk < s3w - 2 && iyChk >= 2 && iyChk < s3h - 2 && s3GradMag[iyChk * s3w + ixChk] > noiseFloor * 1.35) {
+                          hasOuterEdge = true;
+                          break;
+                        }
+                      }
+                      if (hasOuterEdge) paperMatch = 0;
+                    }
+                  }
                 } else {
-                  // Penalize internal printed black border lines or internal text/barcode lines where outside the line is still bright card paper
+                  // Dark / colored background: penalize internal printed lines where outside is still bright card plastic/paper
                   var outChroma1 = Math.max(rOut1, gOut1, bOut1) - Math.min(rOut1, gOut1, bOut1);
                   var outChroma2 = Math.max(rOut, gOut, bOut) - Math.min(rOut, gOut, bOut);
-                  var outIsCloserToCard = (!isWhitePageBg) || (distOut1 < dOutBg1 * 0.85 && distOut < dOutBg2 * 0.85);
-                  if (outIsCloserToCard && distOut1 < 50 && (rOut1 + gOut1 + bOut1) >= cardLum * 0.85 && Math.abs(outChroma1 - cardChroma) < 12) {
-                    if (distOut < 48 && (rOut + gOut + bOut) >= cardLum * 0.84 && Math.abs(outChroma2 - cardChroma) < 12) {
+                  if (distOut1 < 50 && (rOut1 + gOut1 + bOut1) >= cardLum * 0.84 && Math.abs(outChroma1 - cardChroma) < 14) {
+                    if (distOut < 48 && (rOut + gOut + bOut) >= cardLum * 0.83 && Math.abs(outChroma2 - cardChroma) < 14) {
                       paperMatch = 0;
                     } else {
-                      paperMatch *= 0.15;
+                      paperMatch *= 0.12;
                     }
-                  } else {
-                    if (isWhitePageBg && rawIxOutM >= 2 && rawIxOutM < aw - 2 && rawIyOutM >= 2 && rawIyOutM < ah - 2) {
-                      var iOutM4 = (rawIyOutM * aw + rawIxOutM) * 4;
-                      var rOutM = data[iOutM4], gOutM = data[iOutM4 + 1], bOutM = data[iOutM4 + 2];
-                      var distOutM = Math.hypot(rOutM - cardR, gOutM - cardG, bOutM - cardB);
-                      var dOutBgM = Math.hypot(rOutM - bgR, gOutM - bgG, bOutM - bgB);
-                      var outChromaM = Math.max(rOutM, gOutM, bOutM) - Math.min(rOutM, gOutM, bOutM);
-                      if (distOutM < dOutBgM * 0.85 && distOutM < 46 && (rOutM + gOutM + bOutM) >= cardLum * 0.84 && Math.abs(outChromaM - cardChroma) < 12) {
-                        paperMatch *= 0.04;
-                      }
-                    }
-                    if (rawIxOutF >= 2 && rawIxOutF < aw - 2 && rawIyOutF >= 2 && rawIyOutF < ah - 2) {
-                      var iOutF4 = (rawIyOutF * aw + rawIxOutF) * 4;
-                      var rOutF = data[iOutF4], gOutF = data[iOutF4 + 1], bOutF = data[iOutF4 + 2];
-                      var distOutF = Math.hypot(rOutF - cardR, gOutF - cardG, bOutF - cardB);
-                      var dOutBgF = Math.hypot(rOutF - bgR, gOutF - bgG, bOutF - bgB);
-                      var outChromaF = Math.max(rOutF, gOutF, bOutF) - Math.min(rOutF, gOutF, bOutF);
-                      if ((!isWhitePageBg || distOutF < dOutBgF * 0.85) && distOutF < 46 && (rOutF + gOutF + bOutF) >= cardLum * 0.84 && Math.abs(outChromaF - cardChroma) < 12) {
-                        paperMatch *= 0.04;
-                      }
+                  } else if (rawIxOutF >= 2 && rawIxOutF < s3w - 2 && rawIyOutF >= 2 && rawIyOutF < s3h - 2) {
+                    var iOutF4 = (rawIyOutF * s3w + rawIxOutF) * 4;
+                    var rOutF2 = s3Data[iOutF4], gOutF2 = s3Data[iOutF4 + 1], bOutF2 = s3Data[iOutF4 + 2];
+                    var distOutF = cardSurfaceDist(rOutF2, gOutF2, bOutF2);
+                    var outChromaF = Math.max(rOutF2, gOutF2, bOutF2) - Math.min(rOutF2, gOutF2, bOutF2);
+                    if (distOutF < 46 && (rOutF2 + gOutF2 + bOutF2) >= cardLum * 0.84 && Math.abs(outChromaF - cardChroma) < 14) {
+                      paperMatch *= 0.04;
                     }
                   }
                 }
 
-                sumScore += (pureG * 0.72 + directStep * 0.35 + colorTransition * 0.48) * paperMatch;
+                sumScore += (pureG * 0.68 + directStep * 0.42 + colorTransition * 0.52) * paperMatch;
                 valid++;
               }
             }
             if (valid > 5) {
-              var distPenalty = 1 - (Math.abs(d) / (Math.max(searchIn, searchOut) + 12)) * 0.10;
+              var distPenalty = 1 - (Math.abs(d) / (Math.max(searchIn, searchOut) + 12 * pxS)) * 0.10;
               var avg = (sumScore / valid) * distPenalty;
               if (avg > bestVal) {
                 bestVal = avg;
@@ -1102,74 +1825,85 @@
           return { coord: bestCoord, score: Math.max(1, bestVal) };
         };
 
-        var fitPerspectiveSideLine = function (baseCoord, searchIn, searchOut, tMin, tMax, isHorizontal, outSign, orthoSpan) {
+        var fitPerspectiveSideLine = function (baseCoord, searchIn, searchOut, tMin, tMax, isHorizontal, outSign, orthoSpan, sideBg) {
           var span = tMax - tMin;
           var tMid = (tMin + tMax) * 0.5;
           var slices = [];
-          var nSlices = 5;
+          var nSlices = 7;
+          var tPad = isHorizontal ? 0.08 : 0.115;
+          var sStep = (1 - 2 * tPad) / nSlices;
           for (var si = 0; si < nSlices; si++) {
-            var s0 = tMin + (0.06 + si * 0.17) * span;
-            var s1 = s0 + 0.20 * span;
-            var res = findBestBoundaryPeak(baseCoord, searchIn, searchOut, s0, s1, isHorizontal, outSign);
+            var s0 = tMin + (tPad + si * sStep) * span;
+            var s1 = s0 + sStep * span;
+            var res = findBestBoundaryPeak(baseCoord, searchIn, searchOut, s0, s1, isHorizontal, outSign, sideBg);
             slices.push({ t: (s0 + s1) * 0.5, c: res.coord, w: res.score });
           }
 
-          // Check whether the 5 slices exhibit a genuine monotonic perspective trend vs flat/step-jump
-          var maxPosDiff = 0, maxNegDiff = 0, posSteps = 0, negSteps = 0;
-          for (var di = 0; di < nSlices - 1; di++) {
-            var diff = slices[di + 1].c - slices[di].c;
-            if (diff > 0.45) posSteps++;
-            else if (diff < -0.45) negSteps++;
-            if (diff > maxPosDiff) maxPosDiff = diff;
-            if (-diff > maxNegDiff) maxNegDiff = -diff;
-          }
-          var totalSliceDiff = Math.abs(slices[nSlices - 1].c - slices[0].c);
-          var hasMonotonicSlope = (((posSteps >= 3 && maxNegDiff < 0.35) || (negSteps >= 3 && maxPosDiff < 0.35)) && totalSliceDiff >= 2.0) ||
-                                  (((posSteps >= 2 && maxNegDiff === 0) || (negSteps >= 2 && maxPosDiff === 0)) && totalSliceDiff >= 2.5);
+          var inlierTol = Math.max(1.8 * pxS, orthoSpan * 0.013);
+          var bestFlatCand = { mid: baseCoord, slope: 0 };
+          var bestFlatScore = -1;
+          var bestSlopeCand = null;
+          var bestSlopeScore = -1;
+          var bestSlopeInliers = 0;
 
-          // Generate candidate lines from all slice pairs (Theil-Sen / RANSAC consensus) + flat candidates
-          var candidates = [];
+          var evalCandidate = function (mid, slope) {
+            var cScore = 0, cnt = 0, minT = 1e9, maxT = -1e9;
+            for (var k = 0; k < nSlices; k++) {
+              var pred = mid + slope * (slices[k].t - tMid);
+              var err = Math.abs(slices[k].c - pred);
+              if (err <= inlierTol) {
+                var dampedW = Math.pow(Math.max(1, slices[k].w), 0.60);
+                cScore += dampedW * (1 - (err / (inlierTol * 1.45)));
+                cnt++;
+                if (slices[k].t < minT) minT = slices[k].t;
+                if (slices[k].t > maxT) maxT = slices[k].t;
+              }
+            }
+            if (cnt >= 2) {
+              cScore *= (1 + 0.25 * Math.min(5, cnt - 1));
+            }
+            return { score: cScore, inliers: cnt, spanT: cnt >= 2 ? (maxT - minT) : 0 };
+          };
+
           for (var i = 0; i < nSlices; i++) {
-            candidates.push({ mid: slices[i].c, slope: 0 });
+            var f1 = evalCandidate(slices[i].c, 0);
+            if (f1.score > bestFlatScore) {
+              bestFlatScore = f1.score;
+              bestFlatCand = { mid: slices[i].c, slope: 0 };
+            }
             for (var j = i + 1; j < nSlices; j++) {
-              candidates.push({ mid: (slices[i].c + slices[j].c) * 0.5, slope: 0 });
-              if (hasMonotonicSlope) {
+              var avgMid = (slices[i].c + slices[j].c) * 0.5;
+              var f2 = evalCandidate(avgMid, 0);
+              if (f2.score > bestFlatScore) {
+                bestFlatScore = f2.score;
+                bestFlatCand = { mid: avgMid, slope: 0 };
+              }
+              if (j - i >= 2) {
                 var dt = slices[j].t - slices[i].t;
-                if (Math.abs(dt) < 4) continue;
+                if (Math.abs(dt) < 6) continue;
                 var sl = (slices[j].c - slices[i].c) / dt;
                 if (Math.abs(sl) > 0.18) continue;
                 var md = slices[i].c + sl * (tMid - slices[i].t);
-                candidates.push({ mid: md, slope: sl });
+                var sEv = evalCandidate(md, sl);
+                if (sEv.inliers >= 4 && sEv.spanT >= span * 0.44 && sEv.score > bestSlopeScore) {
+                  bestSlopeScore = sEv.score;
+                  bestSlopeCand = { mid: md, slope: sl };
+                  bestSlopeInliers = sEv.inliers;
+                }
               }
             }
           }
 
-          var bestCand = { mid: baseCoord, slope: 0 };
-          var bestConsensus = -1;
-          var inlierTol = Math.max(1.5, orthoSpan * 0.013);
+          var useSlope = !!(bestSlopeCand && bestSlopeInliers >= 4 && bestSlopeScore > bestFlatScore * 1.02);
+          var bestCand = useSlope ? bestSlopeCand : bestFlatCand;
 
-          for (var ci = 0; ci < candidates.length; ci++) {
-            var cand = candidates[ci];
-            var cScore = 0;
-            for (var k = 0; k < nSlices; k++) {
-              var pred = cand.mid + cand.slope * (slices[k].t - tMid);
-              var err = Math.abs(slices[k].c - pred);
-              if (err <= inlierTol) {
-                cScore += slices[k].w * (1 - (err / (inlierTol * 1.45)));
-              }
-            }
-            if (cScore > bestConsensus) {
-              bestConsensus = cScore;
-              bestCand = cand;
-            }
-          }
-
-          // Refine (mid, slope) via weighted least squares across all inlier slices
+          // Refine (mid, slope) via balanced sqrt-weighted least squares across all inlier slices
+          // (prevents sunlit half with 10x gradient from pivoting steep slope past shadowed half)
           var sumW = 0, sumWT = 0, sumWC = 0, sumWTT = 0, sumWTC = 0, inliers = 0;
           for (var m = 0; m < nSlices; m++) {
             var predM = bestCand.mid + bestCand.slope * (slices[m].t - tMid);
             if (Math.abs(slices[m].c - predM) <= inlierTol * 1.15) {
-              var w = slices[m].w;
+              var w = Math.sqrt(Math.max(1, slices[m].w));
               var dtM = slices[m].t - tMid;
               sumW += w;
               sumWT += w * dtM;
@@ -1183,7 +1917,7 @@
           var finalMid = bestCand.mid;
           var finalSlope = bestCand.slope;
           if (inliers >= 2 && sumW > 0) {
-            if (hasMonotonicSlope && bestCand.slope !== 0 && inliers >= 3) {
+            if (useSlope && inliers >= 5) {
               var denom = sumW * sumWTT - sumWT * sumWT;
               if (Math.abs(denom) > 1e-3) {
                 var wSlope = (sumW * sumWTC - sumWT * sumWC) / denom;
@@ -1201,32 +1935,238 @@
               finalSlope = 0;
             }
           }
-          if (Math.abs(finalSlope * span) < 1.8) {
+          if (Math.abs(finalSlope * span) < 0.75 * pxS) {
             finalSlope = 0;
           }
-          return { mid: finalMid, slope: finalSlope, tMid: tMid };
+          return { mid: finalMid, slope: finalSlope, tMid: tMid, flatMid: bestFlatCand.mid };
         };
 
-        var searchVIn = Math.max(5, Math.round(spanV * 0.105));
-        var searchVOut = Math.max(5, Math.round(spanV * 0.095));
-        var searchUIn = Math.max(5, Math.round(spanU * 0.095));
-        var searchUOut = Math.max(5, Math.round(spanU * 0.075));
+        var searchVIn = Math.max(5 * pxS, Math.round(spanV * (isWhitePageBg ? 0.125 : 0.105)));
+        var searchVOut = Math.max(5 * pxS, Math.round(spanV * (isWhitePageBg ? 0.155 : 0.095)));
+        var searchUIn = Math.max(5 * pxS, Math.round(spanU * (isWhitePageBg ? 0.12 : 0.095)));
+        var searchUOut = Math.max(5 * pxS, Math.round(spanU * (isWhitePageBg ? 0.145 : 0.075)));
 
-        var topLine = fitPerspectiveSideLine(minV, searchVIn, searchVOut, minU, maxU, true, -1, spanV);
-        var botLine = fitPerspectiveSideLine(maxV, searchVIn, searchVOut, minU, maxU, true, +1, spanV);
-        var leftLine = fitPerspectiveSideLine(minU, searchUIn, searchUOut, minV, maxV, false, -1, spanU);
-        var rightLine = fitPerspectiveSideLine(maxU, searchUIn, searchUOut, minV, maxV, false, +1, spanU);
+        var topSideBg = sampleLocalSideBg(true, -1);
+        var botSideBg = sampleLocalSideBg(true, +1);
+        var leftSideBg = sampleLocalSideBg(false, -1);
+        var rightSideBg = sampleLocalSideBg(false, +1);
+
+        // Pre-trim outer plastic badge holders / lanyard clip slots / frosted sleeves so Stage 3 locks onto the inner ID card
+        var samplePlasticStrip = function (coord, tMin, tMax, isHorizontal, sideBg) {
+          var sBgR0 = sideBg ? sideBg.r : bgR, sBgG0 = sideBg ? sideBg.g : bgG, sBgB0 = sideBg ? sideBg.b : bgB;
+          var sBgLum0 = sBgR0 + sBgG0 + sBgB0;
+          var t0 = tMin + (tMax - tMin) * 0.13, t1 = tMax - (tMax - tMin) * 0.13;
+          var sr = 0, sg = 0, sb = 0, sTang = 0, sOrtho = 0, opq = 0, cnt = 0;
+          var segLum = [0, 0, 0], segCnt = [0, 0, 0];
+          for (var m = 0; m < 24; m++) {
+            var t = t0 + (t1 - t0) * (m / 23);
+            var u = isHorizontal ? t : coord;
+            var v = isHorizontal ? coord : t;
+            var ix = Math.round(cx + u * cosB - v * sinB);
+            var iy = Math.round(cy + u * sinB + v * cosB);
+            if (ix < 1 || ix >= s3w - 1 || iy < 1 || iy >= s3h - 1) continue;
+            var pIdx = iy * s3w + ix;
+            var p4 = pIdx * 4;
+            var pr = s3Data[p4], pg = s3Data[p4 + 1], pb = s3Data[p4 + 2];
+            var pLum = pr + pg + pb;
+            var segIdx = m < 8 ? 0 : (m < 16 ? 1 : 2);
+            segLum[segIdx] += pLum;
+            segCnt[segIdx]++;
+            var dSub = flatbedColorDist(pr, pg, pb, cardSubR, cardSubG, cardSubB);
+            var dBgS = flatbedColorDist(pr, pg, pb, sBgR0, sBgG0, sBgB0);
+            if (pLum >= cardSubLum * 0.85 && (dSub < 28 || (pg - pr >= 7 && pLum >= cardSubLum * 0.78)) &&
+                (!isWhitePageBg || sBgLum0 <= cardSubLum + 10 || dSub < dBgS * 0.88 || pg - pr >= 6)) {
+              opq++;
+            }
+            var gT = isHorizontal
+              ? Math.abs(-s3GxSigned[pIdx] * sinB + s3GySigned[pIdx] * cosB)
+              : Math.abs(s3GxSigned[pIdx] * cosB + s3GySigned[pIdx] * sinB);
+            var gO = isHorizontal
+              ? Math.abs(s3GxSigned[pIdx] * cosB + s3GySigned[pIdx] * sinB)
+              : Math.abs(-s3GxSigned[pIdx] * sinB + s3GySigned[pIdx] * cosB);
+            sr += pr; sg += pg; sb += pb;
+            sTang += gT; sOrtho += gO;
+            cnt++;
+          }
+          if (cnt < 12) return null;
+          var mr = sr / cnt, mg = sg / cnt, mb = sb / cnt;
+          var mLum = mr + mg + mb;
+          return {
+            r: mr, g: mg, b: mb,
+            lum: mLum,
+            greenAdv: mg - mr,
+            tangGrad: sTang / cnt,
+            orthoGrad: sOrtho / cnt,
+            opaqueFrac: opq / cnt,
+            bgDist: flatbedColorDist(mr, mg, mb, sBgR0, sBgG0, sBgB0),
+            s0: segCnt[0] > 0 ? segLum[0] / segCnt[0] : mLum,
+            s1: segCnt[1] > 0 ? segLum[1] / segCnt[1] : mLum,
+            s2: segCnt[2] > 0 ? segLum[2] / segCnt[2] : mLum
+          };
+        };
+
+        var trimPlasticHolderSide = function (baseCoord, maxTrimFrac, orthoSpan, tMin, tMax, isHorizontal, outSign, sideBg) {
+          if (isWhitePageBg && isSmallCardOnPage) return null;
+          var maxTrim = Math.round(orthoSpan * maxTrimFrac);
+          if (maxTrim < Math.ceil(6.5 * cPx)) return null;
+          var sBgLum0 = sideBg ? (sideBg.r + sideBg.g + sideBg.b) : bgLumGlobal;
+          var isShadowedSide = sBgLum0 < cardSubLum * 0.76;
+          var stepD = Math.max(1.0, 1.35 * cPx);
+          var bestD = -1, bestEdgeScore = -1, lockEndD = -1;
+          for (var d = 5.5 * cPx; d <= maxTrim; d += stepD) {
+            if (lockEndD > 0 && d > lockEndD) break;
+            var pMid = samplePlasticStrip(baseCoord - outSign * d, tMin, tMax, isHorizontal, sideBg);
+            var pOut1 = samplePlasticStrip(baseCoord - outSign * (d - 1.8 * cPx), tMin, tMax, isHorizontal, sideBg);
+            var pOut2 = samplePlasticStrip(baseCoord - outSign * (d - 3.8 * cPx), tMin, tMax, isHorizontal, sideBg);
+            var pOut3 = samplePlasticStrip(baseCoord - outSign * Math.max(1.2 * cPx, d - 5.8 * cPx), tMin, tMax, isHorizontal, sideBg);
+            var pIn1 = samplePlasticStrip(baseCoord - outSign * (d + 2.0 * cPx), tMin, tMax, isHorizontal, sideBg);
+            var pIn2 = samplePlasticStrip(baseCoord - outSign * (d + 4.8 * cPx), tMin, tMax, isHorizontal, sideBg);
+            var pIn3 = samplePlasticStrip(baseCoord - outSign * (d + 8.5 * cPx), tMin, tMax, isHorizontal, sideBg);
+            if (!pMid || !pOut1 || !pOut2 || !pOut3 || !pIn1 || !pIn2 || !pIn3) continue;
+
+            // Stop immediately if we already entered a bare opaque card directly from bright page background
+            if (bestD < 0 && pOut2.lum >= Math.min(cardSubLum, sBgLum0) - 20 &&
+                pMid.lum >= cardSubLum * 0.86 && pMid.opaqueFrac >= 0.48 &&
+                (!isWhitePageBg || pMid.bgDist >= 14 || pMid.greenAdv >= 6)) {
+              break;
+            }
+
+            var maxOutLum = isWhitePageBg ? Math.max(pOut1.lum, pOut2.lum, pOut3.lum) : Math.max(pOut1.lum, pOut2.lum);
+            var maxOutOpq = isWhitePageBg ? Math.max(pOut1.opaqueFrac, pOut2.opaqueFrac, pOut3.opaqueFrac) : Math.max(pOut1.opaqueFrac, pOut2.opaqueFrac);
+            var maxOutOrtho = Math.max(pOut1.orthoGrad, pOut2.orthoGrad);
+            var outChroma1 = Math.max(pOut1.r, pOut1.g, pOut1.b) - Math.min(pOut1.r, pOut1.g, pOut1.b);
+            var outChroma2 = Math.max(pOut2.r, pOut2.g, pOut2.b) - Math.min(pOut2.r, pOut2.g, pOut2.b);
+            // Full-span plastic rail / sleeve guard: all 3 longitudinal thirds outside `d` must be non-card (and on dark tables, brighter than raw table)
+            var allThirdsPlastic = pOut1.s0 <= cardSubLum - 18 && pOut1.s1 <= cardSubLum - 18 && pOut1.s2 <= cardSubLum - 18;
+            var aboveDarkTable = isWhitePageBg || (pOut1.lum >= sBgLum0 + 36 && pOut2.lum >= sBgLum0 + 28);
+            var isOuterPlasticBand = allThirdsPlastic &&
+                                     aboveDarkTable &&
+                                     Math.max(outChroma1, outChroma2) <= 34 &&
+                                     maxOutLum <= cardSubLum - 26 &&
+                                     (!isWhitePageBg || maxOutLum <= sBgLum0 - 24) &&
+                                     maxOutOpq < 0.38 &&
+                                     maxOutOrtho < (isWhitePageBg ? 21 : 32);
+            if (!isOuterPlasticBand) continue;
+
+            var lumJump = pIn1.lum - pOut1.lum;
+            var greenJump = pIn1.greenAdv - pOut1.greenAdv;
+            var maxInOpq = Math.max(pIn1.opaqueFrac, pIn2.opaqueFrac);
+            var thirdSteps = ((pIn1.s0 - pOut1.s0 >= 8) ? 1 : 0) + ((pIn1.s1 - pOut1.s1 >= 8) ? 1 : 0) + ((pIn1.s2 - pOut1.s2 >= 8) ? 1 : 0);
+            var outerThirdSteps = (pIn1.s0 - pOut1.s0 >= 8) || (pIn1.s2 - pOut1.s2 >= 8) || (greenJump >= 8 && pIn1.greenAdv >= 4);
+            var entersOpaqueCard = false;
+            if (thirdSteps >= 2 && outerThirdSteps) {
+              if (!isWhitePageBg) {
+                // Dark table: skip narrow specular seal reflections (`pIn3` drops back into dark plastic) and lock onto sustained inner card
+                var sustainedWhite = pIn2.lum >= cardSubLum * 0.84 && pIn3.lum >= cardSubLum * 0.82;
+                var sustainedGreen = pIn2.lum >= cardSubLum * 0.78 && pIn3.lum >= cardSubLum * 0.76;
+                entersOpaqueCard =
+                  (sustainedWhite && lumJump >= 16 && pIn1.lum >= cardSubLum * 0.88 && maxInOpq >= 0.48) ||
+                  (sustainedGreen && greenJump >= 6 && pIn1.greenAdv >= 4 && pIn1.lum >= cardSubLum * 0.80 && lumJump >= 8);
+              } else {
+                var minCardLumReq = isShadowedSide ? cardSubLum * 0.70 : cardSubLum * 0.83;
+                entersOpaqueCard =
+                  (lumJump >= 16 && pIn1.lum >= minCardLumReq && pIn3.lum >= minCardLumReq * 0.94 &&
+                   (maxInOpq >= 0.44 || pIn1.lum >= cardSubLum * 0.86 || (pIn1.lum - pOut2.lum >= 55 && pIn2.lum >= pIn1.lum - 14))) ||
+                  (greenJump >= 8 && pIn1.greenAdv >= 4 && pIn1.lum >= cardSubLum * 0.81 && lumJump >= 8);
+              }
+            }
+
+            if (entersOpaqueCard) {
+              var eScore = Math.max(0, lumJump) + Math.max(0, greenJump) * 3.4 + pMid.tangGrad * 0.85;
+              if (lockEndD < 0) lockEndD = d + 3.5 * cPx;
+              if (eScore > bestEdgeScore) {
+                bestEdgeScore = eScore;
+                bestD = d;
+              }
+            }
+          }
+          if (bestD < 5.5 * cPx) return null;
+          var adjBase = baseCoord - outSign * bestD;
+          var plasticOutProf = samplePlasticStrip(adjBase + outSign * (3.2 * cPx), tMin, tMax, isHorizontal, sideBg);
+          return {
+            base: adjBase,
+            searchIn: Math.max(4, Math.round(5.0 * cPx)),
+            searchOut: Math.max(3, Math.round(2.8 * cPx)),
+            sideBg: plasticOutProf ? { r: plasticOutProf.r, g: plasticOutProf.g, b: plasticOutProf.b } : sideBg
+          };
+        };
+
+        var topTrim = trimPlasticHolderSide(minV, 0.17, spanV, minU, maxU, true, -1, topSideBg);
+        var botTrim = trimPlasticHolderSide(maxV, 0.17, spanV, minU, maxU, true, +1, botSideBg);
+        var leftTrim = trimPlasticHolderSide(minU, 0.24, spanU, minV, maxV, false, -1, leftSideBg);
+        var rightTrim = trimPlasticHolderSide(maxU, 0.24, spanU, minV, maxV, false, +1, rightSideBg);
+
+        var topLine = fitPerspectiveSideLine(
+          topTrim ? topTrim.base : minV, topTrim ? topTrim.searchIn : searchVIn, topTrim ? topTrim.searchOut : searchVOut,
+          minU, maxU, true, -1, spanV, topTrim ? topTrim.sideBg : topSideBg
+        );
+        var botLine = fitPerspectiveSideLine(
+          botTrim ? botTrim.base : maxV, botTrim ? botTrim.searchIn : searchVIn, botTrim ? botTrim.searchOut : searchVOut,
+          minU, maxU, true, +1, spanV, botTrim ? botTrim.sideBg : botSideBg
+        );
+        var leftLine = fitPerspectiveSideLine(
+          leftTrim ? leftTrim.base : minU, leftTrim ? leftTrim.searchIn : searchUIn, leftTrim ? leftTrim.searchOut : searchUOut,
+          minV, maxV, false, -1, spanU, leftTrim ? leftTrim.sideBg : leftSideBg
+        );
+        var rightLine = fitPerspectiveSideLine(
+          rightTrim ? rightTrim.base : maxU, rightTrim ? rightTrim.searchIn : searchUIn, rightTrim ? rightTrim.searchOut : searchUOut,
+          minV, maxV, false, +1, spanU, rightTrim ? rightTrim.sideBg : rightSideBg
+        );
+
+        // Orthographic flatbed / A4 page orthogonality guard: prevent outlier pouch/glare slices from tilting one horizontal side into a trapezoid,
+        // and prevent rounded corners or barcode guard bars from inducing spurious convergence on the short vertical sides
+        if (isWhitePageBg && isSmallCardOnPage) {
+          if (Math.abs(topLine.slope - botLine.slope) >= 0.025) {
+            if (Math.abs(botLine.slope) <= 0.022 && Math.abs(topLine.slope - botLine.slope) > 0.028) {
+              topLine.slope = botLine.slope;
+              topLine.mid = topLine.flatMid;
+            } else if (Math.abs(topLine.slope) <= 0.022 && Math.abs(botLine.slope - topLine.slope) > 0.028) {
+              botLine.slope = topLine.slope;
+              botLine.mid = botLine.flatMid;
+            }
+          }
+          if (Math.abs(topLine.slope - botLine.slope) < 0.025) {
+            var orthoVertSlope = -((topLine.slope + botLine.slope) * 0.5);
+            if (Math.abs(rightLine.slope - leftLine.slope) > 0.02 || Math.abs(leftLine.slope - orthoVertSlope) > 0.025) {
+              leftLine.slope = orthoVertSlope;
+              leftLine.mid = Math.min(leftLine.mid, leftLine.flatMid);
+            }
+            if (Math.abs(rightLine.slope - leftLine.slope) > 0.02 || Math.abs(rightLine.slope - orthoVertSlope) > 0.025) {
+              rightLine.slope = orthoVertSlope;
+              rightLine.mid = Math.max(rightLine.mid, rightLine.flatMid);
+            }
+          }
+        }
 
         /*
          * Extend each side outward ONLY across genuine card paper/surface (e.g. when a line snapped onto
          * the inner printed black frame inside the white paper margin, or when a cropped card continues
-         * toward the frame border). Strictly stops before translucent lamination pouches or white A4 scanner beds.
+         * toward the frame border). Strictly stops before translucent lamination pouches, frosted sleeves, cloth, or white A4 scanner beds.
          */
-        var growSide = function (line, outSign, isHorizontal, tMin, tMax, orthoSpan) {
+        var growSide = function (line, outSign, isHorizontal, tMin, tMax, orthoSpan, wasPlasticTrimmed) {
+          if (isWhitePageBg || wasPlasticTrimmed) return;
           var maxExt = Math.round(orthoSpan * 0.45);
           var t0 = tMin + (tMax - tMin) * 0.14;
           var t1 = tMax - (tMax - tMin) * 0.14;
+          var sampleLineLum = function (stepOff) {
+            var lr = 0, lg = 0, lb = 0, ln = 0;
+            for (var k0 = 0; k0 < 14; k0++) {
+              var tInit = t0 + (t1 - t0) * (k0 / 13);
+              var cInit = line.mid + line.slope * (tInit - line.tMid) + outSign * stepOff;
+              var u0 = isHorizontal ? tInit : cInit;
+              var v0 = isHorizontal ? cInit : tInit;
+              var gx0 = Math.round(cx + u0 * cosB - v0 * sinB);
+              var gy0 = Math.round(cy + u0 * sinB + v0 * cosB);
+              if (gx0 < 1 || gx0 >= s3w - 1 || gy0 < 1 || gy0 >= s3h - 1) continue;
+              var gi0 = (gy0 * s3w + gx0) * 4;
+              lr += s3Data[gi0]; lg += s3Data[gi0 + 1]; lb += s3Data[gi0 + 2]; ln++;
+            }
+            return ln > 0 ? (lr + lg + lb) / ln : cardSubLum;
+          };
+          var prevLum = sampleLineLum(-Math.max(1, Math.round(1.5 * pxS)));
+          var minOpaqueLum = Math.max(cardLum * 0.84, cardSubLum * 0.88);
           var best = 0, miss = 0;
+          var maxMiss = cardBgDist < 65 ? Math.round(4 * pxS) : Math.round(pxS);
           for (var s = 1; s <= maxExt; s++) {
             var sr = 0, sg = 0, sb = 0, n = 0, oob = 0;
             for (var k = 0; k < 14; k++) {
@@ -1236,30 +2176,35 @@
               var v = isHorizontal ? coord : t;
               var gx = Math.round(cx + u * cosB - v * sinB);
               var gy = Math.round(cy + u * sinB + v * cosB);
-              if (gx < 1 || gx >= aw - 1 || gy < 1 || gy >= ah - 1) { oob++; continue; }
-              var gi = (gy * aw + gx) * 4;
-              sr += data[gi]; sg += data[gi + 1]; sb += data[gi + 2]; n++;
+              if (gx < 1 || gx >= s3w - 1 || gy < 1 || gy >= s3h - 1) { oob++; continue; }
+              var gi = (gy * s3w + gx) * 4;
+              sr += s3Data[gi]; sg += s3Data[gi + 1]; sb += s3Data[gi + 2]; n++;
             }
             if (oob > 4 || n < 8) break;
             sr /= n; sg /= n; sb /= n;
             var dBg = Math.hypot(sr - bgR, sg - bgG, sb - bgB);
-            var dCard = Math.hypot(sr - cardR, sg - cardG, sb - cardB);
+            var dCard = cardSurfaceDist(sr, sg, sb);
             var sLum = sr + sg + sb;
+            if (sLum < prevLum - 22) break;
             var sChroma = Math.max(sr, sg, sb) - Math.min(sr, sg, sb);
-            var isCardPaper = isWhitePageBg
-              ? false
-              : (cardBgDist >= 65
-                ? (dCard < 82 && sLum >= cardLum * 0.74 && Math.abs(sChroma - cardChroma) < 12 && dCard < dBg * 0.45)
-                : (dCard < 52 && sLum >= cardLum * 0.80 && Math.abs(sChroma - cardChroma) < 12));
-            if (isCardPaper) { best = s; miss = 0; }
-            else if (++miss > ((!isWhitePageBg && cardBgDist < 65) ? 6 : 1)) break;
+            var sChromaShift = Math.hypot((sr - sg) - cardRG, (sr - sb) - cardRB, (sg - sb) - cardGB);
+            var isCardPaper = cardBgDist >= 65
+              ? (dCard < 62 && sChromaShift < 16 && sLum >= minOpaqueLum && Math.abs(sChroma - cardChroma) < 13 && dCard < dBg * 0.45)
+              : (dCard < 46 && sChromaShift < 15 && sLum >= minOpaqueLum && Math.abs(sChroma - cardChroma) < 12);
+            if (isCardPaper) {
+              best = s;
+              miss = 0;
+              prevLum = sLum;
+            } else if (++miss > maxMiss) {
+              break;
+            }
           }
           if (best >= 1) line.mid += outSign * best;
         };
-        growSide(topLine, -1, true, minU, maxU, spanV);
-        growSide(botLine, +1, true, minU, maxU, spanV);
-        growSide(leftLine, -1, false, minV, maxV, spanU);
-        growSide(rightLine, +1, false, minV, maxV, spanU);
+        growSide(topLine, -1, true, minU, maxU, spanV, !!topTrim);
+        growSide(botLine, +1, true, minU, maxU, spanV, !!botTrim);
+        growSide(leftLine, -1, false, minV, maxV, spanU, !!leftTrim);
+        growSide(rightLine, +1, false, minV, maxV, spanU, !!rightTrim);
 
         var intersectLines = function (hLine, vLine) {
           var denom = 1 - hLine.slope * vLine.slope;
@@ -1281,8 +2226,8 @@
           var px = cx + uv.u * cosB - uv.v * sinB;
           var py = cy + uv.u * sinB + uv.v * cosB;
           return {
-            x: Math.max(0.004, Math.min(0.996, px / aw)),
-            y: Math.max(0.004, Math.min(0.996, py / ah))
+            x: Math.max(0.004, Math.min(0.996, px / s3w)),
+            y: Math.max(0.004, Math.min(0.996, py / s3h))
           };
         };
 
@@ -1296,7 +2241,7 @@
         return { pts: orderQuadClockwise(quad), auto: true, rot: normRot };
       }
     } catch (e) {}
-    return { pts: defaultQuadPts(0.04), auto: true, rot: normRot };
+    return { pts: defaultQuadPts(0.04), auto: true, rot: normRot, fallback: true };
   }
 
   /**
@@ -1723,8 +2668,9 @@
     var sf = ensureEntrySnapField(entry);
     if (!sf) return;
     var pts = cloneQuadPts(entry.pts);
-    var searchIn = 15;
-    var searchOut = 14;
+    var minDim = Math.min(sf.cw || 360, sf.ch || 260);
+    var searchIn = Math.max(18, Math.round(minDim * 0.22));
+    var searchOut = Math.max(16, Math.round(minDim * 0.12));
 
     var snappedEdges = [];
     for (var eIdx = 0; eIdx < 4; eIdx++) {
@@ -1778,13 +2724,19 @@
   }
 
   /**
-   * Snaps the current 4-corner selection to a clean ISO ID-1 rectangle (85.6 × 54 mm -> 1.5858:1)
+   * Snaps the current 4-corner selection to a clean ISO ID-1 rectangle
+   * (85.6 × 53.98 mm Landscape -> 1.5858:1, or 53.98 × 85.6 mm Portrait -> 0.6306:1)
    * preserving the center and average tilt angle of the user's current selection.
    */
-  function snapQuadToCardRatio(entry) {
+  function snapQuadToCardRatio(entry, orientOverride) {
     if (!entry || !entry.pts) return;
-    var cw = entry.cw || 360;
-    var ch = entry.ch || 260;
+    var rotNorm = (((entry.rot || 0) % 360) + 360) % 360;
+    var imW = (entry.item && entry.item.img) ? (entry.item.img.naturalWidth || entry.item.img.width || 360) : 360;
+    var imH = (entry.item && entry.item.img) ? (entry.item.img.naturalHeight || entry.item.img.height || 260) : 260;
+    var fbW = (rotNorm === 90 || rotNorm === 270) ? imH : imW;
+    var fbH = (rotNorm === 90 || rotNorm === 270) ? imW : imH;
+    var cw = entry.cw || fbW;
+    var ch = entry.ch || fbH;
     var p = entry.pts.map(function (pt) { return { x: pt.x * cw, y: pt.y * ch }; });
     var cx = (p[0].x + p[1].x + p[2].x + p[3].x) * 0.25;
     var cy = (p[0].y + p[1].y + p[2].y + p[3].y) * 0.25;
@@ -1798,16 +2750,32 @@
     var avgH = (leftH + rightH) * 0.5;
     var angle = Math.atan2((p[1].y - p[0].y) + (p[2].y - p[3].y), (p[1].x - p[0].x) + (p[2].x - p[3].x));
 
+    var orient = orientOverride || getNidCardOrient(entry);
+    entry.cardOrient = orient === 'portrait' ? 'portrait' : 'landscape';
     var isoRatio = 85.6 / 53.98; // 1.5858
-    var targetW = avgW;
-    var targetH = avgW / isoRatio;
-    if (targetH > ch * 0.92) {
-      targetH = ch * 0.88;
-      targetW = targetH * isoRatio;
-    }
-    if (targetW > cw * 0.92) {
-      targetW = cw * 0.88;
+    var targetW, targetH;
+    if (entry.cardOrient === 'portrait') {
+      targetH = avgW > avgH * 1.15 ? Math.max(avgW, avgH) : avgH;
+      targetW = targetH / isoRatio;
+      if (targetH > ch * 0.90) {
+        targetH = ch * 0.88;
+        targetW = targetH / isoRatio;
+      }
+      if (targetW > cw * 0.90) {
+        targetW = cw * 0.88;
+        targetH = targetW * isoRatio;
+      }
+    } else {
+      targetW = avgH > avgW * 1.15 ? Math.max(avgW, avgH) : avgW;
       targetH = targetW / isoRatio;
+      if (targetH > ch * 0.90) {
+        targetH = ch * 0.88;
+        targetW = targetH * isoRatio;
+      }
+      if (targetW > cw * 0.90) {
+        targetW = cw * 0.88;
+        targetH = targetW / isoRatio;
+      }
     }
 
     var cosA = Math.cos(angle);
@@ -1815,17 +2783,36 @@
     var hw = targetW * 0.5;
     var hh = targetH * 0.5;
 
-    var corners = [
+    var relOffsets = [
       { x: -hw, y: -hh },
       { x:  hw, y: -hh },
       { x:  hw, y:  hh },
       { x: -hw, y:  hh }
     ].map(function (loc) {
-      var rx = cx + loc.x * cosA - loc.y * sinA;
-      var ry = cy + loc.x * sinA + loc.y * cosA;
       return {
-        x: Math.max(0.01, Math.min(0.99, rx / cw)),
-        y: Math.max(0.01, Math.min(0.99, ry / ch))
+        dx: loc.x * cosA - loc.y * sinA,
+        dy: loc.x * sinA + loc.y * cosA
+      };
+    });
+
+    var minDx = Infinity, maxDx = -Infinity, minDy = Infinity, maxDy = -Infinity;
+    relOffsets.forEach(function (o) {
+      if (o.dx < minDx) minDx = o.dx;
+      if (o.dx > maxDx) maxDx = o.dx;
+      if (o.dy < minDy) minDy = o.dy;
+      if (o.dy > maxDy) maxDy = o.dy;
+    });
+    var padX = cw * 0.015;
+    var padY = ch * 0.015;
+    var minCx = padX - minDx, maxCx = cw - padX - maxDx;
+    var minCy = padY - minDy, maxCy = ch - padY - maxDy;
+    cx = minCx <= maxCx ? Math.max(minCx, Math.min(maxCx, cx)) : cw * 0.5;
+    cy = minCy <= maxCy ? Math.max(minCy, Math.min(maxCy, cy)) : ch * 0.5;
+
+    var corners = relOffsets.map(function (o) {
+      return {
+        x: Math.max(0.01, Math.min(0.99, (cx + o.dx) / cw)),
+        y: Math.max(0.01, Math.min(0.99, (cy + o.dy) / ch))
       };
     });
 
@@ -1864,7 +2851,7 @@
    * Maps any tilted/skewed quadrilateral `pts = [TL, TR, BR, BL]` on `sourceCanvas`
    * into a flat, straight high-DPI rectangular canvas using bilinear pixel interpolation.
    */
-  function warpPerspectiveCard(sourceCanvas, normPts, customMinW, customMaxW, preserveLongEdge, foldAxis) {
+  function warpPerspectiveCard(sourceCanvas, normPts, customMinW, customMaxW, preserveLongEdge, foldAxis, targetAspect) {
     var sw = sourceCanvas.width;
     var sh = sourceCanvas.height;
     if (normPts && normPts.length === 6 && window.TechHatDocumentCore && window.TechHatDocumentCore.warpSixPoints) {
@@ -1900,7 +2887,8 @@
     // Ensure high-DPI output resolution (>= 1320 px wide for export, or lightweight preview width during live interaction)
     var minTargetW = customMinW || 1320;
     var maxTargetW = customMaxW || 2600;
-    var upScale = natW < minTargetW ? (minTargetW / natW) : (natW > maxTargetW ? (maxTargetW / natW) : 1);
+    var refEdge = (!preserveLongEdge && targetAspect && targetAspect > 0) ? Math.max(natW, natH) : natW;
+    var upScale = refEdge < minTargetW ? (minTargetW / refEdge) : (refEdge > maxTargetW ? (maxTargetW / refEdge) : 1);
     var outW = Math.max(120, Math.min(maxTargetW, Math.round(natW * upScale)));
     var outH = Math.max(80, Math.min(maxTargetW, Math.round(natH * upScale)));
     // Documents may be portrait or panoramic: constrain both dimensions together.
@@ -1908,6 +2896,16 @@
       var docScale = Math.min(1, maxTargetW / Math.max(natW, natH));
       outW = Math.max(16, Math.round(natW * docScale));
       outH = Math.max(16, Math.round(natH * docScale));
+    } else if (targetAspect && targetAspect > 0) {
+      // Lock ID card output dimensions to fixed ISO CR80 aspect ratio regardless of manual quad stretch/skew
+      var longTarget = Math.max(120, Math.min(maxTargetW, Math.max(minTargetW, Math.round(Math.max(natW, natH) * upScale))));
+      if (targetAspect >= 1) {
+        outW = longTarget;
+        outH = Math.max(80, Math.round(outW / targetAspect));
+      } else {
+        outH = longTarget;
+        outW = Math.max(80, Math.round(outH * targetAspect));
+      }
     }
 
     // Fast hardware-resampled path when the quad is already an axis-aligned rectangle (within 1.5px)
@@ -2298,16 +3296,19 @@
   }
 
   function createCombineEntry(loadedItem) {
-    var det = autoDetectCardQuad(loadedItem.img, 0, 1, null, null, true);
+    var orientMode = getNidCardOrient();
+    var det = autoDetectCardQuad(loadedItem.img, 0, 1, null, null, true, orientMode);
     var baseEntry = (nidColorTarget === 'all' && combineItems.length > 0) ? combineItems[0] : null;
     var bs = getEntryColorState(baseEntry);
     return {
       item: loadedItem,
       rot: typeof det.rot === 'number' ? det.rot : 0,
+      manualRot: 0,
       flipH: 1,
       fineAngle: 0,
       pts: det.pts,
       autoDetected: det.auto,
+      cardOrient: orientMode,
       cw: 0,
       ch: 0,
       scanMode: bs.scanMode,
@@ -2330,23 +3331,83 @@
     }
   }
 
+  var MAX_NID_SIDES = 2;
+
+  function showMaxNidSidesToast() {
+    showToast(tr(
+      'আইডি কার্ডে সর্বোচ্চ ২টি ছবি (সামনের ও পেছনের পৃষ্ঠা) আপলোড করা যাবে। ছবি পরিবর্তন করতে "বদলান" অপশন ব্যবহার করুন।',
+      'Maximum 2 images (Front & Back sides) allowed for ID card. Use "Replace" to change an image.'
+    ));
+  }
+
+  function syncNidAddLimitControls() {
+    var isFull = combineItems.length >= MAX_NID_SIDES;
+    var addInp = $('#imgCombineAddMore');
+    if (addInp) addInp.disabled = isFull;
+    $$('label[for="imgCombineAddMore"]').forEach(function (lbl) {
+      lbl.classList.toggle('opacity-45', isFull);
+      lbl.classList.toggle('cursor-not-allowed', isFull);
+      lbl.setAttribute('aria-disabled', isFull ? 'true' : 'false');
+      var txt = lbl.querySelector('[data-i18n-bn]');
+      if (txt && lbl.classList.contains('ds-add-more')) {
+        txt.textContent = isFull ? tr('২/২ পৃষ্ঠা যুক্ত', '2/2 Sides Full') : tr('পেজ যোগ করুন', 'Add Side');
+      }
+    });
+    $$('#nidPagesSidebar [data-cam-slot="-1"], #nidCameraStageBtn, #nidMobCamBtn').forEach(function (btn) {
+      btn.classList.toggle('opacity-45', isFull);
+      btn.setAttribute('aria-disabled', isFull ? 'true' : 'false');
+    });
+  }
+
+  function ensureActiveNidCropMode() {
+    nidFitMode = true;
+    nidPan = { x: 0, y: 0 };
+    if (nidColorTarget !== 'all' && activeNidIdx >= 0 && activeNidIdx < 2) {
+      nidColorTarget = String(activeNidIdx);
+    }
+    var pane = $('#img-pane-combine');
+    if (pane && pane.getAttribute('data-view') === 'preview') {
+      var restoreView = window.innerWidth < 768 ? 'crop' : 'split';
+      pane.setAttribute('data-view', restoreView);
+      $$('[data-nid-canvas-view]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-nid-canvas-view') === restoreView ? 'true' : 'false');
+      });
+    }
+  }
+
   async function addCombineFiles(files) {
-    for (var i = 0; i < files.length; i++) {
+    var incoming = Array.prototype.slice.call(files || []);
+    if (!incoming.length) return;
+    if (combineItems.length >= MAX_NID_SIDES) {
+      showMaxNidSidesToast();
+      return;
+    }
+    var prevCount = combineItems.length;
+    var remainingSlots = MAX_NID_SIDES - prevCount;
+    var wasCapped = incoming.length > remainingSlots;
+    if (wasCapped) {
+      incoming = incoming.slice(0, remainingSlots);
+    }
+    var addedCount = 0;
+    for (var i = 0; i < incoming.length; i++) {
       try {
-        var it = await loadImageFile(files[i]);
+        var it = await loadImageFile(incoming[i]);
         combineItems.push(createCombineEntry(it));
+        addedCount++;
       } catch (e) {}
     }
-    if (!combineItems.length) {
+    if (!combineItems.length || !addedCount) {
       showToast(tr('অনুগ্রহ করে ছবি নির্বাচন করুন', 'Please select an image'));
       return;
     }
-    activeNidIdx = Math.min(activeNidIdx, combineItems.length - 1);
+    // When uploading the 2nd part after the 1st part is already loaded, automatically switch to the newly added 2nd part
+    activeNidIdx = prevCount > 0 ? (combineItems.length - 1) : 0;
     clearNidHistory();
     $('#imgCombineDropzone').hidden = true;
     $('#imgCombineStage').hidden = false;
     if ($('#imgCombineTopActions')) $('#imgCombineTopActions').hidden = false;
     if ($('#img-pane-combine')) $('#img-pane-combine').setAttribute('data-has-pages', 'true');
+    ensureActiveNidCropMode();
     switchNidView('edit');
     renderNidCardTabs();
     syncNidDeskewControl();
@@ -2354,9 +3415,18 @@
     drawNidCropSourceCanvas();
     triggerNidScanAnimation();
     renderCombineLivePreview();
+    if (wasCapped) {
+      showToast(tr('আইডি কার্ডের জন্য সর্বোচ্চ ২টি ছবি (সামনের ও পেছনের পৃষ্ঠা) নেওয়া হয়েছে', 'Loaded maximum 2 images (Front & Back sides) for ID card'));
+    } else if (prevCount > 0) {
+      showToast(tr('২য় পৃষ্ঠা লোড হয়েছে এবং অটো-সিলেক্ট করা হয়েছে!', '2nd side loaded & selected automatically!'));
+    }
   }
 
   async function setCombineSlotFile(slotIdx, file) {
+    if ((typeof slotIdx !== 'number' || slotIdx < 0 || slotIdx >= MAX_NID_SIDES) && combineItems.length >= MAX_NID_SIDES) {
+      showMaxNidSidesToast();
+      return;
+    }
     try {
       var it = await loadImageFile(file);
       var entry = createCombineEntry(it);
@@ -2375,15 +3445,19 @@
           combineItems.push(entry);
           activeNidIdx = combineItems.length - 1;
         }
-      } else {
+      } else if (combineItems.length < MAX_NID_SIDES) {
         combineItems.push(entry);
         activeNidIdx = combineItems.length - 1;
+      } else {
+        showMaxNidSidesToast();
+        return;
       }
       $('#imgCombineDropzone').hidden = true;
       clearNidHistory();
       $('#imgCombineStage').hidden = false;
       if ($('#imgCombineTopActions')) $('#imgCombineTopActions').hidden = false;
       if ($('#img-pane-combine')) $('#img-pane-combine').setAttribute('data-has-pages', 'true');
+      ensureActiveNidCropMode();
       switchNidView('edit');
       renderNidCardTabs();
       syncNidDeskewControl();
@@ -2391,7 +3465,9 @@
       drawNidCropSourceCanvas();
       triggerNidScanAnimation();
       renderCombineLivePreview();
-      showToast(tr('আইডি কার্ডের এজ অটো-ডিটেক্ট ও সোজা করা হয়েছে!', 'ID card edges auto-detected & straightened!'));
+      showToast(getNidCardOrient(entry) === 'portrait'
+        ? tr('পোর্ট্রেট আইডি কার্ডের এজ অটো-ডিটেক্ট ও সোজা করা হয়েছে!', 'Portrait ID card edges auto-detected & straightened!')
+        : tr('আইডি কার্ডের এজ অটো-ডিটেক্ট ও সোজা করা হয়েছে!', 'ID card edges auto-detected & straightened!'));
     } catch (e) {
       showToast(e.message || tr('ছবি লোড করা যায়নি', 'Failed to load image'));
     }
@@ -2401,22 +3477,35 @@
     var srcEntry = combineItems[activeNidIdx] || combineItems[0];
     if (!srcEntry) return;
     // Try auto-detecting a 2nd card on the same sheet by masking out the 1st card's region!
-    var det2 = autoDetectCardQuad(srcEntry.item.img, srcEntry.rot || 0, srcEntry.flipH || 1, srcEntry.pts);
-    var pts = det2 && det2.pts ? cloneQuadPts(det2.pts) : cloneQuadPts(srcEntry.pts);
+    var cloneOrient = getNidCardOrient(srcEntry);
+    var det2 = autoDetectCardQuad(srcEntry.item.img, srcEntry.rot || 0, srcEntry.flipH || 1, srcEntry.pts, null, false, cloneOrient);
+    var pts = det2 && !det2.fallback && det2.pts ? cloneQuadPts(det2.pts) : cloneQuadPts(srcEntry.pts);
 
-    // Check if det2 overlapped heavily with srcEntry.pts (e.g., if only 1 card exists on the sheet)
+    // Check if det2 overlapped heavily with srcEntry.pts or fell back (e.g., if only 1 card exists on the sheet)
     var c1x = (srcEntry.pts[0].x + srcEntry.pts[2].x) * 0.5;
     var c1y = (srcEntry.pts[0].y + srcEntry.pts[2].y) * 0.5;
     var c2x = (pts[0].x + pts[2].x) * 0.5;
     var c2y = (pts[0].y + pts[2].y) * 0.5;
-    if (Math.hypot(c2x - c1x, c2y - c1y) < 0.14) {
+    if ((det2 && det2.fallback) || Math.hypot(c2x - c1x, c2y - c1y) < 0.14) {
       pts = cloneQuadPts(srcEntry.pts);
-      var shiftY = c1y < 0.5 ? 0.36 : -0.36;
+      var minX = Math.min(pts[0].x, pts[1].x, pts[2].x, pts[3].x);
+      var maxX = Math.max(pts[0].x, pts[1].x, pts[2].x, pts[3].x);
       var minY = Math.min(pts[0].y, pts[1].y, pts[2].y, pts[3].y);
       var maxY = Math.max(pts[0].y, pts[1].y, pts[2].y, pts[3].y);
-      var clampedShiftY = Math.max(-minY + 0.02, Math.min(0.98 - maxY, shiftY));
-      for (var i = 0; i < 4; i++) {
-        pts[i].y = +(pts[i].y + clampedShiftY).toFixed(4);
+      var freeVert = Math.max(minY, 1 - maxY);
+      var freeHoriz = Math.max(minX, 1 - maxX);
+      if (cloneOrient === 'portrait' && freeHoriz > freeVert && freeHoriz > 0.22) {
+        var shiftX = c1x < 0.5 ? 0.36 : -0.36;
+        var clampedShiftX = Math.max(-minX + 0.02, Math.min(0.98 - maxX, shiftX));
+        for (var ix = 0; ix < 4; ix++) {
+          pts[ix].x = +(pts[ix].x + clampedShiftX).toFixed(4);
+        }
+      } else {
+        var shiftY = c1y < 0.5 ? 0.36 : -0.36;
+        var clampedShiftY = Math.max(-minY + 0.02, Math.min(0.98 - maxY, shiftY));
+        for (var i = 0; i < 4; i++) {
+          pts[i].y = +(pts[i].y + clampedShiftY).toFixed(4);
+        }
       }
     }
 
@@ -2424,10 +3513,12 @@
     var clonedEntry = {
       item: srcEntry.item,
       rot: srcEntry.rot || 0,
+      manualRot: srcEntry.manualRot || 0,
       flipH: srcEntry.flipH || 1,
       fineAngle: 0,
       pts: pts,
       autoDetected: true,
+      cardOrient: cloneOrient,
       cw: srcEntry.cw || 0,
       ch: srcEntry.ch || 0,
       snapField: srcEntry.snapField || null,
@@ -2450,6 +3541,8 @@
       combineItems[targetIdx] = clonedEntry;
       activeNidIdx = targetIdx;
     }
+    ensureActiveNidCropMode();
+    switchNidView('edit');
     renderNidCardTabs();
     syncNidDeskewControl();
     syncNidColorControlsFromTarget();
@@ -2471,13 +3564,16 @@
     return {
       activeIdx: activeNidIdx,
       colorTarget: nidColorTarget,
+      cardOrient: nidCardOrient,
       items: combineItems.map(function (e) {
         var cs = getEntryColorState(e);
         return {
           rot: e.rot || 0,
+          manualRot: e.manualRot || 0,
           flipH: e.flipH || 1,
           fineAngle: e.fineAngle || 0,
           autoDetected: !!e.autoDetected,
+          cardOrient: e.cardOrient || nidCardOrient,
           pts: cloneQuadPts(e.pts),
           scanMode: cs.scanMode,
           bright: cs.br,
@@ -2489,6 +3585,36 @@
         };
       })
     };
+  }
+
+  function syncNidOrientButtons() {
+    var entry = combineItems[activeNidIdx];
+    var orient = getNidCardOrient(entry);
+    var isPort = orient === 'portrait';
+    var landBtn = $('#nidSnapRatioBtn');
+    var portBtn = $('#nidSnapPortraitRatioBtn');
+    var mobLand = $('#nidMobSnapRatio');
+    var mobPort = $('#nidMobSnapPortrait');
+    var dropLand = $('#nidDropOrientLandscape');
+    var dropPort = $('#nidDropOrientPortrait');
+    if (landBtn) {
+      landBtn.setAttribute('aria-pressed', !isPort ? 'true' : 'false');
+    }
+    if (portBtn) {
+      portBtn.setAttribute('aria-pressed', isPort ? 'true' : 'false');
+    }
+    if (mobLand) {
+      mobLand.setAttribute('aria-pressed', !isPort ? 'true' : 'false');
+    }
+    if (mobPort) {
+      mobPort.setAttribute('aria-pressed', isPort ? 'true' : 'false');
+    }
+    if (dropLand) {
+      dropLand.setAttribute('aria-pressed', !isPort ? 'true' : 'false');
+    }
+    if (dropPort) {
+      dropPort.setAttribute('aria-pressed', isPort ? 'true' : 'false');
+    }
   }
 
   function updateNidHistoryButtons() {
@@ -2520,11 +3646,14 @@
     if (!snap || snap.items.length !== combineItems.length) return;
     activeNidIdx = Math.min(combineItems.length - 1, Math.max(0, snap.activeIdx || 0));
     if (snap.colorTarget) nidColorTarget = snap.colorTarget;
+    if (snap.cardOrient) nidCardOrient = snap.cardOrient;
     snap.items.forEach(function (st, i) {
       combineItems[i].rot = st.rot;
+      combineItems[i].manualRot = typeof st.manualRot === 'number' ? st.manualRot : 0;
       combineItems[i].flipH = st.flipH;
       combineItems[i].fineAngle = st.fineAngle;
       combineItems[i].autoDetected = st.autoDetected;
+      combineItems[i].cardOrient = st.cardOrient || nidCardOrient;
       combineItems[i].pts = cloneQuadPts(st.pts);
       combineItems[i].scanMode = st.scanMode || 'original';
       combineItems[i].bright = typeof st.bright === 'number' ? st.bright : 100;
@@ -2534,6 +3663,7 @@
       combineItems[i].deglare = typeof st.deglare === 'boolean' ? st.deglare : false;
       combineItems[i].textBoost = typeof st.textBoost === 'boolean' ? st.textBoost : false;
     });
+    syncNidOrientButtons();
     renderNidCardTabs();
     syncNidDeskewControl();
     syncNidColorControlsFromTarget();
@@ -2578,7 +3708,7 @@
   function fitNidCanvas() {
     var entry = combineItems[activeNidIdx];
     var viewport = $('#nidCanvasViewport');
-    if (!entry || !entry.viewWidth || !viewport.clientWidth || !viewport.clientHeight) return;
+    if (!entry || !entry.viewWidth || !viewport || !viewport.clientWidth || !viewport.clientHeight) return;
     nidCanvasZoom = Math.max(0.01, Math.min(1,
       (viewport.clientWidth - 72) / entry.viewWidth,
       (viewport.clientHeight - 72) / entry.viewHeight));
@@ -2821,14 +3951,17 @@
       swapBtn.style.opacity = combineItems.length < 2 ? '0.35' : '1';
     }
 
-    if (!tabsEl) return;
+    if (!tabsEl) {
+      syncNidAddLimitControls();
+      return;
+    }
     tabsEl.innerHTML = '';
     combineItems.forEach(function (entry, idx) {
       var label = idx === 0 ? tr('সামনের পৃষ্ঠা', 'Front Side') : (idx === 1 ? tr('পেছনের পৃষ্ঠা', 'Back Side') : tr('কার্ড ', 'Card ') + toBn(idx + 1));
       var badgeNum = toBn(idx + 1);
       var active = idx === activeNidIdx;
       var card = document.createElement('div');
-      card.className = 'nid-card-tab ds-page group relative flex flex-col gap-1.5 p-2 rounded-xl border text-left transition-all cursor-pointer ' +
+      card.className = 'nid-card-tab ds-page shrink-0 w-full group relative flex flex-col gap-1.5 p-2 rounded-xl border text-left transition-all cursor-pointer ' +
         (active
           ? ' active is-active border-indigo-500 bg-indigo-500/10 dark:bg-indigo-500/15 ring-2 ring-indigo-500/25 shadow-xs'
           : ' border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-studio-panel/60 hover:border-indigo-400');
@@ -2868,6 +4001,14 @@
         });
         return b;
       };
+      actions.appendChild(makeActBtn(
+        '<svg class="w-3 h-3 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+        tr('এই পৃষ্ঠার ছবি বদলান', 'Replace This Side'),
+        function () {
+          var repIn = $(idx === 0 ? '#nidReplaceFrontInput' : '#nidReplaceBackInput');
+          if (repIn) repIn.click();
+        }
+      ));
       if (combineItems.length > 1) {
         if (idx > 0) {
           actions.appendChild(makeActBtn(
@@ -2924,7 +4065,8 @@
       headRow.appendChild(actions);
 
       var thumbWrap = document.createElement('div');
-      thumbWrap.className = 'w-full aspect-[1.586/1] rounded-lg overflow-hidden bg-white dark:bg-studio-bg border border-slate-200/90 dark:border-studio-border relative grid place-items-center p-1 shadow-2xs';
+      var isEntryPort = getNidCardOrient(entry) === 'portrait';
+      thumbWrap.className = 'nid-card-tab__thumb-wrap w-full ' + (isEntryPort ? 'aspect-[1.2/1] min-h-[124px]' : 'aspect-[1.586/1] min-h-[104px]') + ' shrink-0 rounded-lg overflow-hidden bg-white dark:bg-studio-bg border border-slate-200/90 dark:border-studio-border relative grid place-items-center p-1 shadow-2xs';
       var thumbImg = document.createElement('img');
       thumbImg.alt = label;
       thumbImg.setAttribute('data-nid-thumb-idx', String(idx));
@@ -2953,18 +4095,24 @@
         if (nidColorTarget !== 'all' && idx < 2) {
           nidColorTarget = String(idx);
         }
+        syncNidOrientButtons();
         renderNidCardTabs();
         syncNidDeskewControl();
         syncNidColorControlsFromTarget();
         drawNidCropSourceCanvas();
       });
       tabsEl.appendChild(card);
+      if (active && typeof card.scrollIntoView === 'function') {
+        requestAnimationFrame(function () {
+          try { card.scrollIntoView({ block: 'nearest' }); } catch (_) {}
+        });
+      }
     });
 
-    if (combineItems.length < 2) {
+    if (combineItems.length < MAX_NID_SIDES) {
       var addBackBtn = document.createElement('button');
       addBackBtn.type = 'button';
-      addBackBtn.className = 'nid-card-tab nid-card-tab--add w-full aspect-[1.586/1] p-2.5 rounded-xl border-2 border-dashed border-indigo-400/60 dark:border-indigo-500/40 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-xs font-bold flex flex-col items-center justify-center gap-1.5 cursor-pointer transition';
+      addBackBtn.className = 'nid-card-tab nid-card-tab--add shrink-0 w-full aspect-[1.586/1] min-h-[112px] p-2.5 rounded-xl border-2 border-dashed border-indigo-400/60 dark:border-indigo-500/40 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-xs font-bold flex flex-col items-center justify-center gap-1.5 cursor-pointer transition';
       addBackBtn.innerHTML =
         '<svg class="w-5 h-5 stroke-current stroke-2 fill-none opacity-85" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M12 9v6M9 12h6"/></svg>' +
         '<span>' + tr('+ পেছনের পৃষ্ঠা যোগ করুন', '+ Add Back Side') + '</span>';
@@ -2974,6 +4122,8 @@
       });
       tabsEl.appendChild(addBackBtn);
     }
+    syncNidOrientButtons();
+    syncNidAddLimitControls();
     updateNidRightPanelBadges();
   }
 
@@ -3197,7 +4347,7 @@
     var srcCanvas = $('#nidCropSourceCanvas');
     var entry = combineItems[activeNidIdx];
     if (!loupe || !srcCanvas) return;
-    if (!window._nidEnableLoupe) {
+    if (window._nidEnableLoupe === false) {
       loupe.hidden = true;
       return;
     }
@@ -3213,7 +4363,7 @@
     var cornerIdx = (opts && typeof opts.cornerIdx === 'number') ? opts.cornerIdx : -1;
     var snapH = !!(opts && opts.snapH);
     var snapV = !!(opts && opts.snapV);
-    var zoom = isFine ? 3.5 : 2.15;
+    var zoom = isFine ? 3.6 : 2.35;
     var px = normX * cw;
     var py = normY * ch;
     var sampleW = lw / zoom;
@@ -3347,10 +4497,10 @@
     lctx.stroke();
 
     // Top Zoom HUD badge
-    var hudTxt = isFine ? '3.5× ফাইন জুম' : '2.2× ওয়াইড এডজ';
+    var hudTxt = isFine ? tr('3.6× ফাইন জুম', '3.6× Fine Zoom') : tr('2.4× এজ জুম', '2.4× Edge Zoom');
     lctx.fillStyle = 'rgba(15, 23, 42, 0.84)';
     lctx.beginPath();
-    lctx.roundRect ? lctx.roundRect(cx - 44, 8, 88, 18, 9) : lctx.rect(cx - 44, 8, 88, 18);
+    lctx.roundRect ? lctx.roundRect(cx - 48, 8, 96, 18, 9) : lctx.rect(cx - 48, 8, 96, 18);
     lctx.fill();
     lctx.fillStyle = '#e2e8f0';
     lctx.font = 'bold 11px sans-serif';
@@ -3361,13 +4511,15 @@
     if (isInvalid) {
       lctx.fillStyle = 'rgba(255, 77, 79, 0.94)';
       lctx.beginPath();
-      lctx.roundRect ? lctx.roundRect(cx - 46, lh - 28, 92, 20, 10) : lctx.rect(cx - 46, lh - 28, 92, 20);
+      lctx.roundRect ? lctx.roundRect(cx - 48, lh - 28, 96, 20, 10) : lctx.rect(cx - 48, lh - 28, 96, 20);
       lctx.fill();
       lctx.fillStyle = '#ffffff';
       lctx.font = 'bold 11px sans-serif';
-      lctx.fillText('⚠ বর্ডার ভাঁজ', cx, lh - 14.5);
+      lctx.fillText(tr('⚠ বর্ডার ভাঁজ', '⚠ Crossed'), cx, lh - 14.5);
     } else if (isSnapped) {
-      var snapLbl = (snapH && snapV) ? '✦ H+V লাইন স্ন্যাপ' : (snapH ? '✦ H-লাইন স্ন্যাপ' : (snapV ? '✦ V-লাইন স্ন্যাপ' : '✦ বর্ডার স্ন্যাপ'));
+      var snapLbl = (snapH && snapV)
+        ? tr('✦ H+V স্ন্যাপ', '✦ H+V Snap')
+        : (snapH ? tr('✦ H-লাইন স্ন্যাপ', '✦ H-Line Snap') : (snapV ? tr('✦ V-লাইন স্ন্যাপ', '✦ V-Line Snap') : tr('✦ বর্ডার স্ন্যাপ', '✦ Edge Snap')));
       lctx.fillStyle = 'rgba(6, 182, 212, 0.94)';
       lctx.beginPath();
       lctx.roundRect ? lctx.roundRect(cx - 54, lh - 28, 108, 20, 10) : lctx.rect(cx - 54, lh - 28, 108, 20);
@@ -3381,25 +4533,43 @@
     var posY = (opts && typeof opts.cursorY === 'number') ? opts.cursorY : normY;
 
     loupe.style.borderColor = accentColor;
-    loupe.style.left = (posX * 100).toFixed(2) + '%';
-    loupe.style.top = (posY * 100).toFixed(2) + '%';
 
-    // Smart Anti-Clipping Placement with Hysteresis (never flips at y≈0.36 where card top borders sit!)
-    var txPct = -50;
-    if (posX < 0.24) {
-      txPct = -6 - (posX / 0.24) * 44;
-    } else if (posX > 0.76) {
-      txPct = -50 - ((posX - 0.76) / 0.24) * 44;
+    // Viewport-Aware Placement: keeps the 176px loupe 100% inside `#nidCanvasViewport` at ANY zoom level (e.g. 13%..400%)
+    var viewport = $('#nidCanvasViewport');
+    var wrapEl = $('#nidCropInteractiveWrap');
+    var vpRect = viewport && viewport.getBoundingClientRect ? viewport.getBoundingClientRect() : null;
+    var wrapRect = wrapEl && wrapEl.getBoundingClientRect ? wrapEl.getBoundingClientRect() : null;
+    if (vpRect && wrapRect && vpRect.width > 40 && wrapRect.width > 20) {
+      var hx = (wrapRect.left - vpRect.left) + posX * wrapRect.width;
+      var hy = (wrapRect.top - vpRect.top) + posY * wrapRect.height;
+      var L = loupe.offsetWidth || 176;
+      var leftPx = Math.max(8, Math.min(vpRect.width - L - 8, hx - L * 0.5));
+      var topAbove = hy - L - 24;
+      var topBelow = hy + 24;
+      if (typeof loupe._flipBelow !== 'boolean') {
+        loupe._flipBelow = topAbove < 8;
+      } else if (loupe._flipBelow && topAbove >= 22) {
+        loupe._flipBelow = false;
+      } else if (!loupe._flipBelow && topAbove < 6) {
+        loupe._flipBelow = true;
+      }
+      var topPx = loupe._flipBelow ? Math.min(vpRect.height - L - 8, topBelow) : Math.max(8, topAbove);
+      if (Math.abs((topPx + L * 0.5) - hy) < L * 0.42) {
+        leftPx = hx > vpRect.width * 0.5 ? 10 : Math.max(10, vpRect.width - L - 10);
+        topPx = Math.max(8, Math.min(vpRect.height - L - 8, hy - L * 0.5));
+      }
+      loupe.style.left = Math.round(leftPx) + 'px';
+      loupe.style.top = Math.round(topPx) + 'px';
+      loupe.style.transform = 'none';
+    } else {
+      loupe.style.left = (posX * 100).toFixed(2) + '%';
+      loupe.style.top = (posY * 100).toFixed(2) + '%';
+      var txPct = -50;
+      if (posX < 0.24) txPct = -6 - (posX / 0.24) * 44;
+      else if (posX > 0.76) txPct = -50 - ((posX - 0.76) / 0.24) * 44;
+      var tyPct = posY < 0.22 ? 18 : -118;
+      loupe.style.transform = 'translate(' + txPct.toFixed(1) + '%, ' + tyPct + '%)';
     }
-    if (typeof loupe._flipBelow !== 'boolean') {
-      loupe._flipBelow = posY < 0.22;
-    } else if (loupe._flipBelow && posY > 0.30) {
-      loupe._flipBelow = false;
-    } else if (!loupe._flipBelow && posY < 0.19) {
-      loupe._flipBelow = true;
-    }
-    var tyPct = loupe._flipBelow ? 18 : -118;
-    loupe.style.transform = 'translate(' + txPct.toFixed(1) + '%, ' + tyPct + '%)';
   }
 
   function hideNidLoupe() {
@@ -3700,7 +4870,7 @@
       var rect = wrapEl.getBoundingClientRect();
       var sx = Math.max(0.05, Math.min(0.95, (e.clientX - rect.left) / (rect.width || 1)));
       var sy = Math.max(0.05, Math.min(0.95, (e.clientY - rect.top) / (rect.height || 1)));
-      var det = autoDetectCardQuad(entry.item.img, entry.rot || 0, entry.flipH || 1, null, { x: sx, y: sy });
+      var det = autoDetectCardQuad(entry.item.img, entry.rot || 0, entry.flipH || 1, null, { x: sx, y: sy }, null, getNidCardOrient(entry));
       entry.pts = det.pts;
       entry.autoDetected = true;
       positionNidQuadDOM({ snapped: true });
@@ -4077,7 +5247,9 @@
     var hasTextBoost = !!textBoost;
 
     var rotFlipKey = rotNorm + ':' + flipVal;
-    var warpKey = rotFlipKey + ':' + serializeQuadKey(pts);
+    var cardOrient = getNidCardOrient(entry);
+    var cardTargetAspect = cardOrient === 'portrait' ? (53.98 / 85.6) : (85.6 / 53.98);
+    var warpKey = rotFlipKey + ':' + cardOrient + ':' + serializeQuadKey(pts);
     var deskewKey = warpKey + ':' + fineDeg.toFixed(2);
     var procKey = deskewKey + ':' + scanMode + ':' + br + ':' + ct + ':' + st + ':' + sharp + ':' + (hasDeglare ? 1 : 0) + ':' + (hasTextBoost ? 1 : 0);
 
@@ -4111,13 +5283,13 @@
     var warpedCanvas;
     if (isPreview) {
       if (entry._warpPreviewKey !== warpKey || !entry._warpPreviewCanvas) {
-        entry._warpPreviewCanvas = warpPerspectiveCard(rotCanvas, pts, 360, 400);
+        entry._warpPreviewCanvas = warpPerspectiveCard(rotCanvas, pts, 360, 400, false, null, cardTargetAspect);
         entry._warpPreviewKey = warpKey;
       }
       warpedCanvas = entry._warpPreviewCanvas;
     } else {
       if (entry._warpFullKey !== warpKey || !entry._warpFullCanvas) {
-        entry._warpFullCanvas = warpPerspectiveCard(rotCanvas, pts, 1320, 2600);
+        entry._warpFullCanvas = warpPerspectiveCard(rotCanvas, pts, 1320, 2600, false, null, cardTargetAspect);
         entry._warpFullKey = warpKey;
       }
       warpedCanvas = entry._warpFullCanvas;
@@ -4775,9 +5947,9 @@
    * Builds a genuine PDF 1.4 document embedding the high-DPI JPEG image stream (`/DCTDecode`)
    * with zero re-compression loss.
    */
-  function buildJpegPdfBlob(jpegBytes, imgW, imgH, isA4) {
-    var pageW = isA4 ? 595.28 : 540;
-    var pageH = isA4 ? 841.89 : Math.max(120, +(540 * (imgH / Math.max(1, imgW))).toFixed(2));
+  function buildJpegPdfBlob(jpegBytes, imgW, imgH, isA4, printWidthMm) {
+    var pageW = isA4 ? 595.28 : (printWidthMm && printWidthMm > 0 ? Math.max(120, Math.min(841.89, +(printWidthMm * 72 / 25.4).toFixed(2))) : 540);
+    var pageH = isA4 ? 841.89 : Math.max(100, +(pageW * (imgH / Math.max(1, imgW))).toFixed(2));
     var contentStr = 'q\n' + pageW.toFixed(2) + ' 0 0 ' + pageH.toFixed(2) + ' 0 0 cm\n/Im0 Do\nQ\n';
 
     var enc = new TextEncoder();
@@ -4915,6 +6087,10 @@
 
     updateNidRightPanelBadges();
 
+    var cardWEl = $('#imgCombineCardW');
+    var cardWInput = Math.max(420, Math.min(950, parseInt(cardWEl && cardWEl.value, 10) || 660));
+    syncNidSizePresetButtons(cardWInput);
+
     return {
       mode: mode,
       scanMode: scanMode,
@@ -4922,7 +6098,7 @@
       ct: ct,
       st: st,
       sharp: sharp,
-      cardWInput: 660,
+      cardWInput: cardWInput,
       gap: Math.max(0, parseInt($('#imgCombineGap') && $('#imgCombineGap').value, 10) || 36),
       bg: ($('#imgCombineBg') && $('#imgCombineBg').value) || '#ffffff',
       alignMode: $('#imgCombineAlign') ? $('#imgCombineAlign').value : 'top',
@@ -4933,10 +6109,30 @@
     };
   }
 
+  function syncNidSizePresetButtons(cardWVal) {
+    var btns = $$('[data-cardw]');
+    if (!btns.length) return;
+    btns.forEach(function (b) {
+      var v = parseInt(b.getAttribute('data-cardw'), 10);
+      var match = Math.abs(v - cardWVal) <= 12;
+      b.classList.toggle('active', match);
+      b.setAttribute('aria-pressed', match ? 'true' : 'false');
+    });
+  }
+
+  function measureCardForLongEdge(c, longPx) {
+    var cw0 = Math.max(1, (c && c.width) || 1);
+    var ch0 = Math.max(1, (c && c.height) || 1);
+    if (ch0 > cw0) {
+      return { img: c, w: Math.max(1, Math.round(cw0 * (longPx / ch0))), h: Math.max(1, Math.round(longPx)) };
+    }
+    return { img: c, w: Math.max(1, Math.round(longPx)), h: Math.max(1, Math.round(ch0 * (longPx / cw0))) };
+  }
+
   /**
    * Synchronously composes the output sheet onto `canvas` at the requested `dpiScale`
    * (`dpiScale = 0.65` for 60fps interactive live preview, `dpiScale = 2` for 300-DPI print master).
-   * Returns `{ width, height, fullW, fullH }`.
+   * Returns `{ width, height, fullW, fullH, printWidthMm }`.
    */
   function composeCombineSheetCanvas(canvas, processedCards, cfg, dpiScale) {
     var sr = dpiScale / 2;
@@ -4949,6 +6145,7 @@
     var showBorder = cfg.showBorder;
     var showCutMarks = cfg.showCutMarks;
     var fullW = 2480, fullH = 3508;
+    var cardWNum = Math.max(420, Math.min(950, Number(cfg.cardWInput) || 660));
 
     var ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
@@ -4964,113 +6161,164 @@
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, cw, ch);
 
-      var cardW = Math.round(Math.max(520, Math.min(2200, cfg.cardWInput * 2)) * sr);
+      var cardLongPx = Math.round(Math.max(520, Math.min(2200, cardWNum * 2)) * sr);
       var gapPx = Math.round(gap * dpiScale);
 
       if (mode === 'nid-a4-side' && processedCards.length >= 2) {
-        var maxSideW = Math.floor((cw - Math.round(240 * sr) - gapPx) / 2);
-        var sideW = Math.min(cardW, maxSideW);
-        var pairItems = processedCards.slice(0, 2).map(function (c) {
-          return { img: c, w: sideW, h: Math.round(c.height * (sideW / c.width)) };
+        var pairBase = processedCards.slice(0, 2).map(function (c) {
+          return measureCardForLongEdge(c, cardLongPx);
+        });
+        var maxSideAvailW = cw - Math.round(200 * sr);
+        var sideScale = Math.min(1, (maxSideAvailW - gapPx) / Math.max(1, pairBase[0].w + pairBase[1].w));
+        var rowsCount = copySets;
+        var rowGapSide = Math.round(gapPx * 1.4);
+        var baseRowH = Math.max(pairBase[0].h, pairBase[1].h);
+        var maxSideAvailH = ch - Math.round(220 * sr);
+        var allSideH0 = rowsCount * (baseRowH * sideScale) + Math.max(0, rowsCount - 1) * rowGapSide;
+        if (allSideH0 > maxSideAvailH && rowsCount > 0) {
+          var vSideScale = Math.max(0.25, (maxSideAvailH - Math.max(0, rowsCount - 1) * rowGapSide) / Math.max(1, rowsCount * baseRowH));
+          sideScale = Math.min(sideScale, vSideScale);
+        }
+        var pairItems = pairBase.map(function (p) {
+          return { img: p.img, w: Math.max(1, Math.round(p.w * sideScale)), h: Math.max(1, Math.round(p.h * sideScale)) };
         });
         var rowH = Math.max(pairItems[0].h, pairItems[1].h);
         var totalPairW = pairItems[0].w + gapPx + pairItems[1].w;
         var startX = Math.round((cw - totalPairW) / 2);
-        var rowsCount = copySets;
-        var allRowsH = rowsCount * rowH + Math.max(0, rowsCount - 1) * (gapPx * 1.4);
+        var allRowsH = rowsCount * rowH + Math.max(0, rowsCount - 1) * rowGapSide;
         var startY = alignMode === 'center'
-          ? Math.max(Math.round(160 * sr), Math.round((ch - allRowsH) / 2))
-          : Math.round(240 * sr);
+          ? Math.max(Math.round(140 * sr), Math.round((ch - allRowsH) / 2))
+          : Math.round(220 * sr);
 
         for (var rIdx = 0; rIdx < rowsCount; rIdx++) {
-          var ry = Math.round(startY + rIdx * (rowH + gapPx * 1.4));
+          var ry = Math.round(startY + rIdx * (rowH + rowGapSide));
           if (ry + rowH > ch - Math.round(80 * sr)) break;
-          drawCardWithOptions(ctx, pairItems[0].img, startX, ry, pairItems[0].w, pairItems[0].h, roundCorner, showBorder, showCutMarks, sr);
-          drawCardWithOptions(ctx, pairItems[1].img, startX + pairItems[0].w + gapPx, ry, pairItems[1].w, pairItems[1].h, roundCorner, showBorder, showCutMarks, sr);
+          var y0 = ry + Math.round((rowH - pairItems[0].h) / 2);
+          var y1 = ry + Math.round((rowH - pairItems[1].h) / 2);
+          drawCardWithOptions(ctx, pairItems[0].img, startX, y0, pairItems[0].w, pairItems[0].h, roundCorner, showBorder, showCutMarks, sr);
+          drawCardWithOptions(ctx, pairItems[1].img, startX + pairItems[0].w + gapPx, y1, pairItems[1].w, pairItems[1].h, roundCorner, showBorder, showCutMarks, sr);
         }
       } else {
         var colsCount = copySets >= 2 ? 2 : 1;
         var rowsSets = copySets === 4 ? 2 : 1;
-        var effCardW = colsCount === 2 ? Math.min(cardW, Math.floor((cw - Math.round(280 * sr) - gapPx * 1.5) / 2)) : cardW;
+        var colGap = Math.round(gapPx * 1.6);
+        var rowGapA4 = gapPx * 2;
+        var measured = processedCards.map(function (c) {
+          return measureCardForLongEdge(c, cardLongPx);
+        });
+        var maxBaseW = 0;
+        var sumBaseH = 0;
+        measured.forEach(function (m) {
+          if (m.w > maxBaseW) maxBaseW = m.w;
+          sumBaseH += m.h;
+        });
+        var maxAvailW = cw - Math.round(220 * sr);
+        var maxAvailH = ch - Math.round(220 * sr);
+        var fitWScale = (maxAvailW - (colsCount - 1) * colGap) / Math.max(1, colsCount * maxBaseW);
+        var cardGapsPerSet = gapPx * Math.max(0, measured.length - 1);
+        var fitHScale = (maxAvailH - rowsSets * cardGapsPerSet - (rowsSets - 1) * rowGapA4) / Math.max(1, rowsSets * sumBaseH);
+        var a4Scale = Math.min(1, fitWScale, fitHScale);
+        if (a4Scale < 0.25) a4Scale = 0.25;
 
         var oneSetH = 0;
-        var scaled = processedCards.map(function (c) {
-          var h = Math.round(c.height * (effCardW / c.width));
+        var colBoxW = 0;
+        var scaled = measured.map(function (m) {
+          var w = Math.max(1, Math.round(m.w * a4Scale));
+          var h = Math.max(1, Math.round(m.h * a4Scale));
+          if (w > colBoxW) colBoxW = w;
           oneSetH += h;
-          return { img: c, w: effCardW, h: h };
+          return { img: m.img, w: w, h: h };
         });
-        oneSetH += gapPx * Math.max(0, scaled.length - 1);
+        oneSetH += cardGapsPerSet;
 
-        var totalBlockH = rowsSets * oneSetH + (rowsSets - 1) * (gapPx * 2);
+        var totalBlockH = rowsSets * oneSetH + (rowsSets - 1) * rowGapA4;
         var baseTopY = alignMode === 'center'
-          ? Math.max(Math.round(150 * sr), Math.round((ch - totalBlockH) / 2))
-          : Math.round(230 * sr);
+          ? Math.max(Math.round(140 * sr), Math.round((ch - totalBlockH) / 2))
+          : Math.round(220 * sr);
 
-        var totalColsW = colsCount * effCardW + (colsCount - 1) * Math.round(gapPx * 1.6);
+        var totalColsW = colsCount * colBoxW + (colsCount - 1) * colGap;
         var baseLeftX = Math.round((cw - totalColsW) / 2);
 
         for (var rs = 0; rs < rowsSets; rs++) {
           for (var cs = 0; cs < colsCount; cs++) {
-            var colX = baseLeftX + cs * (effCardW + Math.round(gapPx * 1.6));
-            var curY = baseTopY + rs * (oneSetH + gapPx * 2);
+            var colX = baseLeftX + cs * (colBoxW + colGap);
+            var curY = baseTopY + rs * (oneSetH + rowGapA4);
             scaled.forEach(function (s) {
-              drawCardWithOptions(ctx, s.img, colX, curY, s.w, s.h, roundCorner, showBorder, showCutMarks, sr);
+              var drawX = colX + Math.round((colBoxW - s.w) / 2);
+              drawCardWithOptions(ctx, s.img, drawX, curY, s.w, s.h, roundCorner, showBorder, showCutMarks, sr);
               curY += s.h + gapPx;
             });
           }
         }
       }
     } else if (mode === 'vertical') {
-      var fullTargetW = 1400;
-      var targetW = Math.round(fullTargetW * sr);
+      var fullLongV = Math.max(520, Math.min(2200, cardWNum * 2));
+      var targetLongV = Math.round(fullLongV * sr);
       var pad = Math.round(gap * 2 * sr);
       var vGap = Math.round(gap * 2 * sr);
+      var maxRowW = 0, maxFullRowW = 0;
       var sumH = pad * 2 + vGap * Math.max(0, processedCards.length - 1);
       var fullSumH = (gap * 4) + (gap * 2) * Math.max(0, processedCards.length - 1);
       var rows = processedCards.map(function (c) {
-        var h = Math.round(c.height * (targetW / c.width));
-        sumH += h;
-        fullSumH += Math.round(c.height * (fullTargetW / c.width));
-        return { img: c, w: targetW, h: h };
+        var r = measureCardForLongEdge(c, targetLongV);
+        var rf = measureCardForLongEdge(c, fullLongV);
+        if (r.w > maxRowW) maxRowW = r.w;
+        if (rf.w > maxFullRowW) maxFullRowW = rf.w;
+        sumH += r.h;
+        fullSumH += rf.h;
+        return r;
       });
-      fullW = fullTargetW + gap * 4;
-      fullH = fullSumH;
-      if (canvas.width !== targetW + pad * 2) canvas.width = targetW + pad * 2;
-      if (canvas.height !== sumH) canvas.height = sumH;
+      fullW = Math.max(200, maxFullRowW + gap * 4);
+      fullH = Math.max(200, fullSumH);
+      var cwV = Math.max(120, maxRowW + pad * 2);
+      var chV = Math.max(120, sumH);
+      if (canvas.width !== cwV) canvas.width = cwV;
+      if (canvas.height !== chV) canvas.height = chV;
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       var y = pad;
       rows.forEach(function (r) {
-        drawCardWithOptions(ctx, r.img, pad, y, r.w, r.h, roundCorner, showBorder, showCutMarks, sr);
+        var rx = Math.round((cwV - r.w) / 2);
+        drawCardWithOptions(ctx, r.img, rx, y, r.w, r.h, roundCorner, showBorder, showCutMarks, sr);
         y += r.h + vGap;
       });
     } else {
-      var fullTargetH = 900;
-      var targetH = Math.round(fullTargetH * sr);
+      var fullLongH = Math.max(520, Math.min(2200, cardWNum * 2));
+      var targetLongH = Math.round(fullLongH * sr);
       var padH = Math.round(gap * 2 * sr);
       var hGap = Math.round(gap * 2 * sr);
+      var maxColH = 0, maxFullColH = 0;
       var sumW = padH * 2 + hGap * Math.max(0, processedCards.length - 1);
       var fullSumW = (gap * 4) + (gap * 2) * Math.max(0, processedCards.length - 1);
       var cols = processedCards.map(function (c) {
-        var w = Math.round(c.width * (targetH / c.height));
-        sumW += w;
-        fullSumW += Math.round(c.width * (fullTargetH / c.height));
-        return { img: c, w: w, h: targetH };
+        var col = measureCardForLongEdge(c, targetLongH);
+        var colF = measureCardForLongEdge(c, fullLongH);
+        if (col.h > maxColH) maxColH = col.h;
+        if (colF.h > maxFullColH) maxFullColH = colF.h;
+        sumW += col.w;
+        fullSumW += colF.w;
+        return col;
       });
-      fullW = fullSumW;
-      fullH = fullTargetH + gap * 4;
-      if (canvas.width !== sumW) canvas.width = sumW;
-      if (canvas.height !== targetH + padH * 2) canvas.height = targetH + padH * 2;
+      fullW = Math.max(200, fullSumW);
+      fullH = Math.max(200, maxFullColH + gap * 4);
+      var cwH = Math.max(120, sumW);
+      var chH = Math.max(120, maxColH + padH * 2);
+      if (canvas.width !== cwH) canvas.width = cwH;
+      if (canvas.height !== chH) canvas.height = chH;
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       var x = padH;
       cols.forEach(function (c) {
-        drawCardWithOptions(ctx, c.img, x, padH, c.w, c.h, roundCorner, showBorder, showCutMarks, sr);
+        var cy = Math.round((chH - c.h) / 2);
+        drawCardWithOptions(ctx, c.img, x, cy, c.w, c.h, roundCorner, showBorder, showCutMarks, sr);
         x += c.w + hGap;
       });
     }
 
-    return { width: canvas.width, height: canvas.height, fullW: fullW, fullH: fullH };
+    var printWidthMm = (mode === 'nid-a4' || mode === 'nid-a4-side')
+      ? 210
+      : +(fullW * 210 / 2480).toFixed(2);
+    return { width: canvas.width, height: canvas.height, fullW: fullW, fullH: fullH, printWidthMm: printWidthMm };
   }
 
   var nidLiveRafId = 0;
@@ -5098,8 +6346,12 @@
       var dims = composeCombineSheetCanvas(liveCanvas, previewCards, cfg, 0.65);
       liveCanvas.hidden = false;
       if (outImg) outImg.hidden = true;
+      var isA4Live = cfg.mode === 'nid-a4' || cfg.mode === 'nid-a4-side';
+      var isActualLive = cfg.cardWInput <= 525;
       $('#nidPreviewPanel').style.setProperty('--nid-output-ratio', dims.fullW / dims.fullH);
-      $('#nidPaperLabel').textContent = cfg.mode === 'nid-a4' || cfg.mode === 'nid-a4-side' ? 'A4 · 210 × 297 mm' : tr('কার্ড লেআউট', 'Card Layout');
+      $('#nidPaperLabel').textContent = isA4Live
+        ? (isActualLive ? tr('A4 · আসল ID (85.6×54mm)', 'A4 · Actual ID (85.6×54mm)') : 'A4 · 210 × 297 mm')
+        : (isActualLive ? tr('আসল ID · 85.6×54 mm', 'Actual ID · 85.6×54 mm') : tr('কার্ড লেআউট', 'Card Layout'));
       var sizeTxt = combineOut.blob ? (' • ' + fmtSize(combineOut.blob.size)) : '';
       $('#imgCombineOutMeta').textContent = dims.fullW + ' × ' + dims.fullH + ' px (300 DPI)' + sizeTxt;
       $('#imgCombineSummary').textContent = toBn(combineItems.length) + tr('টি কার্ড • ', ' cards • ') + toBn(cfg.copySets) + tr(' সেট • 300 DPI HD', ' sets • 300 DPI HD') + sizeTxt;
@@ -5160,7 +6412,7 @@
     }
 
     var canvas = document.createElement('canvas');
-    composeCombineSheetCanvas(canvas, processedCards, cfg, 2);
+    var sheetDims = composeCombineSheetCanvas(canvas, processedCards, cfg, 2);
 
     var blob = await canvasToBlob(canvas, 'image/jpeg', 0.96);
     if (token !== combineToken) return;
@@ -5170,6 +6422,8 @@
     combineOut.width = canvas.width;
     combineOut.height = canvas.height;
     combineOut.mode = cfg.mode;
+    combineOut.cardWInput = cfg.cardWInput;
+    combineOut.printWidthMm = sheetDims.printWidthMm;
     combineOut.dirty = false;
 
     var outImg = $('#imgCombineOutPreview');
@@ -5185,8 +6439,12 @@
     } else if (outImg) {
       outImg.hidden = false;
     }
+    var isA4Full = cfg.mode === 'nid-a4' || cfg.mode === 'nid-a4-side';
+    var isActualFull = cfg.cardWInput <= 525;
     $('#nidPreviewPanel').style.setProperty('--nid-output-ratio', canvas.width / canvas.height);
-    $('#nidPaperLabel').textContent = cfg.mode === 'nid-a4' || cfg.mode === 'nid-a4-side' ? 'A4 · 210 × 297 mm' : tr('কার্ড লেআউট', 'Card Layout');
+    $('#nidPaperLabel').textContent = isA4Full
+      ? (isActualFull ? tr('A4 · আসল ID (85.6×54mm)', 'A4 · Actual ID (85.6×54mm)') : 'A4 · 210 × 297 mm')
+      : (isActualFull ? tr('আসল ID · 85.6×54 mm', 'Actual ID · 85.6×54 mm') : tr('কার্ড লেআউট', 'Card Layout'));
     $('#imgCombineOutMeta').textContent = canvas.width + ' × ' + canvas.height + ' px (300 DPI) • ' + fmtSize(blob.size);
     $('#imgCombineSummary').textContent = toBn(combineItems.length) + tr('টি কার্ড • ', ' cards • ') + toBn(cfg.copySets) + tr(' সেট • 300 DPI HD • ', ' sets • 300 DPI HD • ') + fmtSize(blob.size);
     setNidExportReady(true);
@@ -5231,6 +6489,10 @@
   }
 
   async function openNidCamera(slotIdx) {
+    if ((typeof slotIdx !== 'number' || slotIdx < 0 || slotIdx >= MAX_NID_SIDES) && combineItems.length >= MAX_NID_SIDES) {
+      showMaxNidSidesToast();
+      return;
+    }
     nidCamSlot = typeof slotIdx === 'number' ? slotIdx : -1;
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       var fallbackIn = slotIdx === 0 ? $('#nidFrontInput') : (slotIdx === 1 ? $('#nidBackInput') : $('#imgCombineInput'));
@@ -5381,8 +6643,8 @@
     on('nidMobClosePagesBtn', 'click', function () {
       setNidMobileStep('crop');
     });
-    on('nidMobSnapEdges', 'click', function () { var b = $('#nidSnapEdgesBtn'); if (b) b.click(); });
     on('nidMobSnapRatio', 'click', function () { var b = $('#nidSnapRatioBtn'); if (b) b.click(); });
+    on('nidMobSnapPortrait', 'click', function () { var b = $('#nidSnapPortraitRatioBtn'); if (b) b.click(); });
     on('nidMobFullCrop', 'click', function () { var b = $('#nidFullCropBtn'); if (b) b.click(); });
     on('nidMobCloneSide', 'click', function () { var b = $('#nidCloneSameImgBtn'); if (b) b.click(); });
     on('nidMobRotL', 'click', function () { var b = $('#nidRotLBtn'); if (b) b.click(); });
@@ -5418,6 +6680,45 @@
         if (e.target.closest('label, button, input, a')) return;
         var inp = $('#imgCombineInput');
         if (inp) inp.click();
+      });
+    }
+    if ($('#imgCombineStage') && !$('#imgCombineStage')._thStageDropWired) {
+      $('#imgCombineStage')._thStageDropWired = true;
+      ['dragenter', 'dragover'].forEach(function (ev) {
+        $('#imgCombineStage').addEventListener(ev, function (e) {
+          if (e.dataTransfer && e.dataTransfer.types && Array.prototype.indexOf.call(e.dataTransfer.types, 'Files') !== -1) {
+            e.preventDefault();
+          }
+        });
+      });
+      $('#imgCombineStage').addEventListener('drop', function (e) {
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+          e.preventDefault();
+          e.stopPropagation();
+          addCombineFiles(Array.prototype.slice.call(e.dataTransfer.files));
+        }
+      });
+    }
+    if (!document._thNidPasteWired) {
+      document._thNidPasteWired = true;
+      document.addEventListener('paste', function (e) {
+        var paneEl = $('#img-pane-combine');
+        if (!paneEl || paneEl.hidden || !paneEl.offsetParent) return;
+        var activeEl = document.activeElement;
+        if (activeEl && /^(INPUT|TEXTAREA|SELECT)$/i.test(activeEl.tagName) && activeEl.type !== 'file' && activeEl.type !== 'radio' && activeEl.type !== 'checkbox') return;
+        var items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        var pastedFiles = [];
+        for (var pi = 0; pi < items.length; pi++) {
+          if (items[pi].kind === 'file' && /^image\//i.test(items[pi].type || '')) {
+            var f = items[pi].getAsFile();
+            if (f) pastedFiles.push(f);
+          }
+        }
+        if (pastedFiles.length) {
+          e.preventDefault();
+          addCombineFiles(pastedFiles);
+        }
       });
     }
     installNidViewport();
@@ -5459,6 +6760,14 @@
         }
       });
     });
+    $$('label[for="imgCombineAddMore"]').forEach(function (lbl) {
+      lbl.addEventListener('click', function (e) {
+        if (combineItems.length >= MAX_NID_SIDES) {
+          e.preventDefault();
+          showMaxNidSidesToast();
+        }
+      });
+    });
     on('imgCombineAddMore', 'change', function (e) {
       if (e.target.files && e.target.files.length) {
         addCombineFiles(Array.prototype.slice.call(e.target.files));
@@ -5472,7 +6781,8 @@
       var entry = combineItems[activeNidIdx];
       if (!entry) return;
       pushNidHistory();
-      var det = autoDetectCardQuad(entry.item.img, entry.rot, entry.flipH || 1, null, null, true);
+      var orient = getNidCardOrient(entry);
+      var det = autoDetectCardQuad(entry.item.img, entry.rot, entry.flipH || 1, null, null, true, orient);
       var prevRot = (((entry.rot || 0) % 360) + 360) % 360;
       if (typeof det.rot === 'number') entry.rot = det.rot;
       entry.pts = det.pts;
@@ -5483,18 +6793,9 @@
       positionNidQuadDOM({ snapped: true });
       triggerNidScanAnimation();
       renderCombineLivePreview();
-      showToast(tr('আইডি কার্ডের এজ অটো-ডিটেক্ট ও সোজা করা হয়েছে!', 'ID card edges auto-detected & straightened!'));
-    });
-    on('nidSnapEdgesBtn', 'click', function () {
-      var entry = combineItems[activeNidIdx];
-      if (!entry) return;
-      pushNidHistory();
-      snapCurrentQuadToNearestEdges(entry);
-      entry.autoDetected = true;
-      positionNidQuadDOM({ snapped: true });
-      triggerNidScanAnimation();
-      renderCombineLivePreview();
-      showToast(tr('রাউন্ড কর্নার বাদ দিয়ে হরিজেন্টাল ও ভার্টিক্যাল লাইন বরাবর স্ন্যাপ করা হয়েছে!', 'Snapped along horizontal & vertical lines excluding round corners!'));
+      showToast(orient === 'portrait'
+        ? tr('পোর্ট্রেট আইডি কার্ডের এজ অটো-ডিটেক্ট ও সোজা করা হয়েছে!', 'Portrait ID card edges auto-detected & straightened!')
+        : tr('আইডি কার্ডের এজ অটো-ডিটেক্ট ও সোজা করা হয়েছে!', 'ID card edges auto-detected & straightened!'));
     });
     on('nidTightenCropBtn', 'click', function () {
       var entry = combineItems[activeNidIdx];
@@ -5532,14 +6833,55 @@
       }
       showToast(nidMagSnapEnabled ? tr('ম্যাগনেটিক এজ স্ন্যাপ চালু হয়েছে', 'Magnetic edge snap enabled') : tr('ম্যাগনেটিক এজ স্ন্যাপ বন্ধ করা হয়েছে', 'Magnetic edge snap disabled'));
     });
-    on('nidSnapRatioBtn', 'click', function () {
+    function applyNidOrientationSelection(targetOrient) {
+      var orient = targetOrient === 'portrait' ? 'portrait' : 'landscape';
+      nidCardOrient = orient;
       var entry = combineItems[activeNidIdx];
-      if (!entry) return;
+      if (!entry) {
+        syncNidOrientButtons();
+        showToast(orient === 'portrait'
+          ? tr('পোর্ট্রেট আইডি কার্ড (54×85.6mm) সিলেক্ট করা হয়েছে — ছবি আপলোড করলেই পোর্ট্রেট কার্ড অটো-ডিটেক্ট হবে!', 'Portrait ID card (54×85.6mm) selected — Portrait card will auto-detect on upload!')
+          : tr('আড়াআড়ি / ল্যান্ডস্কেপ আইডি কার্ড (85.6×54mm) সিলেক্ট করা হয়েছে!', 'Landscape ID card (85.6×54mm) selected!'));
+        return;
+      }
       pushNidHistory();
-      snapQuadToCardRatio(entry);
-      positionNidQuadDOM();
+      entry.cardOrient = orient;
+      syncNidOrientButtons();
+      // Keep page orientation fixed (never auto-rotate page on ratio/card-type click) while detecting card in selected orientation
+      var det = autoDetectCardQuad(entry.item.img, entry.rot || 0, entry.flipH || 1, null, null, false, orient);
+      var detectedCard = !!(det && !det.fallback && det.pts && det.pts.length === 4);
+      if (detectedCard) {
+        entry.pts = det.pts;
+        entry.autoDetected = true;
+        positionNidQuadDOM({ snapped: true });
+        triggerNidScanAnimation();
+      } else {
+        snapQuadToCardRatio(entry, orient);
+        positionNidQuadDOM();
+      }
+      renderNidCardTabs();
       renderCombineLivePreview();
-      showToast(tr('আসল আইডি কার্ডের অনুপাত (85.6×54mm) সেট করা হয়েছে!', 'Original ID card aspect ratio (85.6×54mm) applied!'));
+      if (detectedCard) {
+        showToast(orient === 'portrait'
+          ? tr('পোর্ট্রেট আইডি কার্ড (54×85.6mm) অটো-ডিটেক্ট করা হয়েছে!', 'Portrait ID card (54×85.6mm) auto-detected!')
+          : tr('আড়াআড়ি / ল্যান্ডস্কেপ আইডি কার্ড (85.6×54mm) অটো-ডিটেক্ট করা হয়েছে!', 'Landscape ID card (85.6×54mm) auto-detected!'));
+      } else {
+        showToast(orient === 'portrait'
+          ? tr('ক্রপ রেশিও: পোর্ট্রেট আইডি (54×85.6mm) সেট করা হয়েছে!', 'Crop ratio set to Portrait ID (54×85.6mm)!')
+          : tr('ক্রপ রেশিও: ল্যান্ডস্কেপ আইডি (85.6×54mm) সেট করা হয়েছে!', 'Crop ratio set to Landscape ID (85.6×54mm)!'));
+      }
+    }
+    on('nidSnapRatioBtn', 'click', function () {
+      applyNidOrientationSelection('landscape');
+    });
+    on('nidSnapPortraitRatioBtn', 'click', function () {
+      applyNidOrientationSelection('portrait');
+    });
+    on('nidDropOrientLandscape', 'click', function () {
+      applyNidOrientationSelection('landscape');
+    });
+    on('nidDropOrientPortrait', 'click', function () {
+      applyNidOrientationSelection('portrait');
     });
     on('nidFullCropBtn', 'click', function () {
       var entry = combineItems[activeNidIdx];
@@ -5555,6 +6897,7 @@
       if (!entry) return;
       pushNidHistory();
       entry.rot -= 90;
+      entry.manualRot = (((entry.rot || 0) % 360) + 360) % 360;
       entry.pts = orderQuadClockwise((entry.pts || defaultQuadPts(0.04)).map(function (pt) {
         return { x: pt.y, y: 1 - pt.x };
       }));
@@ -5566,6 +6909,7 @@
       if (!entry) return;
       pushNidHistory();
       entry.rot += 90;
+      entry.manualRot = (((entry.rot || 0) % 360) + 360) % 360;
       entry.pts = orderQuadClockwise((entry.pts || defaultQuadPts(0.04)).map(function (pt) {
         return { x: 1 - pt.y, y: pt.x };
       }));
@@ -5686,6 +7030,20 @@
         scheduleCombineLiveRender();
       });
     });
+    $$('[data-cardw]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var val = parseInt(btn.getAttribute('data-cardw'), 10);
+        if (!val) return;
+        if ($('#imgCombineCardW')) $('#imgCombineCardW').value = String(val);
+        syncNidSizePresetButtons(val);
+        updateNidRightPanelBadges();
+        renderCombineLivePreview();
+      });
+    });
+    on('imgCombineCardW', 'input', function () {
+      updateNidRightPanelBadges();
+      scheduleCombineLiveRender();
+    });
     ['imgCombineGap', 'imgCombineBg'].forEach(function (id) {
       on(id, 'input', function () {
         updateNidRightPanelBadges();
@@ -5737,6 +7095,8 @@
       combineItems = [];
       activeNidIdx = 0;
       nidColorTarget = 'all';
+      nidCardOrient = 'landscape';
+      syncNidOrientButtons();
       nidUndoStack = [];
       nidRedoStack = [];
       updateNidHistoryButtons();
@@ -5748,6 +7108,7 @@
       setNidHandTool(false);
       if ($('#nidCardTabs')) $('#nidCardTabs').innerHTML = '';
       if ($('#nidCount')) $('#nidCount').textContent = '০';
+      syncNidAddLimitControls();
       if ($('#img-pane-combine')) $('#img-pane-combine').setAttribute('data-has-pages', 'false');
       $('#imgCombineStage').hidden = true;
       if ($('#imgCombineTopActions')) $('#imgCombineTopActions').hidden = true;
@@ -5765,14 +7126,18 @@
       try {
         var ab = await combineOut.blob.arrayBuffer();
         var jpegBytes = new Uint8Array(ab);
+        var isA4Mode = combineOut.mode === 'nid-a4' || combineOut.mode === 'nid-a4-side';
         var pdfBlob = buildJpegPdfBlob(
           jpegBytes,
           combineOut.width || 2480,
           combineOut.height || 3508,
-          combineOut.mode === 'nid-a4' || combineOut.mode === 'nid-a4-side'
+          isA4Mode,
+          combineOut.printWidthMm
         );
         downloadBlob(pdfBlob, 'techhat-nid-scanned-card.pdf');
-        showToast(tr('প্রিন্ট-রেডি A4 PDF ডাউনলোড হয়েছে!', 'Print-ready A4 PDF downloaded!'));
+        showToast(isA4Mode
+          ? tr('প্রিন্ট-রেডি A4 PDF ডাউনলোড হয়েছে!', 'Print-ready A4 PDF downloaded!')
+          : tr('সঠিক কার্ড মাপের PDF ডাউনলোড হয়েছে!', 'Actual-size ID PDF downloaded!'));
       } catch (e) {
         showToast(tr('PDF তৈরি করা যায়নি', 'Failed to generate PDF'));
       }
@@ -5785,9 +7150,14 @@
       }
       await ensureFullResCombineOutput();
       if (!combineOut.url) { w.close(); return; }
+      var isA4Out = combineOut.mode === 'nid-a4' || combineOut.mode === 'nid-a4-side';
+      var printMm = isA4Out ? 210 : (combineOut.printWidthMm || +(((combineOut.width || 1156) * 210 / 2480).toFixed(2)));
+      var imgCss = isA4Out
+        ? 'width:210mm;max-width:210mm;max-height:297mm;height:auto;display:block'
+        : 'width:' + printMm.toFixed(2) + 'mm;max-width:206mm;max-height:290mm;height:auto;display:block;margin-top:12mm';
       w.document.write(
         '<!doctype html><html><head><title>TechHat ID Card Print</title>' +
-        '<style>@page{size:A4;margin:0}html,body{margin:0;padding:0;background:#fff;display:flex;justify-content:center;align-items:flex-start}img{width:100%;max-width:210mm;height:auto;display:block}</style>' +
+        '<style>@page{size:A4;margin:0}html,body{margin:0;padding:0;background:#fff;display:flex;justify-content:center;align-items:flex-start}img{' + imgCss + '}</style>' +
         '</head><body><img src="' + combineOut.url + '" onload="setTimeout(function(){window.focus();window.print();},150)"></body></html>'
       );
       w.document.close();
@@ -5859,9 +7229,32 @@
   window.TechHatNidScanner = {
     init: initNidScanner,
     onLangChange: onNidLangChange,
+    maxSides: MAX_NID_SIDES,
+    addFiles: addCombineFiles,
+    setSlotFile: setCombineSlotFile,
+    getActiveIndex: function () { return activeNidIdx; },
+    getCount: function () { return combineItems.length; },
     autoDetectCardQuad: autoDetectCardQuad,
-    warp: warpPerspectiveCard
+    rotate: buildRotatedCanvas,
+    warp: warpPerspectiveCard,
+    buildMagneticSnapField: buildMagneticSnapField,
+    snapEdgeMagnetically: snapEdgeMagnetically,
+    snapCurrentQuadToNearestEdges: snapCurrentQuadToNearestEdges,
+    snapQuadToCardRatio: snapQuadToCardRatio,
+    renderProcessedCardCanvas: renderProcessedCardCanvas,
+    composeCombineSheetCanvas: composeCombineSheetCanvas,
+    setCardOrient: function (mode) {
+      nidCardOrient = mode === 'portrait' ? 'portrait' : 'landscape';
+      syncNidOrientButtons();
+    }
   };
+  if (!window.TechHatScanGeometry) {
+    window.TechHatScanGeometry = {
+      load: loadImageFile,
+      rotate: buildRotatedCanvas,
+      warp: warpPerspectiveCard
+    };
+  }
 
   if ($('#img-pane-combine')) {
     initNidScanner();

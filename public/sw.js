@@ -1,7 +1,7 @@
 /* TechHat Bangla Converter — service worker (offline app shell) */
 'use strict';
 
-var VERSION = 'thbc-v78';
+var VERSION = 'thbc-v89';
 var SHELL = 'shell-' + VERSION;
 var RUNTIME = 'runtime-' + VERSION;
 var IS_DEV = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || /^192\.168\./.test(self.location.hostname);

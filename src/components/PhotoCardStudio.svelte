@@ -646,13 +646,106 @@
     { id: 'light', nameBn: 'ক্লিন পেপার', nameEn: 'Clean Paper', primary: '#b91c1c', accent: '#0f172a', bg: '#f8fafc' }
   ];
 
+  const elementsCategories = [
+    { id: 'all', labelBn: 'সব', labelEn: 'All', icon: 'lucide:layout-grid' },
+    { id: 'icons', labelBn: 'আইকন', labelEn: 'Icons', icon: 'lucide:phone-call' },
+    { id: 'social', labelBn: 'সোশ্যাল লোগো', labelEn: 'Social', icon: 'lucide:globe' },
+    { id: 'payment', labelBn: 'পেমেন্ট', labelEn: 'Payment', icon: 'lucide:wallet' },
+    { id: 'shapes', labelBn: 'শেপ ও লাইন', labelEn: 'Shapes', icon: 'lucide:shapes' },
+    { id: 'graphics', labelBn: 'গ্রাফিক্স', labelEn: 'Graphics', icon: 'lucide:sparkles' },
+    { id: 'badges', labelBn: 'ব্যাজ স্টিকার', labelEn: 'Badges', icon: 'lucide:award' },
+    { id: 'colors', labelBn: 'কালার থিম', labelEn: 'Colors', icon: 'lucide:palette' }
+  ];
+
+  const brandSections = [
+    { id: 'all', labelBn: 'সব অ্যাসেট (All assets)', labelEn: 'All assets', icon: 'lucide:layers' },
+    { id: 'logos', labelBn: 'লোগো (Logos)', labelEn: 'Logos', icon: 'lucide:shield-check' },
+    { id: 'colors', labelBn: 'কালার প্যালেট (Colors)', labelEn: 'Colors', icon: 'lucide:palette' },
+    { id: 'fonts', labelBn: 'ফন্ট (Fonts)', labelEn: 'Fonts', icon: 'lucide:type' },
+    { id: 'info', labelBn: 'ব্র্যান্ড তথ্য (Brand info)', labelEn: 'Brand info', icon: 'lucide:building-2' },
+    { id: 'graphics', labelBn: 'গ্রাফিক্স ও আইকন (Graphics)', labelEn: 'Graphics & Icons', icon: 'lucide:sparkles' }
+  ];
+
+  const uiIconItems = [
+    { key: 'phone', labelBn: 'কল / হটলাইন', labelEn: 'Call / Phone', bg: '#16a34a', keywords: 'call phone hotline কল ফোন মোবাইল নাম্বার হটলাইন' },
+    { key: 'location', labelBn: 'লোকেশন পিন', labelEn: 'Location', bg: '#dc2626', keywords: 'location map pin ঠিকানা স্থান ম্যাপ' },
+    { key: 'globe', labelBn: 'ওয়েবসাইট', labelEn: 'Website', bg: '#2563eb', keywords: 'globe web internet ওয়েবসাইট ইন্টারনেট' },
+    { key: 'mail', labelBn: 'ইমেইল / বার্তা', labelEn: 'Email / Mail', bg: '#0284c7', keywords: 'mail email message ইমেইল চিঠি মেসেজ' },
+    { key: 'verified', labelBn: 'ভেরিফায়েড টিক', labelEn: 'Verified', bg: '#1d4ed8', keywords: 'verified check tick সত্য যাচাই ভেরিফায়েড' },
+    { key: 'megaphone', labelBn: 'ঘোষণা মাইক', labelEn: 'Announcement', bg: '#e11d48', keywords: 'megaphone announce notice ঘোষণা বিজ্ঞপ্তি প্রচার' },
+    { key: 'blood', labelBn: 'রক্তদান ড্রপ', labelEn: 'Blood Drop', bg: '#b91c1c', keywords: 'blood drop donor রক্ত রক্তদান ব্লাড' },
+    { key: 'hospital', labelBn: 'হাসপাতাল / প্লাস', labelEn: 'Medical Plus', bg: '#059669', keywords: 'hospital medical clinic স্বাস্থ্য চিকিৎসা হাসপাতাল' },
+    { key: 'heart', labelBn: 'মানবিক ভালোবাসা', labelEn: 'Charity Heart', bg: '#db2777', keywords: 'heart love charity মানবিক দান সেবা' },
+    { key: 'gift', labelBn: 'উপহার / ঈদ গিফট', labelEn: 'Gift Box', bg: '#d97706', keywords: 'gift box eid upohar উপহার ঈদ ত্রাণ' },
+    { key: 'mosque', labelBn: 'মসজিদ ডোম', labelEn: 'Mosque', bg: '#047857', keywords: 'mosque masjid islamic মসজিদ যাকাত জুমুআ' },
+    { key: 'crescent', labelBn: 'চাঁদ ও তারা', labelEn: 'Crescent Moon', bg: '#0f766e', keywords: 'crescent moon eid ramadan চাঁদ রমজান ঈদ' },
+    { key: 'mic', labelBn: 'পডকাস্ট মাইক', labelEn: 'Podcast Mic', bg: '#7c3aed', keywords: 'mic podcast audio মাইক পডকাস্ট কণ্ঠ' },
+    { key: 'camera', labelBn: 'ফটো / ক্যামেরা', labelEn: 'Camera', bg: '#334155', keywords: 'camera photo media ক্যামেরা ছবি ফটো' },
+    { key: 'play', labelBn: 'ভিডিও প্লে', labelEn: 'Video Play', bg: '#dc2626', keywords: 'play video live ভিডিও প্লে লাইভ' },
+    { key: 'quote', labelBn: 'উদ্ধৃতি চিহ্ন', labelEn: 'Quote Mark', bg: '#b45309', keywords: 'quote speech উক্তি উদ্ধৃতি বক্তব্য' },
+    { key: 'calendar', labelBn: 'তারিখ / ক্যালেন্ডার', labelEn: 'Calendar', bg: '#4f46e5', keywords: 'calendar date event তারিখ ক্যালেন্ডার সময়সূচি' },
+    { key: 'clock', labelBn: 'সময় / ঘড়ি', labelEn: 'Clock / Time', bg: '#0369a1', keywords: 'clock time live ঘড়ি সময়' },
+    { key: 'leaf', labelBn: 'বৃক্ষ / পরিবেশ', labelEn: 'Eco Leaf', bg: '#15803d', keywords: 'leaf tree green বৃক্ষ গাছ পরিবেশ' },
+    { key: 'shield', labelBn: 'সুরক্ষা শিল্ড', labelEn: 'Shield', bg: '#1e40af', keywords: 'shield security safe সুরক্ষা ফ্যাক্টচেক' },
+    { key: 'alert', labelBn: 'সতর্কতা সংকেত', labelEn: 'Warning', bg: '#c2410c', keywords: 'alert warning danger সতর্কতা বিপদ জরুরি' },
+    { key: 'bolt', labelBn: 'ব্রেকিং বোল্ট', labelEn: 'Flash Bolt', bg: '#ca8a04', keywords: 'bolt flash breaking ব্রেকিং ফ্ল্যাশ বিদ্যুৎ' },
+    { key: 'sparkle', labelBn: 'স্পার্কল স্টার', labelEn: 'Sparkle', bg: '#9333ea', keywords: 'sparkle star modern স্পার্কল তারা নতুন' },
+    { key: 'users', labelBn: 'টিম / মানুষ', labelEn: 'Community', bg: '#0d9488', keywords: 'users people community volunteer স্বেচ্ছাসেবক মানুষ দল' }
+  ];
+
+  const socialLogoItems = [
+    { key: 'facebook', nameBn: 'Facebook', nameEn: 'Facebook', color: '#1877F2', keywords: 'facebook fb ফেসবুক পেজ social' },
+    { key: 'youtube', nameBn: 'YouTube', nameEn: 'YouTube', color: '#FF0000', keywords: 'youtube yt ইউটিউব চ্যানেল ভিডিও social' },
+    { key: 'whatsapp', nameBn: 'WhatsApp', nameEn: 'WhatsApp', color: '#25D366', keywords: 'whatsapp wa হোয়াটসঅ্যাপ মেসেজ social' },
+    { key: 'instagram', nameBn: 'Instagram', nameEn: 'Instagram', color: '#E4405F', keywords: 'instagram ig ইনস্টাগ্রাম রিলস social' },
+    { key: 'x', nameBn: 'X (Twitter)', nameEn: 'X (Twitter)', color: '#0f172a', keywords: 'x twitter টুইটার এক্স social' },
+    { key: 'tiktok', nameBn: 'TikTok', nameEn: 'TikTok', color: '#111827', keywords: 'tiktok টিকটক ভিডিও social' },
+    { key: 'messenger', nameBn: 'Messenger', nameEn: 'Messenger', color: '#0084FF', keywords: 'messenger মেসেঞ্জার চ্যাট social' },
+    { key: 'telegram', nameBn: 'Telegram', nameEn: 'Telegram', color: '#26A5E4', keywords: 'telegram টেলিগ্রাম চ্যানেল social' },
+    { key: 'linkedin', nameBn: 'LinkedIn', nameEn: 'LinkedIn', color: '#0A66C2', keywords: 'linkedin লিংকডইন কর্পোরেট social' },
+    { key: 'threads', nameBn: 'Threads', nameEn: 'Threads', color: '#18181b', keywords: 'threads থ্রেডস social' },
+    { key: 'pinterest', nameBn: 'Pinterest', nameEn: 'Pinterest', color: '#E60023', keywords: 'pinterest পিন্টারেস্ট social' },
+    { key: 'discord', nameBn: 'Discord', nameEn: 'Discord', color: '#5865F2', keywords: 'discord ডিসকর্ড কমিউনিটি social' },
+    { key: 'globe', nameBn: 'Website', nameEn: 'Website', color: '#2563eb', keywords: 'website web ওয়েবসাইট পোর্টাল লিংক social' }
+  ];
+
   const shapeElements = [
-    { kind: 'rect', labelBn: 'ব্যানার বক্স', labelEn: 'Solid Banner', fill: '#dc2626', stroke: '#ffffff', w: 380, h: 110, radius: 16 },
-    { kind: 'pill', labelBn: 'রাউন্ডেড পিল', labelEn: 'Rounded Pill', fill: '#2563eb', stroke: '#ffffff', w: 320, h: 84, radius: 999 },
-    { kind: 'circle', labelBn: 'বৃত্তাকার ব্যাজ', labelEn: 'Circle Badge', fill: '#f59e0b', stroke: '#ffffff', w: 170, h: 170, radius: 999 },
-    { kind: 'glass', labelBn: 'গ্লাস কার্ড', labelEn: 'Glass Box', fill: 'rgba(15,23,42,0.72)', stroke: '#38bdf8', w: 420, h: 150, radius: 22 },
-    { kind: 'outline', labelBn: 'বর্ডার ফ্রেম', labelEn: 'Outline Frame', fill: 'transparent', stroke: '#fde047', w: 380, h: 220, radius: 18 },
-    { kind: 'line', labelBn: 'ডিভাইডার লাইন', labelEn: 'Accent Divider', fill: '#fde047', stroke: '#fde047', w: 420, h: 12, radius: 999 }
+    { kind: 'rect', labelBn: 'সলিড বক্স', labelEn: 'Solid Box', fill: '#dc2626', stroke: '#ffffff', w: 380, h: 110, radius: 0, keywords: 'rect rectangle box বক্স ব্যানার শেপ' },
+    { kind: 'rounded', labelBn: 'রাউন্ডেড বক্স', labelEn: 'Rounded Box', fill: '#dc2626', stroke: '#ffffff', w: 380, h: 110, radius: 20, keywords: 'rounded box রাউন্ডেড বক্স ব্যানার' },
+    { kind: 'pill', labelBn: 'ক্যাপসুল পিল', labelEn: 'Capsule Pill', fill: '#2563eb', stroke: '#ffffff', w: 320, h: 84, radius: 999, keywords: 'pill capsule রাউন্ডেড পিল বাটন' },
+    { kind: 'circle', labelBn: 'বৃত্তাকার ব্যাজ', labelEn: 'Circle', fill: '#f59e0b', stroke: '#ffffff', w: 180, h: 180, radius: 999, keywords: 'circle round বৃত্ত গোল ব্যাজ' },
+    { kind: 'ring', labelBn: 'হলো রিং', labelEn: 'Hollow Ring', fill: '#38bdf8', stroke: '#38bdf8', w: 190, h: 190, radius: 999, keywords: 'ring circle frame রিং বর্ডার গোল' },
+    { kind: 'glass', labelBn: 'গ্লাস কার্ড', labelEn: 'Glass Card', fill: 'rgba(15,23,42,0.74)', stroke: '#38bdf8', w: 420, h: 150, radius: 22, keywords: 'glass card blur গ্লাস কার্ড ফ্রেম' },
+    { kind: 'outline', labelBn: 'বর্ডার ফ্রেম', labelEn: 'Outline Frame', fill: 'transparent', stroke: '#fde047', w: 380, h: 220, radius: 18, keywords: 'outline border frame বর্ডার ফ্রেম' },
+    { kind: 'triangle', labelBn: 'ত্রিভুজ', labelEn: 'Triangle', fill: '#e11d48', stroke: '#ffffff', w: 190, h: 170, radius: 0, keywords: 'triangle ত্রিভুজ শেপ' },
+    { kind: 'diamond', labelBn: 'ডায়মন্ড', labelEn: 'Diamond', fill: '#7c3aed', stroke: '#ffffff', w: 185, h: 185, radius: 0, keywords: 'diamond rhombus ডায়মন্ড বরফি' },
+    { kind: 'pentagon', labelBn: 'পঞ্চভুজ', labelEn: 'Pentagon', fill: '#059669', stroke: '#ffffff', w: 185, h: 185, radius: 0, keywords: 'pentagon পঞ্চভুজ' },
+    { kind: 'hexagon', labelBn: 'ষড়ভুজ', labelEn: 'Hexagon', fill: '#0284c7', stroke: '#ffffff', w: 190, h: 185, radius: 0, keywords: 'hexagon ষড়ভুজ হেক্সাগন' },
+    { kind: 'octagon', labelBn: 'অষ্টভুজ', labelEn: 'Octagon', fill: '#b91c1c', stroke: '#fde047', w: 190, h: 190, radius: 0, keywords: 'octagon stop অষ্টভুজ' },
+    { kind: 'star', labelBn: '৫-কোনা তারা', labelEn: '5-Point Star', fill: '#f59e0b', stroke: '#ffffff', w: 190, h: 190, radius: 0, keywords: 'star rating তারা স্টার' },
+    { kind: 'starburst', labelBn: 'অফার স্টারবার্স্ট', labelEn: 'Starburst Seal', fill: '#dc2626', stroke: '#fde047', w: 210, h: 210, radius: 0, keywords: 'starburst seal badge অফার স্টিকার সিল' },
+    { kind: 'shield', labelBn: 'শিল্ড ব্যাজ', labelEn: 'Shield Crest', fill: '#1e40af', stroke: '#fde047', w: 185, h: 210, radius: 0, keywords: 'shield crest শিল্ড ক্রেস্ট লোগো' },
+    { kind: 'ribbon', labelBn: 'রিবন ব্যানার', labelEn: 'Ribbon Banner', fill: '#b91c1c', stroke: '#fde047', w: 400, h: 96, radius: 0, keywords: 'ribbon banner ফিতা রিবন ব্যানার' },
+    { kind: 'speech', labelBn: 'স্পিচ বাবল', labelEn: 'Speech Bubble', fill: '#ffffff', stroke: '#2563eb', w: 320, h: 160, radius: 18, keywords: 'speech bubble quote স্পিচ কমেন্ট উক্তি' },
+    { kind: 'arrow-right', labelBn: 'অ্যারো ব্যানার', labelEn: 'Arrow Pointer', fill: '#ea580c', stroke: '#ffffff', w: 300, h: 96, radius: 0, keywords: 'arrow right pointer তীর অ্যারো' },
+    { kind: 'arch', labelBn: 'আর্চ উইন্ডো', labelEn: 'Arch Frame', fill: '#047857', stroke: '#fde047', w: 240, h: 290, radius: 0, keywords: 'arch dome window আর্চ মেহরাব ফ্রেম' },
+    { kind: 'line', labelBn: 'সলিড লাইন', labelEn: 'Solid Line', fill: '#fde047', stroke: '#fde047', w: 420, h: 12, radius: 999, keywords: 'line divider সলিড লাইন ডিভাইডার' },
+    { kind: 'dashed-line', labelBn: 'ড্যাশড লাইন', labelEn: 'Dashed Line', fill: '#38bdf8', stroke: '#38bdf8', w: 420, h: 8, radius: 0, keywords: 'dashed line divider ড্যাশড লাইন' }
+  ];
+
+  const graphicElementItems = [
+    { kind: 'breaking-frame', labelBn: 'ব্রেকিং টিভি ফ্রেম', labelEn: 'Breaking Frame', fill: '#dc2626', accent: '#fde047', w: 360, h: 220, keywords: 'breaking tv frame ব্রেকিং টিভি বর্ডার' },
+    { kind: 'corner-brackets', labelBn: 'কর্নার ব্র্যাকেট', labelEn: 'Corner Brackets', fill: '#fde047', accent: '#ffffff', w: 340, h: 240, keywords: 'corner bracket frame কোণা ফ্রেম' },
+    { kind: 'live-banner', labelBn: 'LIVE ব্যানার পিল', labelEn: 'LIVE Broadcast Bar', fill: '#dc2626', accent: '#1e293b', w: 340, h: 74, keywords: 'live tv broadcast লাইভ ব্যানার' },
+    { kind: 'quote-frame', labelBn: 'ডাবল কোট ফ্রেম', labelEn: 'Quote Box Frame', fill: '#f59e0b', accent: '#fde047', w: 340, h: 210, keywords: 'quote frame উক্তি ফ্রেম কোটেশন' },
+    { kind: 'award-seal', labelBn: 'গোল্ডেন সিলমোহর', labelEn: 'Award Rosette Seal', fill: '#d97706', accent: '#fef08a', w: 200, h: 200, keywords: 'award seal rosette সম্মাননা সিলমোহর' },
+    { kind: 'verified-stamp', labelBn: 'ভেরিফায়েড স্ট্যাম্প', labelEn: 'Verified Stamp', fill: '#16a34a', accent: '#bbf7d0', w: 190, h: 190, keywords: 'verified stamp check যাচাই স্ট্যাম্প' },
+    { kind: 'islamic-arch', labelBn: 'ইসলামিক মেহরাব', labelEn: 'Islamic Arch Frame', fill: '#059669', accent: '#fbbf24', w: 280, h: 340, keywords: 'islamic arch mihrab ইসলামিক মেহরাব হাদিস' },
+    { kind: 'paper-strip', labelBn: 'হাইলাইটার স্ট্রিপ', labelEn: 'Paper Highlight Strip', fill: '#fde047', accent: '#ca8a04', w: 360, h: 86, keywords: 'paper tape marker মার্কার স্ট্রিপ কাগজ' },
+    { kind: 'dots-grid', labelBn: 'মডার্ন ডট গ্রিড', labelEn: 'Tech Dots Pattern', fill: '#38bdf8', accent: '#2563eb', w: 220, h: 160, keywords: 'dots grid pattern ডট গ্রিড প্যাটার্ন' },
+    { kind: 'hazard-stripe', labelBn: 'অ্যালার্ট স্ট্রাইপ', labelEn: 'Alert Hazard Bar', fill: '#facc15', accent: '#0f172a', w: 420, h: 48, keywords: 'hazard alert stripe সতর্কতা স্ট্রাইপ' },
+    { kind: 'curved-arrow', labelBn: 'কার্ভড অ্যারো', labelEn: 'Curved Pointer', fill: '#fbbf24', accent: '#ffffff', w: 220, h: 140, keywords: 'curved arrow pointer বাঁকা তীর' },
+    { kind: 'glow-orb', labelBn: 'নিয়ন গ্লো স্পট', labelEn: 'Soft Glow Orb', fill: '#38bdf8', accent: '#818cf8', w: 280, h: 280, keywords: 'glow light gradient আলো গ্লো' }
   ];
 
   interface StickerElementItem {
@@ -663,7 +756,7 @@
     cat: 'news' | 'factcheck' | 'charity' | 'payment' | 'social';
     labelBn: string;
     labelEn: string;
-    icon?: 'bolt' | 'live' | 'alert' | 'blood' | 'handheart' | 'chat' | 'check' | 'cross' | 'shield';
+    icon?: 'bolt' | 'live' | 'alert' | 'blood' | 'handheart' | 'chat' | 'check' | 'cross' | 'shield' | 'phone';
   }
 
   const stickerCategories = [
@@ -1092,7 +1185,7 @@
     <nav
       id="pcStudioNavRail"
       aria-label="স্টুডিও টুলবার"
-      class="order-3 lg:order-1 grid grid-cols-6 lg:flex lg:flex-col items-center gap-0.5 lg:gap-1 px-1 py-1.5 lg:py-2.5 lg:w-[74px] bg-[#0f172a] dark:bg-[#0b1120] text-slate-300 border-t lg:border-t-0 lg:border-r border-slate-800 shrink-0 z-30"
+      class="order-3 lg:order-1 grid grid-cols-7 lg:flex lg:flex-col items-center gap-0.5 lg:gap-1 px-1 py-1.5 lg:py-2.5 lg:w-[74px] bg-[#0f172a] dark:bg-[#0b1120] text-slate-300 border-t lg:border-t-0 lg:border-r border-slate-800 shrink-0 z-30"
     >
       <button
         type="button"
@@ -1143,6 +1236,16 @@
         <Icon name="lucide:upload-cloud" class="w-5 h-5" />
         <span data-i18n-bn="আপলোডস" data-i18n-en="Uploads">আপলোডস</span>
         <span id="pcUploadsCountBadge" hidden class="absolute top-1 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-sky-500 text-white text-[9px] font-extrabold inline-flex items-center justify-center">০</span>
+      </button>
+
+      <button
+        type="button"
+        data-pc-nav="position"
+        aria-pressed="false"
+        class="relative flex flex-col items-center justify-center gap-1 w-full py-1.5 lg:py-2.5 px-1 rounded-xl text-[10.5px] font-bold cursor-pointer transition hover:text-white hover:bg-white/8 aria-pressed:bg-[#2563eb] aria-pressed:text-white aria-pressed:shadow-xs"
+      >
+        <Icon name="lucide:layers" class="w-5 h-5" />
+        <span data-i18n-bn="লেয়ার" data-i18n-en="Layers">লেয়ার</span>
       </button>
 
       <button
@@ -1306,127 +1409,239 @@
         </div>
 
         <!-- ===============================================================
-             DRAWER 2: ELEMENTS & STYLE (Shapes, Bilingual Stickers, Color Palettes)
+             DRAWER 2: CANVA-STYLE ORGANIZED ELEMENTS HUB
+             (Search + Category Chips + Icons, Social Logos, Payment, Shapes, Graphics, Badges, Colors)
              =============================================================== -->
-        <div data-pc-drawer="elements" hidden class="space-y-4">
-          <!-- Resizable & Rotatable Shapes -->
-          <div>
-            <strong class="block text-[12px] font-extrabold text-slate-900 dark:text-white mb-0.5" data-i18n-bn="শেপ ও ফ্রেম (বড়-ছোট ও রোটেট করা যাবে)" data-i18n-en="Resizable & Rotatable Shapes">শেপ ও ফ্রেম (বড়-ছোট ও রোটেট করা যাবে)</strong>
-            <span class="block text-[10.5px] text-slate-500 dark:text-slate-400 mb-2" data-i18n-bn="ক্লিক করে কার্ডে যোগ করুন, কর্নার বা সাইড ধরে সাইজ বদলান" data-i18n-en="Click to add, drag corners or sides to resize & rotate">ক্লিক করে কার্ডে যোগ করুন, কর্নার বা সাইড ধরে সাইজ বদলান</span>
-            <div class="grid grid-cols-3 gap-1.5" id="pcShapeElementsGrid">
-              {#each shapeElements as sh}
-                <button
-                  type="button"
-                  data-add-shape={sh.kind}
-                  data-fill={sh.fill}
-                  data-stroke={sh.stroke}
-                  data-w={sh.w}
-                  data-h={sh.h}
-                  data-radius={sh.radius}
-                  class="flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:bg-blue-50/70 dark:hover:bg-white/6 border border-slate-200 dark:border-white/10 hover:border-[#2563eb] cursor-pointer transition"
-                >
-                  <span class="w-10 h-6 flex items-center justify-center">
-                    {#if sh.kind === 'rect'}
-                      <span class="w-9 h-5 rounded-sm bg-red-600 block"></span>
-                    {:else if sh.kind === 'pill'}
-                      <span class="w-9 h-4.5 rounded-full bg-[#2563eb] block"></span>
-                    {:else if sh.kind === 'circle'}
-                      <span class="w-5.5 h-5.5 rounded-full bg-amber-500 block"></span>
-                    {:else if sh.kind === 'glass'}
-                      <span class="w-9 h-5 rounded-md bg-slate-800/80 border border-sky-400 block"></span>
-                    {:else if sh.kind === 'outline'}
-                      <span class="w-9 h-5 rounded-sm border-2 border-amber-400 block"></span>
-                    {:else}
-                      <span class="w-9 h-1.5 rounded-full bg-amber-400 block"></span>
-                    {/if}
-                  </span>
-                  <span class="text-[10px] font-bold text-slate-700 dark:text-slate-200 truncate max-w-full" data-i18n-bn={sh.labelBn} data-i18n-en={sh.labelEn}>{sh.labelBn}</span>
-                </button>
-              {/each}
-            </div>
+        <div data-pc-drawer="elements" hidden class="space-y-3.5">
+          <!-- 1. Canva Elements Search Bar -->
+          <div class="relative flex items-center">
+            <Icon name="lucide:search" class="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              id="pcElementsSearchInput"
+              placeholder="আইকন, সোশ্যাল লোগো, বিকাশ/নগদ, শেপ বা গ্রাফিক্স খুঁজুন..."
+              data-i18n-placeholder-bn="আইকন, সোশ্যাল লোগো, বিকাশ/নগদ, শেপ বা গ্রাফিক্স খুঁজুন..."
+              data-i18n-placeholder-en="Search icons, social logos, shapes, graphics, badges..."
+              class="w-full h-9.5 pl-9.5 pr-3 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-300/90 dark:border-white/15 text-[12px] font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:border-[#2563eb]"
+            />
           </div>
 
-          <!-- Bilingual Stickers & Badges -->
-          <div class="pt-2 border-t border-slate-200/80 dark:border-white/10">
-            <div class="flex items-center justify-between mb-0.5">
-              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="বাংলা ও ইংরেজি ব্যাজ স্টিকার (৩৮টি)" data-i18n-en="Bangla & English Badge Stickers (38)">বাংলা ও ইংরেজি ব্যাজ স্টিকার (৩৮টি)</strong>
-              <span class="text-[9.5px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold">Editable</span>
-            </div>
-            <span class="block text-[10.5px] text-slate-500 dark:text-slate-400 mb-2" data-i18n-bn="ক্লিক করে ক্যানভাসে যুক্ত করুন — সাইজ, রোটেট ও ব্যাকগ্রাউন্ড কালার পরিবর্তনযোগ্য" data-i18n-en="Click to add to canvas — resizable, rotatable & tintable">ক্লিক করে ক্যানভাসে যুক্ত করুন — সাইজ, রোটেট ও ব্যাকগ্রাউন্ড কালার পরিবর্তনযোগ্য</span>
-
-            <!-- Category Filter Pills -->
-            <div class="flex flex-wrap items-center gap-1.5 mb-2" id="pcStickerCatFilter">
-              {#each stickerCategories as cat}
-                <button
-                  type="button"
-                  data-sticker-cat={cat.id}
-                  aria-pressed={activeStickerCat === cat.id ? 'true' : 'false'}
-                  onclick={() => { activeStickerCat = cat.id; }}
-                  class="px-2 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 aria-pressed:bg-[#2563eb] aria-pressed:text-white aria-pressed:border-[#2563eb]"
-                  data-i18n-bn={cat.labelBn}
-                  data-i18n-en={cat.labelEn}
-                >
-                  {cat.labelBn}
-                </button>
-              {/each}
-            </div>
-
-            <div class="grid grid-cols-2 gap-1.5" id="pcStickerElementsGrid">
-              {#each stickerElements.filter(st => activeStickerCat === 'all' || st.cat === activeStickerCat) as st}
-                <button
-                  type="button"
-                  data-add-sticker={st.text}
-                  data-bg={st.bg}
-                  data-fg={st.fg}
-                  data-size={st.size}
-                  data-cat={st.cat}
-                  data-icon={st.icon || ''}
-                  class="h-8.5 px-2.5 rounded-lg text-[11px] font-extrabold inline-flex items-center justify-center gap-1.5 truncate cursor-pointer shadow-2xs hover:scale-[1.02] transition border border-black/10"
-                  style="background:{st.bg};color:{st.fg};"
-                  title={st.labelBn}
-                >
-                  {#if st.icon === 'bolt'}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M13 2L4 14h7l-2 8 9-12h-7l2-8z"/></svg>
-                  {:else if st.icon === 'live'}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3 shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="7"/></svg>
-                  {:else if st.icon === 'alert'}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 3L2 20h20L12 3z"/><path d="M12 9v5"/><circle cx="12" cy="17" r="0.8" fill="currentColor"/></svg>
-                  {:else if st.icon === 'blood'}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 2.5C12 2.5 6 9.6 6 14.2A6 6 0 0 0 18 14.2C18 9.6 12 2.5 12 2.5Z"/></svg>
-                  {:else if st.icon === 'handheart'}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 20.5s-7-4.4-7-9.6A4.1 4.1 0 0 1 12 8a4.1 4.1 0 0 1 7 2.9c0 5.2-7 9.6-7 9.6z"/></svg>
-                  {:else if st.icon === 'shield'}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-                  {:else if st.icon === 'chat'}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                  {/if}
-                  <span class="truncate">{st.text}</span>
-                </button>
-              {/each}
-            </div>
-          </div>
-
-          <!-- Native SVG Payment & Brand Badges -->
-          <div class="pt-2 border-t border-slate-200/80 dark:border-white/10">
-            <div class="flex items-center justify-between mb-1">
-              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="পেমেন্ট ব্র্যান্ড ভেক্টর (SVG)" data-i18n-en="Payment Brand Vectors (SVG)">
-                পেমেন্ট ব্র্যান্ড ভেক্টর (SVG)
-              </strong>
-              <span class="text-[9.5px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">Native SVG</span>
-            </div>
-            <span class="block text-[10.5px] text-slate-500 dark:text-slate-400 mb-2" data-i18n-bn="ক্যানভাসে এক ক্লিকে যুক্ত করুন — সম্পূর্ণ স্কেলেবল ও ক্রিস্প" data-i18n-en="One-click add to canvas — fully scalable and crisp">
-              ক্যানভাসে এক ক্লিকে যুক্ত করুন — সম্পূর্ণ স্কেলেবল ও ক্রিস্প
-            </span>
-
-            <div class="grid grid-cols-3 gap-1.5" id="pcPaymentVectorsGrid">
-              <!-- bKash Vector Button -->
+          <!-- 2. Canva Category Chips -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5" id="pcElementsCatChips">
+            {#each elementsCategories as elCat, idx}
               <button
                 type="button"
+                data-el-cat={elCat.id}
+                aria-pressed={idx === 0 ? 'true' : 'false'}
+                class="shrink-0 inline-flex items-center gap-1 h-7.5 px-2.5 rounded-full text-[11px] font-bold border border-slate-200 dark:border-white/12 bg-slate-50 dark:bg-[#0f131b] text-slate-600 dark:text-slate-300 hover:border-[#2563eb] aria-pressed:bg-[#2563eb] aria-pressed:text-white aria-pressed:border-[#2563eb] cursor-pointer transition"
+              >
+                <Icon name={elCat.icon} class="w-3.5 h-3.5 shrink-0" />
+                <span data-i18n-bn={elCat.labelBn} data-i18n-en={elCat.labelEn}>{elCat.labelBn}</span>
+              </button>
+            {/each}
+          </div>
+
+          <!-- Drill-down Back Header (Visible when a single category or search query is active) -->
+          <div id="pcElementsDrillHeader" hidden class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20">
+            <button
+              type="button"
+              id="pcElementsBackBtn"
+              class="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#1d4ed8] dark:text-sky-300 hover:underline cursor-pointer"
+            >
+              <Icon name="lucide:arrow-left" class="w-3.5 h-3.5" />
+              <span data-i18n-bn="সব এলিমেন্টে ফিরুন" data-i18n-en="Back to All">সব এলিমেন্টে ফিরুন</span>
+            </button>
+            <strong id="pcElementsDrillTitle" class="text-[11px] font-extrabold text-slate-800 dark:text-white truncate"></strong>
+          </div>
+
+          <!-- SHELF 1: UI & CONTACT ICONS (Call/Hotline Fixed + 24 Tintable Vector Icons) -->
+          <div data-el-shelf="icons" class="p-3 rounded-2xl bg-slate-50/90 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="আইকন কালেকশন (কল, লোকেশন, মাইক, হাসপাতাল)" data-i18n-en="Icons (Call, Location, Web, Medical)">আইকন কালেকশন (কল, লোকেশন, মাইক, হাসপাতাল)</strong>
+              <button type="button" data-el-see-all="icons" class="text-[10.5px] font-extrabold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer shrink-0" data-i18n-bn="সব দেখুন (২৪)" data-i18n-en="See all (24)">সব দেখুন (২৪)</button>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5" id="pcUiIconsGrid">
+              {#each uiIconItems as ic, idx}
+                <button
+                  type="button"
+                  data-el-item="1"
+                  data-el-overflow={idx >= 8 ? '1' : '0'}
+                  data-el-keywords="{ic.key} {ic.labelBn} {ic.labelEn} {ic.keywords}"
+                  hidden={idx >= 8}
+                  data-add-ui-icon={ic.key}
+                  data-bg={ic.bg}
+                  data-fill="#ffffff"
+                  class="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-white dark:bg-[#171c26] hover:bg-blue-50/70 dark:hover:bg-white/8 border border-slate-200/90 dark:border-white/10 hover:border-[#2563eb] cursor-pointer transition group"
+                  title="{ic.labelBn} ({ic.labelEn})"
+                >
+                  <span class="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-2xs group-hover:scale-108 transition" style="background:{ic.bg};">
+                    {#if ic.key === 'phone'}
+                      <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor" aria-hidden="true"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.01l-2.2 2.2z"/></svg>
+                    {:else if ic.key === 'location'}
+                      <Icon name="lucide:map-pin" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'globe'}
+                      <Icon name="lucide:globe" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'mail'}
+                      <Icon name="lucide:mail" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'verified'}
+                      <Icon name="lucide:badge-check" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'megaphone'}
+                      <Icon name="lucide:megaphone" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'blood'}
+                      <Icon name="lucide:droplet" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'hospital'}
+                      <Icon name="lucide:plus" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'heart'}
+                      <Icon name="lucide:heart" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'gift'}
+                      <Icon name="lucide:gift" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'mosque'}
+                      <Icon name="lucide:landmark" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'crescent'}
+                      <Icon name="lucide:moon-star" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'mic'}
+                      <Icon name="lucide:mic" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'camera'}
+                      <Icon name="lucide:camera" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'play'}
+                      <Icon name="lucide:play" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'quote'}
+                      <Icon name="lucide:quote" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'calendar'}
+                      <Icon name="lucide:calendar" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'clock'}
+                      <Icon name="lucide:clock" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'leaf'}
+                      <Icon name="lucide:leaf" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'shield'}
+                      <Icon name="lucide:shield-check" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'alert'}
+                      <Icon name="lucide:triangle-alert" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'bolt'}
+                      <Icon name="lucide:zap" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else if ic.key === 'sparkle'}
+                      <Icon name="lucide:sparkles" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {:else}
+                      <Icon name="lucide:users" class="w-4 h-4 [&_*]:!stroke-white" />
+                    {/if}
+                  </span>
+                  <span class="text-[9.5px] font-bold text-slate-700 dark:text-slate-200 truncate max-w-full" data-i18n-bn={ic.labelBn} data-i18n-en={ic.labelEn}>{ic.labelBn}</span>
+                </button>
+              {/each}
+            </div>
+          </div>
+
+          <!-- SHELF 2: ALL SOCIAL MEDIA LOGOS (13 Authentic Vectors + Editable @Handle Pills) -->
+          <div data-el-shelf="social" class="p-3 rounded-2xl bg-slate-50/90 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="অল সোশ্যাল লোগো (All Social Logos)" data-i18n-en="All Social Logos">অল সোশ্যাল লোগো (All Social Logos)</strong>
+              <button type="button" data-el-see-all="social" class="text-[10.5px] font-extrabold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer shrink-0" data-i18n-bn="সব দেখুন (১৩+)" data-i18n-en="See all (13+)">সব দেখুন (১৩+)</button>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5" id="pcSocialLogosGrid">
+              {#each socialLogoItems as soc, idx}
+                <button
+                  type="button"
+                  data-el-item="1"
+                  data-el-overflow={idx >= 8 ? '1' : '0'}
+                  data-el-keywords="{soc.key} {soc.nameBn} {soc.nameEn} {soc.keywords}"
+                  hidden={idx >= 8}
+                  data-add-social={soc.key}
+                  class="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-white dark:bg-[#171c26] hover:bg-blue-50/70 dark:hover:bg-white/8 border border-slate-200/90 dark:border-white/10 hover:border-[#2563eb] cursor-pointer transition group"
+                  title="{soc.nameEn} লোগো যুক্ত করুন"
+                >
+                  <span
+                    class="w-8 h-8 rounded-xl flex items-center justify-center shadow-2xs group-hover:scale-108 transition"
+                    style={soc.key === 'instagram'
+                      ? 'background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);'
+                      : 'background:' + soc.color + ';'}
+                  >
+                    <svg viewBox="0 0 64 64" class="w-6 h-6" aria-hidden="true">
+                      {#if soc.key === 'facebook'}
+                        <path fill="#ffffff" d="M 36.5 34.5 L 37.8 26.2 L 29.8 26.2 L 29.8 20.8 C 29.8 18.5 30.9 16.3 34.5 16.3 L 38.2 16.3 L 38.2 9.2 C 38.2 9.2 34.9 8.6 31.7 8.6 C 25.1 8.6 20.8 12.6 20.8 19.9 L 20.8 26.2 L 13.5 26.2 L 13.5 34.5 L 20.8 34.5 L 20.8 54.0 L 29.8 54.0 L 29.8 34.5 L 36.5 34.5 Z"/>
+                      {:else if soc.key === 'youtube'}
+                        <path fill="#ffffff" d="M 25.0 21.0 L 43.0 32.0 L 25.0 43.0 L 25.0 21.0 Z"/>
+                      {:else if soc.key === 'whatsapp'}
+                        <path fill="#ffffff" d="M 32.0 13.0 C 21.5 13.0 13.0 21.3 13.0 31.6 C 13.0 35.1 14.0 38.4 15.8 41.3 L 13.2 50.8 L 23.0 48.2 C 25.7 49.6 28.8 50.4 32.0 50.4 C 42.5 50.4 51.0 42.0 51.0 31.7 C 51.0 21.3 42.5 13.0 32.0 13.0 Z M 41.8 38.9 C 41.3 40.2 39.2 41.4 37.9 41.6 C 36.8 41.8 35.4 41.9 31.2 40.2 C 25.5 37.9 21.9 32.1 21.6 31.7 C 21.3 31.3 19.3 28.7 19.3 26.0 C 19.3 23.3 20.7 22.0 21.3 21.4 L 24.1 20.7 C 24.5 20.7 25.0 20.6 25.4 21.7 C 25.9 22.9 27.0 25.6 27.1 25.9 C 27.4 26.6 26.3 28.3 25.6 30.3 C 26.1 31.1 27.6 33.6 30.0 35.7 C 33.1 38.4 35.6 39.2 36.4 39.6 C 37.7 39.9 39.9 37.3 40.4 36.6 C 41.4 36.0 45.3 37.8 45.9 38.1 C 46.8 38.5 46.6 40.3 41.8 38.9 Z"/>
+                      {:else if soc.key === 'instagram'}
+                        <path fill="#ffffff" d="M 22.0 13.0 L 42.0 13.0 C 47.0 13.0 51.0 17.0 51.0 22.0 L 51.0 42.0 C 51.0 47.0 47.0 51.0 42.0 51.0 L 22.0 51.0 C 17.0 51.0 13.0 47.0 13.0 42.0 L 13.0 22.0 C 13.0 17.0 17.0 13.0 22.0 13.0 Z M 22.2 16.8 C 19.2 16.8 16.8 19.2 16.8 22.2 L 16.8 41.8 C 16.8 44.8 19.2 47.2 22.2 47.2 L 41.8 47.2 C 44.8 47.2 47.2 44.8 47.2 41.8 L 47.2 22.2 C 47.2 19.2 44.8 16.8 41.8 16.8 L 22.2 16.8 Z M 32.0 22.2 C 37.4 22.2 41.8 26.6 41.8 32.0 C 41.8 37.4 37.4 41.8 32.0 41.8 C 26.6 41.8 22.2 37.4 22.2 32.0 C 22.2 26.6 26.6 22.2 32.0 22.2 Z M 32.0 26.0 C 28.7 26.0 26.0 28.7 26.0 32.0 C 26.0 35.3 28.7 38.0 32.0 38.0 C 35.3 38.0 38.0 35.3 38.0 32.0 C 38.0 28.7 35.3 26.0 32.0 26.0 Z M 42.2 19.5 C 43.5 19.5 44.5 20.5 44.5 21.8 C 44.5 23.1 43.5 24.1 42.2 24.1 C 40.9 24.1 39.9 23.1 39.9 21.8 C 39.9 20.5 40.9 19.5 42.2 19.5 Z"/>
+                      {:else if soc.key === 'x'}
+                        <path fill="#ffffff" d="M 36.1 28.6 L 49.4 13.5 L 46.2 13.5 L 34.7 26.6 L 25.5 13.5 L 14.8 13.5 L 28.8 33.5 L 14.8 49.5 L 18.0 49.5 L 30.1 35.6 L 39.8 49.5 L 50.5 49.5 L 36.1 28.6 Z"/>
+                      {:else if soc.key === 'tiktok'}
+                        <path fill="#25F4EE" d="M 39.5 13.5 L 33.2 13.5 L 33.2 37.2 C 33.2 40.3 30.7 42.8 27.6 42.8 C 24.5 42.8 22.0 40.3 22.0 37.2 C 22.0 34.2 24.4 31.7 27.4 31.6 L 27.4 25.2 C 20.8 25.3 15.5 30.6 15.5 37.2 C 15.5 43.9 20.9 49.3 27.6 49.3 C 34.3 49.3 39.7 43.9 39.7 37.2 L 39.7 24.5 C 42.2 26.3 45.2 27.4 48.5 27.5 L 48.5 21.2 C 43.7 20.9 39.8 17.6 39.5 13.5 Z"/>
+                        <path fill="#FE2C55" d="M 41.2 15.0 L 35.0 15.0 L 35.0 38.6 C 35.0 41.7 32.5 44.2 29.4 44.2 C 26.3 44.2 23.8 41.7 23.8 38.6 L 17.5 38.6 C 17.5 45.2 22.8 50.6 29.4 50.6 C 36.1 50.6 41.5 45.2 41.5 38.6 L 41.5 25.9 C 44.0 27.7 47.0 28.8 50.2 28.9 L 50.2 22.6 C 45.4 22.3 41.5 19.0 41.2 15.0 Z"/>
+                        <path fill="#ffffff" d="M 40.2 14.2 L 34.1 14.2 L 34.1 37.9 C 34.1 41.0 31.6 43.5 28.5 43.5 C 25.4 43.5 22.9 41.0 22.9 37.9 C 22.9 34.9 25.3 32.4 28.3 32.3 L 28.3 26.1 C 21.8 26.2 16.5 31.4 16.5 37.9 C 16.5 44.5 21.9 49.9 28.5 49.9 C 35.1 49.9 40.5 44.5 40.5 37.9 L 40.5 25.2 C 43.0 27.0 46.0 28.1 49.3 28.2 L 49.3 21.9 C 44.5 21.6 40.6 18.3 40.2 14.2 Z"/>
+                      {:else if soc.key === 'messenger'}
+                        <path fill="#ffffff" d="M 32.0 13.0 C 21.0 13.0 12.5 20.8 12.5 31.0 C 12.5 36.5 15.2 41.3 19.5 44.5 L 19.5 51.5 L 26.1 47.9 C 28.0 48.4 30.0 48.7 32.0 48.7 C 43.0 48.7 51.5 40.9 51.5 30.7 C 51.5 20.8 43.0 13.0 32.0 13.0 Z M 34.1 36.9 L 29.0 31.5 L 19.2 36.9 L 30.0 25.4 L 35.2 30.8 L 44.8 25.4 L 34.1 36.9 Z"/>
+                      {:else if soc.key === 'telegram'}
+                        <path fill="#ffffff" d="M 47.2 18.2 L 41.2 46.4 C 40.7 48.4 39.5 48.9 37.8 48.0 L 28.4 41.1 L 23.9 45.4 C 23.4 45.9 23.0 46.3 22.0 46.3 L 22.7 36.7 L 40.1 21.0 C 40.9 20.3 39.9 19.9 38.9 20.6 L 17.4 34.1 L 8.1 31.2 C 6.1 30.6 6.1 29.2 8.5 28.2 L 44.7 14.3 C 46.4 13.7 47.8 14.7 47.2 18.2 Z"/>
+                      {:else if soc.key === 'linkedin'}
+                        <path fill="#ffffff" d="M 16.5 25.5 L 22.8 25.5 L 22.8 47.5 L 16.5 47.5 L 16.5 25.5 Z M 19.6 15.5 C 21.7 15.5 23.3 17.2 23.3 19.2 C 23.3 21.2 21.7 22.9 19.6 22.9 C 17.6 22.9 16.0 21.2 16.0 19.2 C 16.0 17.2 17.6 15.5 19.6 15.5 Z M 27.0 25.5 L 33.0 25.5 L 33.0 28.5 C 34.0 26.7 36.2 25.0 39.6 25.0 C 46.0 25.0 47.5 29.2 47.5 34.8 L 47.5 47.5 L 41.2 47.5 L 41.2 36.2 C 41.2 33.5 40.7 30.2 37.5 30.2 C 34.2 30.2 33.3 32.8 33.3 36.0 L 33.3 47.5 L 27.0 47.5 L 27.0 25.5 Z"/>
+                      {:else if soc.key === 'threads'}
+                        <path fill="#ffffff" d="M 32.6 13.0 C 42.8 13.0 49.5 19.8 49.8 29.8 C 50.1 39.2 44.5 45.2 36.5 45.2 C 32.2 45.2 29.0 43.2 27.8 40.2 C 26.2 42.5 23.6 43.8 20.6 43.4 C 16.2 42.8 13.5 39.4 13.8 35.2 C 14.2 30.4 18.6 27.6 25.4 27.8 L 28.2 27.9 C 28.0 24.4 26.0 22.6 22.6 22.6 C 20.2 22.6 18.2 23.6 16.8 25.2 L 13.8 22.4 C 16.0 19.8 19.2 18.4 23.2 18.4 C 29.2 18.4 32.6 21.8 32.6 28.4 L 32.6 34.8 C 32.6 38.6 34.2 40.8 37.0 40.8 C 41.8 40.8 45.2 36.6 45.0 29.8 C 44.8 22.2 39.8 17.4 32.2 17.4 C 23.8 17.4 18.2 22.8 18.2 31.8 C 18.2 41.2 24.0 46.8 33.2 46.8 C 36.8 46.8 40.0 45.8 42.8 43.8 L 45.2 47.4 C 41.6 49.8 37.6 51.0 33.0 51.0 C 21.2 51.0 13.6 43.4 13.6 31.8 C 13.6 20.4 21.2 13.0 32.6 13.0 Z"/>
+                      {:else if soc.key === 'pinterest'}
+                        <path fill="#ffffff" d="M 32.4 13.5 C 21.8 13.5 15.5 20.6 15.5 28.8 C 15.5 32.6 17.5 36.0 20.6 37.3 L 22.4 33.5 C 21.0 31.0 20.3 29.3 20.3 27.2 C 20.3 21.6 24.5 17.4 31.6 17.4 C 37.6 17.4 41.6 21.1 41.6 26.6 C 41.6 33.0 38.5 37.8 34.4 37.8 C 32.2 37.8 30.5 36.0 31.0 33.8 L 32.8 26.5 C 33.3 24.4 32.0 22.6 29.8 22.6 C 27.2 22.6 25.1 25.3 25.1 28.8 C 25.1 31.0 25.9 32.5 25.9 32.5 L 22.6 46.4 L 26.8 52.0 L 30.8 38.0 C 32.0 40.0 34.8 41.5 37.8 41.5 C 45.2 41.5 50.2 34.8 50.2 26.4 C 50.2 18.8 43.6 13.5 32.4 13.5 Z"/>
+                      {:else if soc.key === 'discord'}
+                        <path fill="#ffffff" d="M 44.6 19.6 C 42.1 18.4 39.4 17.6 36.6 17.1 L 35.5 19.4 C 33.2 19.1 30.8 19.1 28.5 19.4 L 27.4 17.1 C 24.6 17.6 21.9 18.4 19.4 19.6 C 14.3 27.2 12.9 34.6 13.6 41.9 C 17.0 44.4 20.3 45.9 23.5 46.9 L 25.6 43.5 L 23.0 41.0 C 28.8 43.7 35.2 43.7 41.0 41.0 L 38.4 43.5 L 40.5 46.9 C 43.7 45.9 47.0 44.4 50.4 41.9 C 51.2 33.4 49.0 26.1 44.6 19.6 Z M 25.8 36.8 C 23.8 36.8 22.2 35.0 22.2 32.8 C 22.2 30.6 23.8 28.8 25.8 28.8 C 27.8 28.8 29.4 30.6 29.4 32.8 C 29.4 35.0 27.8 36.8 25.8 36.8 Z M 38.2 36.8 C 36.2 36.8 34.6 35.0 34.6 32.8 C 34.6 30.6 36.2 28.8 38.2 28.8 C 40.2 28.8 41.8 30.6 41.8 32.8 C 41.8 35.0 40.2 36.8 38.2 36.8 Z"/>
+                      {:else}
+                        <path fill="#ffffff" d="M 32.0 13.0 C 21.5 13.0 13.0 21.5 13.0 32.0 C 13.0 42.5 21.5 51.0 32.0 51.0 C 42.5 51.0 51.0 42.5 51.0 32.0 C 51.0 21.5 42.5 13.0 32.0 13.0 Z M 32.0 16.9 C 34.3 20.0 35.8 24.0 36.3 28.5 L 27.7 28.5 C 28.2 24.0 29.7 20.0 32.0 16.9 Z M 32.0 47.1 C 29.7 44.0 28.2 40.0 27.7 35.5 L 36.3 35.5 C 35.8 40.0 34.3 44.0 32.0 47.1 Z"/>
+                      {/if}
+                    </svg>
+                  </span>
+                  <span class="text-[9.5px] font-bold text-slate-700 dark:text-slate-200 truncate max-w-full">{soc.nameEn}</span>
+                </button>
+              {/each}
+            </div>
+
+            <!-- Social @Handle Pill Presets (Visible in Social drill-down or search) -->
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+              <button
+                type="button"
+                data-el-item="1"
+                data-el-overflow="1"
+                data-el-keywords="facebook handle page pill ফেসবুক পেজ হ্যান্ডেল"
+                hidden
+                data-add-social="facebook"
+                data-with-handle="1"
+                class="h-8 px-2.5 rounded-full bg-[#1877F2]/12 hover:bg-[#1877F2]/20 border border-[#1877F2]/30 text-[10.5px] font-extrabold text-[#1877F2] dark:text-sky-300 inline-flex items-center justify-center gap-1.5 cursor-pointer transition"
+              >
+                <span class="font-black">f</span>
+                <span>fb.com/page পিল</span>
+              </button>
+              <button
+                type="button"
+                data-el-item="1"
+                data-el-overflow="1"
+                data-el-keywords="youtube channel subscribe pill ইউটিউব চ্যানেল হ্যান্ডেল"
+                hidden
+                data-add-social="youtube"
+                data-with-handle="1"
+                class="h-8 px-2.5 rounded-full bg-red-500/12 hover:bg-red-500/20 border border-red-500/30 text-[10.5px] font-extrabold text-red-600 dark:text-red-400 inline-flex items-center justify-center gap-1.5 cursor-pointer transition"
+              >
+                <span>▶</span>
+                <span>@youtube চ্যানেল</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SHELF 3: NATIVE SVG PAYMENT & BANKING VECTORS (bKash, Fixed Nagad, Fixed Rocket, Upay, Bank, Card) -->
+          <div data-el-shelf="payment" class="p-3 rounded-2xl bg-slate-50/90 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="পেমেন্ট ও ব্যাংকিং ভেক্টর (SVG)" data-i18n-en="Payment & Banking Vectors (SVG)">পেমেন্ট ও ব্যাংকিং ভেক্টর (SVG)</strong>
+              <button type="button" data-el-see-all="payment" class="text-[10.5px] font-extrabold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer shrink-0" data-i18n-bn="সব দেখুন (৬)" data-i18n-en="See all (6)">সব দেখুন (৬)</button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5" id="pcPaymentVectorsGrid">
+              <!-- 1. bKash Authentic Vector -->
+              <button
+                type="button"
+                data-el-item="1"
+                data-el-overflow="0"
+                data-el-keywords="bkash বিকাশ payment পেমেন্ট mobile banking"
                 data-add-vector="bkash"
-                class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#e2136e] bg-slate-50 dark:bg-[#0f131b] hover:bg-pink-500/5 transition cursor-pointer group"
+                class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#e2136e] bg-white dark:bg-[#171c26] hover:bg-pink-500/5 transition cursor-pointer group"
                 title="bKash (বিকাশ) ভেক্টর লোগো যুক্ত করুন"
               >
-                <span class="w-8 h-8 rounded-full bg-white shadow-2xs flex items-center justify-center p-1 group-hover:scale-105 transition">
+                <span class="w-8.5 h-8.5 rounded-full bg-white shadow-2xs border border-slate-100 flex items-center justify-center p-1 group-hover:scale-108 transition">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 158 150" class="w-6 h-6">
                     <polygon fill="#D02053" points="57.27,71.2 66.52,112.76 127.01,82.13"/>
                     <polygon fill="#E2126E" points="74.48,9.1 57.28,71.21 127.03,82.13"/>
@@ -1438,65 +1653,334 @@
                     <polygon fill="#E2126E" points="138.58,61.4 157.83,61.07 143.92,46.92"/>
                   </svg>
                 </span>
-                <span class="mt-1 text-[10.5px] font-extrabold text-[#e2136e]">bKash বিকাশ</span>
+                <span class="mt-1 text-[10px] font-extrabold text-[#e2136e]">bKash বিকাশ</span>
               </button>
 
-              <!-- Nagad Vector Button -->
+              <!-- 2. Nagad Fixed Crisp Vector -->
               <button
                 type="button"
+                data-el-item="1"
+                data-el-overflow="0"
+                data-el-keywords="nagad নগদ payment পেমেন্ট mobile banking"
                 data-add-vector="nagad"
-                class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#f16522] bg-slate-50 dark:bg-[#0f131b] hover:bg-orange-500/5 transition cursor-pointer group"
+                class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#f16522] bg-white dark:bg-[#171c26] hover:bg-orange-500/5 transition cursor-pointer group"
                 title="Nagad (নগদ) ভেক্টর লোগো যুক্ত করুন"
               >
-                <span class="w-8 h-8 rounded-full bg-white shadow-2xs flex items-center justify-center p-1 group-hover:scale-105 transition">
+                <span class="w-8.5 h-8.5 rounded-full bg-white shadow-2xs border border-slate-100 flex items-center justify-center p-1 group-hover:scale-108 transition">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54" class="w-6 h-6">
-                    <circle cx="27" cy="27" r="27" fill="#ffffff" />
-                    <path fill="#f6921e" d="M 12.917969 11.578125 C 14.3125 8.097656 16.460938 5.125 19.355469 2.65625 C 19.789062 2.285156 20.300781 1.691406 20.914062 0.871094 C 20.941406 0.835938 20.984375 0.777344 21.035156 0.699219 C 21.066406 0.652344 21.132812 0.554688 21.238281 0.40625 C 21.285156 0.339844 21.378906 0.207031 21.523438 0.0078125 C 21.542969 -0.0195312 21.574219 -0.00390625 21.578125 0.03125 C 21.734375 1.542969 21.644531 3.25 21.304688 5.152344 C 20.96875 7.058594 20.382812 9.070312 19.546875 11.191406 C 18.710938 13.3125 17.652344 15.359375 16.367188 17.335938 C 15.085938 19.308594 13.679688 20.976562 12.148438 22.339844 C 11.777344 22.671875 11.398438 22.980469 11.011719 23.277344 C 11.15625 22.316406 11.414062 21.375 11.785156 20.457031 C 12.449219 18.804688 13.203125 17.164062 14.054688 15.539062 C 14.90625 13.910156 15.753906 12.417969 16.601562 11.058594 C 16.617188 11.035156 16.609375 11.003906 16.585938 10.996094 C 15.367188 11.199219 14.148438 11.394531 12.917969 11.578125 Z"/>
-                    <path fill="#f16522" d="M 29.363281 8.757812 C 29.382812 8.75 29.386719 8.734375 29.378906 8.714844 L 26.691406 0.160156 C 26.683594 0.132812 26.648438 0.125 26.628906 0.144531 C 25.109375 1.542969 23.363281 3.238281 21.398438 5.234375 C 19.429688 7.226562 17.527344 9.386719 15.691406 11.707031 C 13.851562 14.03125 12.242188 16.375 10.859375 18.734375 C 9.472656 21.097656 8.5 23.34375 7.933594 25.476562 C 7.371094 27.605469 7.378906 29.496094 7.953125 31.144531 C 8.527344 32.796875 9.777344 34.074219 11.703125 34.980469 C 13.628906 35.882812 16.140625 36.3125 19.238281 36.261719 C 18.847656 35.539062 18.570312 34.789062 18.40625 34.019531 C 18.066406 32.417969 18.175781 30.730469 18.734375 28.960938 C 19.292969 27.1875 20.199219 25.328125 21.453125 23.382812 C 22.707031 21.4375 24.238281 19.390625 26.046875 17.242188 C 27.246094 15.820312 28.351562 14.472656 29.363281 13.203125 C 29.789062 14.730469 29.84375 16.328125 29.53125 17.988281 C 29.214844 19.648438 28.453125 21.289062 27.242188 22.910156 C 26.871094 23.40625 26.476562 23.882812 26.058594 24.339844 C 26.6875 23.816406 27.300781 23.210938 27.898438 22.523438 C 29.351562 20.855469 30.40625 19.042969 31.066406 17.085938 C 31.722656 15.125 31.878906 13.148438 31.53125 11.152344 C 31.332031 10.015625 30.835938 9.074219 30.046875 8.328125 C 29.816406 8.484375 29.589844 8.625 29.363281 8.757812 Z"/>
-                    <path fill="#ec1c24" d="M 31.359375 40.09375 C 31.367188 40.117188 31.363281 40.140625 31.347656 40.167969 C 30.074219 42.277344 28.160156 44.027344 25.609375 45.414062 C 23.054688 46.804688 20.128906 47.660156 16.828125 47.984375 C 13.527344 48.304688 10.429688 47.914062 7.53125 46.808594 C 4.632812 45.703125 2.503906 43.839844 1.144531 41.21875 C -0.214844 38.597656 -0.378906 35.347656 0.652344 31.46875 C 1.683594 27.585938 4.09375 23.414062 7.886719 18.949219 C 11.675781 14.484375 16.699219 10.15625 22.953125 5.960938 C 22.980469 5.945312 23.011719 5.964844 23.003906 5.996094 C 22.5625 7.644531 22.378906 9.421875 22.453125 11.328125 C 22.527344 13.234375 22.957031 15.195312 23.742188 17.210938 C 24.527344 19.222656 25.609375 21.21875 26.984375 23.195312 C 28.363281 25.175781 29.9375 27.054688 31.707031 28.832031 C 33.476562 30.613281 35.253906 32.1875 37.039062 33.554688 C 38.824219 34.921875 40.386719 35.984375 41.722656 36.738281 C 41.746094 36.753906 41.746094 36.789062 41.722656 36.804688 C 39.882812 37.980469 37.945312 39.035156 35.914062 39.96875 C 33.878906 40.898438 31.972656 41.605469 30.191406 42.085938 C 30.824219 41.527344 31.214844 40.863281 31.359375 40.09375 Z"/>
-                    <path fill="#ec1c24" d="M 42.359375 13.386719 L 42.101562 8.253906 C 42.097656 8.214844 42.117188 8.195312 42.148438 8.214844 C 44.914062 9.945312 47.464844 12.015625 49.796875 14.425781 C 52.132812 16.839844 53.644531 19.230469 54.335938 21.601562 C 54.34375 21.636719 54.308594 21.65625 54.277344 21.636719 C 51.523438 19.988281 48.332031 18.242188 44.707031 16.398438 C 43.863281 15.96875 43.078125 15.539062 42.359375 15.109375 Z"/>
-                    <path fill="#f16522" d="M 4.503906 14.941406 C 4.53125 14.953125 4.535156 14.988281 4.511719 15.003906 C 3.125 15.976562 1.953125 17.078125 0.996094 18.308594 C 0.0390625 19.539062 -0.347656 20.804688 -0.160156 22.101562 C 0.0273438 23.402344 0.742188 24.71875 1.980469 26.050781 C 3.222656 27.386719 4.886719 28.664062 6.96875 29.878906 C 7.214844 28.511719 7.746094 27.109375 8.566406 25.671875 C 9.574219 23.90625 10.828125 22.183594 12.324219 20.503906 C 13.824219 18.824219 15.464844 17.277344 17.25 15.863281 C 19.03125 14.449219 20.785156 13.253906 22.507812 12.277344 C 20.851562 13.195312 19.460938 14.28125 18.332031 15.539062 C 17.207031 16.792969 16.347656 18.15625 15.757812 19.628906 C 15.164062 21.097656 14.863281 22.585938 14.851562 24.089844 C 14.84375 25.597656 15.1875 27.054688 15.882812 28.460938 C 16.578125 29.871094 17.65625 31.144531 19.117188 32.285156 C 20.578125 33.425781 22.421875 34.296875 24.648438 34.898438 C 26.871094 35.503906 29.542969 35.679688 32.664062 35.433594 C 31.847656 36.003906 30.796875 36.5625 29.511719 37.109375 C 28.226562 37.65625 26.792969 38.070312 25.210938 38.351562 C 23.628906 38.632812 22.015625 38.699219 20.371094 38.546875 C 18.726562 38.398438 17.273438 37.957031 16.011719 37.226562 C 14.75 36.496094 13.917969 35.394531 13.515625 33.917969 C 13.113281 32.445312 13.253906 30.558594 13.9375 28.257812 C 14.621094 25.957031 15.9375 23.277344 17.886719 20.21875 C 19.835938 17.15625 22.429688 13.984375 25.667969 10.703125 C 25.6875 10.679688 25.675781 10.648438 25.648438 10.65625 C 22.128906 11.488281 18.664062 12.355469 15.25 13.261719 C 11.839844 14.167969 8.257812 14.730469 4.503906 14.941406 Z"/>
-                    <path fill="#f6921e" d="M 17.675781 51.796875 C 21.511719 52.601562 25.328125 52.882812 29.128906 52.640625 C 32.925781 52.398438 36.46875 51.578125 39.757812 50.179688 C 43.042969 48.78125 45.832031 46.855469 48.121094 44.402344 C 50.410156 41.953125 51.984375 39.183594 52.84375 36.101562 C 53.703125 33.015625 53.691406 29.890625 52.808594 26.726562 C 51.925781 23.5625 50.054688 20.730469 47.195312 18.230469 C 47.167969 18.207031 47.132812 18.234375 47.148438 18.265625 C 48.71875 21.6875 49.339844 25.109375 49.007812 28.53125 C 48.679688 31.953125 47.457031 35.195312 45.34375 38.261719 C 43.226562 41.328125 40.402344 43.988281 36.871094 46.242188 C 33.335938 48.496094 29.355469 50.019531 24.929688 50.8125 C 22.421875 51.261719 19.988281 51.496094 17.632812 51.515625 C 17.597656 51.515625 17.585938 51.558594 17.613281 51.578125 C 18.679688 52.296875 19.824219 52.929688 21.050781 53.476562 C 21.085938 53.492188 21.117188 53.457031 21.097656 53.425781 C 19.929688 52.914062 18.789062 52.371094 17.675781 51.796875 Z"/>
+                    <path fill="#f7941d" d="M 16.5 11.2 C 8.2 15.6 4.0 25.4 6.2 35.0 C 8.5 45.2 17.6 52.0 27.8 51.8 C 38.4 51.6 47.2 44.0 48.6 33.4 C 49.7 24.6 45.4 15.8 37.6 11.4 C 42.6 16.8 44.6 24.6 43.0 32.0 C 41.0 40.8 33.4 46.8 24.6 46.2 C 15.8 45.6 9.4 38.4 9.6 29.4 C 9.8 21.8 12.6 15.6 16.5 11.2 Z"/>
+                    <path fill="#f15a22" d="M 12.2 23.0 C 10.4 31.4 14.8 40.2 23.0 43.0 C 31.4 45.8 40.4 41.2 43.2 32.8 C 44.8 28.0 44.2 22.6 41.6 18.2 C 42.4 23.2 41.0 28.6 37.6 32.6 C 32.6 38.4 23.8 39.4 17.6 34.8 C 13.8 32.0 11.8 27.6 12.2 23.0 Z"/>
+                    <path fill="#fbb03b" d="M 21.2 16.8 C 18.6 13.6 18.2 8.8 20.8 4.4 C 21.4 7.6 23.2 10.2 24.6 12.8 C 25.4 14.4 25.0 16.4 23.4 17.4 C 22.6 17.8 21.8 17.5 21.2 16.8 Z"/>
+                    <path fill="#ed1c24" d="M 26.2 15.6 C 24.4 11.2 25.2 5.4 28.6 1.2 C 29.0 5.2 31.4 8.6 32.0 12.4 C 32.4 14.8 30.8 16.8 28.6 17.0 C 27.4 17.1 26.6 16.5 26.2 15.6 Z"/>
+                    <path fill="#f15a22" d="M 32.4 17.6 C 32.2 14.0 33.8 9.8 37.2 6.8 C 36.8 10.2 37.8 13.4 37.0 16.4 C 36.4 18.2 34.6 19.0 33.2 18.4 C 32.7 18.2 32.5 17.9 32.4 17.6 Z"/>
+                    <path fill="#ed1c24" d="M 27.0 18.0 C 29.1 18.0 30.8 19.7 30.8 21.8 C 30.8 23.9 29.1 25.6 27.0 25.6 C 24.9 25.6 23.2 23.9 23.2 21.8 C 23.2 19.7 24.9 18.0 27.0 18.0 Z M 14.6 22.2 C 18.6 25.6 22.8 27.8 27.0 27.8 C 31.2 27.8 35.4 25.6 39.4 22.2 C 40.4 21.4 41.4 22.6 40.4 23.8 C 36.8 27.8 32.8 30.4 30.2 32.4 C 29.4 36.6 28.6 40.8 27.0 44.2 C 25.4 40.8 24.6 36.6 23.8 32.4 C 21.2 30.4 17.2 27.8 13.6 23.8 C 12.6 22.6 13.6 21.4 14.6 22.2 Z"/>
                   </svg>
                 </span>
-                <span class="mt-1 text-[10.5px] font-extrabold text-[#f16522]">Nagad নগদ</span>
+                <span class="mt-1 text-[10px] font-extrabold text-[#f16522]">Nagad নগদ</span>
               </button>
 
-              <!-- Rocket Vector Button -->
+              <!-- 3. Rocket Fixed Crisp DBBL Emblem -->
               <button
                 type="button"
+                data-el-item="1"
+                data-el-overflow="0"
+                data-el-keywords="rocket রকেট dbbl dutch bangla payment পেমেন্ট"
                 data-add-vector="rocket"
-                class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#8b3392] bg-slate-50 dark:bg-[#0f131b] hover:bg-purple-500/5 transition cursor-pointer group"
+                class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#8c3494] bg-white dark:bg-[#171c26] hover:bg-purple-500/5 transition cursor-pointer group"
                 title="Rocket (রকেট) ভেক্টর লোগো যুক্ত করুন"
               >
-                <span class="w-8 h-8 rounded-full bg-white shadow-2xs flex items-center justify-center p-1 group-hover:scale-105 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 0 208 126" class="w-6 h-6">
-                    <path fill="#8b3392" d="M 148.546875 16.363281 L 119.070312 45.933594 L 121.101562 62.507812 L 126.5625 68.199219 L 140.488281 68.199219 L 157.652344 51.011719 L 166.863281 0 Z"/>
-                    <path fill="#8b3392" d="M 122.921875 68.199219 C 122.921875 68.199219 97.992188 68.199219 91.902344 68.199219 C 85.816406 68.199219 79.914062 70.835938 75.984375 74.960938 C 72.054688 79.085938 65.75 92.511719 65.75 92.511719 C 65.75 92.511719 75.984375 92.511719 86.632812 92.511719 C 97.28125 92.511719 104.773438 88.582031 108.570312 84.777344 C 112.367188 80.976562 119.339844 73.117188 119.339844 73.117188 L 122.921875 68.199219 Z"/>
-                    <path fill="#8b3392" d="M 187.828125 83.789062 C 182.648438 83.789062 176.414062 83.789062 176.414062 83.789062 L 151.785156 68.199219 L 149.632812 43.433594 L 200.320312 94.679688 L 194.515625 83.789062 Z"/>
-                    <path fill="#8b3392" d="M 77.199219 68.199219 L 62.214844 68.199219 C 57.453125 74.027344 49.121094 97.667969 49.121094 97.667969 C 49.121094 97.667969 66.863281 102.398438 72.953125 106.335938 L 77.199219 115.429688 Z"/>
-                    <path fill="#8b3392" d="M 38.96875 115.886719 C 38.96875 121.082031 34.765625 125.296875 29.585938 125.296875 C 24.398438 125.296875 20.199219 121.082031 20.199219 115.886719 C 20.199219 110.699219 24.398438 106.492188 29.585938 106.492188 C 34.765625 106.492188 38.96875 110.699219 38.96875 115.886719 Z"/>
-                    <path fill="#8b3392" d="M 18.941406 68.199219 C -4.722656 71.847656 -7.175781 106.335938 18.664062 110.996094 C 36.96875 114.28125 49.988281 102.070312 49.988281 102.070312 C 49.988281 102.070312 28.988281 99.789062 25.4375 92.511719 C 21.878906 85.234375 26.449219 78.4375 26.449219 78.4375 Z"/>
+                <span class="w-8.5 h-8.5 rounded-full bg-white shadow-2xs border border-slate-100 flex items-center justify-center p-1 group-hover:scale-108 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="46 6 116 114" class="w-6 h-6">
+                    <path fill="#8c3494" d="M 74.0 11.0 L 134.0 11.0 C 147.2 11.0 156.0 19.8 156.0 33.0 L 156.0 93.0 C 156.0 106.2 147.2 115.0 134.0 115.0 L 74.0 115.0 C 60.8 115.0 52.0 106.2 52.0 93.0 L 52.0 33.0 C 52.0 19.8 60.8 11.0 74.0 11.0 Z"/>
+                    <path fill="#6d2077" d="M 58.0 82.0 C 68.0 98.0 92.0 106.0 118.0 98.0 C 136.0 92.0 148.0 76.0 150.0 56.0 C 151.0 82.0 134.0 106.0 106.0 109.0 C 82.0 111.0 64.0 98.0 58.0 82.0 Z"/>
+                    <path fill="#fbbf24" d="M 85.0 74.0 C 77.0 78.0 68.0 88.0 64.0 101.0 C 77.0 97.0 87.0 88.0 91.0 80.0 L 85.0 74.0 Z"/>
+                    <path fill="#f3e8ff" d="M 86.0 61.0 L 66.0 66.0 L 62.0 78.0 L 81.0 76.0 L 89.0 84.0 L 87.0 103.0 L 99.0 99.0 L 104.0 79.0 L 86.0 61.0 Z"/>
+                    <path fill="#ffffff" d="M 142.0 23.0 C 126.0 25.0 106.0 37.0 90.0 53.0 L 79.0 64.0 L 101.0 86.0 L 112.0 75.0 C 128.0 59.0 140.0 39.0 142.0 23.0 Z"/>
+                    <path fill="#8c3494" d="M 115.0 42.5 C 119.2 42.5 122.5 45.8 122.5 50.0 C 122.5 54.2 119.2 57.5 115.0 57.5 C 110.8 57.5 107.5 54.2 107.5 50.0 C 107.5 45.8 110.8 42.5 115.0 42.5 Z"/>
                   </svg>
                 </span>
-                <span class="mt-1 text-[10.5px] font-extrabold text-[#8b3392]">Rocket রকেট</span>
+                <span class="mt-1 text-[10px] font-extrabold text-[#8c3494]">Rocket রকেট</span>
+              </button>
+
+              <!-- 4. Upay Vector -->
+              <button
+                type="button"
+                data-el-item="1"
+                data-el-overflow="1"
+                hidden
+                data-el-keywords="upay উপায় payment পেমেন্ট mobile banking"
+                data-add-vector="upay"
+                class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#0054a6] bg-white dark:bg-[#171c26] transition cursor-pointer group"
+                title="Upay (উপায়) ভেক্টর লোগো যুক্ত করুন"
+              >
+                <span class="w-8.5 h-8.5 rounded-full bg-white shadow-2xs border border-slate-100 flex items-center justify-center p-1 group-hover:scale-108 transition">
+                  <svg viewBox="0 0 64 64" class="w-6 h-6">
+                    <path fill="#ffd200" d="M 14.0 6.0 L 50.0 6.0 C 55.5 6.0 58.0 8.5 58.0 14.0 L 58.0 50.0 C 58.0 55.5 55.5 58.0 50.0 58.0 L 14.0 58.0 C 8.5 58.0 6.0 55.5 6.0 50.0 L 6.0 14.0 C 6.0 8.5 8.5 6.0 14.0 6.0 Z"/>
+                    <path fill="#0054a6" d="M 19.0 18.0 L 27.0 18.0 L 27.0 35.0 C 27.0 39.5 29.2 42.0 33.0 42.0 C 36.8 42.0 39.0 39.5 39.0 35.0 L 39.0 18.0 L 47.0 18.0 L 47.0 35.5 C 47.0 44.5 41.4 49.5 33.0 49.5 C 24.6 49.5 19.0 44.5 19.0 35.5 L 19.0 18.0 Z"/>
+                    <path fill="#ed1c24" d="M 33.0 12.0 L 39.0 18.0 L 35.0 18.0 L 33.0 15.8 L 31.0 18.0 L 27.0 18.0 L 33.0 12.0 Z"/>
+                  </svg>
+                </span>
+                <span class="mt-1 text-[10px] font-extrabold text-[#0054a6]">Upay উপায়</span>
+              </button>
+
+              <!-- 5. Bank Transfer Vector -->
+              <button
+                type="button"
+                data-el-item="1"
+                data-el-overflow="1"
+                hidden
+                data-el-keywords="bank account ব্যাংক একাউন্ট হিসাব অনুদান"
+                data-add-vector="bank"
+                class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#0f766e] bg-white dark:bg-[#171c26] transition cursor-pointer group"
+                title="Bank Account (ব্যাংক একাউন্ট) আইকন যুক্ত করুন"
+              >
+                <span class="w-8.5 h-8.5 rounded-full bg-white shadow-2xs border border-slate-100 flex items-center justify-center p-1 group-hover:scale-108 transition">
+                  <svg viewBox="0 0 64 64" class="w-6 h-6">
+                    <path fill="#0f766e" d="M 12.0 6.0 L 52.0 6.0 C 55.3 6.0 58.0 8.7 58.0 12.0 L 58.0 52.0 C 58.0 55.3 55.3 58.0 52.0 58.0 L 12.0 58.0 C 8.7 58.0 6.0 55.3 6.0 52.0 L 6.0 12.0 C 6.0 8.7 8.7 6.0 12.0 6.0 Z"/>
+                    <path fill="#ffffff" d="M 32.0 13.0 L 50.0 23.0 L 50.0 26.5 L 14.0 26.5 L 14.0 23.0 L 32.0 13.0 Z M 18.0 29.5 L 22.5 29.5 L 22.5 43.5 L 18.0 43.5 L 18.0 29.5 Z M 29.8 29.5 L 34.2 29.5 L 34.2 43.5 L 29.8 43.5 L 29.8 29.5 Z M 41.5 29.5 L 46.0 29.5 L 46.0 43.5 L 41.5 43.5 L 41.5 29.5 Z M 14.0 46.0 L 50.0 46.0 L 50.0 50.5 L 14.0 50.5 L 14.0 46.0 Z"/>
+                  </svg>
+                </span>
+                <span class="mt-1 text-[10px] font-extrabold text-[#0f766e]">ব্যাংক হিসাব</span>
+              </button>
+
+              <!-- 6. Visa / Card Vector -->
+              <button
+                type="button"
+                data-el-item="1"
+                data-el-overflow="1"
+                hidden
+                data-el-keywords="card visa mastercard কার্ড পেমেন্ট ভিসা"
+                data-add-vector="card"
+                class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#1d4ed8] bg-white dark:bg-[#171c26] transition cursor-pointer group"
+                title="Card Payment (কার্ড পেমেন্ট) আইকন যুক্ত করুন"
+              >
+                <span class="w-8.5 h-8.5 rounded-full bg-white shadow-2xs border border-slate-100 flex items-center justify-center p-1 group-hover:scale-108 transition">
+                  <svg viewBox="0 0 64 64" class="w-6 h-6">
+                    <path fill="#1d4ed8" d="M 10.0 13.0 L 54.0 13.0 C 57.3 13.0 60.0 15.7 60.0 19.0 L 60.0 45.0 C 60.0 48.3 57.3 51.0 54.0 51.0 L 10.0 51.0 C 6.7 51.0 4.0 48.3 4.0 45.0 L 4.0 19.0 C 4.0 15.7 6.7 13.0 10.0 13.0 Z"/>
+                    <path fill="#93c5fd" d="M 4.0 22.0 L 60.0 22.0 L 60.0 29.0 L 4.0 29.0 L 4.0 22.0 Z"/>
+                    <path fill="#fbbf24" d="M 11.0 34.0 L 21.0 34.0 L 21.0 44.0 L 11.0 44.0 Z"/>
+                  </svg>
+                </span>
+                <span class="mt-1 text-[10px] font-extrabold text-[#1d4ed8]">কার্ড পেমেন্ট</span>
               </button>
             </div>
           </div>
 
-          <!-- Color Palettes -->
-          <div class="pt-2 border-t border-slate-200/80 dark:border-white/10">
-            <strong class="block text-[12px] font-extrabold text-slate-900 dark:text-white mb-2" data-i18n-bn="কার্ডের কালার থিম (১২টি প্যালেট)" data-i18n-en="Card Color Palettes (12 Themes)">কার্ডের কালার থিম (১২টি প্যালেট)</strong>
+          <!-- SHELF 4: VARIOUS SHAPES & LINES (21 Geometric & Banner Shapes) -->
+          <div data-el-shelf="shapes" class="p-3 rounded-2xl bg-slate-50/90 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="শেপ, লাইন ও ফ্রেম (Shapes)" data-i18n-en="Shapes & Lines">শেপ, লাইন ও ফ্রেম (Shapes)</strong>
+              <button type="button" data-el-see-all="shapes" class="text-[10.5px] font-extrabold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer shrink-0" data-i18n-bn="সব দেখুন (২১)" data-i18n-en="See all (21)">সব দেখুন (২১)</button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5" id="pcShapeElementsGrid">
+              {#each shapeElements as sh, idx}
+                <button
+                  type="button"
+                  data-el-item="1"
+                  data-el-overflow={idx >= 6 ? '1' : '0'}
+                  data-el-keywords="{sh.kind} {sh.labelBn} {sh.labelEn} {sh.keywords}"
+                  hidden={idx >= 6}
+                  data-add-shape={sh.kind}
+                  data-fill={sh.fill}
+                  data-stroke={sh.stroke}
+                  data-w={sh.w}
+                  data-h={sh.h}
+                  data-radius={sh.radius}
+                  class="flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl bg-white dark:bg-[#171c26] hover:bg-blue-50/70 dark:hover:bg-white/8 border border-slate-200/90 dark:border-white/10 hover:border-[#2563eb] cursor-pointer transition"
+                >
+                  <span class="w-10 h-6 flex items-center justify-center">
+                    {#if sh.kind === 'rect'}
+                      <span class="w-8.5 h-5 bg-red-600 block"></span>
+                    {:else if sh.kind === 'rounded'}
+                      <span class="w-8.5 h-5 rounded-md bg-red-600 block"></span>
+                    {:else if sh.kind === 'pill'}
+                      <span class="w-9 h-4.5 rounded-full bg-[#2563eb] block"></span>
+                    {:else if sh.kind === 'circle'}
+                      <span class="w-5.5 h-5.5 rounded-full bg-amber-500 block"></span>
+                    {:else if sh.kind === 'ring'}
+                      <span class="w-5.5 h-5.5 rounded-full border-2 border-sky-400 block"></span>
+                    {:else if sh.kind === 'glass'}
+                      <span class="w-9 h-5 rounded-md bg-slate-800/80 border border-sky-400 block"></span>
+                    {:else if sh.kind === 'outline'}
+                      <span class="w-9 h-5 rounded-sm border-2 border-amber-400 block"></span>
+                    {:else if sh.kind === 'line'}
+                      <span class="w-9 h-1 rounded-full bg-amber-400 block"></span>
+                    {:else if sh.kind === 'dashed-line'}
+                      <span class="w-9 border-t-2 border-dashed border-sky-400 block"></span>
+                    {:else}
+                      <svg viewBox="0 0 32 24" class="w-7 h-5" aria-hidden="true">
+                        {#if sh.kind === 'triangle'}
+                          <polygon points="16,2 30,22 2,22" fill="#e11d48" />
+                        {:else if sh.kind === 'diamond'}
+                          <polygon points="16,1 30,12 16,23 2,12" fill="#7c3aed" />
+                        {:else if sh.kind === 'pentagon'}
+                          <polygon points="16,1 29,10 24,23 8,23 3,10" fill="#059669" />
+                        {:else if sh.kind === 'hexagon'}
+                          <polygon points="16,1 28,7 28,17 16,23 4,17 4,7" fill="#0284c7" />
+                        {:else if sh.kind === 'octagon'}
+                          <polygon points="11,1 21,1 29,8 29,16 21,23 11,23 3,16 3,8" fill="#b91c1c" />
+                        {:else if sh.kind === 'star'}
+                          <polygon points="16,1 19.8,8.8 28.5,10 22,16 23.6,23.5 16,19.5 8.4,23.5 10,16 3.5,10 12.2,8.8" fill="#f59e0b" />
+                        {:else if sh.kind === 'starburst'}
+                          <circle cx="16" cy="12" r="10" fill="#dc2626" stroke="#fde047" stroke-width="1.8" stroke-dasharray="2 1.5" />
+                        {:else if sh.kind === 'shield'}
+                          <path d="M16 1L27 5v7c0 6-5 10-11 11C10 22 5 18 5 12V5l11-4z" fill="#1e40af" />
+                        {:else if sh.kind === 'ribbon'}
+                          <polygon points="1,5 31,5 27,12 31,19 1,19 5,12" fill="#b91c1c" />
+                        {:else if sh.kind === 'speech'}
+                          <path d="M4 3h24a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H13l-5 5v-5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="#2563eb" />
+                        {:else if sh.kind === 'arrow-right'}
+                          <polygon points="2,8 20,8 20,3 30,12 20,21 20,16 2,16" fill="#ea580c" />
+                        {:else}
+                          <path d="M6 23V11a10 10 0 0 1 20 0v12H6z" fill="#047857" />
+                        {/if}
+                      </svg>
+                    {/if}
+                  </span>
+                  <span class="text-[9.5px] font-bold text-slate-700 dark:text-slate-200 truncate max-w-full" data-i18n-bn={sh.labelBn} data-i18n-en={sh.labelEn}>{sh.labelBn}</span>
+                </button>
+              {/each}
+            </div>
+          </div>
+
+          <!-- SHELF 5: GRAPHICS ELEMENTS (12 Decorative Frames, Stamps, Islamic Arch, Broadcast Bars) -->
+          <div data-el-shelf="graphics" class="p-3 rounded-2xl bg-slate-50/90 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="গ্রাফিক্স এলিমেন্টস (Graphics)" data-i18n-en="Graphics Elements">গ্রাফিক্স এলিমেন্টস (Graphics)</strong>
+              <button type="button" data-el-see-all="graphics" class="text-[10.5px] font-extrabold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer shrink-0" data-i18n-bn="সব দেখুন (১২)" data-i18n-en="See all (12)">সব দেখুন (১২)</button>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5" id="pcGraphicsElementsGrid">
+              {#each graphicElementItems as grp, idx}
+                <button
+                  type="button"
+                  data-el-item="1"
+                  data-el-overflow={idx >= 6 ? '1' : '0'}
+                  data-el-keywords="{grp.kind} {grp.labelBn} {grp.labelEn} {grp.keywords}"
+                  hidden={idx >= 6}
+                  data-add-graphic={grp.kind}
+                  data-fill={grp.fill}
+                  data-accent={grp.accent}
+                  data-w={grp.w}
+                  data-h={grp.h}
+                  class="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-white dark:bg-[#171c26] hover:bg-blue-50/70 dark:hover:bg-white/8 border border-slate-200/90 dark:border-white/10 hover:border-[#2563eb] cursor-pointer transition"
+                >
+                  <span class="w-10 h-6 rounded flex items-center justify-center" style="color:{grp.fill};">
+                    {#if grp.kind === 'breaking-frame'}
+                      <span class="w-9 h-5 rounded-xs border-2 border-red-600 flex items-start justify-start p-0.5"><span class="px-1 bg-red-600 text-[6px] font-black text-white leading-tight">TV</span></span>
+                    {:else if grp.kind === 'corner-brackets'}
+                      <Icon name="lucide:scan" class="w-5 h-5 text-amber-500" />
+                    {:else if grp.kind === 'live-banner'}
+                      <span class="px-1.5 py-0.5 rounded bg-red-600 text-white text-[8px] font-black">● LIVE</span>
+                    {:else if grp.kind === 'quote-frame'}
+                      <Icon name="lucide:message-square-quote" class="w-5 h-5 text-amber-500" />
+                    {:else if grp.kind === 'award-seal'}
+                      <Icon name="lucide:award" class="w-5 h-5 text-amber-600" />
+                    {:else if grp.kind === 'verified-stamp'}
+                      <Icon name="lucide:shield-check" class="w-5 h-5 text-emerald-600" />
+                    {:else if grp.kind === 'islamic-arch'}
+                      <Icon name="lucide:landmark" class="w-5 h-5 text-emerald-600" />
+                    {:else if grp.kind === 'paper-strip'}
+                      <span class="w-8 h-3.5 bg-amber-300 border-l-3 border-amber-600 block"></span>
+                    {:else if grp.kind === 'dots-grid'}
+                      <Icon name="lucide:grip" class="w-5 h-5 text-sky-500" />
+                    {:else if grp.kind === 'hazard-stripe'}
+                      <span class="w-9 h-3 rounded-xs bg-amber-400 border border-slate-900 block"></span>
+                    {:else if grp.kind === 'curved-arrow'}
+                      <Icon name="lucide:redo-2" class="w-5 h-5 text-amber-500" />
+                    {:else}
+                      <span class="w-5 h-5 rounded-full bg-sky-400/50 blur-[1px] ring-2 ring-sky-400 block"></span>
+                    {/if}
+                  </span>
+                  <span class="text-[9.5px] font-bold text-slate-700 dark:text-slate-200 truncate max-w-full" data-i18n-bn={grp.labelBn} data-i18n-en={grp.labelEn}>{grp.labelBn}</span>
+                </button>
+              {/each}
+            </div>
+          </div>
+
+          <!-- SHELF 6: BILINGUAL STICKERS & BADGES (38 Editable Items + Category Filter) -->
+          <div data-el-shelf="badges" class="p-3 rounded-2xl bg-slate-50/90 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="বাংলা ও ইংরেজি ব্যাজ স্টিকার (৩৮টি)" data-i18n-en="Badge Stickers (38)">বাংলা ও ইংরেজি ব্যাজ স্টিকার (৩৮টি)</strong>
+              <button type="button" data-el-see-all="badges" class="text-[10.5px] font-extrabold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer shrink-0" data-i18n-bn="সব দেখুন (৩৮)" data-i18n-en="See all (38)">সব দেখুন (৩৮)</button>
+            </div>
+
+            <!-- Category Filter Pills (R9 Contract: keep flex-wrap & id="pcStickerCatFilter") -->
+            <div class="flex flex-wrap items-center gap-1.5 mb-2" id="pcStickerCatFilter">
+              {#each stickerCategories as cat}
+                <button
+                  type="button"
+                  data-sticker-cat={cat.id}
+                  aria-pressed={activeStickerCat === cat.id ? 'true' : 'false'}
+                  onclick={() => { activeStickerCat = cat.id; }}
+                  class="px-2 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-slate-600 dark:text-slate-300 aria-pressed:bg-[#2563eb] aria-pressed:text-white aria-pressed:border-[#2563eb]"
+                  data-i18n-bn={cat.labelBn}
+                  data-i18n-en={cat.labelEn}
+                >
+                  {cat.labelBn}
+                </button>
+              {/each}
+            </div>
+
+            <div id="pcBadgesOverviewClamp" style="max-height: 210px; overflow: hidden;">
+              <div class="grid grid-cols-2 gap-1.5" id="pcStickerElementsGrid">
+                {#each stickerElements.filter(st => activeStickerCat === 'all' || st.cat === activeStickerCat) as st}
+                  <button
+                    type="button"
+                    data-add-sticker={st.text}
+                    data-bg={st.bg}
+                    data-fg={st.fg}
+                    data-size={st.size}
+                    data-cat={st.cat}
+                    data-icon={st.icon || ''}
+                    class="h-8.5 px-2.5 rounded-lg text-[11px] font-extrabold inline-flex items-center justify-center gap-1.5 truncate cursor-pointer shadow-2xs hover:scale-[1.02] transition border border-black/10"
+                    style="background:{st.bg};color:{st.fg};"
+                    title={st.labelBn}
+                  >
+                    {#if st.icon === 'bolt'}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M13 2L4 14h7l-2 8 9-12h-7l2-8z"/></svg>
+                    {:else if st.icon === 'live'}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3 shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="7"/></svg>
+                    {:else if st.icon === 'alert'}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 3L2 20h20L12 3z"/><path d="M12 9v5"/><circle cx="12" cy="17" r="0.8" fill="currentColor"/></svg>
+                    {:else if st.icon === 'blood'}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 2.5C12 2.5 6 9.6 6 14.2A6 6 0 0 0 18 14.2C18 9.6 12 2.5 12 2.5Z"/></svg>
+                    {:else if st.icon === 'handheart'}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 20.5s-7-4.4-7-9.6A4.1 4.1 0 0 1 12 8a4.1 4.1 0 0 1 7 2.9c0 5.2-7 9.6-7 9.6z"/></svg>
+                    {:else if st.icon === 'shield'}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    {:else if st.icon === 'phone'}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.01l-2.2 2.2z"/></svg>
+                    {:else if st.icon === 'chat'}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    {/if}
+                    <span class="truncate">{st.text}</span>
+                  </button>
+                {/each}
+              </div>
+            </div>
+          </div>
+
+          <!-- SHELF 7: CARD COLOR PALETTES & GRADIENT DENSITY -->
+          <div data-el-shelf="colors" class="p-3 rounded-2xl bg-slate-50/90 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="কার্ডের কালার থিম (১২টি প্যালেট)" data-i18n-en="Card Color Palettes (12)">কার্ডের কালার থিম (১২টি প্যালেট)</strong>
+              <button type="button" data-el-see-all="colors" class="text-[10.5px] font-extrabold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer shrink-0" data-i18n-bn="সব দেখুন" data-i18n-en="See all">সব দেখুন</button>
+            </div>
             <div class="grid grid-cols-2 gap-1.5" id="pcThemePills">
               {#each themePalettes as th, i}
                 <button
                   type="button"
+                  data-el-item="1"
+                  data-el-overflow={i >= 6 ? '1' : '0'}
+                  data-el-keywords="{th.id} {th.nameBn} {th.nameEn} theme color কালার থিম"
+                  hidden={i >= 6}
                   data-pc-theme={th.id}
                   data-primary={th.primary}
                   data-accent={th.accent}
                   data-bg={th.bg}
                   aria-pressed={i === 1 ? 'true' : 'false'}
-                  class="flex items-center gap-2 p-2 rounded-xl border text-left cursor-pointer transition bg-slate-50 dark:bg-[#0f131b] border-slate-200 dark:border-white/10 hover:border-[#2563eb] aria-pressed:border-[#2563eb] aria-pressed:ring-2 aria-pressed:ring-[#2563eb]/25"
+                  class="flex items-center gap-2 p-2 rounded-xl border text-left cursor-pointer transition bg-white dark:bg-[#171c26] border-slate-200 dark:border-white/10 hover:border-[#2563eb] aria-pressed:border-[#2563eb] aria-pressed:ring-2 aria-pressed:ring-[#2563eb]/25"
                 >
                   <span class="flex items-center -space-x-1 shrink-0">
                     <span class="w-4 h-4 rounded-full border border-white/40" style="background:{th.primary}"></span>
@@ -1508,24 +1992,21 @@
               {/each}
             </div>
 
-            <div class="grid grid-cols-3 gap-2 mt-2.5">
-              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/10 cursor-pointer text-[11px] font-bold text-slate-700 dark:text-slate-200">
-                <input type="color" id="pcPrimaryColor" value="#dc2626" class="w-5 h-5 rounded border-0 cursor-pointer bg-transparent shrink-0" />
+            <div class="grid grid-cols-3 gap-1.5">
+              <label class="relative flex items-center gap-1.5 p-2 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 cursor-pointer text-[10.5px] font-bold text-slate-700 dark:text-slate-200">
+                <input type="color" id="pcPrimaryColor" value="#dc2626" class="w-4.5 h-4.5 rounded border-0 cursor-pointer bg-transparent shrink-0" />
                 <span class="truncate" data-i18n-bn="প্রাইমারি" data-i18n-en="Primary">প্রাইমারি</span>
               </label>
-              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/10 cursor-pointer text-[11px] font-bold text-slate-700 dark:text-slate-200">
-                <input type="color" id="pcAccentColor" value="#fde047" class="w-5 h-5 rounded border-0 cursor-pointer bg-transparent shrink-0" />
+              <label class="relative flex items-center gap-1.5 p-2 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 cursor-pointer text-[10.5px] font-bold text-slate-700 dark:text-slate-200">
+                <input type="color" id="pcAccentColor" value="#fde047" class="w-4.5 h-4.5 rounded border-0 cursor-pointer bg-transparent shrink-0" />
                 <span class="truncate" data-i18n-bn="হাইলাইট" data-i18n-en="Accent">হাইলাইট</span>
               </label>
-              <label class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/10 cursor-pointer text-[11px] font-bold text-slate-700 dark:text-slate-200">
-                <input type="color" id="pcBgColor" value="#1c080b" class="w-5 h-5 rounded border-0 cursor-pointer bg-transparent shrink-0" />
+              <label class="relative flex items-center gap-1.5 p-2 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 cursor-pointer text-[10.5px] font-bold text-slate-700 dark:text-slate-200">
+                <input type="color" id="pcBgColor" value="#1c080b" class="w-4.5 h-4.5 rounded border-0 cursor-pointer bg-transparent shrink-0" />
                 <span class="truncate" data-i18n-bn="ব্যাকগ্রাউন্ড" data-i18n-en="Background">ব্যাকগ্রাউন্ড</span>
               </label>
             </div>
-          </div>
 
-          <!-- Overlay Density Slider + Legacy Font Select Mirror -->
-          <div class="space-y-2.5 pt-2 border-t border-slate-200/80 dark:border-white/10">
             <div hidden>
               <select id="pcFontFamily">
                 {#each fontFamilies as ff}
@@ -1534,7 +2015,7 @@
               </select>
             </div>
 
-            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/10">
+            <div class="p-2.5 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10">
               <div class="flex justify-between text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
                 <span data-i18n-bn="ছবির নিচে শ্যাডো ঘনত্ব" data-i18n-en="Photo Gradient Overlay">ছবির নিচে শ্যাডো ঘনত্ব</span>
                 <strong id="pcOverlayAlphaVal" class="font-mono text-slate-500">85%</strong>
@@ -1686,23 +2167,77 @@
             </div>
 
             <!-- Headline -->
-            <div class="space-y-1">
+            <div class="space-y-1.5">
               <div class="flex items-center justify-between gap-1">
                 <label for="pcHeadlineText" id="pcHeadlineFieldLabel" class="text-[11px] font-extrabold text-slate-700 dark:text-slate-200">মূল শিরোনাম (Headline):</label>
-                <button
-                  type="button"
-                  id="pcHighlightSelectionBtn"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 text-[10px] font-bold cursor-pointer transition"
-                >
-                  <Icon name="lucide:highlighter" class="w-3 h-3" />
-                  <span data-i18n-bn="*শব্দ* হাইলাইট" data-i18n-en="*Word* Highlight">*শব্দ* হাইলাইট</span>
-                </button>
+                <div class="inline-flex items-center gap-1">
+                  <button
+                    type="button"
+                    id="pcHighlightSelectionBtn"
+                    title="যেকোনো শব্দ মাউস দিয়ে সিলেক্ট করে হাইলাইট রঙ দিন"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 text-[10px] font-bold cursor-pointer transition"
+                  >
+                    <Icon name="lucide:highlighter" class="w-3 h-3" />
+                    <span data-i18n-bn="নির্বাচিত অংশ হাইলাইট" data-i18n-en="Highlight Selection">নির্বাচিত অংশ হাইলাইট</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="pcClearHighlightBtn"
+                    title="নির্বাচিত অংশ বা পুরো লেখার হাইলাইট মুছুন"
+                    class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-200/70 dark:bg-white/10 hover:bg-rose-500/15 hover:text-rose-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold cursor-pointer transition"
+                  >
+                    <span data-i18n-bn="মুছুন" data-i18n-en="Clear">মুছুন</span>
+                  </button>
+                </div>
               </div>
               <textarea
                 id="pcHeadlineText"
                 rows="2"
                 class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/10 text-[12.5px] font-bold text-slate-900 dark:text-white leading-relaxed resize-y outline-none focus:border-[#2563eb]"
               ></textarea>
+
+              <!-- Direct Selection Highlight Color & Mode Bar -->
+              <div class="flex flex-wrap items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[10.5px] font-extrabold text-slate-600 dark:text-slate-300" data-i18n-bn="হাইলাইট রঙ:" data-i18n-en="Highlight:">হাইলাইট রঙ:</span>
+                  <div class="inline-flex items-center gap-1" id="pcHeadlineHighlightPresets">
+                    {#each [
+                      { hex: '#fde047', label: 'হলুদ (Yellow)' },
+                      { hex: '#ef4444', label: 'লাল (Red)' },
+                      { hex: '#22c55e', label: 'সবুজ (Green)' },
+                      { hex: '#38bdf8', label: 'আকাশি (Sky)' },
+                      { hex: '#fb923c', label: 'কমলা (Orange)' },
+                      { hex: '#ffffff', label: 'সাদা (White)' }
+                    ] as hiPreset}
+                      <button
+                        type="button"
+                        data-pc-hi-preset={hiPreset.hex}
+                        title={`হাইলাইট রঙ: ${hiPreset.label}`}
+                        class="w-4 h-4 rounded-full border border-slate-300 dark:border-white/25 cursor-pointer hover:scale-110 transition shrink-0"
+                        style="background:{hiPreset.hex};"
+                      ></button>
+                    {/each}
+                  </div>
+                  <button
+                    type="button"
+                    id="pcHeadlineHighlightColorBtn"
+                    class="inline-flex items-center gap-1 h-6 px-1.5 rounded-md bg-white dark:bg-[#1c212c] border border-slate-300/90 dark:border-white/20 text-[10px] font-extrabold text-slate-700 dark:text-slate-200 hover:border-[#2563eb] cursor-pointer transition"
+                    title="কাস্টম হাইলাইট রঙ নির্বাচন করুন"
+                  >
+                    <span id="pcHeadlineHighlightColorDot" class="w-3.5 h-3.5 rounded-full border border-black/15 shrink-0" style="background:#fde047;"></span>
+                    <span data-i18n-bn="কাস্টম" data-i18n-en="Custom">কাস্টম</span>
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  id="pcHighlightModeBtn"
+                  data-hi-mode=""
+                  class="inline-flex items-center gap-1 h-6 px-2 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 text-[10px] font-extrabold cursor-pointer transition shrink-0"
+                  title="হাইলাইট স্টাইল পরিবর্তন (অটো / লেখা / মার্কার বক্স)"
+                >
+                  <span id="pcHighlightModeLabel" data-i18n-bn="অটো" data-i18n-en="Auto">অটো</span>
+                </button>
+              </div>
             </div>
 
             <!-- Tagline -->
@@ -1728,7 +2263,17 @@
             <!-- Footer & Date -->
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label for="pcFooterUrl" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1" data-i18n-bn="ওয়েবসাইট / হটলাইন:" data-i18n-en="Website / Hotline:">ওয়েবসাইট / হটলাইন:</label>
+                <div class="flex items-center justify-between gap-1 mb-1">
+                  <label for="pcFooterUrl" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400" data-i18n-bn="ওয়েবসাইট / হটলাইন:" data-i18n-en="Website / Hotline:">ওয়েবসাইট / হটলাইন:</label>
+                  <button
+                    type="button"
+                    id="pcSyncFooterToBrandBtn"
+                    class="text-[9.5px] font-extrabold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer shrink-0"
+                    title="এই তথ্য বর্তমান ব্র্যান্ড প্রোফাইলে সেভ করুন"
+                    data-i18n-bn="ব্র্যান্ডে সেভ করুন"
+                    data-i18n-en="Save to Brand"
+                  >ব্র্যান্ডে সেভ করুন</button>
+                </div>
                 <input type="text" id="pcFooterUrl" class="w-full h-8 px-2.5 rounded-lg bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/10 text-[11px] font-semibold text-slate-800 dark:text-white" />
               </div>
               <div>
@@ -1824,17 +2369,112 @@
         </div>
 
         <!-- ===============================================================
-             DRAWER 4: BRAND KIT (Foundation / News Portal Logos)
+             DRAWER 4: CANVA-STYLE BRAND KIT HUB
+             (Search + Brand Kit Switcher + Section Nav + Logos, Colors, Fonts, Info, Graphics)
              =============================================================== -->
-        <div data-pc-drawer="brand" hidden class="space-y-3.5">
-          <div class="p-3 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-3">
+        <div data-pc-drawer="brand" hidden class="space-y-3">
+          <!-- 1. Canva Search Bar -->
+          <div class="relative flex items-center">
+            <Icon name="lucide:search" class="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              id="pcBrandSearchInput"
+              placeholder="ব্র্যান্ড লোগো, কালার বা অ্যাসেট খুঁজুন..."
+              data-i18n-placeholder-bn="ব্র্যান্ড লোগো, কালার বা অ্যাসেট খুঁজুন..."
+              data-i18n-placeholder-en="Search brand logos, colors or assets..."
+              class="w-full h-9.5 pl-9.5 pr-3 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-300/90 dark:border-white/15 text-[12px] font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:border-[#2563eb]"
+            />
+          </div>
+
+          <!-- 2. Active Brand Kit Switcher Pill + Dropdown Menu -->
+          <div class="relative">
+            <button
+              type="button"
+              id="pcBrandKitDropdownBtn"
+              aria-expanded="false"
+              class="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-2xl bg-white dark:bg-[#0f131b] hover:bg-slate-50 dark:hover:bg-white/5 border border-slate-200/95 dark:border-white/15 shadow-2xs cursor-pointer transition"
+            >
+              <span class="flex items-center gap-2.5 min-w-0">
+                <span
+                  id="pcBrandKitDropdownAvatar"
+                  class="w-7.5 h-7.5 rounded-full bg-blue-500/12 border border-slate-200 dark:border-white/15 flex items-center justify-center overflow-hidden shrink-0"
+                >
+                  <span class="text-[10px] font-black text-[#2563eb] dark:text-sky-300">BK</span>
+                </span>
+                <span class="min-w-0 text-left">
+                  <span id="pcBrandKitDropdownLabel" class="block text-[12px] font-extrabold text-slate-900 dark:text-white truncate">ব্র্যান্ড কিট (Brand Kit)</span>
+                  <span class="block text-[9.5px] font-semibold text-slate-400" data-i18n-bn="সক্রিয় ব্র্যান্ড প্রোফাইল পরিবর্তন করুন" data-i18n-en="Switch active Brand Kit">সক্রিয় ব্র্যান্ড প্রোফাইল পরিবর্তন করুন</span>
+                </span>
+              </span>
+              <Icon name="lucide:chevron-down" class="w-4 h-4 text-slate-400 shrink-0" />
+            </button>
+
+            <div
+              id="pcBrandKitDropdownMenu"
+              hidden
+              class="absolute left-0 right-0 top-full mt-1.5 z-30 rounded-2xl bg-white dark:bg-[#161b26] border border-slate-200 dark:border-white/15 shadow-xl p-2 space-y-1.5"
+            >
+              <div id="pcBrandKitDropdownList" class="space-y-1 max-h-44 overflow-y-auto pr-0.5"></div>
+              <div class="pt-1.5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between gap-1.5">
+                <button
+                  type="button"
+                  id="pcBrandDropdownNewBtn"
+                  class="flex-1 h-8 px-2.5 rounded-xl bg-[#2563eb]/12 hover:bg-[#2563eb]/20 text-[#2563eb] dark:text-sky-300 text-[11px] font-extrabold cursor-pointer transition"
+                  data-i18n-bn="+ নতুন ব্র্যান্ড কিট"
+                  data-i18n-en="+ New Brand Kit"
+                >+ নতুন ব্র্যান্ড কিট</button>
+                <button
+                  type="button"
+                  id="pcBrandDropdownDeactivateBtn"
+                  class="h-8 px-2.5 rounded-xl bg-slate-100 dark:bg-white/8 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-600 dark:text-slate-300 text-[10.5px] font-bold cursor-pointer transition"
+                  data-i18n-bn="ডিফল্ট রিসেট"
+                  data-i18n-en="Reset"
+                >ডিফল্ট রিসেট</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Canva Section Navigation Pills (All assets | Logos | Colors | Fonts | Info | Graphics) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5" id="pcBrandSectionNav">
+            {#each brandSections as bSec, idx}
+              <button
+                type="button"
+                data-brand-sec={bSec.id}
+                aria-pressed={idx === 0 ? 'true' : 'false'}
+                class="shrink-0 inline-flex items-center gap-1.5 h-7.5 px-2.5 rounded-full text-[11px] font-bold border border-slate-200 dark:border-white/12 bg-slate-50 dark:bg-[#0f131b] text-slate-600 dark:text-slate-300 hover:border-[#2563eb] aria-pressed:bg-[#2563eb]/12 aria-pressed:text-[#1d4ed8] dark:aria-pressed:text-sky-300 aria-pressed:border-[#2563eb] cursor-pointer transition"
+              >
+                <Icon name={bSec.icon} class="w-3.5 h-3.5 shrink-0" />
+                <span data-i18n-bn={bSec.labelBn} data-i18n-en={bSec.labelEn}>{bSec.labelBn}</span>
+              </button>
+            {/each}
+          </div>
+
+          <button
+            type="button"
+            id="pcBrandBackToAllBtn"
+            hidden
+            class="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer"
+          >
+            <Icon name="lucide:arrow-left" class="w-3.5 h-3.5" />
+            <span data-i18n-bn="সব ব্র্যান্ড অ্যাসেটে ফিরে যান" data-i18n-en="Back to All Brand Assets">সব ব্র্যান্ড অ্যাসেটে ফিরে যান</span>
+          </button>
+
+          <!-- CARD 1: LOGOS (Canva Logos Section + Saved Logos 1-Click Grid) -->
+          <div
+            data-brand-card="logos"
+            data-brand-keywords="logo logos brand emblem লোগো ব্র্যান্ড চিহ্ন পিল"
+            class="p-3 rounded-2xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2.5"
+          >
             <div class="flex items-center justify-between">
-              <strong class="text-[12.5px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="ফাউন্ডেশন / পোর্টাল ব্র্যান্ড কিট" data-i18n-en="Organization / Portal Brand Kit">ফাউন্ডেশন / পোর্টাল ব্র্যান্ড কিট</strong>
-              <button type="button" id="pcClearLogoBtn" hidden class="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer" data-i18n-bn="লোগো সরান" data-i18n-en="Remove logo">লোগো সরান</button>
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="লোগোসমূহ (Logos)" data-i18n-en="Logos">লোগোসমূহ (Logos)</strong>
+              <div class="inline-flex items-center gap-2">
+                <button type="button" id="pcClearLogoBtn" hidden class="text-[10.5px] font-bold text-rose-500 hover:underline cursor-pointer" data-i18n-bn="লোগো সরান" data-i18n-en="Remove">লোগো সরান</button>
+                <button type="button" data-brand-see-all="logos" class="text-[10.5px] font-bold text-[#2563eb] dark:text-sky-400 hover:underline cursor-pointer" data-i18n-bn="সব দেখুন" data-i18n-en="See all">সব দেখুন</button>
+              </div>
             </div>
 
             <div class="flex items-center gap-2.5">
-              <div class="w-14 h-14 rounded-xl bg-white dark:bg-[#1c212c] border border-dashed border-slate-300 dark:border-white/20 flex items-center justify-center overflow-hidden shrink-0">
+              <div class="w-14 h-14 rounded-2xl bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
                 <img id="pcActiveLogoThumb" src="" alt="Logo" hidden class="w-full h-full object-contain p-1.5" />
                 <span id="pcActiveLogoEmptyIcon" class="text-[10px] font-extrabold text-slate-400">LOGO</span>
               </div>
@@ -1842,28 +2482,24 @@
               <label
                 for="pcLogoInput"
                 id="pcLogoDropzone"
-                class="flex-1 flex flex-col justify-center px-3 py-2.5 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white cursor-pointer transition"
+                class="flex-1 flex flex-col justify-center px-3 py-2.5 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white cursor-pointer transition shadow-2xs"
               >
-                <span class="text-[12px] font-extrabold" data-i18n-bn="+ ব্র্যান্ড লোগো আপলোড করুন" data-i18n-en="+ Upload Brand Logo">+ ব্র্যান্ড লোগো আপলোড করুন</span>
-                <span class="text-[10px] text-white/85" data-i18n-bn="কর্নার টেনে লোগো ছোট-বড় ও রোটেট করতে পারবেন" data-i18n-en="Drag corners on canvas to resize or rotate logo">কর্নার টেনে লোগো ছোট-বড় ও রোটেট করতে পারবেন</span>
+                <span class="text-[11.5px] font-extrabold" data-i18n-bn="+ ব্র্যান্ড লোগো আপলোড" data-i18n-en="+ Upload Brand Logo">+ ব্র্যান্ড লোগো আপলোড</span>
+                <span class="text-[9.5px] text-white/85" data-i18n-bn="PNG / SVG স্বচ্ছ লোগো এক ক্লিকে বসবে" data-i18n-en="Crisp PNG / SVG logo on canvas">PNG / SVG স্বচ্ছ লোগো এক ক্লিকে বসবে</span>
               </label>
             </div>
 
-            <div>
-              <label for="pcBrandName" class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1" data-i18n-bn="সংগঠন বা পোর্টালের নাম:" data-i18n-en="Brand / Portal Name:">সংগঠন বা পোর্টালের নাম:</label>
-              <input
-                type="text"
-                id="pcBrandName"
-                value="মানবিক ব্লাড ব্যাংক ফাউন্ডেশন"
-                placeholder="সংগঠন বা নিউজ পোর্টালের নাম"
-                class="w-full h-9 px-3 rounded-xl bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[12px] font-bold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]"
-              />
+            <div
+              id="pcBrandLogosMirror"
+              class="grid grid-cols-3 gap-2 min-h-[64px] p-2 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200/80 dark:border-white/10"
+            >
+              <span class="col-span-3 text-[11px] text-slate-400 py-3 text-center">আপলোড করা লোগো এখানে সেভ থাকবে</span>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-2 pt-0.5">
               <div>
-                <label for="pcLogoPos" class="block text-[10.5px] font-bold text-slate-500 dark:text-slate-400 mb-1" data-i18n-bn="লোগোর অবস্থান:" data-i18n-en="Logo Position:">লোগোর অবস্থান:</label>
-                <select id="pcLogoPos" class="w-full h-8.5 px-2 rounded-lg bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[11.5px] font-bold text-slate-800 dark:text-white">
+                <label for="pcLogoPos" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1" data-i18n-bn="লোগোর অবস্থান:" data-i18n-en="Position:">লোগোর অবস্থান:</label>
+                <select id="pcLogoPos" class="w-full h-8 px-2 rounded-lg bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-800 dark:text-white">
                   <option value="top-right">উপরে ডানে (Top Right)</option>
                   <option value="top-left">উপরে বামে (Top Left)</option>
                   <option value="top-center">উপরে মাঝে (Top Center)</option>
@@ -1873,8 +2509,8 @@
                 </select>
               </div>
               <div>
-                <label for="pcLogoBgStyle" class="block text-[10.5px] font-bold text-slate-500 dark:text-slate-400 mb-1" data-i18n-bn="পিল স্টাইল:" data-i18n-en="Badge Style:">পিল স্টাইল:</label>
-                <select id="pcLogoBgStyle" class="w-full h-8.5 px-2 rounded-lg bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[11.5px] font-bold text-slate-800 dark:text-white">
+                <label for="pcLogoBgStyle" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1" data-i18n-bn="পিল স্টাইল:" data-i18n-en="Pill Style:">পিল স্টাইল:</label>
+                <select id="pcLogoBgStyle" class="w-full h-8 px-2 rounded-lg bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-800 dark:text-white">
                   <option value="light">সাদা পিল (White Pill)</option>
                   <option value="dark">ডার্ক পিল (Dark Glass)</option>
                   <option value="none">স্বচ্ছ (Transparent)</option>
@@ -1883,7 +2519,7 @@
             </div>
 
             <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+              <div class="flex justify-between text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                 <span data-i18n-bn="লোগোর সাইজ" data-i18n-en="Logo Scale">লোগোর সাইজ</span>
                 <strong id="pcLogoSizeVal" class="font-mono text-slate-900 dark:text-white">100%</strong>
               </div>
@@ -1891,13 +2527,209 @@
             </div>
           </div>
 
-          <div>
-            <strong class="block text-[11.5px] font-extrabold text-slate-800 dark:text-white mb-1.5" data-i18n-bn="সংরক্ষিত ব্র্যান্ড লোগোসমূহ (১-ক্লিকে বসবে):" data-i18n-en="Saved Brand Logos (1-Click Apply):">সংরক্ষিত ব্র্যান্ড লোগোসমূহ (১-ক্লিকে বসবে):</strong>
-            <div
-              id="pcBrandLogosMirror"
-              class="grid grid-cols-3 gap-2 min-h-[72px] p-2 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200/80 dark:border-white/10"
+          <!-- CARD 2: COLORS (Canva Brand Color Swatches + Custom Pickers) -->
+          <div
+            data-brand-card="colors"
+            data-brand-keywords="color colors palette swatch কালার রঙ প্যালেট প্রাইমারি অ্যাকসেন্ট ব্যাকগ্রাউন্ড"
+            class="p-3 rounded-2xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2.5"
+          >
+            <div class="flex items-center justify-between gap-1.5">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="ব্র্যান্ড কালার প্যালেট (Colors)" data-i18n-en="Colors">ব্র্যান্ড কালার প্যালেট (Colors)</strong>
+              <button
+                type="button"
+                id="pcBrandGrabCurrentColorsBtn"
+                class="px-2 py-0.5 rounded-lg bg-white dark:bg-white/10 hover:bg-slate-100 dark:hover:bg-white/15 border border-slate-200 dark:border-white/10 text-[10px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+                data-i18n-bn="কার্ডের রঙ নিন"
+                data-i18n-en="Grab Card Colors"
+              >কার্ডের রঙ নিন</button>
+            </div>
+
+            <!-- Live 1-Click Swatch Pills Populated by syncCanvaBrandKitHeaderUi -->
+            <div id="pcBrandPaletteSwatchesRow" class="flex items-center gap-2 flex-wrap"></div>
+
+            <div class="grid grid-cols-3 gap-1.5">
+              <label class="relative flex items-center gap-1.5 p-1.5 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 cursor-pointer text-[10.5px] font-bold text-slate-700 dark:text-slate-200">
+                <input type="color" id="pcBrandPrimaryColor" value="#dc2626" class="w-4.5 h-4.5 rounded border-0 cursor-pointer bg-transparent shrink-0" />
+                <span class="truncate">প্রাইমারি</span>
+              </label>
+              <label class="relative flex items-center gap-1.5 p-1.5 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 cursor-pointer text-[10.5px] font-bold text-slate-700 dark:text-slate-200">
+                <input type="color" id="pcBrandAccentColor" value="#fde047" class="w-4.5 h-4.5 rounded border-0 cursor-pointer bg-transparent shrink-0" />
+                <span class="truncate">অ্যাকসেন্ট</span>
+              </label>
+              <label class="relative flex items-center gap-1.5 p-1.5 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 cursor-pointer text-[10.5px] font-bold text-slate-700 dark:text-slate-200">
+                <input type="color" id="pcBrandBgColor" value="#1c080b" class="w-4.5 h-4.5 rounded border-0 cursor-pointer bg-transparent shrink-0" />
+                <span class="truncate">ব্যাকগ্রাউন্ড</span>
+              </label>
+            </div>
+
+            <label class="flex items-start gap-2 pt-0.5 cursor-pointer select-none">
+              <input type="checkbox" id="pcBrandApplyColorsToggle" checked class="mt-0.5 accent-[#2563eb] cursor-pointer" />
+              <span class="text-[10.5px] font-semibold text-slate-600 dark:text-slate-300 leading-snug" data-i18n-bn="ব্র্যান্ড সিলেক্ট করলে এই কালার প্যালেট অটো সেট করুন" data-i18n-en="Auto-apply palette on brand select">ব্র্যান্ড সিলেক্ট করলে এই কালার প্যালেট অটো সেট করুন</span>
+            </label>
+          </div>
+
+          <!-- CARD 3: FONTS (Canva Brand Typography Card) -->
+          <div
+            data-brand-card="fonts"
+            data-brand-keywords="font fonts typography ফন্ট টাইপোগ্রাফি বাংলা ইংরেজি"
+            class="p-3 rounded-2xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2"
+          >
+            <div class="flex items-center justify-between">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="ব্র্যান্ড ফন্ট (Fonts)" data-i18n-en="Fonts">ব্র্যান্ড ফন্ট (Fonts)</strong>
+              <span id="pcBrandActiveFontName" class="text-[10px] font-bold text-[#2563eb] dark:text-sky-400">Hind Siliguri</span>
+            </div>
+            <button
+              type="button"
+              id="pcBrandFontActiveCard"
+              class="w-full p-2.5 rounded-xl bg-white dark:bg-[#171c26] hover:border-[#2563eb] border border-slate-200 dark:border-white/10 text-left cursor-pointer transition"
             >
-              <span class="col-span-3 text-[11px] text-slate-400 py-4 text-center">আপলোড করা সব লোগো এখানে সেভ থাকবে</span>
+              <span id="pcBrandActiveFontSample" class="block text-[13px] font-extrabold text-slate-900 dark:text-white">Hind Siliguri — শিরোনাম ও মূল ফন্ট</span>
+              <span class="block text-[10px] text-slate-400 mt-0.5" data-i18n-bn="ক্লিক করে ব্র্যান্ড ফন্ট পরিবর্তন বা কাস্টম ফন্ট আপলোড করুন" data-i18n-en="Click to change brand font or upload .TTF/.OTF">ক্লিক করে ব্র্যান্ড ফন্ট পরিবর্তন বা কাস্টম ফন্ট আপলোড করুন</span>
+            </button>
+          </div>
+
+          <!-- CARD 4: BRAND VOICE / ORGANIZATION CONTACT DETAILS -->
+          <div
+            data-brand-card="info"
+            data-brand-keywords="brand info name website phone hotline footer ব্র্যান্ড নাম ওয়েবসাইট মোবাইল হটলাইন ঠিকানা"
+            class="p-3 rounded-2xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2.5"
+          >
+            <strong class="block text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="ব্র্যান্ড পরিচয় ও যোগাযোগ (Brand Info)" data-i18n-en="Brand Identity & Contact">ব্র্যান্ড পরিচয় ও যোগাযোগ (Brand Info)</strong>
+
+            <div>
+              <label for="pcBrandName" class="block text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1" data-i18n-bn="সংগঠন / ব্র্যান্ডের নাম:" data-i18n-en="Brand / Organization Name:">সংগঠন / ব্র্যান্ডের নাম:</label>
+              <input
+                type="text"
+                id="pcBrandName"
+                value="মানবিক ব্লাড ব্যাংক ফাউন্ডেশন"
+                placeholder="সংগঠন বা নিউজ পোর্টালের নাম"
+                class="w-full h-9 px-3 rounded-xl bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[12px] font-bold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label for="pcBrandWebsite" class="block text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1" data-i18n-bn="ওয়েবসাইট / পেজ লিংক:" data-i18n-en="Website / Page Link:">ওয়েবসাইট / পেজ লিংক:</label>
+                <input
+                  type="text"
+                  id="pcBrandWebsite"
+                  placeholder="যেমন: www.techhat.com.bd"
+                  class="w-full h-8.5 px-2.5 rounded-xl bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[11.5px] font-semibold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]"
+                />
+              </div>
+              <div>
+                <label for="pcBrandPhone" class="block text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1" data-i18n-bn="মোবাইল / হটলাইন নাম্বার:" data-i18n-en="Mobile / Hotline:">মোবাইল / হটলাইন নাম্বার:</label>
+                <input
+                  type="text"
+                  id="pcBrandPhone"
+                  placeholder="যেমন: ০১৭০০-০০০০০০"
+                  class="w-full h-8.5 px-2.5 rounded-xl bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[11.5px] font-semibold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="pcBrandFooterFormat" class="block text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1" data-i18n-bn="ফুটারে প্রদর্শন ফরম্যাট:" data-i18n-en="Footer Display Format:">ফুটারে প্রদর্শন ফরম্যাট:</label>
+              <select id="pcBrandFooterFormat" class="w-full h-8.5 px-2.5 rounded-xl bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[11.5px] font-bold text-slate-800 dark:text-white">
+                <option value="both">ওয়েবসাইট ও মোবাইল উভয়ই</option>
+                <option value="website">শুধু ওয়েবসাইট</option>
+                <option value="phone">শুধু মোবাইল নাম্বার</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="pcBrandExtraInfo" class="block text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1" data-i18n-bn="বিকাশ/নগদ বা অতিরিক্ত তথ্য (ঐচ্ছিক):" data-i18n-en="bKash/Nagad or Extra Info:">বিকাশ/নগদ বা অতিরিক্ত তথ্য (ঐচ্ছিক):</label>
+              <input
+                type="text"
+                id="pcBrandExtraInfo"
+                placeholder="যেমন: বিকাশ/নগদ: ০১৭০০-০০০০০০"
+                class="w-full h-8.5 px-2.5 rounded-xl bg-white dark:bg-[#1c212c] border border-slate-200 dark:border-white/10 text-[11.5px] font-medium text-slate-900 dark:text-white outline-none focus:border-[#2563eb]"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1.5 pt-1">
+              <button
+                type="button"
+                id="pcSaveBrandProfileBtn"
+                class="w-full h-9.5 px-3 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[12px] font-extrabold shadow-xs cursor-pointer transition inline-flex items-center justify-center gap-1.5"
+              >
+                <Icon name="lucide:check-circle-2" class="w-4 h-4 [&_*]:!stroke-white" />
+                <span data-i18n-bn="ব্র্যান্ড কিট সেভ ও প্রয়োগ করুন" data-i18n-en="Save & Apply Brand Kit">ব্র্যান্ড কিট সেভ ও প্রয়োগ করুন</span>
+              </button>
+              <button
+                type="button"
+                id="pcSaveAsNewBrandBtn"
+                class="w-full h-8.5 px-3 rounded-xl bg-white dark:bg-[#1c212c] hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/12 text-slate-700 dark:text-slate-200 text-[11px] font-extrabold cursor-pointer transition"
+                data-i18n-bn="+ নতুন ব্র্যান্ড কিট হিসেবে সেভ"
+                data-i18n-en="+ Save as New Brand Kit"
+              >+ নতুন ব্র্যান্ড কিট হিসেবে সেভ</button>
+            </div>
+          </div>
+
+          <!-- CARD 5: BRAND GRAPHICS & QUICK SOCIAL/CONTACT STAMPS -->
+          <div
+            data-brand-card="graphics"
+            data-brand-keywords="graphics icons social call website গ্রাফিক্স আইকন সোশ্যাল কল ওয়েবসাইট ভেরিফায়েড"
+            class="p-3 rounded-2xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2"
+          >
+            <strong class="block text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="ব্র্যান্ড আইকন ও সোশ্যাল স্ট্যাম্প (Graphics)" data-i18n-en="Brand Icons & Social Stamps">ব্র্যান্ড আইকন ও সোশ্যাল স্ট্যাম্প (Graphics)</strong>
+            <div class="grid grid-cols-4 gap-1.5">
+              <button type="button" data-add-ui-icon="phone" data-bg="#16a34a" class="flex flex-col items-center gap-1 p-2 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 hover:border-[#2563eb] cursor-pointer transition" title="হটলাইন কল আইকন">
+                <span class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.01l-2.2 2.2z"/></svg>
+                </span>
+                <span class="text-[9.5px] font-bold text-slate-700 dark:text-slate-200">কল</span>
+              </button>
+              <button type="button" data-add-ui-icon="globe" data-bg="#2563eb" class="flex flex-col items-center gap-1 p-2 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 hover:border-[#2563eb] cursor-pointer transition" title="ওয়েবসাইট আইকন">
+                <span class="w-7 h-7 rounded-full bg-[#2563eb] text-white flex items-center justify-center">
+                  <Icon name="lucide:globe" class="w-3.5 h-3.5 [&_*]:!stroke-white" />
+                </span>
+                <span class="text-[9.5px] font-bold text-slate-700 dark:text-slate-200">ওয়েব</span>
+              </button>
+              <button type="button" data-add-social="facebook" data-with-handle="1" class="flex flex-col items-center gap-1 p-2 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 hover:border-[#2563eb] cursor-pointer transition" title="ফেসবুক হ্যান্ডেল পিল">
+                <span class="w-7 h-7 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-black text-[12px]">f</span>
+                <span class="text-[9.5px] font-bold text-slate-700 dark:text-slate-200">FB পেজ</span>
+              </button>
+              <button type="button" data-add-ui-icon="verified" data-bg="#1d4ed8" class="flex flex-col items-center gap-1 p-2 rounded-xl bg-white dark:bg-[#171c26] border border-slate-200 dark:border-white/10 hover:border-[#2563eb] cursor-pointer transition" title="ভেরিফায়েড ব্যাজ">
+                <span class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                  <Icon name="lucide:badge-check" class="w-3.5 h-3.5 [&_*]:!stroke-white" />
+                </span>
+                <span class="text-[9.5px] font-bold text-slate-700 dark:text-slate-200">ভেরিফায়েড</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- CARD 6: SAVED BRAND KITS LIST -->
+          <div
+            data-brand-card="saved"
+            data-brand-keywords="saved brand kits profiles সংরক্ষিত ব্র্যান্ড প্রোফাইল কিট"
+            class="p-3 rounded-2xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200/90 dark:border-white/10 space-y-2.5"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <strong class="text-[12px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="সংরক্ষিত ব্র্যান্ড কিটসমূহ" data-i18n-en="Saved Brand Kits">সংরক্ষিত ব্র্যান্ড কিটসমূহ</strong>
+              <div class="inline-flex items-center gap-1.5">
+                <button
+                  type="button"
+                  id="pcDeactivateBrandBtn"
+                  hidden
+                  class="px-2 py-1 rounded-lg bg-slate-200/70 dark:bg-white/10 hover:bg-slate-300/70 dark:hover:bg-white/15 text-[10px] font-extrabold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+                  data-i18n-bn="ডিফল্ট রিসেট"
+                  data-i18n-en="Reset"
+                >ডিফল্ট রিসেট</button>
+                <button
+                  type="button"
+                  id="pcNewBrandProfileBtn"
+                  class="px-2.5 py-1 rounded-lg bg-[#2563eb]/12 hover:bg-[#2563eb]/20 text-[10.5px] font-extrabold text-[#2563eb] dark:text-sky-300 cursor-pointer transition"
+                  data-i18n-bn="+ নতুন ব্র্যান্ড"
+                  data-i18n-en="+ New Brand"
+                >+ নতুন ব্র্যান্ড</button>
+              </div>
+            </div>
+
+            <div id="pcSavedBrandProfilesList" class="space-y-1.5 max-h-48 overflow-y-auto pr-0.5">
+              <div class="text-[11px] text-slate-400 py-2.5 text-center border border-dashed border-slate-200 dark:border-white/10 rounded-xl">
+                কোনো ব্র্যান্ড সেভ করা নেই — উপরে তথ্য দিয়ে সেভ করুন
+              </div>
             </div>
           </div>
         </div>
@@ -2049,6 +2881,186 @@
           </div>
         </div>
 
+        <!-- ===============================================================
+             DRAWER 7: CANVA-STYLE POSITION & LAYERS PANEL (Arrange | Layers)
+             =============================================================== -->
+        <div data-pc-drawer="position" hidden class="space-y-3">
+          <!-- Header + Close -->
+          <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/80 dark:border-white/10">
+            <strong class="text-[13.5px] font-extrabold text-slate-900 dark:text-white" data-i18n-bn="পজিশন ও লেয়ার (Position)" data-i18n-en="Position">পজিশন ও লেয়ার (Position)</strong>
+            <button
+              type="button"
+              id="pcClosePositionDrawerBtn"
+              aria-label="বন্ধ করুন"
+              class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 inline-flex items-center justify-center text-slate-500 dark:text-slate-300 cursor-pointer"
+            >
+              <Icon name="lucide:x" class="w-4 h-4" />
+            </button>
+          </div>
+
+          <!-- Top Tabs: Arrange | Layers -->
+          <div class="grid grid-cols-2 border-b border-slate-200 dark:border-white/10 text-[12px] font-extrabold">
+            <button
+              type="button"
+              data-pos-tab="arrange"
+              aria-pressed="true"
+              class="pb-2 border-b-2 border-transparent text-slate-500 aria-pressed:border-[#2563eb] aria-pressed:text-slate-900 dark:aria-pressed:text-white cursor-pointer transition"
+              data-i18n-bn="সাজান (Arrange)"
+              data-i18n-en="Arrange"
+            >সাজান (Arrange)</button>
+            <button
+              type="button"
+              data-pos-tab="layers"
+              aria-pressed="false"
+              class="pb-2 border-b-2 border-transparent text-slate-500 aria-pressed:border-[#2563eb] aria-pressed:text-slate-900 dark:aria-pressed:text-white cursor-pointer transition"
+              data-i18n-bn="লেয়ারসমূহ (Layers)"
+              data-i18n-en="Layers"
+            >লেয়ারসমূহ (Layers)</button>
+          </div>
+
+          <!-- TAB PANE 1: ARRANGE (Order + Align to Page + Advanced X/Y/W/H/Rotate) -->
+          <div id="pcPosArrangePane" class="space-y-3.5">
+            <!-- Layer Order -->
+            <div class="space-y-1.5">
+              <span class="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300" data-i18n-bn="লেয়ার অর্ডার (Layer Order)" data-i18n-en="Layer Order">লেয়ার অর্ডার (Layer Order)</span>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" data-pos-order="forward" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:chevron-up" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="এক ধাপ উপরে" data-i18n-en="Forward">এক ধাপ উপরে</span>
+                </button>
+                <button type="button" data-pos-order="backward" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:chevron-down" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="এক ধাপ নিচে" data-i18n-en="Backward">এক ধাপ নিচে</span>
+                </button>
+                <button type="button" data-pos-order="front" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:chevrons-up" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="সবার উপরে" data-i18n-en="To front">সবার উপরে</span>
+                </button>
+                <button type="button" data-pos-order="back" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:chevrons-down" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="সবার নিচে" data-i18n-en="To back">সবার নিচে</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Align to Page -->
+            <div class="space-y-1.5 pt-2 border-t border-slate-200/80 dark:border-white/10">
+              <span class="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300" data-i18n-bn="পেজে অ্যালাইন করুন (Align to page)" data-i18n-en="Align to page">পেজে অ্যালাইন করুন (Align to page)</span>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" data-pos-align="top" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:align-start-vertical" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="উপরে (Top)" data-i18n-en="Top">উপরে (Top)</span>
+                </button>
+                <button type="button" data-pos-align="left" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:align-start-horizontal" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="বামে (Left)" data-i18n-en="Left">বামে (Left)</span>
+                </button>
+                <button type="button" data-pos-align="middle" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:align-center-vertical" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="মাঝামাঝি (Middle)" data-i18n-en="Middle">মাঝামাঝি (Middle)</span>
+                </button>
+                <button type="button" data-pos-align="center" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:align-center-horizontal" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="কেন্দ্রে (Center)" data-i18n-en="Center">কেন্দ্রে (Center)</span>
+                </button>
+                <button type="button" data-pos-align="bottom" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:align-end-vertical" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="নিচে (Bottom)" data-i18n-en="Bottom">নিচে (Bottom)</span>
+                </button>
+                <button type="button" data-pos-align="right" class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition">
+                  <Icon name="lucide:align-end-horizontal" class="w-4 h-4 text-slate-500" />
+                  <span data-i18n-bn="ডানে (Right)" data-i18n-en="Right">ডানে (Right)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Advanced Exact Geometry (Width, Height, Ratio, X, Y, Rotate) -->
+            <div class="space-y-2 pt-2 border-t border-slate-200/80 dark:border-white/10">
+              <span class="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300" data-i18n-bn="অ্যাডভান্সড মাপ ও অবস্থান (Advanced)" data-i18n-en="Advanced">অ্যাডভান্সড মাপ ও অবস্থান (Advanced)</span>
+              <div class="grid grid-cols-3 gap-1.5">
+                <div>
+                  <label for="pcPosAdvW" class="block text-[10px] font-bold text-slate-500 mb-1">Width</label>
+                  <div class="relative flex items-center">
+                    <input type="number" id="pcPosAdvW" value="300" class="w-full h-8.5 pl-2.5 pr-6 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/12 font-mono text-[11.5px] font-bold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]" />
+                    <span class="absolute right-2 text-[9.5px] font-bold text-slate-400 pointer-events-none">px</span>
+                  </div>
+                </div>
+                <div>
+                  <label for="pcPosAdvH" class="block text-[10px] font-bold text-slate-500 mb-1">Height</label>
+                  <div class="relative flex items-center">
+                    <input type="number" id="pcPosAdvH" value="100" class="w-full h-8.5 pl-2.5 pr-6 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/12 font-mono text-[11.5px] font-bold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]" />
+                    <span class="absolute right-2 text-[9.5px] font-bold text-slate-400 pointer-events-none">px</span>
+                  </div>
+                </div>
+                <div>
+                  <span class="block text-[10px] font-bold text-slate-500 mb-1">Ratio</span>
+                  <button
+                    type="button"
+                    id="pcPosRatioLockBtn"
+                    aria-pressed="false"
+                    title="অনুপাত লক / আনলক (Aspect Ratio Lock)"
+                    class="w-full h-8.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/12 aria-pressed:border-[#2563eb] aria-pressed:bg-blue-500/10 inline-flex items-center justify-center text-slate-600 dark:text-slate-300 cursor-pointer transition"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-1.5">
+                <div>
+                  <label for="pcPosAdvX" class="block text-[10px] font-bold text-slate-500 mb-1">X</label>
+                  <div class="relative flex items-center">
+                    <input type="number" id="pcPosAdvX" value="0" class="w-full h-8.5 pl-2.5 pr-6 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/12 font-mono text-[11.5px] font-bold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]" />
+                    <span class="absolute right-2 text-[9.5px] font-bold text-slate-400 pointer-events-none">px</span>
+                  </div>
+                </div>
+                <div>
+                  <label for="pcPosAdvY" class="block text-[10px] font-bold text-slate-500 mb-1">Y</label>
+                  <div class="relative flex items-center">
+                    <input type="number" id="pcPosAdvY" value="0" class="w-full h-8.5 pl-2.5 pr-6 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/12 font-mono text-[11.5px] font-bold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]" />
+                    <span class="absolute right-2 text-[9.5px] font-bold text-slate-400 pointer-events-none">px</span>
+                  </div>
+                </div>
+                <div>
+                  <label for="pcPosAdvRot" class="block text-[10px] font-bold text-slate-500 mb-1">Rotate</label>
+                  <div class="relative flex items-center">
+                    <input type="number" id="pcPosAdvRot" value="0" class="w-full h-8.5 pl-2.5 pr-5 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/12 font-mono text-[11.5px] font-bold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]" />
+                    <span class="absolute right-2 text-[11px] font-bold text-slate-400 pointer-events-none">°</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB PANE 2: LAYERS (Canva Visual Layer Stack: All | Overlapping + Drag Reorder + Lock + Hide) -->
+          <div id="pcPosLayersPane" hidden class="space-y-2.5">
+            <div class="grid grid-cols-2 p-1 rounded-xl bg-slate-100 dark:bg-[#0f131b] border border-slate-200/80 dark:border-white/10 text-[11px] font-extrabold">
+              <button
+                type="button"
+                data-layers-filter="all"
+                aria-pressed="true"
+                class="h-7 rounded-lg text-slate-600 dark:text-slate-300 aria-pressed:bg-white dark:aria-pressed:bg-[#1e2534] aria-pressed:text-slate-900 dark:aria-pressed:text-white aria-pressed:shadow-2xs cursor-pointer transition"
+                data-i18n-bn="সব লেয়ার (All)"
+                data-i18n-en="All"
+              >সব লেয়ার (All)</button>
+              <button
+                type="button"
+                data-layers-filter="overlapping"
+                aria-pressed="false"
+                class="h-7 rounded-lg text-slate-600 dark:text-slate-300 aria-pressed:bg-white dark:aria-pressed:bg-[#1e2534] aria-pressed:text-slate-900 dark:aria-pressed:text-white aria-pressed:shadow-2xs cursor-pointer transition"
+                data-i18n-bn="ওভারল্যাপিং (Overlapping)"
+                data-i18n-en="Overlapping"
+              >ওভারল্যাপিং (Overlapping)</button>
+            </div>
+
+            <p class="text-[10px] text-slate-400 px-0.5" data-i18n-bn="বাম পাশের ডট ধরে টেনে লেয়ার উপর-নিচ করুন, অথবা তালা ও চোখ আইকনে ক্লিক করুন" data-i18n-en="Drag 6-dot handle to reorder layers, or toggle lock & visibility">
+              বাম পাশের ডট ধরে টেনে লেয়ার উপর-নিচ করুন, অথবা তালা ও চোখ আইকনে ক্লিক করুন
+            </p>
+
+            <div id="pcLayersStackList" class="space-y-1.5 max-h-[58dvh] overflow-y-auto pr-0.5"></div>
+          </div>
+        </div>
+
       </div>
     </aside>
 
@@ -2121,27 +3133,42 @@
               <button type="button" id="pcCtxFontInc" class="w-6.5 h-6.5 rounded hover:bg-white dark:hover:bg-white/10 text-[14px] font-black text-slate-700 dark:text-white cursor-pointer" title="ফন্ট বড় করুন">+</button>
             </div>
 
-            <!-- Text / Highlight Color ('A' with Color Bar) -->
-            <label
+            <!-- Text Color ('A' with Color Bar) — Opens Anchored #pcColorPopover -->
+            <button
+              type="button"
+              id="pcCtxTextColorBtn"
               class="inline-flex flex-col items-center justify-center w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 border border-transparent hover:border-slate-200 dark:hover:border-white/10 cursor-pointer relative"
-              title="লেখা বা হাইলাইট রঙ পরিবর্তন"
+              title="লেখার রঙ পরিবর্তন (Text Color)"
             >
               <span class="text-[12.5px] font-black text-slate-800 dark:text-white leading-none">A</span>
-              <span id="pcCtxColorBar" class="w-4.5 h-1 rounded-full mt-0.5" style="background:#fde047;"></span>
-              <input type="color" id="pcCtxTextColorInput" value="#fde047" class="sr-only" />
-            </label>
+              <span id="pcCtxColorBar" class="w-4.5 h-1 rounded-full mt-0.5 border border-black/10" style="background:#fde047;"></span>
+              <input type="color" id="pcCtxTextColorInput" value="#fde047" tabindex="-1" aria-hidden="true" class="absolute inset-0 w-full h-full opacity-0 pointer-events-none" />
+            </button>
 
-            <!-- Sticker / Text Background Pill Color Tint -->
-            <label
-              id="pcCtxTextBgWrapper"
+            <!-- Direct Selection Highlight Color Button — Opens Anchored #pcColorPopover -->
+            <button
+              type="button"
+              id="pcCtxHighlightColorBtn"
               class="inline-flex flex-col items-center justify-center w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 border border-transparent hover:border-slate-200 dark:hover:border-white/10 cursor-pointer relative"
-              title="স্টিকারের ব্যাকগ্রাউন্ড রঙ পরিবর্তন করুন"
-              hidden
+              title="নির্বাচিত শব্দের হাইলাইট রঙ পরিবর্তন"
             >
-              <span class="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 leading-none">BG</span>
-              <span id="pcCtxTextBgBar" class="w-4.5 h-1 rounded-full mt-0.5" style="background:#b91c1c;"></span>
-              <input type="color" id="pcCtxTextBgColorInput" value="#b91c1c" class="sr-only" />
-            </label>
+              <Icon name="lucide:highlighter" class="w-3.5 h-3.5 text-slate-700 dark:text-slate-100" />
+              <span id="pcCtxHighlightColorBar" class="w-4.5 h-1 rounded-full mt-0.5 border border-black/10" style="background:#fde047;"></span>
+            </button>
+
+            <!-- Badge / Sticker Background Pill Color Tint — Opens Anchored #pcColorPopover -->
+            <div id="pcCtxTextBgWrapper" class="inline-flex items-center" hidden>
+              <button
+                type="button"
+                id="pcCtxTextBgBtn"
+                class="inline-flex flex-col items-center justify-center w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 border border-transparent hover:border-slate-200 dark:hover:border-white/10 cursor-pointer relative"
+                title="ব্যাজ বা স্টিকারের ব্যাকগ্রাউন্ড রঙ পরিবর্তন করুন"
+              >
+                <span class="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 leading-none">BG</span>
+                <span id="pcCtxTextBgBar" class="w-4.5 h-1 rounded-full mt-0.5 border border-black/10" style="background:#b91c1c;"></span>
+                <input type="color" id="pcCtxTextBgColorInput" value="#b91c1c" tabindex="-1" aria-hidden="true" class="absolute inset-0 w-full h-full opacity-0 pointer-events-none" />
+              </button>
+            </div>
 
             <!-- Style Toggles: Bold | Italic | Underline | Strike | Uppercase -->
             <div class="inline-flex items-center h-8 rounded-lg bg-slate-100 dark:bg-[#10141d] border border-slate-200/90 dark:border-white/12 p-0.5 gap-0.5">
@@ -2200,13 +3227,14 @@
 
           <!-- CONTEXT: PHOTO TOOLS -->
           <div data-ctx-panel="photo" hidden class="inline-flex items-center gap-1.5 shrink-0">
-            <label
-              for="pcPhotoInput"
+            <button
+              type="button"
+              id="pcCtxPhotoReplaceBtn"
               class="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[11px] font-extrabold cursor-pointer transition"
             >
               <Icon name="lucide:camera" class="w-3.5 h-3.5 [&_*]:!stroke-white" />
               <span data-i18n-bn="ছবি বদলান" data-i18n-en="Replace">ছবি বদলান</span>
-            </label>
+            </button>
 
             <label
               id="pcQuickPhoto2Label"
@@ -2218,15 +3246,30 @@
               <span data-i18n-bn="২য় ছবি" data-i18n-en="2nd Photo">২য় ছবি</span>
             </label>
 
+            <button
+              type="button"
+              id="pcCtxPhotoAdjustBtn"
+              class="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] hover:bg-slate-200/70 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="ছবির উজ্জ্বলতা, কনট্রাস্ট, স্যাচুরেশন ও ব্লার অ্যাডজাস্ট করুন"
+            >
+              <Icon name="lucide:sliders-horizontal" class="w-3.5 h-3.5" />
+              <span data-i18n-bn="অ্যাডজাস্ট" data-i18n-en="Adjust">অ্যাডজাস্ট</span>
+            </button>
+
+            <button
+              type="button"
+              id="pcCtxPhotoBorderBtn"
+              hidden
+              class="inline-flex items-center gap-1 h-8 px-2 rounded-lg bg-slate-100 dark:bg-[#10141d] hover:bg-slate-200/70 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="ভাসমান ছবির কর্নার রেডিয়াস ও বর্ডার"
+            >
+              <Icon name="lucide:square-round-corner" class="w-3.5 h-3.5" />
+            </button>
+
             <div class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] border border-slate-200 dark:border-white/10">
               <span class="text-[10.5px] font-bold text-slate-500" data-i18n-bn="জুম" data-i18n-en="Zoom">জুম</span>
               <input type="range" id="pcCtxPhotoZoom" min="40" max="260" value="100" class="w-20 h-1.5 accent-[#2563eb] cursor-pointer" />
             </div>
-
-            <span class="hidden sm:inline-flex items-center gap-1 px-2 h-8 rounded-lg bg-blue-500/8 text-[10.5px] font-semibold text-slate-600 dark:text-slate-300">
-              <Icon name="lucide:crop" class="w-3.5 h-3.5 text-[#2563eb]" />
-              <span data-i18n-bn="কর্নার=সাইজ, পাশ=ক্রপ/মাস্ক" data-i18n-en="Corners=Resize, Sides=Mask">কর্নার=সাইজ, পাশ=ক্রপ/মাস্ক</span>
-            </span>
 
             <button
               type="button"
@@ -2239,19 +3282,30 @@
 
           <!-- CONTEXT: SHAPE TOOLS -->
           <div data-ctx-panel="shape" hidden class="inline-flex items-center gap-1.5 shrink-0">
-            <label class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] border border-slate-200 dark:border-white/10 cursor-pointer text-[11px] font-bold text-slate-700 dark:text-slate-200">
+            <label class="relative inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] border border-slate-200 dark:border-white/10 cursor-pointer text-[11px] font-bold text-slate-700 dark:text-slate-200">
+              <span id="pcCtxShapeFillSwatch" class="w-4 h-4 rounded-full border border-black/15 shrink-0" style="background:#dc2626;"></span>
               <span data-i18n-bn="শেপ রঙ" data-i18n-en="Fill">শেপ রঙ</span>
-              <input type="color" id="pcCtxShapeFillInput" value="#dc2626" class="w-5 h-5 rounded border-0 cursor-pointer bg-transparent" />
+              <input type="color" id="pcCtxShapeFillInput" value="#dc2626" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             </label>
-            <label class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] border border-slate-200 dark:border-white/10 cursor-pointer text-[11px] font-bold text-slate-700 dark:text-slate-200">
-              <span data-i18n-bn="বর্ডার" data-i18n-en="Border">বর্ডার</span>
-              <input type="color" id="pcCtxShapeStrokeInput" value="#ffffff" class="w-5 h-5 rounded border-0 cursor-pointer bg-transparent" />
+            <label class="relative inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] border border-slate-200 dark:border-white/10 cursor-pointer text-[11px] font-bold text-slate-700 dark:text-slate-200">
+              <span id="pcCtxShapeStrokeSwatch" class="w-4 h-4 rounded-full border border-black/15 shrink-0" style="background:#ffffff;"></span>
+              <span data-i18n-bn="বর্ডার রঙ" data-i18n-en="Border">বর্ডার রঙ</span>
+              <input type="color" id="pcCtxShapeStrokeInput" value="#ffffff" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             </label>
+            <button
+              type="button"
+              id="pcCtxShapeBorderBtn"
+              class="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] hover:bg-slate-200/70 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="বর্ডার পুরুত্ব, ড্যাশ স্টাইল ও কর্নার রেডিয়াস"
+            >
+              <Icon name="lucide:sliders-horizontal" class="w-3.5 h-3.5" />
+              <span data-i18n-bn="বর্ডার ও কর্নার" data-i18n-en="Stroke & Corner">বর্ডার ও কর্নার</span>
+            </button>
             <button
               type="button"
               id="pcCtxShapeEditTextBtn"
               class="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[11px] font-extrabold cursor-pointer transition"
-              title="শেপ বা ব্যাজের ভেতরের লেখা এডিট করুন (Double-click or click Edit)"
+              title="শেপ বা ব্যাজের ভেতরের লেখা এডিট করুন"
             >
               <Icon name="lucide:pencil" class="w-3 h-3 [&_*]:!stroke-white" />
               <span data-i18n-bn="লেখা এডিট" data-i18n-en="Edit Text">লেখা এডিট</span>
@@ -2265,15 +3319,48 @@
             </button>
           </div>
 
+          <!-- CONTEXT: VECTOR / ICON / SOCIAL / GRAPHIC TOOLS -->
+          <div data-ctx-panel="vector" hidden class="inline-flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              id="pcCtxVectorFillBtn"
+              class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] hover:bg-slate-200/70 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="আইকন বা গ্রাফিক্সের মূল রঙ পরিবর্তন করুন"
+            >
+              <span id="pcCtxVectorFillSwatch" class="w-4 h-4 rounded-full border border-black/15 shrink-0" style="background:#2563eb;"></span>
+              <span data-i18n-bn="রঙ ১" data-i18n-en="Color 1">রঙ ১</span>
+            </button>
+            <button
+              type="button"
+              id="pcCtxVectorStrokeBtn"
+              class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] hover:bg-slate-200/70 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="ব্যাকগ্রাউন্ড বা সেকেন্ডারি রঙ পরিবর্তন করুন"
+            >
+              <span id="pcCtxVectorStrokeSwatch" class="w-4 h-4 rounded-full border border-black/15 shrink-0" style="background:#ffffff;"></span>
+              <span data-i18n-bn="রঙ ২ / BG" data-i18n-en="Color 2">রঙ ২ / BG</span>
+            </button>
+            <button
+              type="button"
+              id="pcCtxVectorEditTextBtn"
+              hidden
+              class="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[11px] font-extrabold cursor-pointer transition"
+              title="সোশ্যাল হ্যান্ডেল বা লেবেল এডিট করুন"
+            >
+              <Icon name="lucide:pencil" class="w-3 h-3 [&_*]:!stroke-white" />
+              <span data-i18n-bn="হ্যান্ডেল এডিট" data-i18n-en="Edit Handle">হ্যান্ডেল এডিট</span>
+            </button>
+          </div>
+
           <!-- CONTEXT: LOGO TOOLS -->
           <div data-ctx-panel="logo" hidden class="inline-flex items-center gap-1.5 shrink-0">
-            <label
-              for="pcLogoInput"
+            <button
+              type="button"
+              id="pcCtxLogoChangeBtn"
               class="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[11px] font-extrabold cursor-pointer"
             >
               <Icon name="lucide:shield-plus" class="w-3.5 h-3.5 [&_*]:!stroke-white" />
               <span data-i18n-bn="লোগো বদলান" data-i18n-en="Replace Logo">লোগো বদলান</span>
-            </label>
+            </button>
 
             <select
               id="pcCtxLogoBgSelect"
@@ -2299,16 +3386,32 @@
             </button>
           </div>
 
+          <!-- CONTEXT: LOCKED LAYER BANNER -->
+          <div data-ctx-panel="locked" hidden class="inline-flex items-center gap-2 shrink-0">
+            <span class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-amber-500/12 text-amber-800 dark:text-amber-300 text-[11px] font-extrabold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span data-i18n-bn="এই লেয়ারটি লক করা আছে" data-i18n-en="Layer is locked">এই লেয়ারটি লক করা আছে</span>
+            </span>
+            <button
+              type="button"
+              id="pcCtxUnlockBannerBtn"
+              class="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[11px] font-extrabold cursor-pointer transition"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+              <span data-i18n-bn="আনলক করুন" data-i18n-en="Unlock">আনলক করুন</span>
+            </button>
+          </div>
+
           <!-- CONTEXT: DEFAULT CARD TOOLS -->
           <div data-ctx-panel="card" class="inline-flex items-center gap-1.5 shrink-0">
             <div class="inline-flex items-center gap-1 px-1.5 h-8 rounded-lg bg-slate-100 dark:bg-[#10141d] border border-slate-200 dark:border-white/10">
-              <label class="w-5 h-5 rounded-md overflow-hidden border border-black/15 cursor-pointer" title="প্রাইমারি রঙ">
+              <label class="relative w-5 h-5 rounded-md overflow-hidden border border-black/15 cursor-pointer" title="প্রাইমারি রঙ">
                 <input type="color" id="pcCtxPrimaryColor" value="#dc2626" class="w-7 h-7 -m-1 cursor-pointer border-0 p-0" />
               </label>
-              <label class="w-5 h-5 rounded-md overflow-hidden border border-black/15 cursor-pointer" title="হাইলাইট রঙ">
+              <label class="relative w-5 h-5 rounded-md overflow-hidden border border-black/15 cursor-pointer" title="হাইলাইট রঙ">
                 <input type="color" id="pcCtxAccentColor" value="#fde047" class="w-7 h-7 -m-1 cursor-pointer border-0 p-0" />
               </label>
-              <label class="w-5 h-5 rounded-md overflow-hidden border border-black/15 cursor-pointer" title="ব্যাকগ্রাউন্ড রঙ">
+              <label class="relative w-5 h-5 rounded-md overflow-hidden border border-black/15 cursor-pointer" title="ব্যাকগ্রাউন্ড রঙ">
                 <input type="color" id="pcCtxBgColor" value="#1c080b" class="w-7 h-7 -m-1 cursor-pointer border-0 p-0" />
               </label>
             </div>
@@ -2345,6 +3448,107 @@
             >
               <Icon name="lucide:type" class="w-3.5 h-3.5 text-[#2563eb]" />
               <span data-i18n-bn="ফন্ট" data-i18n-en="Fonts">ফন্ট</span>
+            </button>
+          </div>
+
+          <!-- UNIVERSAL CANVA RIGHT-SIDE ACTION CONTROLS (Flip | Transparency | Position | Layers | Copy Style | Duplicate | Padlock | Delete) -->
+          <div class="inline-flex items-center gap-1 pl-1.5 border-l border-slate-200/90 dark:border-white/12 shrink-0">
+            <button
+              type="button"
+              id="pcTopFlipBtn"
+              hidden
+              class="inline-flex items-center gap-1 h-8 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 text-[11px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="লেয়ার ফ্লিপ / মিরর করুন (Flip)"
+            >
+              <Icon name="lucide:flip-horizontal-2" class="w-3.5 h-3.5" />
+              <span class="hidden xl:inline" data-i18n-bn="ফ্লিপ" data-i18n-en="Flip">ফ্লিপ</span>
+            </button>
+
+            <!-- Canva Checkerboard Transparency Button -->
+            <button
+              type="button"
+              id="pcTopTransparencyBtn"
+              class="inline-flex items-center gap-1.5 h-8 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 border border-transparent hover:border-slate-200 dark:hover:border-white/10 text-[11px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="ট্রান্সপারেন্সি / স্বচ্ছতা (Transparency 0–100%)"
+            >
+              <svg viewBox="0 0 16 16" class="w-3.5 h-3.5 shrink-0 text-slate-700 dark:text-slate-200" aria-hidden="true">
+                <rect x="1" y="1" width="3.5" height="3.5" fill="currentColor" />
+                <rect x="8" y="1" width="3.5" height="3.5" fill="currentColor" opacity="0.55" />
+                <rect x="4.5" y="4.5" width="3.5" height="3.5" fill="currentColor" opacity="0.85" />
+                <rect x="11.5" y="4.5" width="3.5" height="3.5" fill="currentColor" opacity="0.3" />
+                <rect x="1" y="8" width="3.5" height="3.5" fill="currentColor" opacity="0.7" />
+                <rect x="8" y="8" width="3.5" height="3.5" fill="currentColor" opacity="0.4" />
+                <rect x="4.5" y="11.5" width="3.5" height="3.5" fill="currentColor" opacity="0.55" />
+                <rect x="11.5" y="11.5" width="3.5" height="3.5" fill="currentColor" opacity="0.2" />
+              </svg>
+              <span id="pcTopTransparencyVal" class="font-mono text-[10.5px] font-extrabold">100%</span>
+            </button>
+
+            <!-- Canva Position Button -->
+            <button
+              type="button"
+              id="pcTopPositionBtn"
+              class="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-[#10141d] hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-slate-200/90 dark:border-white/12 text-[11px] font-extrabold text-slate-800 dark:text-white cursor-pointer transition"
+              title="পজিশন, অ্যালাইনমেন্ট ও অর্ডার (Position)"
+            >
+              <span data-i18n-bn="পজিশন" data-i18n-en="Position">পজিশন</span>
+            </button>
+
+            <!-- Quick Layers Stack Button -->
+            <button
+              type="button"
+              id="pcTopLayersBtn"
+              class="inline-flex items-center gap-1 h-8 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 text-[11px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="লেয়ার প্যানেল খুলুন (Layers)"
+            >
+              <Icon name="lucide:layers" class="w-3.5 h-3.5" />
+              <span class="hidden md:inline" data-i18n-bn="লেয়ার" data-i18n-en="Layers">লেয়ার</span>
+            </button>
+
+            <!-- Paint Roller Copy Style -->
+            <button
+              type="button"
+              id="pcTopCopyStyleBtn"
+              hidden
+              aria-pressed="false"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 aria-pressed:bg-[#2563eb] aria-pressed:text-white inline-flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="স্টাইল কপি করুন (Copy Style)"
+            >
+              <Icon name="lucide:paint-roller" class="w-3.5 h-3.5" />
+            </button>
+
+            <!-- Duplicate -->
+            <button
+              type="button"
+              id="pcTopDuplicateBtn"
+              hidden
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 inline-flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer transition"
+              title="ডুপ্লিকেট করুন (Duplicate)"
+            >
+              <Icon name="lucide:copy" class="w-3.5 h-3.5" />
+            </button>
+
+            <!-- Dynamic Open/Closed Padlock Button -->
+            <button
+              type="button"
+              id="pcTopLockBtn"
+              hidden
+              aria-pressed="false"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 inline-flex items-center justify-center text-slate-600 dark:text-slate-300 cursor-pointer transition"
+              title="লক করুন (Lock)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 pointer-events-none"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+            </button>
+
+            <!-- Delete -->
+            <button
+              type="button"
+              id="pcTopDeleteBtn"
+              hidden
+              class="w-8 h-8 rounded-lg hover:bg-rose-500/15 text-rose-600 inline-flex items-center justify-center cursor-pointer transition"
+              title="মুছে ফেলুন (Delete)"
+            >
+              <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -2582,10 +3786,11 @@
                     <button
                       type="button"
                       id="pcMiniLockBtn"
-                      class="w-6 h-6 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 inline-flex items-center justify-center cursor-pointer"
-                      title="লক / আনলক"
+                      aria-pressed="false"
+                      class="w-6 h-6 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 inline-flex items-center justify-center text-slate-600 dark:text-slate-300 cursor-pointer transition"
+                      title="লক করুন (Lock)"
                     >
-                      <Icon name="lucide:lock" class="w-3 h-3" />
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 pointer-events-none"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
                     </button>
                     <button
                       type="button"
@@ -2598,20 +3803,24 @@
 
                     <!-- Quick Color Tinting Indicators for Selected Badges / Text -->
                     <div id="pcMiniTintGroup" class="inline-flex items-center gap-1 pl-1 border-l border-slate-200 dark:border-white/15" hidden>
-                      <label
+                      <button
+                        type="button"
+                        id="pcMiniBgColorBtn"
                         class="w-5.5 h-5.5 rounded-full border border-slate-300 dark:border-white/20 cursor-pointer inline-flex items-center justify-center relative overflow-hidden"
                         title="রঙ (BG Color)"
                       >
                         <span id="pcMiniBgIndicator" class="w-full h-full rounded-full" style="background:#dc2626;"></span>
-                        <input type="color" id="pcMiniBgColorInput" class="sr-only" />
-                      </label>
-                      <label
+                        <input type="color" id="pcMiniBgColorInput" value="#dc2626" tabindex="-1" aria-hidden="true" class="absolute inset-0 w-full h-full opacity-0 pointer-events-none" />
+                      </button>
+                      <button
+                        type="button"
+                        id="pcMiniFgColorBtn"
                         class="w-5.5 h-5.5 rounded-full border border-slate-300 dark:border-white/20 cursor-pointer inline-flex items-center justify-center relative overflow-hidden"
                         title="টেক্সট রঙ (Text Color)"
                       >
                         <span id="pcMiniFgIndicator" class="w-full h-full rounded-full" style="background:#ffffff;"></span>
-                        <input type="color" id="pcMiniFgColorInput" class="sr-only" />
-                      </label>
+                        <input type="color" id="pcMiniFgColorInput" value="#ffffff" tabindex="-1" aria-hidden="true" class="absolute inset-0 w-full h-full opacity-0 pointer-events-none" />
+                      </button>
                     </div>
 
                     <!-- Canva-style More (...) Button triggering Context Menu -->
@@ -2649,14 +3858,64 @@
                   </div>
                 </div>
 
-                <!-- Direct On-Canvas Inline Textarea Editor -->
+                <!-- Invisible Backing Textarea + Live WYSIWYG On-Canvas Rich Text Editor + Floating Selection Highlight Pill -->
                 <textarea
                   id="pcInlineEditor"
                   hidden
                   rows="2"
-                  class="absolute z-30 p-2 rounded-lg bg-slate-950/92 text-white border-2 border-[#2563eb] shadow-2xl font-bold outline-none resize-none leading-snug"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  class="absolute opacity-0 pointer-events-none w-px h-px overflow-hidden resize-none border-0 p-0"
                   placeholder="এখানে লিখুন..."
                 ></textarea>
+
+                <div
+                  id="pcInlineRichEditor"
+                  contenteditable="true"
+                  spellcheck="false"
+                  hidden
+                  role="textbox"
+                  aria-multiline="true"
+                  aria-label="লাইভ টেক্সট এডিটর"
+                  class="absolute z-30 outline-none ring-2 ring-[#2563eb] rounded-xs cursor-text select-text whitespace-pre-wrap break-words bg-transparent"
+                ></div>
+
+                <div
+                  id="pcSelectionQuickBar"
+                  hidden
+                  class="pointer-events-auto absolute z-40 -translate-x-1/2 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-900/95 text-white shadow-xl border border-white/15 whitespace-nowrap"
+                >
+                  <span class="text-[9.5px] font-extrabold text-slate-300 pr-0.5" data-i18n-bn="হাইলাইট:" data-i18n-en="Highlight:">হাইলাইট:</span>
+                  {#each ['#fde047', '#ef4444', '#22c55e', '#38bdf8', '#fb923c', '#ffffff'] as qHex}
+                    <button
+                      type="button"
+                      data-quick-hi-swatch={qHex}
+                      title={`হাইলাইট রঙ ${qHex}`}
+                      class="w-4.5 h-4.5 rounded-full border border-white/35 cursor-pointer hover:scale-115 transition shrink-0"
+                      style="background:{qHex};"
+                    ></button>
+                  {/each}
+                  <button
+                    type="button"
+                    id="pcQuickMoreColorBtn"
+                    title="কাস্টম হাইলাইট রঙ"
+                    class="px-1.5 h-5 rounded-full bg-white/12 hover:bg-white/22 text-[9.5px] font-extrabold text-white cursor-pointer transition"
+                  >+</button>
+                  <button
+                    type="button"
+                    id="pcQuickHighlightModeBtn"
+                    title="লেখা বনাম মার্কার বক্স স্টাইল পরিবর্তন"
+                    class="px-1.5 h-5 rounded-full bg-amber-500/25 hover:bg-amber-500/40 text-[9.5px] font-extrabold text-amber-200 cursor-pointer transition"
+                    data-i18n-bn="মার্কার"
+                    data-i18n-en="Mode"
+                  >মার্কার</button>
+                  <button
+                    type="button"
+                    id="pcQuickClearHighlightBtn"
+                    title="হাইলাইট মুছুন"
+                    class="px-1.5 h-5 rounded-full bg-rose-500/25 hover:bg-rose-500/45 text-[9.5px] font-extrabold text-rose-200 cursor-pointer transition"
+                  >✕</button>
+                </div>
               </div>
             </div>
           </div>
@@ -2901,6 +4160,17 @@
             </span>
             <kbd class="font-mono text-[9.5px] text-slate-400 bg-slate-100 dark:bg-white/5 px-1 py-0.5 rounded">Ctrl+[</kbd>
           </button>
+          <div class="h-px my-1 bg-slate-200/80 dark:bg-white/10"></div>
+          <button
+            type="button"
+            data-open-layers-panel="1"
+            class="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-white/10 text-[#2563eb] dark:text-sky-300 font-extrabold transition cursor-pointer text-left"
+          >
+            <span class="inline-flex items-center gap-2">
+              <Icon name="lucide:layers" class="w-3.5 h-3.5" />
+              <span data-i18n-bn="সব লেয়ার দেখুন (Show layers)" data-i18n-en="Show layers">সব লেয়ার দেখুন (Show layers)</span>
+            </span>
+          </button>
         </div>
       </div>
 
@@ -2991,6 +4261,265 @@
         <span id="pcCtxLockLabel" data-i18n-bn="লক করুন" data-i18n-en="Lock">লক করুন</span>
       </span>
     </button>
+  </div>
+
+  <!-- ===============================================================
+       ANCHORED CANVA-STYLE COLOR POPOVER (#pcColorPopover)
+       Opens directly below whichever color trigger button was clicked,
+       with viewport edge clamping — NEVER opens at (0, 0) corner!
+       =============================================================== -->
+  <div
+    id="pcColorPopover"
+    hidden
+    role="dialog"
+    aria-label="রঙ নির্বাচন করুন"
+    style="position: fixed; z-index: 90;"
+    class="w-[276px] p-3 rounded-2xl bg-white dark:bg-[#161b24] border border-slate-200/90 dark:border-white/15 shadow-2xl space-y-2.5 select-none"
+  >
+    <!-- 1. Header: Active Target Label + Reset + Close -->
+    <div class="flex items-center justify-between gap-1.5 pb-1.5 border-b border-slate-200/80 dark:border-white/10">
+      <strong id="pcColorPopoverTitle" class="text-[12px] font-extrabold text-slate-900 dark:text-white">টেক্সট রঙ</strong>
+      <div class="inline-flex items-center gap-1">
+        <button
+          type="button"
+          id="pcColorPopoverResetBtn"
+          class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-[10px] font-extrabold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+          title="ম্যানুয়াল রঙ মুছে টেমপ্লেটের ডিফল্ট অটো রঙে ফিরে যান"
+        >↺ অটো / রিসেট</button>
+        <button
+          type="button"
+          id="pcColorPopoverCloseBtn"
+          class="w-6 h-6 rounded-md hover:bg-slate-100 dark:hover:bg-white/10 inline-flex items-center justify-center text-[12px] font-bold text-slate-500 dark:text-slate-300 cursor-pointer"
+          aria-label="বন্ধ করুন"
+        >✕</button>
+      </div>
+    </div>
+
+    <!-- 2. Active Brand Palette Row (shown when saved/active brand colors exist) -->
+    <div id="pcColorPopoverBrandRow" hidden class="space-y-1">
+      <span class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400">ব্র্যান্ড প্যালেট:</span>
+      <div id="pcColorPopoverBrandSwatches" class="flex items-center gap-1.5 flex-wrap"></div>
+    </div>
+
+    <!-- 3. 28-Color Curated Swatch Grid (White/Black + Pastels/Low-Sat + Editorial) -->
+    <div id="pcColorPopoverSwatches" class="grid grid-cols-7 gap-1.5">
+      {#each [
+        '#ffffff', '#000000', '#e2e8f0', '#94a3b8', '#1e293b', '#0f172a', '#dcfce7',
+        '#86efac', '#a7f3d0', '#bae6fd', '#c7d2fe', '#e9d5ff', '#fbcfe8', '#fecdd3',
+        '#fed7aa', '#fef08a', '#00bd74', '#10b981', '#059669', '#0ea5e9', '#2563eb',
+        '#7c3aed', '#ef4444', '#dc2626', '#991b1b', '#f97316', '#facc15', '#eab308'
+      ] as swatchHex}
+        <button
+          type="button"
+          data-pc-pop-swatch={swatchHex}
+          title={swatchHex}
+          class="w-7.5 h-7.5 rounded-lg border border-slate-300/90 dark:border-white/20 cursor-pointer hover:scale-110 transition shadow-2xs"
+          style="background:{swatchHex};"
+        ></button>
+      {/each}
+    </div>
+
+    <!-- 4. Custom Color Spectrum + Live #RRGGBB Hex Input Row -->
+    <div class="pt-1.5 border-t border-slate-200/80 dark:border-white/10 space-y-2">
+      <div class="flex items-center gap-1.5">
+        <span id="pcColorPopoverLivePreview" class="w-7 h-8 rounded-lg border border-slate-300 dark:border-white/20 shrink-0" style="background:#00bd74;"></span>
+        <input
+          type="text"
+          id="pcColorPopoverHexInput"
+          value="#00BD74"
+          maxlength="7"
+          spellcheck="false"
+          placeholder="#00BD74"
+          aria-label="Hex color code"
+          class="w-24 h-8 px-2 rounded-lg bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/15 font-mono text-[11.5px] font-bold text-slate-900 dark:text-white uppercase outline-none focus:border-[#2563eb]"
+        />
+        <label
+          class="relative overflow-hidden flex-1 h-8 px-2 rounded-lg text-white text-[10.5px] font-extrabold inline-flex items-center justify-center gap-1 cursor-pointer shadow-xs"
+          style="background: linear-gradient(90deg, #ef4444 0%, #f59e0b 22%, #10b981 48%, #0ea5e9 74%, #8b5cf6 100%);"
+          title="যেকোনো কাস্টম রঙ (RGB / HSL Spectrum) বেছে নিন"
+        >
+          <span class="drop-shadow-xs truncate">+ কাস্টম রঙ (Spectrum)</span>
+          <input
+            type="color"
+            id="pcColorPopoverNativeInput"
+            value="#00bd74"
+            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===============================================================
+       ANCHORED CANVA-STYLE MULTI-TOOL POPOVER (#pcToolPopover)
+       Transparency (0–100%) | Spacing | Effects | Border & Corner | Photo Adjust | Flip
+       =============================================================== -->
+  <div
+    id="pcToolPopover"
+    hidden
+    role="dialog"
+    aria-label="লেয়ার টুল কন্ট্রোল"
+    style="position: fixed; z-index: 90;"
+    class="w-[272px] p-3 rounded-2xl bg-white dark:bg-[#161b24] border border-slate-200/90 dark:border-white/15 shadow-2xl space-y-2.5 select-none"
+  >
+    <div class="flex items-center justify-between gap-1.5 pb-1.5 border-b border-slate-200/80 dark:border-white/10">
+      <strong id="pcToolPopoverTitle" class="text-[12px] font-extrabold text-slate-900 dark:text-white">ট্রান্সপারেন্সি (স্বচ্ছতা)</strong>
+      <button
+        type="button"
+        id="pcToolPopoverCloseBtn"
+        class="w-6 h-6 rounded-md hover:bg-slate-100 dark:hover:bg-white/10 inline-flex items-center justify-center text-[12px] font-bold text-slate-500 dark:text-slate-300 cursor-pointer"
+        aria-label="বন্ধ করুন"
+      >✕</button>
+    </div>
+
+    <!-- 1. TRANSPARENCY (0–100% Opacity Slider + Number Box) -->
+    <div data-tool-pop-sec="transparency" class="space-y-2">
+      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300">
+        <span data-i18n-bn="স্বচ্ছতা (Transparency)" data-i18n-en="Transparency">স্বচ্ছতা (Transparency)</span>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <input type="range" id="pcPopOpacityRange" min="0" max="100" value="100" class="flex-1 h-1.5 accent-[#2563eb] cursor-pointer" />
+        <div class="relative flex items-center w-16 shrink-0">
+          <input
+            type="number"
+            id="pcPopOpacityInput"
+            min="0"
+            max="100"
+            value="100"
+            class="w-full h-8 pl-2 pr-5 rounded-lg bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/15 font-mono text-[11.5px] font-extrabold text-slate-900 dark:text-white outline-none focus:border-[#2563eb]"
+          />
+          <span class="absolute right-1.5 text-[10px] font-bold text-slate-400 pointer-events-none">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. LINE SPACING -->
+    <div data-tool-pop-sec="spacing" hidden class="space-y-2">
+      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300">
+        <span data-i18n-bn="লাইন উচ্চতা (Line spacing)" data-i18n-en="Line spacing">লাইন উচ্চতা (Line spacing)</span>
+        <strong id="pcPopLineHeightVal" class="font-mono text-slate-900 dark:text-white">1.32</strong>
+      </div>
+      <input type="range" id="pcPopLineHeightRange" min="0.95" max="2.10" step="0.03" value="1.32" class="w-full h-1.5 accent-[#2563eb] cursor-pointer" />
+    </div>
+
+    <!-- 3. TEXT EFFECTS -->
+    <div data-tool-pop-sec="effects" hidden class="space-y-1.5">
+      <span class="block text-[10.5px] font-bold text-slate-500 dark:text-slate-400" data-i18n-bn="টেক্সট স্টাইল ইফেক্ট বেছে নিন:" data-i18n-en="Choose text effect:">টেক্সট স্টাইল ইফেক্ট বেছে নিন:</span>
+      <div class="grid grid-cols-3 gap-1.5">
+        {#each [
+          { id: 'default', bn: 'ডিফল্ট', en: 'Default' },
+          { id: 'shadow', bn: 'শ্যাডো', en: 'Shadow' },
+          { id: 'lift', bn: 'লিফট', en: 'Lift' },
+          { id: 'glow', bn: 'নিয়ন গ্লো', en: 'Glow' },
+          { id: 'outline', bn: 'আউটলাইন', en: 'Outline' },
+          { id: 'none', bn: 'সাধারণ', en: 'None' }
+        ] as fx}
+          <button
+            type="button"
+            data-pop-fx={fx.id}
+            aria-pressed={fx.id === 'default' ? 'true' : 'false'}
+            class="h-8.5 px-2 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 aria-pressed:border-[#2563eb] aria-pressed:bg-blue-500/12 aria-pressed:text-[#1d4ed8] dark:aria-pressed:text-sky-300 text-[10.5px] font-extrabold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+            data-i18n-bn={fx.bn}
+            data-i18n-en={fx.en}
+          >{fx.bn}</button>
+        {/each}
+      </div>
+    </div>
+
+    <!-- 4. BORDER WEIGHT, DASH STYLE & CORNER ROUNDING -->
+    <div data-tool-pop-sec="border" hidden class="space-y-2.5">
+      <div class="grid grid-cols-3 gap-1.5">
+        {#each [
+          { id: 'solid', bn: 'সলিড', en: 'Solid' },
+          { id: 'dashed', bn: 'ড্যাশড', en: 'Dashed' },
+          { id: 'dotted', bn: 'ডটেড', en: 'Dotted' }
+        ] as dsh}
+          <button
+            type="button"
+            data-pop-dash={dsh.id}
+            aria-pressed={dsh.id === 'solid' ? 'true' : 'false'}
+            class="h-8 px-2 rounded-xl bg-slate-50 dark:bg-[#0f131b] border border-slate-200 dark:border-white/12 aria-pressed:border-[#2563eb] aria-pressed:bg-blue-500/12 text-[10.5px] font-extrabold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+            data-i18n-bn={dsh.bn}
+            data-i18n-en={dsh.en}
+          >{dsh.bn}</button>
+        {/each}
+      </div>
+      <div>
+        <div class="flex justify-between text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+          <span data-i18n-bn="বর্ডার পুরুত্ব (Weight)" data-i18n-en="Border weight">বর্ডার পুরুত্ব (Weight)</span>
+          <strong id="pcPopStrokeWidthVal" class="font-mono text-slate-900 dark:text-white">3px</strong>
+        </div>
+        <input type="range" id="pcPopStrokeWidthRange" min="0" max="20" value="3" class="w-full h-1.5 accent-[#2563eb] cursor-pointer" />
+      </div>
+      <div>
+        <div class="flex justify-between text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+          <span data-i18n-bn="কর্নার রাউন্ডিং (Corner)" data-i18n-en="Corner rounding">কর্নার রাউন্ডিং (Corner)</span>
+          <strong id="pcPopRadiusVal" class="font-mono text-slate-900 dark:text-white">16px</strong>
+        </div>
+        <input type="range" id="pcPopRadiusRange" min="0" max="100" value="16" class="w-full h-1.5 accent-[#2563eb] cursor-pointer" />
+      </div>
+    </div>
+
+    <!-- 5. PHOTO ADJUSTMENTS (Brightness, Contrast, Saturation, Blur) -->
+    <div data-tool-pop-sec="adjust" hidden class="space-y-2">
+      <div>
+        <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-0.5">
+          <span data-i18n-bn="উজ্জ্বলতা (Brightness)" data-i18n-en="Brightness">উজ্জ্বলতা (Brightness)</span>
+          <strong id="pcPopBrightVal" class="font-mono text-slate-800 dark:text-white">100%</strong>
+        </div>
+        <input type="range" id="pcPopBrightRange" min="50" max="160" value="100" class="w-full h-1.5 accent-[#2563eb] cursor-pointer" />
+      </div>
+      <div>
+        <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-0.5">
+          <span data-i18n-bn="কনট্রাস্ট (Contrast)" data-i18n-en="Contrast">কনট্রাস্ট (Contrast)</span>
+          <strong id="pcPopContrastVal" class="font-mono text-slate-800 dark:text-white">100%</strong>
+        </div>
+        <input type="range" id="pcPopContrastRange" min="50" max="170" value="100" class="w-full h-1.5 accent-[#2563eb] cursor-pointer" />
+      </div>
+      <div>
+        <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-0.5">
+          <span data-i18n-bn="রঙের ঘনত্ব (Saturation)" data-i18n-en="Saturation">রঙের ঘনত্ব (Saturation)</span>
+          <strong id="pcPopSaturateVal" class="font-mono text-slate-800 dark:text-white">100%</strong>
+        </div>
+        <input type="range" id="pcPopSaturateRange" min="0" max="200" value="100" class="w-full h-1.5 accent-[#2563eb] cursor-pointer" />
+      </div>
+      <div>
+        <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-0.5">
+          <span data-i18n-bn="ব্লার (Blur)" data-i18n-en="Blur">ব্লার (Blur)</span>
+          <strong id="pcPopBlurVal" class="font-mono text-slate-800 dark:text-white">0px</strong>
+        </div>
+        <input type="range" id="pcPopBlurRange" min="0" max="16" value="0" class="w-full h-1.5 accent-[#2563eb] cursor-pointer" />
+      </div>
+      <button
+        type="button"
+        id="pcPopResetAdjustBtn"
+        class="w-full h-7.5 rounded-lg bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-[10.5px] font-extrabold text-slate-700 dark:text-slate-200 cursor-pointer transition"
+        data-i18n-bn="↺ অ্যাডজাস্টমেন্ট রিসেট"
+        data-i18n-en="↺ Reset Adjustments"
+      >↺ অ্যাডজাস্টমেন্ট রিসেট</button>
+    </div>
+
+    <!-- 6. FLIP LAYER (Horizontal / Vertical) -->
+    <div data-tool-pop-sec="flip" hidden class="grid grid-cols-2 gap-1.5">
+      <button
+        type="button"
+        id="pcPopFlipHBtn"
+        aria-pressed="false"
+        class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 aria-pressed:border-[#2563eb] aria-pressed:bg-blue-500/12 inline-flex items-center justify-center gap-1.5 text-[11px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition"
+      >
+        <Icon name="lucide:flip-horizontal-2" class="w-3.5 h-3.5" />
+        <span data-i18n-bn="পাশাপাশি ফ্লিপ" data-i18n-en="Flip horizontal">পাশাপাশি ফ্লিপ</span>
+      </button>
+      <button
+        type="button"
+        id="pcPopFlipVBtn"
+        aria-pressed="false"
+        class="h-9 px-2.5 rounded-xl bg-slate-50 dark:bg-[#0f131b] hover:border-[#2563eb] border border-slate-200 dark:border-white/12 aria-pressed:border-[#2563eb] aria-pressed:bg-blue-500/12 inline-flex items-center justify-center gap-1.5 text-[11px] font-bold text-slate-800 dark:text-slate-100 cursor-pointer transition"
+      >
+        <Icon name="lucide:flip-vertical-2" class="w-3.5 h-3.5" />
+        <span data-i18n-bn="উপর-নিচ ফ্লিপ" data-i18n-en="Flip vertical">উপর-নিচ ফ্লিপ</span>
+      </button>
+    </div>
   </div>
 </div>
 

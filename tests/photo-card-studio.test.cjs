@@ -313,6 +313,14 @@ function createMockElement(tagName = 'div', id = '') {
     },
 
     querySelector(sel) {
+      const trimmed = String(sel || '').trim();
+      const spIdx = trimmed.indexOf(' ');
+      if (spIdx > 0 && trimmed.startsWith('#')) {
+        const first = trimmed.slice(0, spIdx);
+        const rest = trimmed.slice(spIdx + 1).trim();
+        const rootMatch = (typeof domRegistry !== 'undefined' && domRegistry[first.slice(1)]) || el.querySelector(first);
+        return rootMatch && rootMatch.querySelector ? rootMatch.querySelector(rest) : null;
+      }
       for (const c of children) {
         if (sel.startsWith('#') && c.id === sel.slice(1)) return c;
         if (sel.startsWith('.') && c.classList && c.classList.contains(sel.slice(1))) return c;
@@ -329,6 +337,14 @@ function createMockElement(tagName = 'div', id = '') {
       return null;
     },
     querySelectorAll(sel) {
+      const trimmed = String(sel || '').trim();
+      const spIdx = trimmed.indexOf(' ');
+      if (spIdx > 0 && trimmed.startsWith('#')) {
+        const first = trimmed.slice(0, spIdx);
+        const rest = trimmed.slice(spIdx + 1).trim();
+        const rootMatch = (typeof domRegistry !== 'undefined' && domRegistry[first.slice(1)]) || el.querySelector(first);
+        return rootMatch && rootMatch.querySelectorAll ? rootMatch.querySelectorAll(rest) : [];
+      }
       let res = [];
       for (const c of children) {
         if (sel.startsWith('#') && c.id === sel.slice(1)) res.push(c);
@@ -628,6 +644,10 @@ artWrap.appendChild(overlayGroup);
 const selBox = registerElement('pcSelectionBox', createMockElement('div', 'pcSelectionBox'));
 overlayGroup.appendChild(selBox);
 
+const hovBox = registerElement('pcHoverBox', createMockElement('div', 'pcHoverBox'));
+hovBox.hidden = true;
+overlayGroup.appendChild(hovBox);
+
 const inlineEditor = registerElement('pcInlineEditor', createMockElement('textarea', 'pcInlineEditor'));
 inlineEditor.hidden = true;
 overlayGroup.appendChild(inlineEditor);
@@ -684,6 +704,311 @@ const quickExportJpgBtn = registerElement('pcQuickExportJpgBtn', createMockEleme
 quickExportJpgBtn.setAttribute('data-export-format', 'jpeg');
 shareDropdown.appendChild(quickExportJpgBtn);
 
+// Color Popover, Highlight & Brand Kit DOM Mocks
+const colorPopover = registerElement('pcColorPopover', createMockElement('div', 'pcColorPopover'));
+colorPopover.hidden = true;
+pane.appendChild(colorPopover);
+
+const colorPopoverTitle = registerElement('pcColorPopoverTitle', createMockElement('span', 'pcColorPopoverTitle'));
+colorPopover.appendChild(colorPopoverTitle);
+
+const colorPopoverResetBtn = registerElement('pcColorPopoverResetBtn', createMockElement('button', 'pcColorPopoverResetBtn'));
+colorPopover.appendChild(colorPopoverResetBtn);
+
+const colorPopoverCloseBtn = registerElement('pcColorPopoverCloseBtn', createMockElement('button', 'pcColorPopoverCloseBtn'));
+colorPopover.appendChild(colorPopoverCloseBtn);
+
+const colorPopoverBrandRow = registerElement('pcColorPopoverBrandRow', createMockElement('div', 'pcColorPopoverBrandRow'));
+colorPopoverBrandRow.hidden = true;
+colorPopover.appendChild(colorPopoverBrandRow);
+
+const colorPopoverBrandSwatches = registerElement('pcColorPopoverBrandSwatches', createMockElement('div', 'pcColorPopoverBrandSwatches'));
+colorPopoverBrandRow.appendChild(colorPopoverBrandSwatches);
+
+const colorPopoverLivePreview = registerElement('pcColorPopoverLivePreview', createMockElement('span', 'pcColorPopoverLivePreview'));
+colorPopover.appendChild(colorPopoverLivePreview);
+
+const colorPopoverHexInput = registerElement('pcColorPopoverHexInput', createMockElement('input', 'pcColorPopoverHexInput'));
+colorPopover.appendChild(colorPopoverHexInput);
+
+const colorPopoverNativeInput = registerElement('pcColorPopoverNativeInput', createMockElement('input', 'pcColorPopoverNativeInput'));
+colorPopover.appendChild(colorPopoverNativeInput);
+
+const ctxTextColorBtn = registerElement('pcCtxTextColorBtn', createMockElement('button', 'pcCtxTextColorBtn'));
+pane.appendChild(ctxTextColorBtn);
+const ctxTextColorBar = registerElement('pcCtxTextColorBar', createMockElement('span', 'pcCtxTextColorBar'));
+ctxTextColorBtn.appendChild(ctxTextColorBar);
+const ctxTextColorInput = registerElement('pcCtxTextColorInput', createMockElement('input', 'pcCtxTextColorInput'));
+ctxTextColorBtn.appendChild(ctxTextColorInput);
+
+const ctxHighlightColorBtn = registerElement('pcCtxHighlightColorBtn', createMockElement('button', 'pcCtxHighlightColorBtn'));
+pane.appendChild(ctxHighlightColorBtn);
+const ctxHighlightColorBar = registerElement('pcCtxHighlightColorBar', createMockElement('span', 'pcCtxHighlightColorBar'));
+ctxHighlightColorBtn.appendChild(ctxHighlightColorBar);
+
+const ctxTextBgWrapper = registerElement('pcCtxTextBgWrapper', createMockElement('div', 'pcCtxTextBgWrapper'));
+ctxTextBgWrapper.hidden = true;
+pane.appendChild(ctxTextBgWrapper);
+const ctxTextBgBtn = registerElement('pcCtxTextBgBtn', createMockElement('button', 'pcCtxTextBgBtn'));
+ctxTextBgWrapper.appendChild(ctxTextBgBtn);
+const ctxTextBgColorBar = registerElement('pcCtxTextBgColorBar', createMockElement('span', 'pcCtxTextBgColorBar'));
+ctxTextBgBtn.appendChild(ctxTextBgColorBar);
+const ctxTextBgColorInput = registerElement('pcCtxTextBgColorInput', createMockElement('input', 'pcCtxTextBgColorInput'));
+ctxTextBgBtn.appendChild(ctxTextBgColorInput);
+
+const miniTintGroup = registerElement('pcMiniTintGroup', createMockElement('div', 'pcMiniTintGroup'));
+miniTintGroup.hidden = true;
+pane.appendChild(miniTintGroup);
+const miniBgColorBtn = registerElement('pcMiniBgColorBtn', createMockElement('button', 'pcMiniBgColorBtn'));
+miniTintGroup.appendChild(miniBgColorBtn);
+const miniBgColorSwatch = registerElement('pcMiniBgColorSwatch', createMockElement('span', 'pcMiniBgColorSwatch'));
+miniBgColorBtn.appendChild(miniBgColorSwatch);
+const miniBgColorInput = registerElement('pcMiniBgColorInput', createMockElement('input', 'pcMiniBgColorInput'));
+miniBgColorBtn.appendChild(miniBgColorInput);
+const miniFgColorBtn = registerElement('pcMiniFgColorBtn', createMockElement('button', 'pcMiniFgColorBtn'));
+miniTintGroup.appendChild(miniFgColorBtn);
+const miniFgColorSwatch = registerElement('pcMiniFgColorSwatch', createMockElement('span', 'pcMiniFgColorSwatch'));
+miniFgColorBtn.appendChild(miniFgColorSwatch);
+const miniFgColorInput = registerElement('pcMiniFgColorInput', createMockElement('input', 'pcMiniFgColorInput'));
+miniFgColorBtn.appendChild(miniFgColorInput);
+
+const headlineHighlightColorBtn = registerElement('pcHeadlineHighlightColorBtn', createMockElement('button', 'pcHeadlineHighlightColorBtn'));
+pane.appendChild(headlineHighlightColorBtn);
+const headlineHighlightColorDot = registerElement('pcHeadlineHighlightColorDot', createMockElement('span', 'pcHeadlineHighlightColorDot'));
+headlineHighlightColorBtn.appendChild(headlineHighlightColorDot);
+const highlightModeBtn = registerElement('pcHighlightModeBtn', createMockElement('button', 'pcHighlightModeBtn'));
+pane.appendChild(highlightModeBtn);
+const highlightModeLabel = registerElement('pcHighlightModeLabel', createMockElement('span', 'pcHighlightModeLabel'));
+highlightModeBtn.appendChild(highlightModeLabel);
+
+const footerUrlInput = registerElement('pcFooterUrl', createMockElement('input', 'pcFooterUrl'));
+pane.appendChild(footerUrlInput);
+const syncFooterToBrandBtn = registerElement('pcSyncFooterToBrandBtn', createMockElement('button', 'pcSyncFooterToBrandBtn'));
+pane.appendChild(syncFooterToBrandBtn);
+
+const brandNameInput = registerElement('pcBrandName', createMockElement('input', 'pcBrandName'));
+pane.appendChild(brandNameInput);
+const brandWebsiteInput = registerElement('pcBrandWebsite', createMockElement('input', 'pcBrandWebsite'));
+pane.appendChild(brandWebsiteInput);
+const brandPhoneInput = registerElement('pcBrandPhone', createMockElement('input', 'pcBrandPhone'));
+pane.appendChild(brandPhoneInput);
+const brandFooterFormatSelect = registerElement('pcBrandFooterFormat', createMockElement('select', 'pcBrandFooterFormat'));
+brandFooterFormatSelect.value = 'both';
+pane.appendChild(brandFooterFormatSelect);
+const brandExtraInfoInput = registerElement('pcBrandExtraInfo', createMockElement('input', 'pcBrandExtraInfo'));
+pane.appendChild(brandExtraInfoInput);
+const brandPrimaryColorInput = registerElement('pcBrandPrimaryColor', createMockElement('input', 'pcBrandPrimaryColor'));
+brandPrimaryColorInput.value = '#dc2626';
+pane.appendChild(brandPrimaryColorInput);
+const brandAccentColorInput = registerElement('pcBrandAccentColor', createMockElement('input', 'pcBrandAccentColor'));
+brandAccentColorInput.value = '#facc15';
+pane.appendChild(brandAccentColorInput);
+const brandBgColorInput = registerElement('pcBrandBgColor', createMockElement('input', 'pcBrandBgColor'));
+brandBgColorInput.value = '#0f172a';
+pane.appendChild(brandBgColorInput);
+const brandApplyColorsToggle = registerElement('pcBrandApplyColorsToggle', createMockElement('input', 'pcBrandApplyColorsToggle'));
+brandApplyColorsToggle.checked = true;
+pane.appendChild(brandApplyColorsToggle);
+const savedBrandProfilesList = registerElement('pcSavedBrandProfilesList', createMockElement('div', 'pcSavedBrandProfilesList'));
+pane.appendChild(savedBrandProfilesList);
+const deactivateBrandBtn = registerElement('pcDeactivateBrandBtn', createMockElement('button', 'pcDeactivateBrandBtn'));
+deactivateBrandBtn.hidden = true;
+pane.appendChild(deactivateBrandBtn);
+const newBrandProfileBtn = registerElement('pcNewBrandProfileBtn', createMockElement('button', 'pcNewBrandProfileBtn'));
+pane.appendChild(newBrandProfileBtn);
+const saveBrandProfileBtn = registerElement('pcSaveBrandProfileBtn', createMockElement('button', 'pcSaveBrandProfileBtn'));
+pane.appendChild(saveBrandProfileBtn);
+const saveAsNewBrandBtn = registerElement('pcSaveAsNewBrandBtn', createMockElement('button', 'pcSaveAsNewBrandBtn'));
+pane.appendChild(saveAsNewBrandBtn);
+const brandGrabCurrentColorsBtn = registerElement('pcBrandGrabCurrentColorsBtn', createMockElement('button', 'pcBrandGrabCurrentColorsBtn'));
+pane.appendChild(brandGrabCurrentColorsBtn);
+
+// Canva Studio Upgrade DOM Mocks (Rich Inline Editor, Dynamic Context Toolbar, Tool Popover, Position/Layers, Organized Elements & Brand)
+const inlineRichEditor = registerElement('pcInlineRichEditor', createMockElement('div', 'pcInlineRichEditor'));
+inlineRichEditor.hidden = true;
+overlayGroup.appendChild(inlineRichEditor);
+
+const selectionQuickBar = registerElement('pcSelectionQuickBar', createMockElement('div', 'pcSelectionQuickBar'));
+selectionQuickBar.hidden = true;
+overlayGroup.appendChild(selectionQuickBar);
+
+const selToolbarMock = registerElement('pcSelectionToolbar', createMockElement('div', 'pcSelectionToolbar'));
+selBox.appendChild(selToolbarMock);
+const miniEditBtn = registerElement('pcMiniEditBtn', createMockElement('button', 'pcMiniEditBtn'));
+selToolbarMock.appendChild(miniEditBtn);
+const miniDupBtn = registerElement('pcMiniDupBtn', createMockElement('button', 'pcMiniDupBtn'));
+selToolbarMock.appendChild(miniDupBtn);
+const miniLockBtn = registerElement('pcMiniLockBtn', createMockElement('button', 'pcMiniLockBtn'));
+miniLockBtn.appendChild(createMockElement('svg'));
+selToolbarMock.appendChild(miniLockBtn);
+const miniDelBtn = registerElement('pcMiniDelBtn', createMockElement('button', 'pcMiniDelBtn'));
+selToolbarMock.appendChild(miniDelBtn);
+
+const selMoveHandle = registerElement('pcMoveHandle', createMockElement('button', 'pcMoveHandle'));
+selBox.appendChild(selMoveHandle);
+const selRotHandle = registerElement('pcRotateHandle', createMockElement('button', 'pcRotateHandle'));
+selBox.appendChild(selRotHandle);
+const selCornerHandle = createMockElement('span');
+selCornerHandle.setAttribute('data-pc-handle', 'se');
+selBox.appendChild(selCornerHandle);
+
+const contextToolbar = registerElement('pcContextToolbar', createMockElement('div', 'pcContextToolbar'));
+pane.appendChild(contextToolbar);
+const ctxPanels = {};
+['text', 'photo', 'shape', 'vector', 'logo', 'locked', 'card'].forEach(panelName => {
+  const pEl = createMockElement('div');
+  pEl.setAttribute('data-ctx-panel', panelName);
+  pEl.hidden = panelName !== 'card';
+  contextToolbar.appendChild(pEl);
+  ctxPanels[panelName] = pEl;
+});
+const topFlipBtn = registerElement('pcTopFlipBtn', createMockElement('button', 'pcTopFlipBtn'));
+contextToolbar.appendChild(topFlipBtn);
+const topTransparencyBtn = registerElement('pcTopTransparencyBtn', createMockElement('button', 'pcTopTransparencyBtn'));
+const topTransparencyVal = registerElement('pcTopTransparencyVal', createMockElement('span', 'pcTopTransparencyVal'));
+topTransparencyBtn.appendChild(topTransparencyVal);
+contextToolbar.appendChild(topTransparencyBtn);
+const topPositionBtn = registerElement('pcTopPositionBtn', createMockElement('button', 'pcTopPositionBtn'));
+contextToolbar.appendChild(topPositionBtn);
+const topLayersBtn = registerElement('pcTopLayersBtn', createMockElement('button', 'pcTopLayersBtn'));
+contextToolbar.appendChild(topLayersBtn);
+const topCopyStyleBtn = registerElement('pcTopCopyStyleBtn', createMockElement('button', 'pcTopCopyStyleBtn'));
+contextToolbar.appendChild(topCopyStyleBtn);
+const topDuplicateBtn = registerElement('pcTopDuplicateBtn', createMockElement('button', 'pcTopDuplicateBtn'));
+contextToolbar.appendChild(topDuplicateBtn);
+const topLockBtn = registerElement('pcTopLockBtn', createMockElement('button', 'pcTopLockBtn'));
+topLockBtn.appendChild(createMockElement('svg'));
+contextToolbar.appendChild(topLockBtn);
+const topDeleteBtn = registerElement('pcTopDeleteBtn', createMockElement('button', 'pcTopDeleteBtn'));
+contextToolbar.appendChild(topDeleteBtn);
+
+const toolPopover = registerElement('pcToolPopover', createMockElement('div', 'pcToolPopover'));
+toolPopover.hidden = true;
+pane.appendChild(toolPopover);
+const toolPopoverTitle = registerElement('pcToolPopoverTitle', createMockElement('span', 'pcToolPopoverTitle'));
+toolPopover.appendChild(toolPopoverTitle);
+const toolPopSections = {};
+['transparency', 'spacing', 'effects', 'border', 'adjust', 'flip'].forEach(secKey => {
+  const sEl = createMockElement('div');
+  sEl.setAttribute('data-tool-pop-sec', secKey);
+  sEl.hidden = true;
+  toolPopover.appendChild(sEl);
+  toolPopSections[secKey] = sEl;
+});
+const popOpacityRange = registerElement('pcPopOpacityRange', createMockElement('input', 'pcPopOpacityRange'));
+toolPopSections.transparency.appendChild(popOpacityRange);
+const popOpacityInput = registerElement('pcPopOpacityInput', createMockElement('input', 'pcPopOpacityInput'));
+toolPopSections.transparency.appendChild(popOpacityInput);
+
+const positionDrawer = createMockElement('div');
+positionDrawer.setAttribute('data-pc-drawer', 'position');
+positionDrawer.hidden = true;
+pane.appendChild(positionDrawer);
+const posTabArrange = createMockElement('button');
+posTabArrange.setAttribute('data-pos-tab', 'arrange');
+positionDrawer.appendChild(posTabArrange);
+const posTabLayers = createMockElement('button');
+posTabLayers.setAttribute('data-pos-tab', 'layers');
+positionDrawer.appendChild(posTabLayers);
+const posArrangePane = registerElement('pcPosArrangePane', createMockElement('div', 'pcPosArrangePane'));
+positionDrawer.appendChild(posArrangePane);
+const posLayersPane = registerElement('pcPosLayersPane', createMockElement('div', 'pcPosLayersPane'));
+posLayersPane.hidden = true;
+positionDrawer.appendChild(posLayersPane);
+const posAdvW = registerElement('pcPosAdvW', createMockElement('input', 'pcPosAdvW'));
+posArrangePane.appendChild(posAdvW);
+const posAdvH = registerElement('pcPosAdvH', createMockElement('input', 'pcPosAdvH'));
+posArrangePane.appendChild(posAdvH);
+const posAdvX = registerElement('pcPosAdvX', createMockElement('input', 'pcPosAdvX'));
+posArrangePane.appendChild(posAdvX);
+const posAdvY = registerElement('pcPosAdvY', createMockElement('input', 'pcPosAdvY'));
+posArrangePane.appendChild(posAdvY);
+const posAdvRot = registerElement('pcPosAdvRot', createMockElement('input', 'pcPosAdvRot'));
+posArrangePane.appendChild(posAdvRot);
+const posRatioLockBtn = registerElement('pcPosRatioLockBtn', createMockElement('button', 'pcPosRatioLockBtn'));
+posRatioLockBtn.appendChild(createMockElement('svg'));
+posArrangePane.appendChild(posRatioLockBtn);
+const layersFilterAll = createMockElement('button');
+layersFilterAll.setAttribute('data-layers-filter', 'all');
+posLayersPane.appendChild(layersFilterAll);
+const layersFilterOverlapping = createMockElement('button');
+layersFilterOverlapping.setAttribute('data-layers-filter', 'overlapping');
+posLayersPane.appendChild(layersFilterOverlapping);
+const layersStackList = registerElement('pcLayersStackList', createMockElement('div', 'pcLayersStackList'));
+posLayersPane.appendChild(layersStackList);
+
+const elementsDrawer = createMockElement('div');
+elementsDrawer.setAttribute('data-pc-drawer', 'elements');
+elementsDrawer.hidden = true;
+pane.appendChild(elementsDrawer);
+const elementsSearchInput = registerElement('pcElementsSearchInput', createMockElement('input', 'pcElementsSearchInput'));
+elementsDrawer.appendChild(elementsSearchInput);
+const elementsCatChips = registerElement('pcElementsCatChips', createMockElement('div', 'pcElementsCatChips'));
+elementsDrawer.appendChild(elementsCatChips);
+['all', 'icons', 'social', 'payment', 'shapes', 'graphics', 'badges', 'colors'].forEach(catId => {
+  const cBtn = createMockElement('button');
+  cBtn.setAttribute('data-el-cat', catId);
+  elementsCatChips.appendChild(cBtn);
+});
+const elementsDrillHeader = registerElement('pcElementsDrillHeader', createMockElement('div', 'pcElementsDrillHeader'));
+elementsDrillHeader.hidden = true;
+elementsDrawer.appendChild(elementsDrillHeader);
+const elementsBackBtn = registerElement('pcElementsBackBtn', createMockElement('button', 'pcElementsBackBtn'));
+elementsDrillHeader.appendChild(elementsBackBtn);
+const elementsDrillTitle = registerElement('pcElementsDrillTitle', createMockElement('strong', 'pcElementsDrillTitle'));
+elementsDrillHeader.appendChild(elementsDrillTitle);
+const elShelfMap = {};
+['icons', 'social', 'payment', 'shapes', 'graphics', 'badges', 'colors'].forEach(shelfId => {
+  const shEl = createMockElement('div');
+  shEl.setAttribute('data-el-shelf', shelfId);
+  const seeAll = createMockElement('button');
+  seeAll.setAttribute('data-el-see-all', shelfId);
+  shEl.appendChild(seeAll);
+  const item0 = createMockElement('button');
+  item0.setAttribute('data-el-item', '1');
+  item0.setAttribute('data-el-overflow', '0');
+  item0.setAttribute('data-el-keywords', shelfId + ' primary item phone nagad rocket facebook');
+  shEl.appendChild(item0);
+  const itemOverflow = createMockElement('button');
+  itemOverflow.setAttribute('data-el-item', '1');
+  itemOverflow.setAttribute('data-el-overflow', '1');
+  itemOverflow.setAttribute('data-el-keywords', shelfId + ' overflow extra item upay discord');
+  itemOverflow.hidden = true;
+  shEl.appendChild(itemOverflow);
+  elementsDrawer.appendChild(shEl);
+  elShelfMap[shelfId] = { shelf: shEl, seeAll, item0, itemOverflow };
+});
+
+const brandDrawer = createMockElement('div');
+brandDrawer.setAttribute('data-pc-drawer', 'brand');
+brandDrawer.hidden = true;
+pane.appendChild(brandDrawer);
+const brandSearchInput = registerElement('pcBrandSearchInput', createMockElement('input', 'pcBrandSearchInput'));
+brandDrawer.appendChild(brandSearchInput);
+const brandKitDropdownBtn = registerElement('pcBrandKitDropdownBtn', createMockElement('button', 'pcBrandKitDropdownBtn'));
+brandDrawer.appendChild(brandKitDropdownBtn);
+const brandKitDropdownMenu = registerElement('pcBrandKitDropdownMenu', createMockElement('div', 'pcBrandKitDropdownMenu'));
+brandKitDropdownMenu.hidden = true;
+brandDrawer.appendChild(brandKitDropdownMenu);
+const brandSectionNav = registerElement('pcBrandSectionNav', createMockElement('div', 'pcBrandSectionNav'));
+brandDrawer.appendChild(brandSectionNav);
+['all', 'logos', 'colors', 'fonts', 'info', 'graphics'].forEach(secId => {
+  const bSec = createMockElement('button');
+  bSec.setAttribute('data-brand-sec', secId);
+  brandSectionNav.appendChild(bSec);
+});
+const brandBackToAllBtn = registerElement('pcBrandBackToAllBtn', createMockElement('button', 'pcBrandBackToAllBtn'));
+brandBackToAllBtn.hidden = true;
+brandDrawer.appendChild(brandBackToAllBtn);
+const brandCardMap = {};
+['logos', 'colors', 'fonts', 'info', 'graphics', 'saved'].forEach(cId => {
+  const cEl = createMockElement('div');
+  cEl.setAttribute('data-brand-card', cId);
+  cEl.setAttribute('data-brand-keywords', cId + ' brand asset');
+  brandDrawer.appendChild(cEl);
+  brandCardMap[cId] = cEl;
+});
+
 // Load Engine and Metadata Injector
 const Engine = require('../public/js/photo-card-engine.js');
 let MetadataInjector = null;
@@ -718,6 +1043,10 @@ function runTest(id, name, fn) {
 }
 
 function resetStudioState() {
+  global.localStorage.removeItem('th_photocard_brand_profiles_v1');
+  global.localStorage.removeItem('th_photocard_active_brand_v1');
+  global.localStorage.removeItem('th_photocard_brand_prefs_v1');
+  global.localStorage.removeItem('th_photocard_brand_v1');
   const state = Engine.getState();
   state.template = 'blood-donation';
   state.designTitle = 'নতুন ফটোকার্ড ডিজাইন';
@@ -744,9 +1073,19 @@ function resetStudioState() {
   state.pages = [{ id: 'page_1', title: 'Page 1', customLayers: [] }];
   state.photoImg = null;
   state.photoAssetId = '';
+  state.logoImg = null;
+  state.logoAssetId = '';
+  state.logoDataUrl = '';
+  state.brandWebsite = '';
+  state.brandPhone = '';
+  state.brandExtraInfo = '';
+  state.brandFooterFormat = 'both';
+  state.highlightColor = '';
+  state.highlightBgMode = '';
   ctxMenu.hidden = true;
   shareDropdown.hidden = true;
   inlineEditor.hidden = true;
+  colorPopover.hidden = true;
   global.document.activeElement = null;
   global.navigator.__rejectClipboard = false;
   autoToggle.checked = false;
@@ -2585,6 +2924,572 @@ runTest('PC-REG-DEF7-02', 'Defect #7 Regression: Badges, stickers, and shapes ar
   inlineEditor.value = 'সর্বশেষ আপডেট';
   Engine.closeInlineEditor(true);
   assert.equal(stk.text, 'সর্বশেষ আপডেট', 'Sticker badge text must update cleanly');
+});
+
+/* =========================================================================
+ * 7B. REGRESSION TESTS FOR WINDOWS WATCHER, MANUAL COLORS, ANCHORED POPOVER,
+ *     HEADLINE HIGHLIGHT COLOR, AND MULTI-BRAND KIT PROFILES (ISSUES 1-4)
+ * ========================================================================= */
+
+runTest('PC-REG-ISS1-01', 'Issue 1 Regression: astro.config.mjs guards Windows protected volume paths (System Volume Information, $RECYCLE.BIN, drive root) via windowsWatcherGuard and server.watch.ignored', () => {
+  const astroCfgPath = path.join(__dirname, '../astro.config.mjs');
+  const astroCfgSrc = fs.readFileSync(astroCfgPath, 'utf8');
+
+  const guardIdx = astroCfgSrc.indexOf('windowsWatcherGuard');
+  const twIdx = astroCfgSrc.indexOf('tailwindcss()');
+  assert.ok(guardIdx !== -1, 'astro.config.mjs must define windowsWatcherGuard');
+  assert.ok(twIdx !== -1 && guardIdx < twIdx, 'windowsWatcherGuard must be registered before tailwindcss()');
+  assert.ok(astroCfgSrc.includes('strict: true'), 'vite.server.fs.strict must be enabled');
+  assert.ok(astroCfgSrc.includes('System Volume Information'), 'vite.server.watch.ignored must guard System Volume Information');
+  assert.ok(astroCfgSrc.includes('$RECYCLE\\.BIN'), 'vite.server.watch.ignored must guard $RECYCLE.BIN');
+
+  // Verify the exact RegExp & predicate logic used in astro.config.mjs
+  const watchRegex = /(?:^|[\\/])(?:\.git|node_modules|dist|\.astro|System Volume Information|\$RECYCLE\.BIN|Recovery|Config\.Msi)(?:[\\/]|$)/i;
+  const watchPredicate = (watchPath) =>
+    /(?:^|[\\/])(?:System Volume Information|\$RECYCLE\.BIN|Recovery|Config\.Msi|pagefile\.sys|swapfile\.sys|hiberfil\.sys)(?:[\\/]|$)/i.test(String(watchPath || ''));
+
+  assert.equal(watchRegex.test('D:\\System Volume Information'), true);
+  assert.equal(watchRegex.test('D:\\$RECYCLE.BIN\\S-1-5-21'), true);
+  assert.equal(watchPredicate('D:\\System Volume Information'), true);
+  assert.equal(watchPredicate('D:\\pagefile.sys'), true);
+  assert.equal(watchRegex.test('d:\\TechHat website\\Bijoy Converter\\src\\components\\PhotoCardStudio.svelte'), false);
+  assert.equal(watchPredicate('d:\\TechHat website\\Bijoy Converter\\src\\components\\PhotoCardStudio.svelte'), false);
+});
+
+runTest('PC-REG-ISS2-01', 'Issue 2A Regression: resolveElementTextColor preserves manual low-saturation, pastel, muted, and medium-green (#00bd74) colors 100% verbatim while keeping default auto-contrast intact', () => {
+  assert.equal(typeof Engine.resolveElementTextColor, 'function');
+
+  // Medium green RGB(0, 189, 116) -> #00bd74 on dark red #991b1b (WCAG contrast < 4.5) must NOT snap to #ffffff
+  assert.equal(Engine.resolveElementTextColor('#00bd74', '#fde047', '#991b1b'), '#00bd74');
+
+  // Muted slate #94a3b8 on dark slate #0f172a must be preserved verbatim
+  assert.equal(Engine.resolveElementTextColor('#94a3b8', '#ffffff', '#0f172a'), '#94a3b8');
+
+  // Soft light gray #cbd5e1 on white #ffffff must be preserved verbatim when manually picked
+  assert.equal(Engine.resolveElementTextColor('#cbd5e1', '#0f172a', '#ffffff'), '#cbd5e1');
+
+  // Pastel pink #fbcfe8 on warm paper #fffbeb must be preserved verbatim
+  assert.equal(Engine.resolveElementTextColor('#fbcfe8', '#0f172a', '#fffbeb'), '#fbcfe8');
+
+  // 3-digit hex shorthand normalizes cleanly to 6-digit hex verbatim
+  assert.equal(Engine.resolveElementTextColor('#0b7', '#ffffff', '#000000'), '#00bb77');
+
+  // Empty/unset manualColor still delegates to getEffectiveTextColor for uncustomized template defaults (R8 auto-contrast)
+  assert.equal(Engine.resolveElementTextColor('', '#ffffff', '#ffffff'), '#0f172a');
+  assert.equal(Engine.resolveElementTextColor(null, '#0f172a', '#0f172a'), '#ffffff');
+});
+
+runTest('PC-REG-ISS2-02', 'Issue 2A Canvas Regression: Manual low-saturation & medium-green font colors and badge BG colors render verbatim on templates and custom layers without contrast snapping', () => {
+  const state = Engine.getState();
+  const ctx = canvas.getContext('2d');
+
+  // 1. Classic News Card with manual medium green (#00bd74) headline & pastel (#fbcfe8) tagline + custom badge BG (#1e293b) & badge text (#86efac)
+  Engine.applyTemplate('classic-news-card', true);
+  state.headline = 'ম্যানুয়াল সবুজ রঙের শিরোনাম';
+  state.tagline = 'হালকা প্যাস্টেল সাব-টেক্সট';
+  state.badgeText = 'স্পেশাল ব্যাজ';
+  state.elementStyles = {
+    headline: { color: '#00bd74' },
+    tagline: { color: '#fbcfe8' },
+    badge: { color: '#86efac', bgColor: '#1e293b' }
+  };
+  ctx.__clearLog();
+  Engine.renderCard();
+
+  const textOps = ctx.__drawLog.filter(d => d.op === 'fillText');
+  assert.ok(textOps.some(d => d.fillStyle === '#00bd74'), 'Headline must draw in exact manual #00bd74 medium green');
+  assert.ok(textOps.some(d => d.fillStyle === '#fbcfe8'), 'Tagline must draw in exact manual #fbcfe8 pastel pink');
+  assert.ok(textOps.some(d => d.fillStyle === '#86efac'), 'Badge text must draw in exact manual #86efac pastel green');
+  const fillOps = ctx.__drawLog.filter(d => d.op === 'fill' || d.op === 'fillRect');
+  assert.ok(fillOps.some(d => d.fillStyle === '#1e293b'), 'Badge pill background must draw in exact manual #1e293b');
+
+  // Selecting template 'badge' must unhide both #pcCtxTextBgWrapper and #pcMiniTintGroup
+  Engine.selectElement('badge');
+  assert.equal(ctxTextBgWrapper.hidden, false, '#pcCtxTextBgWrapper must show when template badge is selected');
+  assert.equal(miniTintGroup.hidden, false, '#pcMiniTintGroup must show when template badge is selected');
+
+  // 2. Clean Paper Feature (custom template renderer) + Custom Text Layer with customColor: true
+  Engine.applyTemplate('clean-paper-feature', true);
+  state.headline = 'ক্লিন পেপার ম্যানুয়াল কালার';
+  state.elementStyles = { headline: { color: '#94a3b8' } };
+  Engine.addTextBox('heading');
+  const customTxt = state.customLayers[0];
+  customTxt.text = 'কাস্টম লেয়ার প্যাস্টেল';
+  customTxt.color = '#cbd5e1';
+  customTxt.textColor = '#cbd5e1';
+  customTxt.customColor = true;
+
+  ctx.__clearLog();
+  Engine.renderCard();
+  const paperTextOps = ctx.__drawLog.filter(d => d.op === 'fillText');
+  assert.ok(paperTextOps.some(d => d.fillStyle === '#94a3b8'), 'Clean Paper headline must honor manual muted #94a3b8');
+  assert.ok(paperTextOps.some(d => d.fillStyle === '#cbd5e1'), 'Custom text layer with customColor=true must honor manual light #cbd5e1');
+});
+
+runTest('PC-REG-ISS2-03', 'Issue 2B Regression: Zero sr-only color inputs in PhotoCardStudio.svelte and anchored #pcColorPopover positions beside clicked trigger with viewport clamping', () => {
+  // Static check: ZERO <input type="color"> tags with sr-only anywhere in PhotoCardStudio.svelte
+  const colorInputTags = svelteSrc.match(/<input[^>]*type=["']color["'][^>]*>/gi) || [];
+  assert.ok(colorInputTags.length >= 9, 'PhotoCardStudio.svelte must preserve color inputs');
+  for (const tag of colorInputTags) {
+    assert.equal(/\bsr-only\b/.test(tag), false, `Color input must never use sr-only (causes (0,0) OS picker bug): ${tag}`);
+  }
+
+  // Static check: Anchored #pcColorPopover markup & 28 curated swatches including #00bd74 and pastel tones
+  assert.ok(svelteSrc.includes('id="pcColorPopover"'), 'PhotoCardStudio.svelte must mount #pcColorPopover');
+  assert.ok(svelteSrc.includes('id="pcColorPopoverNativeInput"'), 'PhotoCardStudio.svelte must include full-cover #pcColorPopoverNativeInput');
+  assert.ok(svelteSrc.includes('id="pcColorPopoverHexInput"'), 'PhotoCardStudio.svelte must include live #pcColorPopoverHexInput');
+  assert.ok(svelteSrc.includes('data-pc-pop-swatch={swatchHex}'), 'Curated swatch grid must bind data-pc-pop-swatch');
+  const swatchBlockMatch = svelteSrc.match(/id="pcColorPopoverSwatches"[\s\S]*?\{#each\s*\[([\s\S]*?)\]\s*as\s+swatchHex\}/);
+  assert.ok(swatchBlockMatch, 'Curated swatch grid {#each} block must exist in #pcColorPopoverSwatches');
+  const swatchHexes = swatchBlockMatch[1].match(/#[0-9a-fA-F]{6}/g) || [];
+  assert.ok(swatchHexes.includes('#00bd74'), 'Curated swatch grid must include #00bd74 medium green');
+  assert.ok(swatchHexes.includes('#dcfce7') && swatchHexes.includes('#fbcfe8'), 'Curated swatch grid must include pastel swatches');
+  assert.equal(swatchHexes.length, 28, `Expected 28 curated swatches in #pcColorPopover, found ${swatchHexes.length}`);
+
+  // Dynamic positioning & viewport clamping check (never opens at (0, 0))
+  Engine.applyTemplate('breaking-news', true);
+  Engine.selectElement('headline');
+
+  const normalTrigger = createMockElement('button');
+  normalTrigger.getBoundingClientRect = () => ({ left: 420, top: 56, right: 452, bottom: 88, width: 32, height: 32 });
+  Engine.openColorPopover(normalTrigger, 'text');
+  assert.equal(colorPopover.hidden, false, 'openColorPopover must unhide #pcColorPopover');
+  assert.equal(colorPopover.style.left, '420px', 'Popover must align with trigger left edge');
+  assert.equal(colorPopover.style.top, '96px', 'Popover must open 8px below trigger bottom');
+
+  // Near bottom-right corner of 1440x900 viewport -> must clamp cleanly inside viewport
+  const edgeTrigger = createMockElement('button');
+  edgeTrigger.getBoundingClientRect = () => ({ left: 1390, top: 850, right: 1428, bottom: 882, width: 38, height: 32 });
+  Engine.openColorPopover(edgeTrigger, 'text');
+  const clampedLeft = parseInt(colorPopover.style.left, 10);
+  const clampedTop = parseInt(colorPopover.style.top, 10);
+  assert.ok(clampedLeft > 900 && clampedLeft <= 1440 - 276 - 12, `Right-edge popover left (${clampedLeft}) must clamp inside viewport`);
+  assert.ok(clampedTop > 300 && clampedTop < 850, `Bottom-edge popover top (${clampedTop}) must flip above trigger inside viewport`);
+
+  // Applying and resetting color via popover API
+  Engine.applyPopoverColor('#00bd74', 'text');
+  assert.equal(Engine.getState().elementStyles.headline.color, '#00bd74');
+  Engine.resetPopoverColor('text');
+  assert.equal(Engine.getState().elementStyles.headline.color, undefined, 'resetPopoverColor must restore auto-contrast default');
+  Engine.closeColorPopover();
+  assert.equal(colorPopover.hidden, true);
+});
+
+runTest('PC-REG-ISS3-01', 'Issue 3 Regression: Headline *Word* Highlight Color & Marker Mode render custom highlight colors verbatim and sync with toolbar & drawer controls', () => {
+  const state = Engine.getState();
+  const ctx = canvas.getContext('2d');
+
+  Engine.applyTemplate('classic-news-card', true);
+  state.headline = 'আজকের *গুরুত্বপূর্ণ* সংবাদ শিরোনাম';
+  state.highlightColor = '#00bd74';
+  state.highlightBgMode = 'text';
+
+  ctx.__clearLog();
+  Engine.renderCard();
+  let textOps = ctx.__drawLog.filter(d => d.op === 'fillText');
+  assert.ok(
+    textOps.some(d => d.text.includes('গুরুত্বপূর্ণ') && d.fillStyle === '#00bd74'),
+    'Highlighted *word* in text mode must render in exact state.highlightColor (#00bd74)'
+  );
+
+  // Switch to marker pill mode ('marker') and verify pill box fill uses state.highlightColor (#38bdf8)
+  state.highlightColor = '#38bdf8';
+  state.highlightBgMode = 'marker';
+  ctx.__clearLog();
+  Engine.renderCard();
+  const fillOps = ctx.__drawLog.filter(d => d.op === 'fill' || d.op === 'fillRect');
+  assert.ok(
+    fillOps.some(d => d.fillStyle === '#38bdf8'),
+    'Highlighted *word* in marker mode must draw marker background pill in #38bdf8'
+  );
+
+  // Per-element highlight override via popover 'highlight' mode
+  Engine.selectElement('headline');
+  Engine.openColorPopover(ctxHighlightColorBtn, 'highlight');
+  assert.equal(colorPopover.hidden, false);
+  Engine.applyPopoverColor('#f472b6', 'highlight');
+  assert.equal(state.highlightColor, '#f472b6');
+  assert.equal(state.elementStyles.headline.highlightColor, '#f472b6');
+});
+
+runTest('PC-REG-ISS4-01', 'Issue 4 Regression: Multi-Brand Kit saves multiple brand profiles (logo, website, phone, footer format, extra info, color palette) and auto-applies active brand on selection and across template switches', () => {
+  const state = Engine.getState();
+  Engine.init();
+
+  // Save Brand 1: TechHat News
+  const brand1 = Engine.saveBrandProfile({
+    name: 'টেকহ্যাট নিউজ',
+    website: 'www.techhat.com.bd',
+    phone: '০১৭০০-১১২২৩৩',
+    footerFormat: 'both',
+    extraInfo: 'ঢাকা, বাংলাদেশ',
+    logoDataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    primaryColor: '#059669',
+    accentColor: '#fde047',
+    bgColor: '#064e3b',
+    highlightColor: '#34d399',
+    applyColorsOnSelect: true
+  }, true);
+
+  // Save Brand 2: Jagoron Foundation
+  const brand2 = Engine.saveBrandProfile({
+    name: 'জাগরণ ফাউন্ডেশন',
+    website: 'jagoronbd.org',
+    phone: '০১৮১৯-৯৯৮৮৭৭',
+    footerFormat: 'both',
+    extraInfo: 'চট্টগ্রাম',
+    primaryColor: '#2563eb',
+    accentColor: '#38bdf8',
+    bgColor: '#0f172a',
+    highlightColor: '#60a5fa',
+    applyColorsOnSelect: true
+  }, true);
+
+  assert.equal(Engine.getBrandProfiles().length, 2, 'Both saved brand profiles must persist in localStorage');
+  assert.equal(Engine.getActiveBrandId(), brand2.id, 'Newly saved brand2 must become active');
+  assert.equal(state.brandName, 'জাগরণ ফাউন্ডেশন');
+  assert.equal(state.brandWebsite, 'jagoronbd.org');
+  assert.equal(state.brandPhone, '০১৮১৯-৯৯৮৮৭৭');
+  assert.equal(state.footerUrl, 'jagoronbd.org  •  ০১৮১৯-৯৯৮৮৭৭');
+  assert.equal(state.primaryColor, '#2563eb');
+  assert.equal(state.accentColor, '#38bdf8');
+  assert.equal(state.bgColor, '#0f172a');
+
+  // Switch back to Brand 1 in 1 click -> everything updates automatically!
+  Engine.selectBrandProfile(brand1.id);
+  assert.equal(Engine.getActiveBrandId(), brand1.id);
+  assert.equal(state.brandName, 'টেকহ্যাট নিউজ');
+  assert.equal(state.brandWebsite, 'www.techhat.com.bd');
+  assert.equal(state.brandPhone, '০১৭০০-১১২২৩৩');
+  assert.equal(state.footerUrl, 'www.techhat.com.bd  •  ০১৭০০-১১২২৩৩');
+  assert.equal(state.primaryColor, '#059669');
+  assert.equal(state.accentColor, '#fde047');
+  assert.equal(state.bgColor, '#064e3b');
+  assert.equal(state.highlightColor, '#34d399');
+
+  // Switching templates while Brand 1 is active MUST keep Brand 1's info & palette while still isolating customLayers & elementStyles!
+  state.customLayers = [{ id: 'temp_stk', layerType: 'badge', text: 'টেম্প' }];
+  state.elementStyles = { headline: { color: '#ff00aa' } };
+  Engine.applyTemplate('humanitarian-hotline-split', true);
+
+  assert.equal(state.customLayers.length, 0, 'Template switch must still clear customLayers');
+  assert.deepEqual(state.elementStyles, {}, 'Template switch must still clear elementStyles');
+  assert.equal(state.brandName, 'টেকহ্যাট নিউজ', 'Active brand name must persist across template switch');
+  assert.equal(state.brandWebsite, 'www.techhat.com.bd', 'Active brand website must persist across template switch');
+  assert.equal(state.brandPhone, '০১৭০০-১১২২৩৩', 'Active brand phone must persist across template switch');
+  assert.equal(state.primaryColor, '#059669', 'Active brand primaryColor must persist across template switch');
+  assert.equal(state.accentColor, '#fde047', 'Active brand accentColor must persist across template switch');
+
+  // Verify humanitarian-hotline-split renders both brandWebsite and brandPhone cleanly on canvas
+  const ctx = canvas.getContext('2d');
+  ctx.__clearLog();
+  Engine.renderCard();
+  const hotlineTexts = ctx.__drawLog.filter(d => d.op === 'fillText').map(d => d.text);
+  assert.ok(hotlineTexts.some(t => t.includes('www.techhat.com.bd')), 'Split footer left cell must render brandWebsite');
+  assert.ok(hotlineTexts.some(t => t.includes('০১৭০০-১১২২৩৩')), 'Split footer right cell must render brandPhone');
+
+  // Verify formatBrandFooterContact modes ('website', 'phone', 'both') and deactivateBrandProfile / deleteBrandProfile
+  assert.equal(Engine.formatBrandFooterContact({ website: 'techhat.com.bd', phone: '01700', footerFormat: 'website' }), 'techhat.com.bd');
+  assert.equal(Engine.formatBrandFooterContact({ website: 'techhat.com.bd', phone: '01700', footerFormat: 'phone' }), '01700');
+
+  Engine.deactivateBrandProfile();
+  assert.equal(Engine.getActiveBrandId(), '');
+  Engine.applyTemplate('duotone-poster', true);
+  assert.equal(state.primaryColor, Engine.TEMPLATES['duotone-poster'].primary, 'After deactivating brand, template switch restores template default colors');
+
+  Engine.deleteBrandProfile(brand1.id);
+  assert.equal(Engine.getBrandProfiles().length, 1);
+});
+
+/* =========================================================================
+ * 7B. CANVA-STYLE STUDIO UPGRADE REGRESSION SUITE (7 USER REQUIREMENTS)
+ * ========================================================================= */
+
+runTest('PC-REG-CANVA-01', 'Req 1: Live WYSIWYG on-canvas rich text editing (#pcInlineRichEditor) suppresses ghost double-draw and applies direct selection highlight without * asterisks', () => {
+  const state = Engine.getState();
+  const ctx = canvas.getContext('2d');
+
+  // Static UI contract: contenteditable #pcInlineRichEditor + #pcSelectionQuickBar + zero *শব্দ* instructions in UI or TEMPLATE_META
+  assert.ok(svelteSrc.includes('id="pcInlineRichEditor"') && svelteSrc.includes('contenteditable="true"'), 'PhotoCardStudio.svelte must mount contenteditable #pcInlineRichEditor');
+  assert.ok(svelteSrc.includes('id="pcSelectionQuickBar"'), 'PhotoCardStudio.svelte must mount floating #pcSelectionQuickBar');
+  assert.ok(svelteSrc.includes('id="pcClearHighlightBtn"'), 'PhotoCardStudio.svelte must mount #pcClearHighlightBtn');
+  assert.equal(svelteSrc.includes('*শব্দ*'), false, 'PhotoCardStudio.svelte must have zero *শব্দ* asterisk prompt text');
+
+  for (const [tplId, meta] of Object.entries(Engine.TEMPLATES)) {
+    const labelStr = JSON.stringify(meta.labels || {});
+    assert.equal(labelStr.includes('*'), false, `Template ${tplId} field labels must not instruct users to type *asterisks*: ${labelStr}`);
+  }
+
+  // Runtime: Direct character-range highlight without * syntax
+  Engine.applyTemplate('charity-appeal', true);
+  state.headline = 'বন্যাকবলিত পানিবন্দি ৫০০ অসহায় পরিবারের মুখে খাবার তুলে দিতে এগিয়ে আসুন';
+  state.highlightColor = '#facc15';
+  state.highlightBgMode = 'text';
+  Engine.setElRichSpans('headline', state.headline, []);
+
+  const targetPhrase = '৫০০ অসহায় পরিবারের';
+  const startIdx = state.headline.indexOf(targetPhrase);
+  assert.ok(startIdx > 0, 'Target phrase must exist in clean asterisk-free headline');
+  const endIdx = startIdx + targetPhrase.length;
+
+  const applied = Engine.applySelectionHighlight('#22c55e', 'text', 'headline', startIdx, endIdx);
+  assert.equal(applied, true, 'applySelectionHighlight must succeed on direct character range');
+  assert.equal(state.headline.includes('*'), false, 'Direct highlight must NEVER inject * characters into state.headline');
+
+  const spans = Engine.getElRichSpans('headline', state.headline);
+  assert.equal(spans.length, 1, 'Headline richSpans must record exact highlighted span');
+  assert.equal(state.headline.slice(spans[0].start, spans[0].end), targetPhrase);
+  assert.equal(spans[0].color, '#22c55e');
+
+  ctx.__clearLog();
+  Engine.renderCard();
+  const fillTexts = ctx.__drawLog.filter(d => d.op === 'fillText');
+  assert.ok(fillTexts.some(d => d.fillStyle === '#22c55e'), 'Canvas must render directly highlighted range in #22c55e without asterisks');
+
+  // Opening live WYSIWYG inline editor must show #pcInlineRichEditor (not dark textarea) and suppress duplicate canvas headline glyphs!
+  Engine.selectElement('headline');
+  Engine.openInlineEditorForElement('headline');
+  assert.equal(inlineRichEditor.hidden, false, 'openInlineEditorForElement must unhide live #pcInlineRichEditor');
+  assert.ok(inlineRichEditor.innerHTML.includes('data-rich-hi="1"'), 'Live rich editor HTML must render highlighted span inline');
+
+  ctx.__clearLog();
+  Engine.renderCard();
+  const whileEditingTexts = ctx.__drawLog.filter(d => d.op === 'fillText').map(d => d.text);
+  assert.equal(
+    whileEditingTexts.some(t => t.includes('বন্যাকবলিত') || t.includes('পানিবন্দি')),
+    false,
+    'Canvas must skip drawing headline glyphs behind live #pcInlineRichEditor so text is never ghosted/doubled'
+  );
+
+  Engine.closeInlineEditor(false);
+  assert.equal(inlineRichEditor.hidden, true, 'closeInlineEditor must hide #pcInlineRichEditor');
+
+  // Clear highlight restores clean unhighlighted text
+  Engine.clearSelectionHighlight('headline');
+  assert.equal(Engine.getElRichSpans('headline', state.headline).length, 0, 'clearSelectionHighlight must remove rich highlight spans');
+});
+
+runTest('PC-REG-CANVA-02', 'Req 2: Fixed authentic vector icons for Nagad (নগদ), Rocket (রকেট), and Call/Phone across Canvas & Svelte UI while preserving bKash', () => {
+  const ctx = canvas.getContext('2d');
+
+  // 1. bKash preserved (8 origami polygons)
+  assert.equal(Engine.PAYMENT_VECTORS.bkash.polygons.length, 8, 'bKash 8-polygon origami vector must remain intact');
+
+  // 2. Nagad upgraded to crisp 6-path coin ring + flame + figure emblem
+  const nagadSpec = Engine.PAYMENT_VECTORS.nagad;
+  assert.ok(nagadSpec && Array.isArray(nagadSpec.paths) && nagadSpec.paths.length === 6, 'Nagad vector must use crisp 6-path multi-tone emblem');
+  assert.ok(svelteSrc.includes('viewBox="0 0 54 54"') && svelteSrc.includes('#f7941d') && svelteSrc.includes('#ed1c24'), 'Svelte Elements drawer must render matching crisp Nagad SVG');
+
+  // 3. Rocket upgraded to crisp 6-path DBBL purple square + orbit swoosh + rocket + porthole + flame
+  const rocketSpec = Engine.PAYMENT_VECTORS.rocket;
+  assert.ok(rocketSpec && Array.isArray(rocketSpec.paths) && rocketSpec.paths.length === 6, 'Rocket vector must use crisp 6-path DBBL Rocket emblem');
+  assert.ok(svelteSrc.includes('viewBox="46 6 116 114"') && svelteSrc.includes('#8c3494') && svelteSrc.includes('#6d2077'), 'Svelte Elements drawer must render matching crisp Rocket SVG');
+
+  // 4. Call / Phone icon renders authentic handset path on canvas and in Svelte UI
+  assert.ok(svelteSrc.includes('M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2'), 'Svelte UI must render authentic telephone handset SVG path for phone/call');
+
+  ctx.__clearLog();
+  Engine.drawBrandVectorIcon(ctx, 'nagad', 200, 200, 64);
+  Engine.drawBrandVectorIcon(ctx, 'rocket', 320, 200, 64);
+  Engine.drawUiVectorIcon(ctx, 'phone', 440, 200, 56, '#ffffff');
+  const fills = ctx.__drawLog.filter(d => d.op === 'fill');
+  assert.ok(fills.length >= 13, `Expected >=13 vector fill operations for Nagad(6)+Rocket(6)+Phone(1), got ${fills.length}`);
+});
+
+runTest('PC-REG-CANVA-03', 'Req 3: Canva-style organized Brand Kit Hub with search, active Brand Kit switcher dropdown, section navigation, and structured asset cards', () => {
+  assert.ok(svelteSrc.includes('id="pcBrandSearchInput"'), 'Brand drawer must include Canva search input');
+  assert.ok(svelteSrc.includes('id="pcBrandKitDropdownBtn"') && svelteSrc.includes('id="pcBrandKitDropdownMenu"'), 'Brand drawer must include Canva Brand Kit switcher dropdown');
+  assert.ok(svelteSrc.includes('id="pcBrandSectionNav"'), 'Brand drawer must include Canva section nav');
+  ['logos', 'colors', 'fonts', 'info', 'graphics', 'saved'].forEach(cardKey => {
+    assert.ok(svelteSrc.includes(`data-brand-card="${cardKey}"`), `Brand drawer must organize ${cardKey} into a Canva asset card`);
+  });
+
+  // Section drill-down & reset behavior
+  Engine.setBrandSection('colors');
+  assert.equal(brandCardMap.colors.hidden, false, 'Selecting Colors section must show Colors asset card');
+  assert.equal(brandCardMap.logos.hidden, true, 'Selecting Colors section must hide Logos card');
+  assert.equal(brandCardMap.info.hidden, true, 'Selecting Colors section must hide Info card');
+  assert.equal(brandBackToAllBtn.hidden, false, 'Back to all assets button must appear when drilled into a Brand section');
+
+  Engine.setBrandSection('all');
+  assert.equal(brandCardMap.logos.hidden, false);
+  assert.equal(brandCardMap.colors.hidden, false);
+  assert.equal(brandBackToAllBtn.hidden, true);
+});
+
+runTest('PC-REG-CANVA-04', 'Req 4: Canva-style organized Elements Hub with compact shelves, See-All drill-down, search filtering, 24 UI icons, 13 social logos, 21 shapes, and 12 graphics', () => {
+  assert.ok(svelteSrc.includes('id="pcElementsSearchInput"'), 'Elements drawer must include search input');
+  assert.ok(svelteSrc.includes('id="pcElementsCatChips"'), 'Elements drawer must include category chips');
+  ['icons', 'social', 'payment', 'shapes', 'graphics', 'badges', 'colors'].forEach(shelfId => {
+    assert.ok(svelteSrc.includes(`data-el-shelf="${shelfId}"`), `Elements drawer must include organized "${shelfId}" shelf`);
+  });
+
+  // Default overview ('all'): every shelf visible, overflow items collapsed so nothing is dumped open at once!
+  elementsSearchInput.value = '';
+  Engine.setElementsCategory('all');
+  assert.equal(elementsDrillHeader.hidden, true, 'Overview mode must hide drill-down header');
+  assert.equal(elShelfMap.icons.shelf.hidden, false);
+  assert.equal(elShelfMap.social.shelf.hidden, false);
+  assert.equal(elShelfMap.icons.item0.hidden, false, 'Preview shelf items must be visible in overview');
+  assert.equal(elShelfMap.icons.itemOverflow.hidden, true, 'Overflow items must stay collapsed in overview mode');
+
+  // Drill down into 'social' ('See all' / category chip) -> only social shelf visible, overflow items expanded!
+  Engine.setElementsCategory('social');
+  assert.equal(elementsDrillHeader.hidden, false, 'Category drill-down must show back header');
+  assert.equal(elShelfMap.social.shelf.hidden, false);
+  assert.equal(elShelfMap.social.itemOverflow.hidden, false, 'Drill-down must reveal all overflow items in that category');
+  assert.equal(elShelfMap.icons.shelf.hidden, true, 'Other shelves must hide during category drill-down');
+  assert.equal(elShelfMap.shapes.shelf.hidden, true);
+
+  // Reset back to All Elements
+  Engine.setElementsCategory('all');
+  assert.equal(elShelfMap.icons.shelf.hidden, false);
+  assert.equal(elShelfMap.social.itemOverflow.hidden, true);
+
+  // Verify rich layer creation for standalone UI Icon, Social Logo, and Graphic Element
+  Engine.applyTemplate('breaking-news', true);
+  const state = Engine.getState();
+  const iconLyr = Engine.addUiIconLayer('phone', '#ffffff', '#16a34a', 'circle');
+  const socLyr = Engine.addSocialLogoLayer('facebook', 'fb.com/techhat');
+  const gfxLyr = Engine.addGraphicElementLayer('islamic-arch', '#059669', '#fde047', 300, 200);
+  assert.equal(state.customLayers.length, 3, 'UI icon, social logo, and graphic element layers must be added cleanly');
+  assert.equal(iconLyr.layerType, 'icon');
+  assert.equal(socLyr.layerType, 'social');
+  assert.equal(gfxLyr.layerType, 'graphic');
+  assert.ok(Object.keys(Engine.SOCIAL_BRAND_VECTORS).length >= 13, 'Engine must provide >=13 authentic social brand vectors');
+});
+
+runTest('PC-REG-CANVA-05', 'Req 5: Accurate Lock/Unlock padlock icon state — unlocked layer shows open padlock (neutral), locked layer shows closed padlock, hides transform handles, and unlocks in 1 click', () => {
+  Engine.applyTemplate('breaking-news', true);
+  Engine.renderCard();
+  Engine.selectElement('badge');
+
+  // Unlocked state: open padlock SVG path ("9.9-1"), handles visible, not locked
+  assert.equal(selBox.getAttribute('data-locked'), 'false');
+  assert.ok(miniLockBtn.querySelector('svg').innerHTML.includes('9.9-1'), 'Unlocked #pcMiniLockBtn must show open padlock shackle (9.9-1)');
+  assert.ok(topLockBtn.querySelector('svg').innerHTML.includes('9.9-1'), 'Unlocked #pcTopLockBtn must show open padlock shackle (9.9-1)');
+  assert.equal(selMoveHandle.hidden, false, 'Move handle must be visible when unlocked');
+  assert.equal(selRotHandle.hidden, false, 'Rotate handle must be visible when unlocked');
+  assert.equal(miniEditBtn.hidden, false, 'Mini Edit button must be visible when unlocked');
+  assert.equal(miniDelBtn.hidden, false, 'Mini Delete button must be visible when unlocked');
+
+  // Lock the selected element
+  Engine.toggleLockSelectedElement();
+  assert.equal(selBox.getAttribute('data-locked'), 'true');
+  assert.ok(miniLockBtn.querySelector('svg').innerHTML.includes('10 0v4'), 'Locked #pcMiniLockBtn must show closed padlock shackle (10 0v4)');
+  assert.ok(topLockBtn.querySelector('svg').innerHTML.includes('10 0v4'), 'Locked #pcTopLockBtn must show closed padlock shackle (10 0v4)');
+  assert.equal(selMoveHandle.hidden, true, 'Move handle must hide when locked');
+  assert.equal(selRotHandle.hidden, true, 'Rotate handle must hide when locked');
+  assert.equal(miniEditBtn.hidden, true, 'Mini Edit button must hide when locked');
+  assert.equal(miniDelBtn.hidden, true, 'Mini Delete button must hide when locked');
+  assert.equal(ctxPanels.locked.hidden, false, 'Top context toolbar must switch to locked banner when layer is locked');
+
+  // Unlock in 1 click -> open padlock and handles restored
+  Engine.toggleLockSelectedElement();
+  assert.equal(selBox.getAttribute('data-locked'), 'false');
+  assert.ok(miniLockBtn.querySelector('svg').innerHTML.includes('9.9-1'), 'Unlocking must restore open padlock icon');
+  assert.equal(selMoveHandle.hidden, false);
+  assert.equal(ctxPanels.text.hidden, false, 'Unlocking badge must restore text context panel');
+});
+
+runTest('PC-REG-CANVA-06', 'Req 6: Canva-style Position & Layers panel (Arrange | Layers) with All/Overlapping filter, visual Z-order stack, reorder, visibility & lock toggles', () => {
+  assert.ok(svelteSrc.includes('data-pc-drawer="position"'), 'PhotoCardStudio.svelte must mount Position & Layers drawer');
+  assert.ok(svelteSrc.includes('id="pcLayersStackList"'), 'Position drawer must mount visual #pcLayersStackList');
+  assert.ok(svelteSrc.includes('data-open-layers-panel="1"'), 'Right-click Layer submenu must include Show layers trigger');
+
+  Engine.applyTemplate('breaking-news', true);
+  Engine.addTextBox('heading');
+  Engine.addShapeLayer('pill', '#2563eb', '#ffffff', 300, 90, 45);
+  const state = Engine.getState();
+  assert.equal(state.customLayers.length, 2);
+  const firstId = state.customLayers[0].id;
+  const secondId = state.customLayers[1].id;
+
+  Engine.openPositionDrawer('layers');
+  assert.equal(positionDrawer.hidden, false, 'openPositionDrawer("layers") must open position drawer');
+  assert.equal(posLayersPane.hidden, false, 'Layers pane must be visible');
+  assert.equal(posArrangePane.hidden, true, 'Arrange pane must be hidden when Layers tab is active');
+  assert.ok(layersStackList.innerHTML.includes('layer:' + secondId), 'Layers stack must render custom shape layer card');
+  assert.ok(layersStackList.innerHTML.includes('headline'), 'Layers stack must render template headline layer card');
+  assert.ok(layersStackList.innerHTML.includes('data-select-layer="card"'), 'Layers stack must render bottom background card row');
+
+  // Top-to-bottom Canva Z-order: topmost custom layer ('secondId') appears BEFORE 'firstId' in visual stack HTML!
+  const idxTop = layersStackList.innerHTML.indexOf('layer:' + secondId);
+  const idxBelow = layersStackList.innerHTML.indexOf('layer:' + firstId);
+  assert.ok(idxTop !== -1 && idxBelow !== -1 && idxTop < idxBelow, 'Visual layer stack must render topmost Z-order layer above lower layer');
+
+  // Drag-and-drop reorder via reorderLayerByDrop swaps Z-order
+  Engine.reorderLayerByDrop('layer:' + secondId, 'layer:' + firstId);
+  assert.equal(state.customLayers[0].id, secondId, 'Dropping top layer onto lower layer must reorder customLayers array');
+
+  // Visibility & Lock toggles by layer ID
+  Engine.toggleVisibilityElementById('badge');
+  assert.equal(state.elementHidden.badge, true, 'toggleVisibilityElementById must hide layer');
+  Engine.toggleVisibilityElementById('badge');
+  assert.equal(state.elementHidden.badge, false, 'Second toggleVisibilityElementById must unhide layer');
+
+  // Switch to Arrange tab and verify X/Y/W/H/Rot populate for selected element
+  Engine.selectElement('layer:' + secondId);
+  Engine.openPositionDrawer('arrange');
+  assert.equal(posArrangePane.hidden, false);
+  assert.ok(Number(posAdvW.value) > 0 && Number(posAdvH.value) > 0, 'Arrange Advanced W/H inputs must reflect selected layer dimensions');
+});
+
+runTest('PC-REG-CANVA-07', 'Req 7: Dynamic layer-aware top #pcContextToolbar switches per layer type (card, text, photo, shape, vector, logo, locked) and universal Transparency (0-100%) updates canvas alpha', () => {
+  const state = Engine.getState();
+  const ctx = canvas.getContext('2d');
+
+  const assertOnlyActivePanel = (expected) => {
+    for (const [k, el] of Object.entries(ctxPanels)) {
+      assert.equal(el.hidden, k !== expected, `Expected context panel "${k}".hidden=${k !== expected} when active panel is "${expected}"`);
+    }
+  };
+
+  Engine.applyTemplate('breaking-news', true);
+  state.logoImg = new MockImage();
+  state.logoImg._src = 'data:image/png;base64,logo';
+  Engine.renderCard();
+
+  // 1. Card background selected
+  Engine.selectElement('card');
+  assertOnlyActivePanel('card');
+
+  // 2. Text layer selected ('headline')
+  Engine.selectElement('headline');
+  assertOnlyActivePanel('text');
+
+  // 3. Photo slot selected ('photo')
+  Engine.selectElement('photo');
+  assertOnlyActivePanel('photo');
+
+  // 4. Brand Logo selected ('logo')
+  Engine.selectElement('logo');
+  assertOnlyActivePanel('logo');
+
+  // 5. Shape layer selected
+  Engine.addShapeLayer('rounded', '#dc2626', '#ffffff', 320, 100, 16);
+  assertOnlyActivePanel('shape');
+
+  // 6. Vector / Icon / Social layer selected
+  const vecLayer = Engine.addUiIconLayer('phone', '#ffffff', '#2563eb', 'circle');
+  assertOnlyActivePanel('vector');
+
+  // 7. Universal Transparency (0-100%) via setElementOpacity + anchored #pcToolPopover
+  const vecElId = 'layer:' + vecLayer.id;
+  const anchorBtn = createMockElement('button');
+  anchorBtn.getBoundingClientRect = () => ({ left: 720, top: 56, right: 760, bottom: 88, width: 40, height: 32 });
+  Engine.openToolPopover(anchorBtn, 'transparency');
+  assert.equal(toolPopover.hidden, false, 'openToolPopover("transparency") must unhide #pcToolPopover');
+  assert.equal(toolPopSections.transparency.hidden, false, 'Transparency section in #pcToolPopover must be visible');
+  assert.equal(popOpacityInput.value, '100', 'Initial layer transparency must be 100%');
+
+  Engine.setElementOpacity(vecElId, 0.45);
+  assert.equal(Math.round(Engine.getElementOpacity(vecElId) * 100), 45, 'getElementOpacity must reflect 45% opacity');
+  Engine.selectElement(vecElId);
+  assert.equal(topTransparencyVal.textContent, '45%', 'Top toolbar #pcTopTransparencyVal must display 45%');
+
+  Engine.closeToolPopover();
+  assert.equal(toolPopover.hidden, true);
 });
 
 /* =========================================================================

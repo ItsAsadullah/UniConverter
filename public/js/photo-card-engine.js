@@ -23,6 +23,8 @@
   var ACTIVE_DESIGN_KEY = 'thbc_pc_active_design_v2';
   var BRAND_PREF_KEY = 'thbc_pc_brand_pref_v2';
   var LEGACY_BRAND_KEY = 'techhat_pc_brand_v1';
+  var BRAND_PROFILES_KEY = 'th_photocard_brand_profiles_v1';
+  var ACTIVE_BRAND_KEY = 'th_photocard_active_brand_v1';
 
   var BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
   var BN_MONTHS = [
@@ -457,7 +459,7 @@
       defaultFooter: 'সম্পূর্ণ পর্ব দেখুন ইউটিউব ও ফেসবুকে',
       labels: {
         badge: 'পডকাস্ট / টকশো ব্যাজ:',
-        headline: 'হাইলাইট সংলাপ (*শব্দ* দিলে মার্কার হবে):',
+        headline: 'হাইলাইট সংলাপ (সিলেক্ট করে মার্কার রঙ দিন):',
         tagline: 'অতিথি বা বক্তার নাম:',
         detail: 'শো বা পর্বের নাম:'
       }
@@ -718,7 +720,7 @@
       defaultFooter: 'সৎ পরামর্শ সবার জন্য ছড়িয়ে দিন',
       labels: {
         badge: 'উপদেশের ক্যাটাগরি বা বিষয়বস্তু:',
-        headline: 'মূল উপদেশ বা নসিহত বাক্য (*মার্কড* শব্দ হাইলাইট হবে):',
+        headline: 'মূল উপদেশ বা নসিহত বাক্য (সিলেক্ট করে হাইলাইট করুন):',
         tagline: 'উপদেশের প্রেক্ষাপট বা উৎস:',
         detail: 'বক্তার নাম বা উদ্ধৃতি বিবরণ:'
       }
@@ -760,7 +762,7 @@
       defaultFooter: 'হাস্যরসের উদ্দেশ্যে প্রকাশিত • বাস্তবের সাথে মিল কাকতালীয়',
       labels: {
         badge: 'স্যাটায়ার ক্যাটাগরি বা কর্নার ব্যাজ:',
-        headline: 'হাস্যরসাত্মক শিরোনাম (*মার্কড* অংশ গোল্ডেন কালার হবে):',
+        headline: 'হাস্যরসাত্মক শিরোনাম (সিলেক্ট করে গোল্ডেন হাইলাইট করুন):',
         tagline: 'গোল্ডেন স্টার ডিভাইডার টেক্সট (যেমন: ক্যাম্পাস ট্রল সংসদ):',
         detail: 'সংবাদের সূত্র বা বিশেষ নোট:'
       }
@@ -802,7 +804,7 @@
       defaultFooter: 'নিয়মিত কুরআনের অর্থ ও তাফসির পড়ুন • ilman.org',
       labels: {
         badge: 'সিরিজ বা ক্যাটাগরি পিল (যেমন: একটুখানি কুরআন সিরিজ):',
-        headline: 'সূরার নাম (যেমন: সূরা *আল হাজ্জ*):',
+        headline: 'সূরার নাম (যেমন: সূরা আল হাজ্জ):',
         tagline: 'আয়াত নম্বর বা সাবটাইটেল (যেমন: আয়াত: ৫-৭):',
         detail: 'আয়াতের অর্থ, পূর্ণ তাফসির বা সম্পাদকীয় বিবরণ:'
       }
@@ -823,7 +825,7 @@
       defaultFooter: 'www.thoughtleaders.org • বিস্তারিত ক্যাপশনে....',
       labels: {
         badge: 'টপ ব্র্যান্ড বা প্ল্যাটফর্মের নাম:',
-        headline: 'ফ্লোটিং কার্ডের মূল উক্তি (হাইলাইটের জন্য *শব্দ* দিন):',
+        headline: 'ফ্লোটিং কার্ডের মূল উক্তি (সিলেক্ট করে হাইলাইট করুন):',
         tagline: 'বক্তার নাম ও পদবি (যেমন: মীর শাহে আলম):',
         detail: 'নিচের ডেকে চিন্তাশীল সম্পাদকীয় বা রিফ্লেকশন নোট:'
       }
@@ -865,7 +867,7 @@
       defaultFooter: 'facebook.com/dawah • সহীহ ইলম সবার জন্য',
       labels: {
         badge: 'বিষয় বা নসিহত ক্যাটাগরি:',
-        headline: 'স্কলারের পূর্ণ বক্তব্য (লাল আন্ডারলাইনের জন্য *শব্দ* দিন):',
+        headline: 'স্কলারের পূর্ণ বক্তব্য (সিলেক্ট করে লাল আন্ডারলাইন দিন):',
         tagline: 'বক্তার নাম (যেমন: -শায়েখ জামশেদ মজুমদার হা:):',
         detail: 'সম্পূরক নসিহত বা সারসংক্ষেপ বার্তা:'
       }
@@ -886,7 +888,7 @@
       defaultFooter: 'হাদিসটি বন্ধুদের সাথে শেয়ার করে সওয়াব অর্জন করুন',
       labels: {
         badge: 'জুমুআ বা উপলক্ষ্য পরিচিতি:',
-        headline: 'শিরোনাম ও রিবন টেক্সট (রিবনের জন্য *শব্দ* দিন):',
+        headline: 'শিরোনাম ও রিবন টেক্সট (সিলেক্ট করে রিবন হাইলাইট করুন):',
         tagline: 'হাদিসের কিতাব ও নম্বর (যেমন: সুনানে আবু দাউদ):',
         detail: 'হাদিসের পূর্ণ আরবি/বাংলা মতন ও নসিহত:'
       }
@@ -907,7 +909,7 @@
       defaultFooter: 'tools.techhat.com.bd/image • ফ্রি গ্রাফিক রিসোর্স',
       labels: {
         badge: 'অফার/রিসোর্স ব্যাজ (যেমন: ফ্রি ডাউনলোড, প্রিমিয়াম ভেক্টর):',
-        headline: 'শোকেস শিরোনাম (স্টার দিয়ে হাইলাইট করুন):',
+        headline: 'শোকেস শিরোনাম (সিলেক্ট করে হাইলাইট করুন):',
         tagline: 'কল-টু-অ্যাকশন ও অ্যারো নির্দেশনা:',
         detail: 'ফাইলের ফরম্যাট ও লাইসেন্স বিবরণ:'
       }
@@ -929,7 +931,7 @@
       labels: {
         badge: 'ক্যাটাগরি ব্যাজ (যেমন: সহীহ হাদিস, জুমুআ স্মরণিকা):',
         headline: 'হাদিস সম্বোধন / ভূমিকা (যেমন: রাসূলুল্লাহ ﷺ বলেনঃ):',
-        detail: 'মূল হাদিসের বক্তব্য (স্টার দিয়ে হাইলাইট করুন):',
+        detail: 'মূল হাদিসের বক্তব্য (সিলেক্ট করে হাইলাইট করুন):',
         tagline: 'হাদিস গ্রন্থ ও সনদ রেফারেন্স:'
       }
     },
@@ -949,7 +951,7 @@
       defaultFooter: 'www.channel24bd.tv • বিস্তারিত কমেন্টে ⌵',
       labels: {
         badge: 'টিভি বুলেটিন ব্যাজ (যেমন: ব্রেকিং নিউজ, বিশেষ বুলেটিন):',
-        headline: 'সংবাদ শিরোনাম (স্টার দিয়ে মূল রায়/ফলাফল হাইলাইট করুন):',
+        headline: 'সংবাদ শিরোনাম (সিলেক্ট করে মূল রায়/ফলাফল হাইলাইট করুন):',
         tagline: 'উপ-শিরোনাম বা আদালতের বিবরণ:',
         detail: 'সংবাদের বিস্তারিত তথ্য:'
       }
@@ -970,7 +972,7 @@
       defaultFooter: 'baaleralo.com • স্যাটায়ার ও রম্য পরিবেশনা',
       labels: {
         badge: 'প্যারোডি বিভাগ (যেমন: ব্যঙ্গ-রস, রম্য সম্পাদকীয়):',
-        headline: 'স্যাটায়ার শিরোনাম (১ম লাইন সাধারণ, ২য় লাইন স্টার দিয়ে লাল হাইলাইট):',
+        headline: 'স্যাটায়ার শিরোনাম (১ম লাইন সাধারণ, ২য় লাইন সিলেক্ট করে লাল হাইলাইট):',
         tagline: 'বিতর্ক বা প্রসঙ্গ বিষয়:',
         detail: 'নেটিজেন প্রতিক্রিয়া বা বিস্তারিত কমেন্ট:'
       }
@@ -1314,6 +1316,149 @@
     }
   }
 
+  function normalizeRichSpans(spans, maxLen) {
+    if (!Array.isArray(spans) || !spans.length) return [];
+    var limit = typeof maxLen === 'number' && maxLen >= 0 ? maxLen : 100000;
+    var valid = [];
+    for (var i = 0; i < spans.length; i++) {
+      var sp = spans[i];
+      if (!sp) continue;
+      var st = Math.max(0, Math.min(limit, Math.round(Number(sp.start) || 0)));
+      var en = Math.max(0, Math.min(limit, Math.round(Number(sp.end) || 0)));
+      if (en > st) {
+        valid.push({
+          start: st,
+          end: en,
+          color: sp.color ? String(sp.color) : '',
+          mode: sp.mode ? String(sp.mode) : ''
+        });
+      }
+    }
+    if (!valid.length) return [];
+    valid.sort(function (a, b) { return a.start - b.start || a.end - b.end; });
+    var merged = [valid[0]];
+    for (var j = 1; j < valid.length; j++) {
+      var cur = valid[j];
+      var prev = merged[merged.length - 1];
+      if (cur.start <= prev.end && cur.color === prev.color && cur.mode === prev.mode) {
+        prev.end = Math.max(prev.end, cur.end);
+      } else {
+        merged.push(cur);
+      }
+    }
+    return merged;
+  }
+
+  function extractRichTextAndSpans(rawStr) {
+    var s = String(rawStr == null ? '' : rawStr);
+    if (s.indexOf('*') === -1) return { text: s, spans: [] };
+    var re = /\*([^*\n]+)\*/g;
+    var clean = '';
+    var spans = [];
+    var lastIdx = 0;
+    var m;
+    while ((m = re.exec(s)) !== null) {
+      clean += s.slice(lastIdx, m.index);
+      var seg = m[1];
+      if (seg.length > 0) {
+        var stIdx = clean.length;
+        clean += seg;
+        spans.push({ start: stIdx, end: clean.length, color: '', mode: '' });
+      }
+      lastIdx = m.index + m[0].length;
+    }
+    if (!spans.length) return { text: s, spans: [] };
+    clean += s.slice(lastIdx);
+    return { text: clean, spans: normalizeRichSpans(spans, clean.length) };
+  }
+
+  function applyHighlightRangeToSpans(existingSpans, rangeStart, rangeEnd, opts, textLen) {
+    var limit = typeof textLen === 'number' ? textLen : 100000;
+    var rs = Math.max(0, Math.min(limit, Math.round(Number(rangeStart) || 0)));
+    var re = Math.max(0, Math.min(limit, Math.round(Number(rangeEnd) || 0)));
+    if (re <= rs) return normalizeRichSpans(existingSpans, limit);
+    var carved = [];
+    var src = Array.isArray(existingSpans) ? existingSpans : [];
+    for (var i = 0; i < src.length; i++) {
+      var sp = src[i];
+      if (!sp || sp.end <= sp.start) continue;
+      if (sp.end <= rs || sp.start >= re) {
+        carved.push({ start: sp.start, end: sp.end, color: sp.color || '', mode: sp.mode || '' });
+      } else {
+        if (sp.start < rs) {
+          carved.push({ start: sp.start, end: rs, color: sp.color || '', mode: sp.mode || '' });
+        }
+        if (sp.end > re) {
+          carved.push({ start: re, end: sp.end, color: sp.color || '', mode: sp.mode || '' });
+        }
+      }
+    }
+    if (opts && !opts.clear) {
+      carved.push({
+        start: rs,
+        end: re,
+        color: opts.color ? String(opts.color) : '',
+        mode: opts.mode ? String(opts.mode) : ''
+      });
+    }
+    return normalizeRichSpans(carved, limit);
+  }
+
+  function adjustRichSpansForTextEdit(oldText, newText, spans) {
+    var a = String(oldText || '');
+    var b = String(newText || '');
+    if (!Array.isArray(spans) || !spans.length || !b.length) return [];
+    if (a === b) return normalizeRichSpans(spans, b.length);
+    var p = 0;
+    var minLen = Math.min(a.length, b.length);
+    while (p < minLen && a.charCodeAt(p) === b.charCodeAt(p)) p++;
+    var sa = a.length;
+    var sb = b.length;
+    while (sa > p && sb > p && a.charCodeAt(sa - 1) === b.charCodeAt(sb - 1)) {
+      sa--;
+      sb--;
+    }
+    // If virtually the entire text was replaced (e.g. programmatic assignment or full paste), drop stale spans
+    if ((p === 0 && sa === a.length) || (a.length >= 6 && (p + (a.length - sa)) <= 2)) {
+      return [];
+    }
+    var delta = sb - sa;
+    var out = [];
+    for (var i = 0; i < spans.length; i++) {
+      var sp = spans[i];
+      if (!sp) continue;
+      var ns = sp.start;
+      var ne = sp.end;
+      if (ne <= p) {
+        // Unchanged before edit
+      } else if (ns >= sa) {
+        ns += delta;
+        ne += delta;
+      } else if (ns <= p && ne >= sa) {
+        ne = Math.max(ns, ne + delta);
+      } else if (ns >= p && ne <= sa) {
+        // Edited directly inside replaced range -> shrink or keep if text inserted
+        if (sb > p) {
+          ns = p;
+          ne = Math.min(sb, p + (sp.end - sp.start));
+        } else {
+          ne = ns;
+        }
+      } else if (ns < p) {
+        ne = p;
+      } else {
+        ns = sb;
+        ne = ne + delta;
+      }
+      if (ne > ns) {
+        out.push({ start: ns, end: ne, color: sp.color || '', mode: sp.mode || '' });
+      }
+    }
+    return normalizeRichSpans(out, b.length);
+  }
+
+  var initRichHeadline = extractRichTextAndSpans(initMeta.headline);
+
   var state = {
     designId: uid('design'),
     designTitle: 'নতুন ফটোকার্ড ডিজাইন',
@@ -1325,7 +1470,7 @@
 
     // Contextual Text
     badge: initMeta.badge,
-    headline: initMeta.headline,
+    headline: initRichHeadline.text,
     tagline: initMeta.tagline,
     detail: initMeta.detail,
     footerUrl: initMeta.defaultFooter,
@@ -1337,6 +1482,10 @@
 
     // Branding & Uploads
     brandName: initMeta.defaultBrand,
+    brandWebsite: '',
+    brandPhone: '',
+    brandExtraInfo: '',
+    brandFooterFormat: 'both',
     userEditedBrand: false,
     logoPos: 'top-right',
     logoBgStyle: 'light',
@@ -1344,12 +1493,16 @@
     logoCustomX: null,
     logoCustomY: null,
     logoAssetId: '',
+    logoDataUrl: '',
     logoImg: null,
 
     photoAssetId: '',
     photoImg: null,
     photoZoom: 100,
     photoBright: 100,
+    photoContrast: 100,
+    photoSaturate: 100,
+    photoBlur: 0,
     photoPanX: 0,
     photoPanY: 0,
 
@@ -1361,11 +1514,13 @@
     primaryColor: initMeta.primary,
     accentColor: initMeta.accent,
     bgColor: initMeta.bg,
+    highlightColor: '',
+    highlightBgMode: '',
     titleSize: initMeta.titleSize || 44,
     textAlign: initMeta.align || 'left',
     overlayAlpha: 85,
 
-    // Per-Element Style, Transform, Crop/Mask, Rotation & Multi-Page State
+    // Per-Element Style, Transform, Crop/Mask, Rotation, Opacity, RichSpans & Multi-Page State
     elementOffsets: {},
     elementHidden: {},
     elementLocked: {},
@@ -1376,6 +1531,11 @@
     elementCrop: {},
     elementBoxW: {},
     elementRotation: {},
+    elementOpacity: {},
+    elementFlip: {},
+    elementRichSpans: initRichHeadline.spans.length ? {
+      headline: { text: initRichHeadline.text, spans: initRichHeadline.spans }
+    } : {},
     userResized: {},
     customLayers: [],
     floatingImageCache: {},
@@ -1389,7 +1549,16 @@
     fontSearch: '',
     lastMainDrawer: 'templates',
     uploadsTab: 'photos',
-    uploadSearch: ''
+    uploadSearch: '',
+    elementsCat: 'all',
+    elementsSearch: '',
+    brandSec: 'all',
+    brandSearch: '',
+    positionTab: 'arrange',
+    layersFilter: 'all',
+    ratioLocked: true,
+    isExporting: false,
+    stylePaintMode: false
   };
 
   var renderPending = false;
@@ -1398,12 +1567,15 @@
 
   // Hit-testing & vertical layout registry populated on every render
   var isTrackingHits = false;
+  var pendingBehindCustomLayers = false;
   var currentHitRegions = [];
   var currentRenderFooterH = 0;
   var lastTextBottomY = 0;
   var lastPhotoOrigBox = null;
   var selectedElId = 'card';
   var hoveredElId = '';
+  var activeInlineTarget = '';
+  var inlineEditorSyncedValue = '';
 
   function getPortBoost() {
     var w = state.width || 1080;
@@ -1485,6 +1657,139 @@
     ctx.translate(-cx, -cy);
   }
 
+  function applyCanvasFlipAround(ctx, cx, cy, flipH, flipV) {
+    if (!flipH && !flipV) return;
+    ctx.translate(cx, cy);
+    ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+    ctx.translate(-cx, -cy);
+  }
+
+  function clamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
+  }
+
+  function getElOpacity(id) {
+    if (!id) return 1;
+    if (id.indexOf('layer:') === 0) {
+      var lid = id.slice(6);
+      var lyr = (state.customLayers || []).filter(function (x) { return x.id === lid; })[0];
+      if (lyr && lyr.opacity != null) {
+        var lv = Number(lyr.opacity);
+        if (isFinite(lv)) return clamp(lv > 1 ? lv / 100 : lv, 0, 1);
+      }
+      return 1;
+    }
+    if (state.elementOpacity && state.elementOpacity[id] != null) {
+      var ev = Number(state.elementOpacity[id]);
+      if (isFinite(ev)) return clamp(ev > 1 ? ev / 100 : ev, 0, 1);
+    }
+    return 1;
+  }
+
+  function setElOpacity(id, pctOrUnit) {
+    if (!id) return;
+    var raw = Number(pctOrUnit);
+    if (!isFinite(raw)) return;
+    var unit = clamp(raw > 1.0001 ? raw / 100 : raw, 0, 1);
+    if (id.indexOf('layer:') === 0) {
+      var lid = id.slice(6);
+      var lyr = (state.customLayers || []).filter(function (x) { return x.id === lid; })[0];
+      if (lyr) lyr.opacity = Math.round(unit * 100) / 100;
+      return;
+    }
+    if (!state.elementOpacity) state.elementOpacity = {};
+    state.elementOpacity[id] = Math.round(unit * 100) / 100;
+  }
+
+  function getElFlip(id) {
+    if (!id || id === 'card') return { h: false, v: false };
+    if (id.indexOf('layer:') === 0) {
+      var lid = id.slice(6);
+      var lyr = (state.customLayers || []).filter(function (x) { return x.id === lid; })[0];
+      return { h: !!(lyr && lyr.flipH), v: !!(lyr && lyr.flipV) };
+    }
+    var fl = state.elementFlip && state.elementFlip[id];
+    return { h: !!(fl && fl.h), v: !!(fl && fl.v) };
+  }
+
+  function toggleElFlip(id, axis) {
+    if (!id || id === 'card') return;
+    if (id.indexOf('layer:') === 0) {
+      var lid = id.slice(6);
+      var lyr = (state.customLayers || []).filter(function (x) { return x.id === lid; })[0];
+      if (!lyr) return;
+      if (axis === 'v') lyr.flipV = !lyr.flipV;
+      else lyr.flipH = !lyr.flipH;
+      return;
+    }
+    if (!state.elementFlip) state.elementFlip = {};
+    if (!state.elementFlip[id]) state.elementFlip[id] = { h: false, v: false };
+    if (axis === 'v') state.elementFlip[id].v = !state.elementFlip[id].v;
+    else state.elementFlip[id].h = !state.elementFlip[id].h;
+  }
+
+  function getElRichSpans(id, currentText) {
+    if (!id) return [];
+    var curStr = currentText != null ? String(currentText) : null;
+    if (curStr !== null && curStr.indexOf('*') !== -1) {
+      // Explicit *...* markers present in raw string -> let tokenizeRichText parse them
+      return [];
+    }
+    if (id.indexOf('layer:') === 0) {
+      var lid = id.slice(6);
+      var lyr = (state.customLayers || []).filter(function (x) { return x.id === lid; })[0];
+      if (!lyr || !Array.isArray(lyr.richSpans) || !lyr.richSpans.length) return [];
+      if (curStr !== null && lyr._richSpansText != null && lyr._richSpansText !== curStr) {
+        return adjustRichSpansForTextEdit(lyr._richSpansText, curStr, lyr.richSpans);
+      }
+      return normalizeRichSpans(lyr.richSpans, curStr !== null ? curStr.length : 100000);
+    }
+    var entry = state.elementRichSpans && state.elementRichSpans[id];
+    if (!entry) return [];
+    if (Array.isArray(entry)) {
+      return normalizeRichSpans(entry, curStr !== null ? curStr.length : 100000);
+    }
+    if (!Array.isArray(entry.spans) || !entry.spans.length) return [];
+    if (curStr !== null && entry.text != null && entry.text !== curStr) {
+      return adjustRichSpansForTextEdit(entry.text, curStr, entry.spans);
+    }
+    return normalizeRichSpans(entry.spans, curStr !== null ? curStr.length : 100000);
+  }
+
+  function setElRichSpans(id, textStr, spans) {
+    if (!id) return;
+    var cleanStr = String(textStr == null ? '' : textStr);
+    var norm = normalizeRichSpans(spans || [], cleanStr.length);
+    if (id.indexOf('layer:') === 0) {
+      var lid = id.slice(6);
+      var lyr = (state.customLayers || []).filter(function (x) { return x.id === lid; })[0];
+      if (lyr) {
+        lyr.richSpans = norm;
+        lyr._richSpansText = cleanStr;
+      }
+      return;
+    }
+    if (!state.elementRichSpans) state.elementRichSpans = {};
+    if (!norm.length) {
+      delete state.elementRichSpans[id];
+    } else {
+      state.elementRichSpans[id] = { text: cleanStr, spans: norm };
+    }
+  }
+
+  function shouldSkipCanvasGlyphsForInlineEdit(id) {
+    if (!id || state.isExporting || !isTrackingHits) return false;
+    if (!activeInlineTarget || activeInlineTarget !== id) return false;
+    var richEd = $('#pcInlineRichEditor');
+    return !!(richEd && !richEd.hidden);
+  }
+
+  function flushBehindCustomLayersIfNeeded(ctx) {
+    if (!pendingBehindCustomLayers) return;
+    pendingBehindCustomLayers = false;
+    renderCustomLayers(ctx, 'behind');
+  }
+
   function applyTextCase(str, st) {
     var s = String(str || '');
     return (st && st.uppercase) ? s.toUpperCase() : s;
@@ -1555,6 +1860,11 @@
   }
 
   function isElHidden(id) {
+    if (id && id.indexOf('layer:') === 0) {
+      var lid = id.slice(6);
+      var lyr = (state.customLayers || []).filter(function (x) { return x.id === lid; })[0];
+      if (lyr && lyr.hidden) return true;
+    }
     return !!(state.elementHidden && state.elementHidden[id]);
   }
 
@@ -1741,6 +2051,20 @@
 
     // If defaultColor fails WCAG AA, dynamically select between deep slate and white for maximum contrast
     return crDarkAgainstBg >= crWhiteAgainstBg ? '#0f172a' : '#ffffff';
+  }
+
+  /**
+   * Resolves element text color:
+   * - If the user explicitly set a manual color (any saturation/lightness/contrast), return it 100% verbatim!
+   * - Otherwise fall back to automatic WCAG AA contrast enforcement (`getEffectiveTextColor`).
+   */
+  function resolveElementTextColor(manualColor, defaultColor, bgContextHex) {
+    if (manualColor && String(manualColor).trim()) {
+      var raw = String(manualColor).trim();
+      var norm = normalizeHexColor(raw);
+      return norm || raw;
+    }
+    return getEffectiveTextColor(defaultColor, bgContextHex);
   }
 
   /* =========================================================================
@@ -2110,37 +2434,172 @@
       nameBn: 'নগদ',
       brandColor: '#f16522',
       viewBox: { w: 54, h: 54 },
-      // 6 authentic cubic bezier petals of the dual flame swirl
+      // 6 crisp geometric bezier paths of the Nagad coin swirl, crown flames & celebrating figure
       paths: [
-        { fill: '#f6921e', d: 'M 12.917969 11.578125 C 14.3125 8.097656 16.460938 5.125 19.355469 2.65625 C 19.789062 2.285156 20.300781 1.691406 20.914062 0.871094 C 20.941406 0.835938 20.984375 0.777344 21.035156 0.699219 C 21.066406 0.652344 21.132812 0.554688 21.238281 0.40625 C 21.285156 0.339844 21.378906 0.207031 21.523438 0.0078125 C 21.542969 -0.0195312 21.574219 -0.00390625 21.578125 0.03125 C 21.734375 1.542969 21.644531 3.25 21.304688 5.152344 C 20.96875 7.058594 20.382812 9.070312 19.546875 11.191406 C 18.710938 13.3125 17.652344 15.359375 16.367188 17.335938 C 15.085938 19.308594 13.679688 20.976562 12.148438 22.339844 C 11.777344 22.671875 11.398438 22.980469 11.011719 23.277344 C 11.15625 22.316406 11.414062 21.375 11.785156 20.457031 C 12.449219 18.804688 13.203125 17.164062 14.054688 15.539062 C 14.90625 13.910156 15.753906 12.417969 16.601562 11.058594 C 16.617188 11.035156 16.609375 11.003906 16.585938 10.996094 C 15.367188 11.199219 14.148438 11.394531 12.917969 11.578125 Z' },
-        { fill: '#f16522', d: 'M 29.363281 8.757812 C 29.382812 8.75 29.386719 8.734375 29.378906 8.714844 L 26.691406 0.160156 C 26.683594 0.132812 26.648438 0.125 26.628906 0.144531 C 25.109375 1.542969 23.363281 3.238281 21.398438 5.234375 C 19.429688 7.226562 17.527344 9.386719 15.691406 11.707031 C 13.851562 14.03125 12.242188 16.375 10.859375 18.734375 C 9.472656 21.097656 8.5 23.34375 7.933594 25.476562 C 7.371094 27.605469 7.378906 29.496094 7.953125 31.144531 C 8.527344 32.796875 9.777344 34.074219 11.703125 34.980469 C 13.628906 35.882812 16.140625 36.3125 19.238281 36.261719 C 18.847656 35.539062 18.570312 34.789062 18.40625 34.019531 C 18.066406 32.417969 18.175781 30.730469 18.734375 28.960938 C 19.292969 27.1875 20.199219 25.328125 21.453125 23.382812 C 22.707031 21.4375 24.238281 19.390625 26.046875 17.242188 C 27.246094 15.820312 28.351562 14.472656 29.363281 13.203125 C 29.789062 14.730469 29.84375 16.328125 29.53125 17.988281 C 29.214844 19.648438 28.453125 21.289062 27.242188 22.910156 C 26.871094 23.40625 26.476562 23.882812 26.058594 24.339844 C 26.6875 23.816406 27.300781 23.210938 27.898438 22.523438 C 29.351562 20.855469 30.40625 19.042969 31.066406 17.085938 C 31.722656 15.125 31.878906 13.148438 31.53125 11.152344 C 31.332031 10.015625 30.835938 9.074219 30.046875 8.328125 C 29.816406 8.484375 29.589844 8.625 29.363281 8.757812 Z' },
-        { fill: '#ec1c24', d: 'M 31.359375 40.09375 C 31.367188 40.117188 31.363281 40.140625 31.347656 40.167969 C 30.074219 42.277344 28.160156 44.027344 25.609375 45.414062 C 23.054688 46.804688 20.128906 47.660156 16.828125 47.984375 C 13.527344 48.304688 10.429688 47.914062 7.53125 46.808594 C 4.632812 45.703125 2.503906 43.839844 1.144531 41.21875 C -0.214844 38.597656 -0.378906 35.347656 0.652344 31.46875 C 1.683594 27.585938 4.09375 23.414062 7.886719 18.949219 C 11.675781 14.484375 16.699219 10.15625 22.953125 5.960938 C 22.980469 5.945312 23.011719 5.964844 23.003906 5.996094 C 22.5625 7.644531 22.378906 9.421875 22.453125 11.328125 C 22.527344 13.234375 22.957031 15.195312 23.742188 17.210938 C 24.527344 19.222656 25.609375 21.21875 26.984375 23.195312 C 28.363281 25.175781 29.9375 27.054688 31.707031 28.832031 C 33.476562 30.613281 35.253906 32.1875 37.039062 33.554688 C 38.824219 34.921875 40.386719 35.984375 41.722656 36.738281 C 41.746094 36.753906 41.746094 36.789062 41.722656 36.804688 C 39.882812 37.980469 37.945312 39.035156 35.914062 39.96875 C 33.878906 40.898438 31.972656 41.605469 30.191406 42.085938 C 30.824219 41.527344 31.214844 40.863281 31.359375 40.09375 Z' },
-        { fill: '#ec1c24', d: 'M 42.359375 13.386719 L 42.101562 8.253906 C 42.097656 8.214844 42.117188 8.195312 42.148438 8.214844 C 44.914062 9.945312 47.464844 12.015625 49.796875 14.425781 C 52.132812 16.839844 53.644531 19.230469 54.335938 21.601562 C 54.34375 21.636719 54.308594 21.65625 54.277344 21.636719 C 51.523438 19.988281 48.332031 18.242188 44.707031 16.398438 C 43.863281 15.96875 43.078125 15.539062 42.359375 15.109375 Z' },
-        { fill: '#f16522', d: 'M 4.503906 14.941406 C 4.53125 14.953125 4.535156 14.988281 4.511719 15.003906 C 3.125 15.976562 1.953125 17.078125 0.996094 18.308594 C 0.0390625 19.539062 -0.347656 20.804688 -0.160156 22.101562 C 0.0273438 23.402344 0.742188 24.71875 1.980469 26.050781 C 3.222656 27.386719 4.886719 28.664062 6.96875 29.878906 C 7.214844 28.511719 7.746094 27.109375 8.566406 25.671875 C 9.574219 23.90625 10.828125 22.183594 12.324219 20.503906 C 13.824219 18.824219 15.464844 17.277344 17.25 15.863281 C 19.03125 14.449219 20.785156 13.253906 22.507812 12.277344 C 20.851562 13.195312 19.460938 14.28125 18.332031 15.539062 C 17.207031 16.792969 16.347656 18.15625 15.757812 19.628906 C 15.164062 21.097656 14.863281 22.585938 14.851562 24.089844 C 14.84375 25.597656 15.1875 27.054688 15.882812 28.460938 C 16.578125 29.871094 17.65625 31.144531 19.117188 32.285156 C 20.578125 33.425781 22.421875 34.296875 24.648438 34.898438 C 26.871094 35.503906 29.542969 35.679688 32.664062 35.433594 C 31.847656 36.003906 30.796875 36.5625 29.511719 37.109375 C 28.226562 37.65625 26.792969 38.070312 25.210938 38.351562 C 23.628906 38.632812 22.015625 38.699219 20.371094 38.546875 C 18.726562 38.398438 17.273438 37.957031 16.011719 37.226562 C 14.75 36.496094 13.917969 35.394531 13.515625 33.917969 C 13.113281 32.445312 13.253906 30.558594 13.9375 28.257812 C 14.621094 25.957031 15.9375 23.277344 17.886719 20.21875 C 19.835938 17.15625 22.429688 13.984375 25.667969 10.703125 C 25.6875 10.679688 25.675781 10.648438 25.648438 10.65625 C 22.128906 11.488281 18.664062 12.355469 15.25 13.261719 C 11.839844 14.167969 8.257812 14.730469 4.503906 14.941406 Z' },
-        { fill: '#f6921e', d: 'M 17.675781 51.796875 C 21.511719 52.601562 25.328125 52.882812 29.128906 52.640625 C 32.925781 52.398438 36.46875 51.578125 39.757812 50.179688 C 43.042969 48.78125 45.832031 46.855469 48.121094 44.402344 C 50.410156 41.953125 51.984375 39.183594 52.84375 36.101562 C 53.703125 33.015625 53.691406 29.890625 52.808594 26.726562 C 51.925781 23.5625 50.054688 20.730469 47.195312 18.230469 C 47.167969 18.207031 47.132812 18.234375 47.148438 18.265625 C 48.71875 21.6875 49.339844 25.109375 49.007812 28.53125 C 48.679688 31.953125 47.457031 35.195312 45.34375 38.261719 C 43.226562 41.328125 40.402344 43.988281 36.871094 46.242188 C 33.335938 48.496094 29.355469 50.019531 24.929688 50.8125 C 22.421875 51.261719 19.988281 51.496094 17.632812 51.515625 C 17.597656 51.515625 17.585938 51.558594 17.613281 51.578125 C 18.679688 52.296875 19.824219 52.929688 21.050781 53.476562 C 21.085938 53.492188 21.117188 53.457031 21.097656 53.425781 C 19.929688 52.914062 18.789062 52.371094 17.675781 51.796875 Z' }
+        { fill: '#f7941d', d: 'M 16.5 11.2 C 8.2 15.6 4.0 25.4 6.2 35.0 C 8.5 45.2 17.6 52.0 27.8 51.8 C 38.4 51.6 47.2 44.0 48.6 33.4 C 49.7 24.6 45.4 15.8 37.6 11.4 C 42.6 16.8 44.6 24.6 43.0 32.0 C 41.0 40.8 33.4 46.8 24.6 46.2 C 15.8 45.6 9.4 38.4 9.6 29.4 C 9.8 21.8 12.6 15.6 16.5 11.2 Z' },
+        { fill: '#f15a22', d: 'M 12.2 23.0 C 10.4 31.4 14.8 40.2 23.0 43.0 C 31.4 45.8 40.4 41.2 43.2 32.8 C 44.8 28.0 44.2 22.6 41.6 18.2 C 42.4 23.2 41.0 28.6 37.6 32.6 C 32.6 38.4 23.8 39.4 17.6 34.8 C 13.8 32.0 11.8 27.6 12.2 23.0 Z' },
+        { fill: '#fbb03b', d: 'M 21.2 16.8 C 18.6 13.6 18.2 8.8 20.8 4.4 C 21.4 7.6 23.2 10.2 24.6 12.8 C 25.4 14.4 25.0 16.4 23.4 17.4 C 22.6 17.8 21.8 17.5 21.2 16.8 Z' },
+        { fill: '#ed1c24', d: 'M 26.2 15.6 C 24.4 11.2 25.2 5.4 28.6 1.2 C 29.0 5.2 31.4 8.6 32.0 12.4 C 32.4 14.8 30.8 16.8 28.6 17.0 C 27.4 17.1 26.6 16.5 26.2 15.6 Z' },
+        { fill: '#f15a22', d: 'M 32.4 17.6 C 32.2 14.0 33.8 9.8 37.2 6.8 C 36.8 10.2 37.8 13.4 37.0 16.4 C 36.4 18.2 34.6 19.0 33.2 18.4 C 32.7 18.2 32.5 17.9 32.4 17.6 Z' },
+        { fill: '#ed1c24', d: 'M 27.0 18.0 C 29.1 18.0 30.8 19.7 30.8 21.8 C 30.8 23.9 29.1 25.6 27.0 25.6 C 24.9 25.6 23.2 23.9 23.2 21.8 C 23.2 19.7 24.9 18.0 27.0 18.0 Z M 14.6 22.2 C 18.6 25.6 22.8 27.8 27.0 27.8 C 31.2 27.8 35.4 25.6 39.4 22.2 C 40.4 21.4 41.4 22.6 40.4 23.8 C 36.8 27.8 32.8 30.4 30.2 32.4 C 29.4 36.6 28.6 40.8 27.0 44.2 C 25.4 40.8 24.6 36.6 23.8 32.4 C 21.2 30.4 17.2 27.8 13.6 23.8 C 12.6 22.6 13.6 21.4 14.6 22.2 Z' }
       ]
     },
     rocket: {
       id: 'rocket',
       name: 'Rocket',
       nameBn: 'রকেট',
-      brandColor: '#8b3392',
+      brandColor: '#8c3494',
       viewBox: { w: 208, h: 126 },
-      // 6 authentic paths of soaring rocket emblem
+      // 6 crisp paths of DBBL Rocket emblem centered at (104, 63)
       paths: [
-        { fill: '#8b3392', d: 'M 148.546875 16.363281 L 119.070312 45.933594 L 121.101562 62.507812 L 126.5625 68.199219 L 140.488281 68.199219 L 157.652344 51.011719 L 166.863281 0 Z' },
-        { fill: '#8b3392', d: 'M 122.921875 68.199219 C 122.921875 68.199219 97.992188 68.199219 91.902344 68.199219 C 85.816406 68.199219 79.914062 70.835938 75.984375 74.960938 C 72.054688 79.085938 65.75 92.511719 65.75 92.511719 C 65.75 92.511719 75.984375 92.511719 86.632812 92.511719 C 97.28125 92.511719 104.773438 88.582031 108.570312 84.777344 C 112.367188 80.976562 119.339844 73.117188 119.339844 73.117188 L 122.921875 68.199219 Z' },
-        { fill: '#8b3392', d: 'M 187.828125 83.789062 C 182.648438 83.789062 176.414062 83.789062 176.414062 83.789062 L 151.785156 68.199219 L 149.632812 43.433594 L 200.320312 94.679688 L 194.515625 83.789062 Z' },
-        { fill: '#8b3392', d: 'M 77.199219 68.199219 L 62.214844 68.199219 C 57.453125 74.027344 49.121094 97.667969 49.121094 97.667969 C 49.121094 97.667969 66.863281 102.398438 72.953125 106.335938 L 77.199219 115.429688 Z' },
-        { fill: '#8b3392', d: 'M 38.96875 115.886719 C 38.96875 121.082031 34.765625 125.296875 29.585938 125.296875 C 24.398438 125.296875 20.199219 121.082031 20.199219 115.886719 C 20.199219 110.699219 24.398438 106.492188 29.585938 106.492188 C 34.765625 106.492188 38.96875 110.699219 38.96875 115.886719 Z' },
-        { fill: '#8b3392', d: 'M 18.941406 68.199219 C -4.722656 71.847656 -7.175781 106.335938 18.664062 110.996094 C 36.96875 114.28125 49.988281 102.070312 49.988281 102.070312 C 49.988281 102.070312 28.988281 99.789062 25.4375 92.511719 C 21.878906 85.234375 26.449219 78.4375 26.449219 78.4375 Z' }
+        { fill: '#8c3494', d: 'M 74.0 11.0 L 134.0 11.0 C 147.2 11.0 156.0 19.8 156.0 33.0 L 156.0 93.0 C 156.0 106.2 147.2 115.0 134.0 115.0 L 74.0 115.0 C 60.8 115.0 52.0 106.2 52.0 93.0 L 52.0 33.0 C 52.0 19.8 60.8 11.0 74.0 11.0 Z' },
+        { fill: '#6d2077', d: 'M 58.0 82.0 C 68.0 98.0 92.0 106.0 118.0 98.0 C 136.0 92.0 148.0 76.0 150.0 56.0 C 151.0 82.0 134.0 106.0 106.0 109.0 C 82.0 111.0 64.0 98.0 58.0 82.0 Z' },
+        { fill: '#fbbf24', d: 'M 85.0 74.0 C 77.0 78.0 68.0 88.0 64.0 101.0 C 77.0 97.0 87.0 88.0 91.0 80.0 L 85.0 74.0 Z' },
+        { fill: '#f3e8ff', d: 'M 86.0 61.0 L 66.0 66.0 L 62.0 78.0 L 81.0 76.0 L 89.0 84.0 L 87.0 103.0 L 99.0 99.0 L 104.0 79.0 L 86.0 61.0 Z' },
+        { fill: '#ffffff', d: 'M 142.0 23.0 C 126.0 25.0 106.0 37.0 90.0 53.0 L 79.0 64.0 L 101.0 86.0 L 112.0 75.0 C 128.0 59.0 140.0 39.0 142.0 23.0 Z' },
+        { fill: '#8c3494', d: 'M 115.0 42.5 C 119.2 42.5 122.5 45.8 122.5 50.0 C 122.5 54.2 119.2 57.5 115.0 57.5 C 110.8 57.5 107.5 54.2 107.5 50.0 C 107.5 45.8 110.8 42.5 115.0 42.5 Z' }
+      ]
+    },
+    upay: {
+      id: 'upay',
+      name: 'Upay',
+      nameBn: 'উপায়',
+      brandColor: '#0072bc',
+      viewBox: { w: 64, h: 64 },
+      paths: [
+        { fill: '#ffd200', d: 'M 14.0 6.0 L 50.0 6.0 C 55.5 6.0 58.0 8.5 58.0 14.0 L 58.0 50.0 C 58.0 55.5 55.5 58.0 50.0 58.0 L 14.0 58.0 C 8.5 58.0 6.0 55.5 6.0 50.0 L 6.0 14.0 C 6.0 8.5 8.5 6.0 14.0 6.0 Z' },
+        { fill: '#0054a6', d: 'M 19.0 18.0 L 27.0 18.0 L 27.0 35.0 C 27.0 39.5 29.2 42.0 33.0 42.0 C 36.8 42.0 39.0 39.5 39.0 35.0 L 39.0 18.0 L 47.0 18.0 L 47.0 35.5 C 47.0 44.5 41.4 49.5 33.0 49.5 C 24.6 49.5 19.0 44.5 19.0 35.5 L 19.0 18.0 Z' },
+        { fill: '#ed1c24', d: 'M 33.0 12.0 L 39.0 18.0 L 35.0 18.0 L 33.0 15.8 L 31.0 18.0 L 27.0 18.0 L 33.0 12.0 Z' }
+      ]
+    },
+    bank: {
+      id: 'bank',
+      name: 'Bank Transfer',
+      nameBn: 'ব্যাংক একাউন্ট',
+      brandColor: '#0f766e',
+      viewBox: { w: 64, h: 64 },
+      paths: [
+        { fill: '#0f766e', d: 'M 12.0 6.0 L 52.0 6.0 C 55.3 6.0 58.0 8.7 58.0 12.0 L 58.0 52.0 C 58.0 55.3 55.3 58.0 52.0 58.0 L 12.0 58.0 C 8.7 58.0 6.0 55.3 6.0 52.0 L 6.0 12.0 C 6.0 8.7 8.7 6.0 12.0 6.0 Z' },
+        { fill: '#ffffff', d: 'M 32.0 13.0 L 50.0 23.0 L 50.0 26.5 L 14.0 26.5 L 14.0 23.0 L 32.0 13.0 Z M 18.0 29.5 L 22.5 29.5 L 22.5 43.5 L 18.0 43.5 L 18.0 29.5 Z M 29.8 29.5 L 34.2 29.5 L 34.2 43.5 L 29.8 43.5 L 29.8 29.5 Z M 41.5 29.5 L 46.0 29.5 L 46.0 43.5 L 41.5 43.5 L 41.5 29.5 Z M 14.0 46.0 L 50.0 46.0 L 50.0 50.5 L 14.0 50.5 L 14.0 46.0 Z' }
+      ]
+    },
+    card: {
+      id: 'card',
+      name: 'Visa / Card',
+      nameBn: 'কার্ড পেমেন্ট',
+      brandColor: '#1d4ed8',
+      viewBox: { w: 64, h: 64 },
+      paths: [
+        { fill: '#1d4ed8', d: 'M 10.0 13.0 L 54.0 13.0 C 57.3 13.0 60.0 15.7 60.0 19.0 L 60.0 45.0 C 60.0 48.3 57.3 51.0 54.0 51.0 L 10.0 51.0 C 6.7 51.0 4.0 48.3 4.0 45.0 L 4.0 19.0 C 4.0 15.7 6.7 13.0 10.0 13.0 Z' },
+        { fill: '#93c5fd', d: 'M 4.0 22.0 L 60.0 22.0 L 60.0 29.0 L 4.0 29.0 L 4.0 22.0 Z' },
+        { fill: '#fbbf24', d: 'M 11.0 34.0 L 21.0 34.0 C 22.1 34.0 23.0 34.9 23.0 36.0 L 23.0 42.0 C 23.0 43.1 22.1 44.0 21.0 44.0 L 11.0 44.0 C 9.9 44.0 9.0 43.1 9.0 42.0 L 9.0 36.0 C 9.0 34.9 9.9 34.0 11.0 34.0 Z' },
+        { fill: '#ffffff', d: 'M 42.0 35.0 C 44.8 35.0 47.0 37.2 47.0 40.0 C 47.0 42.8 44.8 45.0 42.0 45.0 C 39.2 45.0 37.0 42.8 37.0 40.0 C 37.0 37.2 39.2 35.0 42.0 35.0 Z M 49.0 35.0 C 51.8 35.0 54.0 37.2 54.0 40.0 C 54.0 42.8 51.8 45.0 49.0 45.0 C 46.2 45.0 44.0 42.8 44.0 40.0 C 44.0 37.2 46.2 35.0 49.0 35.0 Z' }
+      ]
+    }
+  };
+
+  /* =========================================================================
+   * SOCIAL MEDIA & PLATFORM BRAND VECTORS (Canva-style Authentic Social Logos)
+   * ========================================================================= */
+  var SOCIAL_BRAND_VECTORS = {
+    facebook: {
+      name: 'Facebook', nameBn: 'ফেসবুক', brandColor: '#1877F2',
+      bg: '#1877F2', shape: 'circle',
+      paths: [
+        { fill: '#ffffff', d: 'M 36.5 34.5 L 37.8 26.2 L 29.8 26.2 L 29.8 20.8 C 29.8 18.5 30.9 16.3 34.5 16.3 L 38.2 16.3 L 38.2 9.2 C 38.2 9.2 34.9 8.6 31.7 8.6 C 25.1 8.6 20.8 12.6 20.8 19.9 L 20.8 26.2 L 13.5 26.2 L 13.5 34.5 L 20.8 34.5 L 20.8 54.0 L 29.8 54.0 L 29.8 34.5 L 36.5 34.5 Z' }
+      ]
+    },
+    youtube: {
+      name: 'YouTube', nameBn: 'ইউটিউব', brandColor: '#FF0000',
+      bg: '#FF0000', shape: 'rounded',
+      paths: [
+        { fill: '#ffffff', d: 'M 25.0 21.0 L 43.0 32.0 L 25.0 43.0 L 25.0 21.0 Z' }
+      ]
+    },
+    instagram: {
+      name: 'Instagram', nameBn: 'ইনস্টাগ্রাম', brandColor: '#E1306C',
+      bg: 'instagram-grad', shape: 'rounded',
+      paths: [
+        { fill: '#ffffff', d: 'M 22.0 13.0 L 42.0 13.0 C 47.0 13.0 51.0 17.0 51.0 22.0 L 51.0 42.0 C 51.0 47.0 47.0 51.0 42.0 51.0 L 22.0 51.0 C 17.0 51.0 13.0 47.0 13.0 42.0 L 13.0 22.0 C 13.0 17.0 17.0 13.0 22.0 13.0 Z M 22.2 16.8 C 19.2 16.8 16.8 19.2 16.8 22.2 L 16.8 41.8 C 16.8 44.8 19.2 47.2 22.2 47.2 L 41.8 47.2 C 44.8 47.2 47.2 44.8 47.2 41.8 L 47.2 22.2 C 47.2 19.2 44.8 16.8 41.8 16.8 L 22.2 16.8 Z M 32.0 22.2 C 37.4 22.2 41.8 26.6 41.8 32.0 C 41.8 37.4 37.4 41.8 32.0 41.8 C 26.6 41.8 22.2 37.4 22.2 32.0 C 22.2 26.6 26.6 22.2 32.0 22.2 Z M 32.0 26.0 C 28.7 26.0 26.0 28.7 26.0 32.0 C 26.0 35.3 28.7 38.0 32.0 38.0 C 35.3 38.0 38.0 35.3 38.0 32.0 C 38.0 28.7 35.3 26.0 32.0 26.0 Z M 42.2 19.5 C 43.5 19.5 44.5 20.5 44.5 21.8 C 44.5 23.1 43.5 24.1 42.2 24.1 C 40.9 24.1 39.9 23.1 39.9 21.8 C 39.9 20.5 40.9 19.5 42.2 19.5 Z' }
+      ]
+    },
+    whatsapp: {
+      name: 'WhatsApp', nameBn: 'হোয়াটসঅ্যাপ', brandColor: '#25D366',
+      bg: '#25D366', shape: 'circle',
+      paths: [
+        { fill: '#ffffff', d: 'M 32.0 13.0 C 21.5 13.0 13.0 21.3 13.0 31.6 C 13.0 35.1 14.0 38.4 15.8 41.3 L 13.2 50.8 L 23.0 48.2 C 25.7 49.6 28.8 50.4 32.0 50.4 C 42.5 50.4 51.0 42.0 51.0 31.7 C 51.0 21.3 42.5 13.0 32.0 13.0 Z M 41.8 38.9 C 41.3 40.2 39.2 41.4 37.9 41.6 C 36.8 41.8 35.4 41.9 31.2 40.2 C 25.5 37.9 21.9 32.1 21.6 31.7 C 21.3 31.3 19.3 28.7 19.3 26.0 C 19.3 23.3 20.7 22.0 21.3 21.4 C 21.8 20.8 22.5 20.7 22.9 20.7 L 24.1 20.7 C 24.5 20.7 25.0 20.6 25.4 21.7 C 25.9 22.9 27.0 25.6 27.1 25.9 C 27.3 26.2 27.4 26.6 27.2 27.0 C 27.0 27.4 26.3 28.3 25.9 28.7 C 25.5 29.1 25.1 29.5 25.6 30.3 C 26.1 31.1 27.6 33.6 30.0 35.7 C 33.1 38.4 35.6 39.2 36.4 39.6 C 37.2 40.0 37.7 39.9 38.1 39.4 C 38.5 38.9 39.9 37.3 40.4 36.6 C 40.9 35.9 41.4 36.0 42.0 36.2 C 42.6 36.4 45.3 37.8 45.9 38.1 C 46.4 38.4 46.8 38.5 46.9 38.8 C 47.0 39.1 46.6 40.3 41.8 38.9 Z' }
+      ]
+    },
+    x: {
+      name: 'X (Twitter)', nameBn: 'এক্স / টুইটার', brandColor: '#0f172a',
+      bg: '#0f172a', shape: 'rounded',
+      paths: [
+        { fill: '#ffffff', d: 'M 36.1 28.6 L 49.4 13.5 L 46.2 13.5 L 34.7 26.6 L 25.5 13.5 L 14.8 13.5 L 28.8 33.5 L 14.8 49.5 L 18.0 49.5 L 30.1 35.6 L 39.8 49.5 L 50.5 49.5 L 36.1 28.6 Z M 31.7 33.8 L 30.3 31.8 L 19.2 15.9 L 24.0 15.9 L 33.1 28.8 L 34.5 30.8 L 46.2 47.2 L 41.4 47.2 L 31.7 33.8 Z' }
+      ]
+    },
+    tiktok: {
+      name: 'TikTok', nameBn: 'টিকটক', brandColor: '#111827',
+      bg: '#111827', shape: 'rounded',
+      paths: [
+        { fill: '#25F4EE', d: 'M 39.5 13.5 L 33.2 13.5 L 33.2 37.2 C 33.2 40.3 30.7 42.8 27.6 42.8 C 24.5 42.8 22.0 40.3 22.0 37.2 C 22.0 34.2 24.4 31.7 27.4 31.6 L 27.4 25.2 C 20.8 25.3 15.5 30.6 15.5 37.2 C 15.5 43.9 20.9 49.3 27.6 49.3 C 34.3 49.3 39.7 43.9 39.7 37.2 L 39.7 24.5 C 42.2 26.3 45.2 27.4 48.5 27.5 L 48.5 21.2 C 43.7 20.9 39.8 17.6 39.5 13.5 Z' },
+        { fill: '#FE2C55', d: 'M 41.2 15.0 L 35.0 15.0 L 35.0 38.6 C 35.0 41.7 32.5 44.2 29.4 44.2 C 26.3 44.2 23.8 41.7 23.8 38.6 L 17.5 38.6 C 17.5 45.2 22.8 50.6 29.4 50.6 C 36.1 50.6 41.5 45.2 41.5 38.6 L 41.5 25.9 C 44.0 27.7 47.0 28.8 50.2 28.9 L 50.2 22.6 C 45.4 22.3 41.5 19.0 41.2 15.0 Z' },
+        { fill: '#ffffff', d: 'M 40.2 14.2 L 34.1 14.2 L 34.1 37.9 C 34.1 41.0 31.6 43.5 28.5 43.5 C 25.4 43.5 22.9 41.0 22.9 37.9 C 22.9 34.9 25.3 32.4 28.3 32.3 L 28.3 26.1 C 21.8 26.2 16.5 31.4 16.5 37.9 C 16.5 44.5 21.9 49.9 28.5 49.9 C 35.1 49.9 40.5 44.5 40.5 37.9 L 40.5 25.2 C 43.0 27.0 46.0 28.1 49.3 28.2 L 49.3 21.9 C 44.5 21.6 40.6 18.3 40.2 14.2 Z' }
+      ]
+    },
+    messenger: {
+      name: 'Messenger', nameBn: 'মেসেঞ্জার', brandColor: '#0084FF',
+      bg: '#0084FF', shape: 'circle',
+      paths: [
+        { fill: '#ffffff', d: 'M 32.0 13.0 C 21.0 13.0 12.5 20.8 12.5 31.0 C 12.5 36.5 15.2 41.3 19.5 44.5 L 19.5 51.5 L 26.1 47.9 C 28.0 48.4 30.0 48.7 32.0 48.7 C 43.0 48.7 51.5 40.9 51.5 30.7 C 51.5 20.8 43.0 13.0 32.0 13.0 Z M 34.1 36.9 L 29.0 31.5 L 19.2 36.9 L 30.0 25.4 L 35.2 30.8 L 44.8 25.4 L 34.1 36.9 Z' }
+      ]
+    },
+    telegram: {
+      name: 'Telegram', nameBn: 'টেলিগ্রাম', brandColor: '#26A5E4',
+      bg: '#26A5E4', shape: 'circle',
+      paths: [
+        { fill: '#ffffff', d: 'M 47.2 18.2 L 41.2 46.4 C 40.7 48.4 39.5 48.9 37.8 48.0 L 28.4 41.1 L 23.9 45.4 C 23.4 45.9 23.0 46.3 22.0 46.3 L 22.7 36.7 L 40.1 21.0 C 40.9 20.3 39.9 19.9 38.9 20.6 L 17.4 34.1 L 8.1 31.2 C 6.1 30.6 6.1 29.2 8.5 28.2 L 44.7 14.3 C 46.4 13.7 47.8 14.7 47.2 18.2 Z' }
+      ]
+    },
+    linkedin: {
+      name: 'LinkedIn', nameBn: 'লিংকডইন', brandColor: '#0A66C2',
+      bg: '#0A66C2', shape: 'rounded',
+      paths: [
+        { fill: '#ffffff', d: 'M 16.5 25.5 L 22.8 25.5 L 22.8 47.5 L 16.5 47.5 L 16.5 25.5 Z M 19.6 15.5 C 21.7 15.5 23.3 17.2 23.3 19.2 C 23.3 21.2 21.7 22.9 19.6 22.9 C 17.6 22.9 16.0 21.2 16.0 19.2 C 16.0 17.2 17.6 15.5 19.6 15.5 Z M 27.0 25.5 L 33.0 25.5 L 33.0 28.5 C 34.0 26.7 36.2 25.0 39.6 25.0 C 46.0 25.0 47.5 29.2 47.5 34.8 L 47.5 47.5 L 41.2 47.5 L 41.2 36.2 C 41.2 33.5 40.7 30.2 37.5 30.2 C 34.2 30.2 33.3 32.8 33.3 36.0 L 33.3 47.5 L 27.0 47.5 L 27.0 25.5 Z' }
+      ]
+    },
+    threads: {
+      name: 'Threads', nameBn: 'থ্রেডস', brandColor: '#18181b',
+      bg: '#18181b', shape: 'rounded',
+      paths: [
+        { fill: '#ffffff', d: 'M 32.6 13.0 C 42.8 13.0 49.5 19.8 49.8 29.8 C 50.1 39.2 44.5 45.2 36.5 45.2 C 32.2 45.2 29.0 43.2 27.8 40.2 C 26.2 42.5 23.6 43.8 20.6 43.4 C 16.2 42.8 13.5 39.4 13.8 35.2 C 14.2 30.4 18.6 27.6 25.4 27.8 L 28.2 27.9 C 28.0 24.4 26.0 22.6 22.6 22.6 C 20.2 22.6 18.2 23.6 16.8 25.2 L 13.8 22.4 C 16.0 19.8 19.2 18.4 23.2 18.4 C 29.2 18.4 32.6 21.8 32.6 28.4 L 32.6 34.8 C 32.6 38.6 34.2 40.8 37.0 40.8 C 41.8 40.8 45.2 36.6 45.0 29.8 C 44.8 22.2 39.8 17.4 32.2 17.4 C 23.8 17.4 18.2 22.8 18.2 31.8 C 18.2 41.2 24.0 46.8 33.2 46.8 C 36.8 46.8 40.0 45.8 42.8 43.8 L 45.2 47.4 C 41.6 49.8 37.6 51.0 33.0 51.0 C 21.2 51.0 13.6 43.4 13.6 31.8 C 13.6 20.4 21.2 13.0 32.6 13.0 Z M 24.8 31.6 C 20.6 31.5 18.2 32.9 18.0 35.2 C 17.8 37.4 19.4 39.0 21.8 39.2 C 25.2 39.5 28.0 37.2 28.2 33.2 L 28.2 31.8 L 24.8 31.6 Z' }
+      ]
+    },
+    pinterest: {
+      name: 'Pinterest', nameBn: 'পিন্টারেস্ট', brandColor: '#E60023',
+      bg: '#E60023', shape: 'circle',
+      paths: [
+        { fill: '#ffffff', d: 'M 32.4 13.5 C 21.8 13.5 15.5 20.6 15.5 28.8 C 15.5 32.6 17.5 36.0 20.6 37.3 C 21.1 37.5 21.4 37.4 21.6 36.7 L 22.4 33.5 C 22.5 33.0 22.4 32.7 22.0 32.2 C 21.0 31.0 20.3 29.3 20.3 27.2 C 20.3 21.6 24.5 17.4 31.6 17.4 C 37.6 17.4 41.6 21.1 41.6 26.6 C 41.6 33.0 38.5 37.8 34.4 37.8 C 32.2 37.8 30.5 36.0 31.0 33.8 L 32.8 26.5 C 33.3 24.4 32.0 22.6 29.8 22.6 C 27.2 22.6 25.1 25.3 25.1 28.8 C 25.1 31.0 25.9 32.5 25.9 32.5 L 22.6 46.4 C 22.0 48.8 22.4 51.5 22.6 52.0 L 26.8 52.0 C 27.4 50.8 29.0 45.2 29.6 42.8 L 30.8 38.0 C 32.0 40.0 34.8 41.5 37.8 41.5 C 45.2 41.5 50.2 34.8 50.2 26.4 C 50.2 18.8 43.6 13.5 32.4 13.5 Z' }
+      ]
+    },
+    discord: {
+      name: 'Discord', nameBn: 'ডিসকর্ড', brandColor: '#5865F2',
+      bg: '#5865F2', shape: 'rounded',
+      paths: [
+        { fill: '#ffffff', d: 'M 44.6 19.6 C 42.1 18.4 39.4 17.6 36.6 17.1 L 35.5 19.4 C 33.2 19.1 30.8 19.1 28.5 19.4 L 27.4 17.1 C 24.6 17.6 21.9 18.4 19.4 19.6 C 14.3 27.2 12.9 34.6 13.6 41.9 C 17.0 44.4 20.3 45.9 23.5 46.9 L 25.6 43.5 C 24.4 43.0 23.2 42.4 22.1 41.7 L 23.0 41.0 C 28.8 43.7 35.2 43.7 41.0 41.0 L 41.9 41.7 C 40.8 42.4 39.6 43.0 38.4 43.5 L 40.5 46.9 C 43.7 45.9 47.0 44.4 50.4 41.9 C 51.2 33.4 49.0 26.1 44.6 19.6 Z M 25.8 36.8 C 23.8 36.8 22.2 35.0 22.2 32.8 C 22.2 30.6 23.8 28.8 25.8 28.8 C 27.8 28.8 29.4 30.6 29.4 32.8 C 29.4 35.0 27.8 36.8 25.8 36.8 Z M 38.2 36.8 C 36.2 36.8 34.6 35.0 34.6 32.8 C 34.6 30.6 36.2 28.8 38.2 28.8 C 40.2 28.8 41.8 30.6 41.8 32.8 C 41.8 35.0 40.2 36.8 38.2 36.8 Z' }
+      ]
+    },
+    globe: {
+      name: 'Website', nameBn: 'ওয়েবসাইট', brandColor: '#0284c7',
+      bg: '#0284c7', shape: 'circle',
+      paths: [
+        { fill: '#ffffff', d: 'M 32.0 13.0 C 21.5 13.0 13.0 21.5 13.0 32.0 C 13.0 42.5 21.5 51.0 32.0 51.0 C 42.5 51.0 51.0 42.5 51.0 32.0 C 51.0 21.5 42.5 13.0 32.0 13.0 Z M 45.9 28.5 L 39.8 28.5 C 39.4 24.4 38.2 20.6 36.5 17.8 C 41.2 19.4 44.8 23.5 45.9 28.5 Z M 32.0 16.9 C 34.3 20.0 35.8 24.0 36.3 28.5 L 27.7 28.5 C 28.2 24.0 29.7 20.0 32.0 16.9 Z M 17.2 35.5 L 23.3 35.5 C 23.7 39.6 24.9 43.4 26.6 46.2 C 21.9 44.6 18.3 40.5 17.2 35.5 Z M 23.3 28.5 L 17.2 28.5 C 18.3 23.5 21.9 19.4 26.6 17.8 C 24.9 20.6 23.7 24.4 23.3 28.5 Z M 32.0 47.1 C 29.7 44.0 28.2 40.0 27.7 35.5 L 36.3 35.5 C 35.8 40.0 34.3 44.0 32.0 47.1 Z M 36.5 46.2 C 38.2 43.4 39.4 39.6 39.8 35.5 L 45.9 35.5 C 44.8 40.5 41.2 44.6 36.5 46.2 Z' }
       ]
     }
   };
 
   /**
    * Universal Canvas 2D path renderer for SVG path data strings.
-   * Handles absolute M, L, C, Z commands used by Nagad & Rocket brand vectors.
+   * Handles absolute M, L, H, V, C, Q, Z commands used by brand & UI vectors.
    * Serves as seamless fallback when Path2D is unavailable (Node.js test runners, headless environments).
    */
   function drawSvgPathDirect(ctx, d) {
@@ -2150,6 +2609,8 @@
     if (!tokens) return;
     var cmd = '';
     var i = 0;
+    var curX = 0;
+    var curY = 0;
     while (i < tokens.length) {
       var tok = tokens[i];
       if (/^[a-zA-Z]$/.test(tok)) {
@@ -2159,11 +2620,22 @@
       if (cmd === 'M') {
         var mx = parseFloat(tokens[i++]);
         var my = parseFloat(tokens[i++]);
+        curX = mx; curY = my;
         if (typeof ctx.moveTo === 'function') ctx.moveTo(mx, my);
+        cmd = 'L';
       } else if (cmd === 'L') {
         var lx = parseFloat(tokens[i++]);
         var ly = parseFloat(tokens[i++]);
+        curX = lx; curY = ly;
         if (typeof ctx.lineTo === 'function') ctx.lineTo(lx, ly);
+      } else if (cmd === 'H') {
+        var hx = parseFloat(tokens[i++]);
+        curX = hx;
+        if (typeof ctx.lineTo === 'function') ctx.lineTo(hx, curY);
+      } else if (cmd === 'V') {
+        var vy = parseFloat(tokens[i++]);
+        curY = vy;
+        if (typeof ctx.lineTo === 'function') ctx.lineTo(curX, vy);
       } else if (cmd === 'C') {
         var c1x = parseFloat(tokens[i++]);
         var c1y = parseFloat(tokens[i++]);
@@ -2171,10 +2643,22 @@
         var c2y = parseFloat(tokens[i++]);
         var ex = parseFloat(tokens[i++]);
         var ey = parseFloat(tokens[i++]);
+        curX = ex; curY = ey;
         if (typeof ctx.bezierCurveTo === 'function') {
           ctx.bezierCurveTo(c1x, c1y, c2x, c2y, ex, ey);
         } else if (typeof ctx.lineTo === 'function') {
           ctx.lineTo(ex, ey);
+        }
+      } else if (cmd === 'Q') {
+        var qx = parseFloat(tokens[i++]);
+        var qy = parseFloat(tokens[i++]);
+        var qex = parseFloat(tokens[i++]);
+        var qey = parseFloat(tokens[i++]);
+        curX = qex; curY = qey;
+        if (typeof ctx.quadraticCurveTo === 'function') {
+          ctx.quadraticCurveTo(qx, qy, qex, qey);
+        } else if (typeof ctx.lineTo === 'function') {
+          ctx.lineTo(qex, qey);
         }
       } else if (cmd === 'Z' || cmd === 'z') {
         if (typeof ctx.closePath === 'function') ctx.closePath();
@@ -2185,8 +2669,20 @@
     if (typeof ctx.fill === 'function') ctx.fill();
   }
 
+  function fillSvgPathItem(ctx, item, overrideFill) {
+    ctx.fillStyle = overrideFill || item.fill;
+    if (typeof Path2D !== 'undefined') {
+      try {
+        if (!item._path2d) item._path2d = new Path2D(item.d);
+        ctx.fill(item._path2d);
+        return;
+      } catch (e) {}
+    }
+    drawSvgPathDirect(ctx, item.d);
+  }
+
   /**
-   * Draws crisp native vector brand icons (bKash origami bird, Nagad flame, Rocket).
+   * Draws crisp native vector brand icons (bKash origami bird, Nagad coin/flame, DBBL Rocket, Upay, Bank, Card).
    * Synchronous, zero latency, subpixel precision at any DPI.
    */
   function drawBrandVectorIcon(ctx, brandKey, cx, cy, sz) {
@@ -2215,46 +2711,71 @@
       }
     } else if (brandKey === 'nagad') {
       // Nagad viewBox 0 0 54 54
-      var scaleN = sz / 54;
+      var scaleN = sz / 52;
       ctx.scale(scaleN, scaleN);
       ctx.translate(-27, -27);
-
       for (var j = 0; j < data.paths.length; j++) {
-        var itemN = data.paths[j];
-        ctx.fillStyle = itemN.fill;
-        if (typeof Path2D !== 'undefined') {
-          try {
-            if (!itemN._path2d) itemN._path2d = new Path2D(itemN.d);
-            ctx.fill(itemN._path2d);
-          } catch (e) {
-            drawSvgPathDirect(ctx, itemN.d);
-          }
-        } else {
-          drawSvgPathDirect(ctx, itemN.d);
-        }
+        fillSvgPathItem(ctx, data.paths[j]);
       }
     } else if (brandKey === 'rocket') {
-      // Rocket viewBox -8 0 208 126
-      var scaleR = sz / 180;
+      // Rocket emblem centered at (104, 63) spanning 104x104 inside 208x126
+      var scaleR = sz / 108;
       ctx.scale(scaleR, scaleR);
-      ctx.translate(-95, -63);
-
+      ctx.translate(-104, -63);
       for (var m = 0; m < data.paths.length; m++) {
-        var itemR = data.paths[m];
-        ctx.fillStyle = itemR.fill;
-        if (typeof Path2D !== 'undefined') {
-          try {
-            if (!itemR._path2d) itemR._path2d = new Path2D(itemR.d);
-            ctx.fill(itemR._path2d);
-          } catch (e) {
-            drawSvgPathDirect(ctx, itemR.d);
-          }
-        } else {
-          drawSvgPathDirect(ctx, itemR.d);
-        }
+        fillSvgPathItem(ctx, data.paths[m]);
+      }
+    } else if (data.paths && data.viewBox) {
+      var vbW = data.viewBox.w || 64;
+      var vbH = data.viewBox.h || 64;
+      var scaleO = sz / Math.max(vbW, vbH);
+      ctx.scale(scaleO, scaleO);
+      ctx.translate(-vbW / 2, -vbH / 2);
+      for (var pIdx = 0; pIdx < data.paths.length; pIdx++) {
+        fillSvgPathItem(ctx, data.paths[pIdx]);
       }
     }
 
+    ctx.restore();
+  }
+
+  /**
+   * Draws crisp authentic Social Media logos (Facebook, YouTube, Instagram, WhatsApp, X, TikTok, etc.).
+   */
+  function drawSocialVectorIcon(ctx, socialKey, cx, cy, sz, customBg) {
+    var data = SOCIAL_BRAND_VECTORS[socialKey];
+    if (!data || !ctx) return;
+    ctx.save();
+    ctx.translate(cx, cy);
+    var scale = sz / 64;
+    ctx.scale(scale, scale);
+    ctx.translate(-32, -32);
+
+    var bgFill = customBg || data.bg || data.brandColor || '#1877F2';
+    if (bgFill === 'instagram-grad' && !customBg) {
+      var igGrad = ctx.createLinearGradient(8, 56, 56, 8);
+      igGrad.addColorStop(0, '#feda75');
+      igGrad.addColorStop(0.28, '#fa7e1e');
+      igGrad.addColorStop(0.55, '#d62976');
+      igGrad.addColorStop(0.82, '#962fbf');
+      igGrad.addColorStop(1, '#4f5bd5');
+      bgFill = igGrad;
+    }
+
+    if (data.shape === 'circle') {
+      ctx.beginPath();
+      ctx.arc(32, 32, 28, 0, Math.PI * 2);
+      ctx.fillStyle = bgFill;
+      ctx.fill();
+    } else {
+      roundRectPath(ctx, 4, 4, 56, 56, 15);
+      ctx.fillStyle = bgFill;
+      ctx.fill();
+    }
+
+    for (var i = 0; i < data.paths.length; i++) {
+      fillSvgPathItem(ctx, data.paths[i]);
+    }
     ctx.restore();
   }
 
@@ -2555,7 +3076,11 @@
     });
 
     ctx.save();
+    var opPhoto = getElOpacity(hitId);
+    if (opPhoto < 0.999) ctx.globalAlpha *= opPhoto;
+    var flPhoto = getElFlip(hitId);
     applyCanvasRotationAround(ctx, vx + vw / 2, vy + vh / 2, rot);
+    applyCanvasFlipAround(ctx, vx + vw / 2, vy + vh / 2, flPhoto.h, flPhoto.v);
 
     if (opts.circle) {
       ctx.beginPath();
@@ -2627,20 +3152,68 @@
     var dx = anchorX + (anchorW - dw) / 2 + panX * (uw / 1080);
     var dy = anchorY + (anchorH - dh) / 2 + panY * (uh / 1080);
 
-    if (bright !== 100) {
-      try { ctx.filter = 'brightness(' + bright + '%)'; } catch (e) {}
+    var contrast = isStockPlaceholder ? 100 : (state.photoContrast != null ? state.photoContrast : 100);
+    var saturate = isStockPlaceholder ? 100 : (state.photoSaturate != null ? state.photoSaturate : 100);
+    var blurPx = isStockPlaceholder ? 0 : (state.photoBlur || 0);
+    var filterParts = [];
+    if (bright !== 100) filterParts.push('brightness(' + bright + '%)');
+    if (contrast !== 100) filterParts.push('contrast(' + contrast + '%)');
+    if (saturate !== 100) filterParts.push('saturate(' + saturate + '%)');
+    if (blurPx > 0) filterParts.push('blur(' + blurPx + 'px)');
+    if (filterParts.length) {
+      try { ctx.filter = filterParts.join(' '); } catch (e) {}
     }
     ctx.drawImage(activeImg, dx, dy, dw, dh);
     try { ctx.filter = 'none'; } catch (e) {}
     ctx.restore();
   }
 
-  // Tokenize `*highlighted*` text into [{ text, highlight }]
-  function tokenizeRichText(raw) {
-    var str = String(raw || '').trim();
+  // Tokenize rich text using either character-range `richSpans` (Canva-style selection highlight) or legacy `*highlighted*` syntax
+  function tokenizeRichText(raw, richSpans) {
+    var rawFull = String(raw || '');
+    var str = rawFull.trim();
     if (!str) return [];
-    var parts = str.split(/(\*[^*]+\*)/g);
     var tokens = [];
+
+    if (Array.isArray(richSpans) && richSpans.length > 0 && str.indexOf('*') === -1) {
+      var leadTrim = rawFull.length - rawFull.replace(/^\s+/, '').length;
+      var lineRe = /[^\n]+|\n/g;
+      var lm;
+      var hadLine = false;
+      while ((lm = lineRe.exec(str)) !== null) {
+        if (lm[0] === '\n') {
+          tokens.push({ br: true });
+          continue;
+        }
+        var lineText = lm[0];
+        var lineBaseOffset = leadTrim + lm.index;
+        var wordRe = /\S+/g;
+        var wm;
+        while ((wm = wordRe.exec(lineText)) !== null) {
+          var wStr = wm[0];
+          var ws = lineBaseOffset + wm.index;
+          var we = ws + wStr.length;
+          var matchedSpan = null;
+          for (var si = 0; si < richSpans.length; si++) {
+            var sp = richSpans[si];
+            if (sp && sp.start < we && sp.end > ws) {
+              matchedSpan = sp;
+              break;
+            }
+          }
+          tokens.push({
+            word: wStr,
+            hi: !!matchedSpan,
+            hiColor: matchedSpan && matchedSpan.color ? matchedSpan.color : '',
+            hiMode: matchedSpan && matchedSpan.mode ? matchedSpan.mode : ''
+          });
+        }
+        hadLine = true;
+      }
+      if (hadLine || tokens.length) return tokens;
+    }
+
+    var parts = str.split(/(\*[^*]+\*)/g);
     for (var i = 0; i < parts.length; i++) {
       var seg = parts[i];
       if (!seg) continue;
@@ -2651,7 +3224,7 @@
         if (p > 0) tokens.push({ br: true });
         var words = paragraphs[p].split(/\s+/);
         for (var w = 0; w < words.length; w++) {
-          if (words[w]) tokens.push({ word: words[w], hi: isHi });
+          if (words[w]) tokens.push({ word: words[w], hi: isHi, hiColor: '', hiMode: '' });
         }
       }
     }
@@ -2675,10 +3248,10 @@
       var addW = cur.length ? (spaceW + ww) : ww;
       if (cur.length && (curW + addW > maxWidth)) {
         lines.push({ items: cur, width: curW });
-        cur = [{ word: tk.word, hi: tk.hi, width: ww }];
+        cur = [{ word: tk.word, hi: tk.hi, hiColor: tk.hiColor || '', hiMode: tk.hiMode || '', width: ww }];
         curW = ww;
       } else {
-        cur.push({ word: tk.word, hi: tk.hi, width: ww });
+        cur.push({ word: tk.word, hi: tk.hi, hiColor: tk.hiColor || '', hiMode: tk.hiMode || '', width: ww });
         curW += addW;
       }
     }
@@ -2686,18 +3259,21 @@
     return { lines: lines, spaceW: spaceW };
   }
 
-  // Draws rich headline with `*highlight*` words, per-element font/styles/width/rotation & auto-fit
+  // Draws rich headline with selection `richSpans` or `*highlight*` words, per-element font/styles/width/rotation & auto-fit
   function drawRichHeadline(ctx, text, x, y, maxWidth, baseFontSize, align, normalColor, accentColor, opts) {
     opts = opts || {};
     var hitKey = opts.hitId || 'headline';
     if (!opts.noHit && isElHidden(hitKey)) return y;
+    if (!opts.noHit) flushBehindCustomLayersIfNeeded(ctx);
 
     var st = opts.noHit ? {} : getElStyle(hitKey);
     var fam = opts.fontFamily || (opts.noHit ? state.fontFamily : getElFont(hitKey));
     var rot = opts.noHit ? 0 : getElRotation(hitKey);
     var userResized = !opts.noHit && !!(state.userResized && state.userResized[hitKey]);
 
-    var tokens = tokenizeRichText(applyTextCase(text, st));
+    var casedText = applyTextCase(text, st);
+    var spans = opts.noHit ? (opts.richSpans || []) : getElRichSpans(hitKey, text);
+    var tokens = tokenizeRichText(casedText, spans);
     if (!tokens.length) return y;
 
     var sx = (state.width || 1080) / 1080;
@@ -2707,10 +3283,23 @@
     var isItalic = !!(st && st.italic);
     var lineRatio = (st && st.lineRatio) ? Number(st.lineRatio) : (opts.lineRatio || 1.34);
     var effAlign = (st && st.align) ? st.align : align;
-    var rawNormalColor = (st && st.color) ? st.color : normalColor;
+    var manualNormalColor = (st && st.color) ? String(st.color).trim() : '';
     var bgCtx = opts.bgContext || state.bgColor;
-    var effNormalColor = getEffectiveTextColor(rawNormalColor, bgCtx);
-    var effAccentColor = getEffectiveTextColor(accentColor, bgCtx);
+    var effNormalColor = resolveElementTextColor(manualNormalColor, normalColor, bgCtx);
+    var manualHi = (st && st.highlightColor) ? String(st.highlightColor).trim() : (state.highlightColor ? String(state.highlightColor).trim() : '');
+    var hiMode = (st && st.highlightBgMode) || state.highlightBgMode || '';
+    var nativeMarker = !!(opts.markerBg || (st && st.effect === 'marker'));
+    var useMarker = hiMode === 'marker' ? true : (hiMode === 'text' ? false : nativeMarker);
+    var effMarkerFill = manualHi ? manualHi : (opts.markerBg || hexToRgba(accentColor, 0.25));
+    var effAccentColor;
+    if (useMarker) {
+      if (manualNormalColor) effAccentColor = manualNormalColor;
+      else if (manualHi) effAccentColor = getEffectiveTextColor('#0f172a', manualHi);
+      else if (hiMode === 'marker') effAccentColor = getEffectiveTextColor('#0f172a', effMarkerFill);
+      else effAccentColor = getEffectiveTextColor(accentColor, bgCtx);
+    } else {
+      effAccentColor = manualHi ? manualHi : getEffectiveTextColor(accentColor, bgCtx);
+    }
 
     var customBoxW = (!opts.noHit && state.elementBoxW && state.elementBoxW[hitKey])
       ? Math.round(state.elementBoxW[hitKey] * sx)
@@ -2742,9 +3331,14 @@
     var drawX = baseX + off.dx;
     var drawY = y + off.dy;
     var totalH = Math.max(lineH, layout.lines.length * lineH);
+    var skipGlyphs = !opts.noHit && shouldSkipCanvasGlyphsForInlineEdit(hitKey);
 
     ctx.save();
+    var elOp = opts.noHit ? 1 : getElOpacity(hitKey);
+    if (elOp < 0.999) ctx.globalAlpha *= elOp;
+    var fl = opts.noHit ? { h: false, v: false } : getElFlip(hitKey);
     applyCanvasRotationAround(ctx, drawX + effMaxW / 2, drawY + totalH / 2, rot);
+    applyCanvasFlipAround(ctx, drawX + effMaxW / 2, drawY + totalH / 2, fl.h, fl.v);
     ctx.font = fontSpec(weight, sz, fam, isItalic);
     ctx.textBaseline = 'top';
     ctx.textAlign = 'left';
@@ -2762,21 +3356,33 @@
       if (startX < minLineX) minLineX = startX;
       if (startX + ln.width > maxLineRight) maxLineRight = startX + ln.width;
 
-      var cx = startX;
-      for (var k = 0; k < ln.items.length; k++) {
-        var it = ln.items[k];
-        if (it.hi && (opts.markerBg || (st && st.effect === 'marker'))) {
-          ctx.save();
-          ctx.shadowColor = 'transparent';
-          fillRoundRect(ctx, cx - 5, curY + sz * 0.06, it.width + 10, sz * 1.12, 6, opts.markerBg || hexToRgba(accentColor, 0.25));
-          ctx.restore();
+      if (!skipGlyphs) {
+        var cx = startX;
+        for (var k = 0; k < ln.items.length; k++) {
+          var it = ln.items[k];
+          var itemUseMarker = it.hiMode === 'marker' ? true : (it.hiMode === 'text' ? false : useMarker);
+          var itemMarkerFill = it.hiColor ? it.hiColor : effMarkerFill;
+          var itemFg = effNormalColor;
+          if (it.hi) {
+            if (itemUseMarker) {
+              itemFg = it.hiColor ? getEffectiveTextColor('#0f172a', it.hiColor) : effAccentColor;
+            } else {
+              itemFg = it.hiColor ? it.hiColor : effAccentColor;
+            }
+          }
+          if (it.hi && itemUseMarker) {
+            ctx.save();
+            ctx.shadowColor = 'transparent';
+            fillRoundRect(ctx, cx - 5, curY + sz * 0.06, it.width + 10, sz * 1.12, 6, itemMarkerFill);
+            ctx.restore();
+          }
+          applyTextEffectToCtx(ctx, st, defaultSh, itemFg);
+          ctx.fillStyle = itemFg;
+          ctx.fillText(it.word, cx, curY);
+          cx += it.width + layout.spaceW;
         }
-        applyTextEffectToCtx(ctx, st, defaultSh, effAccentColor);
-        ctx.fillStyle = it.hi ? effAccentColor : effNormalColor;
-        ctx.fillText(it.word, cx, curY);
-        cx += it.width + layout.spaceW;
+        drawTextDecorations(ctx, st, startX, curY, ln.width, sz, effNormalColor);
       }
-      drawTextDecorations(ctx, st, startX, curY, ln.width, sz, effNormalColor);
       curY += lineH;
     }
     ctx.restore();
@@ -2794,6 +3400,18 @@
         y: drawY - 4,
         w: regW,
         h: totalH + 8,
+        textBoxX: drawX,
+        textBoxY: drawY,
+        textBoxW: effMaxW,
+        renderFontPx: sz,
+        renderLineH: lineH,
+        renderFontFamily: fam,
+        renderWeight: weight,
+        renderItalic: isItalic,
+        renderColor: effNormalColor,
+        renderHiColor: effAccentColor,
+        renderUseMarker: useMarker,
+        renderMarkerFill: effMarkerFill,
         fontSize: Math.max(14, Math.round(sz / (U * (1 + (portBoost - 1) * 0.55)))),
         align: effAlign,
         rotation: rot
@@ -2809,12 +3427,15 @@
 
     var hitKey = opts.hitId || ((state.detail && rawStr.indexOf(String(state.detail).trim().slice(0, 12)) !== -1 && (!state.tagline || rawStr.indexOf(String(state.tagline).trim().slice(0, 12)) === -1)) ? 'detail' : 'tagline');
     if (!opts.noHit && isElHidden(hitKey)) return y;
+    if (!opts.noHit) flushBehindCustomLayersIfNeeded(ctx);
 
     var st = opts.noHit ? {} : getElStyle(hitKey);
     var fam = opts.fontFamily || (opts.noHit ? state.fontFamily : getElFont(hitKey));
     var rot = opts.noHit ? 0 : getElRotation(hitKey);
     var userResized = !opts.noHit && !!(state.userResized && state.userResized[hitKey]);
     var str = applyTextCase(rawStr, st);
+    var spans = opts.noHit ? [] : getElRichSpans(hitKey, text);
+    var hasRich = spans.length > 0 || str.indexOf('*') !== -1;
 
     var sx = (state.width || 1080) / 1080;
     var U = Math.min(state.width || 1080, (state.height || 1080) * 1.28) / 1080;
@@ -2836,14 +3457,19 @@
     var weight = (st && st.bold === false) ? 500 : Math.max(700, opts.weight || 700);
     var isItalic = !!(st && st.italic);
     var effAlign = (st && st.align) ? st.align : align;
-    var rawColor = (st && st.color) ? st.color : color;
+    var manualCol = (st && st.color) ? String(st.color).trim() : '';
     var bgCtx = opts.bgContext || state.bgColor;
-    var effColor = getEffectiveTextColor(rawColor, bgCtx);
+    var effColor = resolveElementTextColor(manualCol, color, bgCtx);
+    var manualHi = (st && st.highlightColor) ? String(st.highlightColor).trim() : (state.highlightColor ? String(state.highlightColor).trim() : '');
+    var hiMode = (st && st.highlightBgMode) || state.highlightBgMode || '';
+    var effHiCol = manualHi || getEffectiveTextColor(state.accentColor || '#fbbf24', bgCtx);
     var maxLines = userResized ? 10 : Math.max(2, opts.maxLines || 3);
     var lineRatio = (st && st.lineRatio) ? Number(st.lineRatio) : (opts.lineRatio || 1.38);
     var maxBottomY = userResized ? 99999 : (opts.maxBottomY || ((state.height || 1080) - currentRenderFooterH - Math.round(16 * U)));
+    var skipGlyphs = !opts.noHit && shouldSkipCanvasGlyphsForInlineEdit(hitKey);
 
-    var words = str.replace(/\n+/g, ' • ').split(/\s+/);
+    var cleanForMeasure = hasRich && str.indexOf('*') !== -1 ? str.replace(/\*([^*\n]+)\*/g, '$1') : str;
+    var words = cleanForMeasure.replace(/\n+/g, ' • ').split(/\s+/);
     var lines = [];
     var lineH = Math.round(fSz * lineRatio);
 
@@ -2869,18 +3495,59 @@
     }
 
     var totalH = lines.length * lineH;
+    var elOp = opts.noHit ? 1 : getElOpacity(hitKey);
+    if (elOp < 0.999) ctx.globalAlpha *= elOp;
+    var fl = opts.noHit ? { h: false, v: false } : getElFlip(hitKey);
     applyCanvasRotationAround(ctx, drawX + effMaxW / 2, drawY + totalH / 2, rot);
-    ctx.fillStyle = effColor;
+    applyCanvasFlipAround(ctx, drawX + effMaxW / 2, drawY + totalH / 2, fl.h, fl.v);
     ctx.textBaseline = 'top';
-    ctx.textAlign = effAlign === 'center' ? 'center' : (effAlign === 'right' ? 'right' : 'left');
-    applyTextEffectToCtx(ctx, st, { color: 'rgba(0,0,0,0.28)', blur: 6, y: 1.5 }, state.accentColor);
 
-    var anchorX = effAlign === 'center' ? (drawX + effMaxW / 2) : (effAlign === 'right' ? (drawX + effMaxW) : drawX);
-    for (var j = 0; j < lines.length; j++) {
-      ctx.fillText(lines[j], anchorX, drawY + j * lineH, effMaxW);
-      var lw = Math.min(effMaxW, ctx.measureText(lines[j]).width);
-      var decX = effAlign === 'center' ? (anchorX - lw / 2) : (effAlign === 'right' ? (anchorX - lw) : anchorX);
-      drawTextDecorations(ctx, st, decX, drawY + j * lineH, lw, fSz, effColor);
+    if (!skipGlyphs) {
+      if (hasRich) {
+        var richTokens = tokenizeRichText(str, spans);
+        var richLayout = layoutRichLines(ctx, richTokens, effMaxW);
+        var rLines = richLayout.lines.slice(0, maxLines);
+        totalH = rLines.length * lineH;
+        ctx.textAlign = 'left';
+        for (var rl = 0; rl < rLines.length; rl++) {
+          var rLn = rLines[rl];
+          var rx = drawX;
+          if (effAlign === 'center') rx = drawX + (effMaxW - rLn.width) / 2;
+          else if (effAlign === 'right') rx = drawX + effMaxW - rLn.width;
+          var rcx = rx;
+          for (var rk = 0; rk < rLn.items.length; rk++) {
+            var rit = rLn.items[rk];
+            var rUseMarker = rit.hiMode === 'marker' || (rit.hiMode !== 'text' && hiMode === 'marker');
+            var rMarkerBg = rit.hiColor || effHiCol;
+            var rFg = effColor;
+            if (rit.hi) {
+              rFg = rUseMarker ? getEffectiveTextColor('#0f172a', rMarkerBg) : (rit.hiColor || effHiCol);
+            }
+            if (rit.hi && rUseMarker) {
+              ctx.save();
+              ctx.shadowColor = 'transparent';
+              fillRoundRect(ctx, rcx - 4, drawY + rl * lineH + fSz * 0.06, rit.width + 8, fSz * 1.12, 5, rMarkerBg);
+              ctx.restore();
+            }
+            applyTextEffectToCtx(ctx, st, { color: 'rgba(0,0,0,0.28)', blur: 6, y: 1.5 }, state.accentColor);
+            ctx.fillStyle = rFg;
+            ctx.fillText(rit.word, rcx, drawY + rl * lineH);
+            rcx += rit.width + richLayout.spaceW;
+          }
+          drawTextDecorations(ctx, st, rx, drawY + rl * lineH, rLn.width, fSz, effColor);
+        }
+      } else {
+        ctx.fillStyle = effColor;
+        ctx.textAlign = effAlign === 'center' ? 'center' : (effAlign === 'right' ? 'right' : 'left');
+        applyTextEffectToCtx(ctx, st, { color: 'rgba(0,0,0,0.28)', blur: 6, y: 1.5 }, state.accentColor);
+        var anchorX = effAlign === 'center' ? (drawX + effMaxW / 2) : (effAlign === 'right' ? (drawX + effMaxW) : drawX);
+        for (var j = 0; j < lines.length; j++) {
+          ctx.fillText(lines[j], anchorX, drawY + j * lineH, effMaxW);
+          var lw = Math.min(effMaxW, ctx.measureText(lines[j]).width);
+          var decX = effAlign === 'center' ? (anchorX - lw / 2) : (effAlign === 'right' ? (anchorX - lw) : anchorX);
+          drawTextDecorations(ctx, st, decX, drawY + j * lineH, lw, fSz, effColor);
+        }
+      }
     }
     ctx.restore();
 
@@ -2895,6 +3562,18 @@
         y: drawY - 4,
         w: effMaxW + 8,
         h: totalH + 8,
+        textBoxX: drawX,
+        textBoxY: drawY,
+        textBoxW: effMaxW,
+        renderFontPx: fSz,
+        renderLineH: lineH,
+        renderFontFamily: fam,
+        renderWeight: weight,
+        renderItalic: isItalic,
+        renderColor: effColor,
+        renderHiColor: effHiCol,
+        renderUseMarker: hiMode === 'marker',
+        renderMarkerFill: effHiCol,
         fontSize: Math.round(fSz / (U * portBoost)),
         align: effAlign,
         rotation: rot
@@ -2903,7 +3582,7 @@
     return y + totalH;
   }
 
-  // Crisp Canvas 2D geometric vector icons (replaces unicode emoji glyphs across cards & stickers)
+  // Crisp Canvas 2D geometric vector icons (replaces unicode emoji glyphs across cards, elements & stickers)
   function drawUiVectorIcon(ctx, iconKey, cx, cy, sz, color) {
     if (!iconKey || !ctx) return;
     var r = Math.max(4, sz * 0.5);
@@ -2926,17 +3605,16 @@
         break;
 
       case 'phone':
+      case 'call':
+      case 'phone-call':
         ctx.save();
         ctx.translate(cx, cy);
-        ctx.rotate(-0.35);
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 0.78, 0.32 * Math.PI, 1.18 * Math.PI);
-        ctx.lineWidth = Math.max(2.2, sz * 0.2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(-r * 0.52, -r * 0.42, r * 0.26, 0, Math.PI * 2);
-        ctx.arc(-r * 0.18, r * 0.66, r * 0.26, 0, Math.PI * 2);
-        ctx.fill();
+        var pScale = sz / 22;
+        ctx.scale(pScale, pScale);
+        ctx.translate(-12, -12);
+        drawSvgPathDirect(ctx,
+          'M 6.62 10.79 C 8.06 13.62 10.38 15.94 13.21 17.38 L 15.41 15.18 C 15.69 14.9 16.08 14.82 16.43 14.93 C 17.55 15.3 18.75 15.5 20.0 15.5 C 20.55 15.5 21.0 15.95 21.0 16.5 L 21.0 20.0 C 21.0 20.55 20.55 21.0 20.0 21.0 C 10.61 21.0 3.0 13.39 3.0 4.0 C 3.0 3.45 3.45 3.0 4.0 3.0 L 7.5 3.0 C 8.05 3.0 8.5 3.45 8.5 4.0 C 8.5 5.25 8.7 6.45 9.07 7.57 C 9.18 7.92 9.1 8.31 8.82 8.59 L 6.62 10.79 Z'
+        );
         ctx.restore();
         break;
 
@@ -2960,6 +3638,143 @@
         ctx.stroke();
         ctx.beginPath();
         ctx.arc(cx, cy - r * 0.24, r * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+
+      case 'globe':
+      case 'web':
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.84, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.82, cy);
+        ctx.lineTo(cx + r * 0.82, cy);
+        ctx.moveTo(cx, cy - r * 0.84);
+        ctx.quadraticCurveTo(cx + r * 0.45, cy, cx, cy + r * 0.84);
+        ctx.moveTo(cx, cy - r * 0.84);
+        ctx.quadraticCurveTo(cx - r * 0.45, cy, cx, cy + r * 0.84);
+        ctx.stroke();
+        break;
+
+      case 'mail':
+      case 'email':
+        strokeRoundRect(ctx, cx - r * 0.86, cy - r * 0.58, r * 1.72, r * 1.16, r * 0.16, col, ctx.lineWidth);
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.8, cy - r * 0.46);
+        ctx.lineTo(cx, cy + r * 0.14);
+        ctx.lineTo(cx + r * 0.8, cy - r * 0.46);
+        ctx.stroke();
+        break;
+
+      case 'verified':
+      case 'check-circle':
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.86, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.save();
+        ctx.strokeStyle = col === '#ffffff' ? '#0f172a' : '#ffffff';
+        ctx.lineWidth = Math.max(2, sz * 0.14);
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.36, cy + r * 0.02);
+        ctx.lineTo(cx - r * 0.08, cy + r * 0.3);
+        ctx.lineTo(cx + r * 0.42, cy - r * 0.24);
+        ctx.stroke();
+        ctx.restore();
+        break;
+
+      case 'megaphone':
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.78, cy - r * 0.22);
+        ctx.lineTo(cx + r * 0.52, cy - r * 0.68);
+        ctx.lineTo(cx + r * 0.52, cy + r * 0.52);
+        ctx.lineTo(cx - r * 0.78, cy + r * 0.16);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.48, cy + r * 0.2);
+        ctx.lineTo(cx - r * 0.32, cy + r * 0.76);
+        ctx.moveTo(cx + r * 0.74, cy - r * 0.34);
+        ctx.lineTo(cx + r * 0.92, cy - r * 0.48);
+        ctx.moveTo(cx + r * 0.74, cy + r * 0.18);
+        ctx.lineTo(cx + r * 0.92, cy + r * 0.32);
+        ctx.stroke();
+        break;
+
+      case 'camera':
+        strokeRoundRect(ctx, cx - r * 0.86, cy - r * 0.48, r * 1.72, r * 1.24, r * 0.2, col, ctx.lineWidth);
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.36, cy - r * 0.48);
+        ctx.lineTo(cx - r * 0.22, cy - r * 0.74);
+        ctx.lineTo(cx + r * 0.22, cy - r * 0.74);
+        ctx.lineTo(cx + r * 0.36, cy - r * 0.48);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy + r * 0.14, r * 0.34, 0, Math.PI * 2);
+        ctx.stroke();
+        break;
+
+      case 'play':
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.86, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.24, cy - r * 0.42);
+        ctx.lineTo(cx + r * 0.46, cy);
+        ctx.lineTo(cx - r * 0.24, cy + r * 0.42);
+        ctx.closePath();
+        ctx.fill();
+        break;
+
+      case 'quote':
+        ctx.beginPath();
+        ctx.arc(cx - r * 0.38, cy - r * 0.16, r * 0.28, 0, Math.PI * 2);
+        ctx.arc(cx + r * 0.38, cy - r * 0.16, r * 0.28, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.16, cy - r * 0.12);
+        ctx.quadraticCurveTo(cx - r * 0.18, cy + r * 0.54, cx - r * 0.54, cy + r * 0.68);
+        ctx.moveTo(cx + r * 0.6, cy - r * 0.12);
+        ctx.quadraticCurveTo(cx + r * 0.58, cy + r * 0.54, cx + r * 0.22, cy + r * 0.68);
+        ctx.stroke();
+        break;
+
+      case 'calendar':
+        strokeRoundRect(ctx, cx - r * 0.78, cy - r * 0.62, r * 1.56, r * 1.42, r * 0.18, col, ctx.lineWidth);
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.78, cy - r * 0.18);
+        ctx.lineTo(cx + r * 0.78, cy - r * 0.18);
+        ctx.moveTo(cx - r * 0.38, cy - r * 0.84);
+        ctx.lineTo(cx - r * 0.38, cy - r * 0.42);
+        ctx.moveTo(cx + r * 0.38, cy - r * 0.84);
+        ctx.lineTo(cx + r * 0.38, cy - r * 0.42);
+        ctx.stroke();
+        break;
+
+      case 'clock':
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.84, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - r * 0.48);
+        ctx.lineTo(cx, cy);
+        ctx.lineTo(cx + r * 0.36, cy + r * 0.24);
+        ctx.stroke();
+        break;
+
+      case 'users':
+        ctx.beginPath();
+        ctx.arc(cx - r * 0.24, cy - r * 0.28, r * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx + r * 0.38, cy - r * 0.22, r * 0.24, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx - r * 0.24, cy + r * 0.76, r * 0.58, Math.PI * 1.12, Math.PI * 1.88);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx + r * 0.42, cy + r * 0.76, r * 0.44, Math.PI * 1.15, Math.PI * 1.85);
+        ctx.closePath();
         ctx.fill();
         break;
 
@@ -3061,7 +3876,11 @@
         ctx.lineTo(cx, cy + r * 0.84);
         ctx.moveTo(cx - r * 0.72, cy + r * 0.22);
         ctx.lineTo(cx + r * 0.72, cy + r * 0.22);
+        ctx.stroke();
+        ctx.beginPath();
         ctx.arc(cx - r * 0.26, cy - r * 0.52, r * 0.24, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
         ctx.arc(cx + r * 0.26, cy - r * 0.52, r * 0.24, 0, Math.PI * 2);
         ctx.stroke();
         break;
@@ -3145,6 +3964,7 @@
   function drawCategoryPill(ctx, text, x, y, U, align, maxWidth, bgHex, textHex, iconKey) {
     var rawLabel = String(text || '').trim();
     if (!rawLabel || isElHidden('badge')) return 0;
+    flushBehindCustomLayersIfNeeded(ctx);
 
     var st = getElStyle('badge');
     var fam = getElFont('badge');
@@ -3159,6 +3979,8 @@
     var isItalic = !!(st && st.italic);
 
     ctx.save();
+    var opBadge = getElOpacity('badge');
+    if (opBadge < 0.999) ctx.globalAlpha *= opBadge;
     ctx.font = fontSpec(weight, fSz, fam, isItalic);
     var padX = Math.round(24 * U);
     var pillH = Math.round(Math.max(54 * U * portBoost, fSz * 1.78));
@@ -3174,22 +3996,34 @@
 
     px += off.dx;
     var py = y + off.dy;
-    var rawFg = (st && st.color) ? st.color : (textHex || '#ffffff');
-    var fg = getEffectiveTextColor(rawFg, bgHex);
+    var effBgHex = (st && st.bgColor) ? st.bgColor : bgHex;
+    var manualFg = (st && st.color) ? String(st.color).trim() : '';
+    var fg = resolveElementTextColor(manualFg, textHex || '#ffffff', effBgHex);
+    var flBadge = getElFlip('badge');
+    var skipBadgeGlyphs = shouldSkipCanvasGlyphsForInlineEdit('badge');
 
     applyCanvasRotationAround(ctx, px + pw / 2, py + pillH / 2, rot);
-    fillRoundRect(ctx, px, py, pw, pillH, Math.round(12 * U), bgHex);
+    applyCanvasFlipAround(ctx, px + pw / 2, py + pillH / 2, flBadge.h, flBadge.v);
+    fillRoundRect(ctx, px, py, pw, pillH, Math.round(12 * U), effBgHex);
+    var badgeTextBoxX = px + Math.round(10 * U);
+    var badgeTextBoxW = Math.max(24, pw - Math.round(20 * U));
+    var badgeTextAlign = 'center';
     if (iconKey) {
       var groupStartX = px + (pw - (iconExtraW + tw)) / 2;
       drawUiVectorIcon(ctx, iconKey, groupStartX + iconSz / 2, py + pillH / 2, iconSz, fg);
-      ctx.fillStyle = fg;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      applyTextEffectToCtx(ctx, st, null, state.accentColor);
       var txtX = groupStartX + iconExtraW;
-      ctx.fillText(label, txtX, py + pillH / 2 + 1, Math.max(24, pw - iconExtraW - Math.round(18 * U)));
-      drawTextDecorations(ctx, st, txtX, py + (pillH - fSz) / 2, tw, fSz, fg);
-    } else {
+      badgeTextBoxX = txtX;
+      badgeTextBoxW = Math.max(24, pw - (txtX - px) - Math.round(10 * U));
+      badgeTextAlign = 'left';
+      if (!skipBadgeGlyphs) {
+        ctx.fillStyle = fg;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        applyTextEffectToCtx(ctx, st, null, state.accentColor);
+        ctx.fillText(label, txtX, py + pillH / 2 + 1, Math.max(24, pw - iconExtraW - Math.round(18 * U)));
+        drawTextDecorations(ctx, st, txtX, py + (pillH - fSz) / 2, tw, fSz, fg);
+      }
+    } else if (!skipBadgeGlyphs) {
       ctx.fillStyle = fg;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -3208,9 +4042,19 @@
       y: py,
       w: pw,
       h: pillH,
+      textBoxX: badgeTextBoxX,
+      textBoxY: py + Math.max(2, Math.round((pillH - fSz * 1.3) / 2)),
+      textBoxW: badgeTextBoxW,
+      renderFontPx: fSz,
+      renderLineH: Math.round(fSz * 1.3),
+      renderFontFamily: fam,
+      renderWeight: weight,
+      renderItalic: isItalic,
+      renderColor: fg,
       fontSize: Math.round(fSz / (U * portBoost)),
-      align: 'center',
-      rotation: rot
+      align: badgeTextAlign,
+      rotation: rot,
+      singleLine: true
     });
     return pillH;
   }
@@ -3220,6 +4064,7 @@
     opts = opts || {};
     var pos = state.logoPos === 'custom' ? 'custom' : (opts.forcePos || state.logoPos);
     if (pos === 'hidden' || isElHidden('logo')) return;
+    flushBehindCustomLayersIfNeeded(ctx);
 
     var hasLogo = !!state.logoImg;
     var brand = String(state.brandName || '').trim();
@@ -3242,6 +4087,8 @@
     }
 
     ctx.save();
+    var opLogo = getElOpacity('logo');
+    if (opLogo < 0.999) ctx.globalAlpha *= opLogo;
     var fSz = Math.round(28 * scale);
     ctx.font = fontSpec(800, fSz, fam, false);
     var maxBrandW = Math.round(390 * U);
@@ -3274,7 +4121,9 @@
     bx += off.dx;
     by += off.dy;
 
+    var flLogo = getElFlip('logo');
     applyCanvasRotationAround(ctx, bx + totalW / 2, by + boxH / 2, rot);
+    applyCanvasFlipAround(ctx, bx + totalW / 2, by + boxH / 2, flLogo.h, flLogo.v);
 
     if (boxStyle === 'light') {
       ctx.shadowColor = 'rgba(0,0,0,0.28)';
@@ -3297,8 +4146,9 @@
       ctx.drawImage(state.logoImg, curX, by + (boxH - iconMaxH) / 2, iconW, iconMaxH);
       curX += iconW + gap;
     }
-    if (brand) {
-      ctx.fillStyle = boxStyle === 'light' ? '#0f172a' : '#ffffff';
+    var brandFg = boxStyle === 'light' ? '#0f172a' : '#ffffff';
+    if (brand && !shouldSkipCanvasGlyphsForInlineEdit('logo')) {
+      ctx.fillStyle = brandFg;
       if (boxStyle === 'none') {
         ctx.shadowColor = 'rgba(0,0,0,0.75)';
         ctx.shadowBlur = 8;
@@ -3318,9 +4168,18 @@
       y: by,
       w: totalW,
       h: boxH,
+      textBoxX: curX,
+      textBoxY: by + Math.max(2, Math.round((boxH - fSz * 1.3) / 2)),
+      textBoxW: Math.max(60, totalW - (curX - bx) - padX),
+      renderFontPx: fSz,
+      renderLineH: Math.round(fSz * 1.3),
+      renderFontFamily: fam,
+      renderWeight: 800,
+      renderColor: brandFg,
       fontSize: fSz,
-      align: 'center',
-      rotation: rot
+      align: 'left',
+      rotation: rot,
+      singleLine: true
     });
   }
 
@@ -3329,6 +4188,7 @@
       currentRenderFooterH = 0;
       return 0;
     }
+    flushBehindCustomLayersIfNeeded(ctx);
 
     var st = getElStyle('footer');
     var fam = getElFont('footer');
@@ -3344,14 +4204,19 @@
     var off = getElOffset('footer');
     var fy = H - footerH + off.dy;
     var fx = (W - effW) / 2 + off.dx;
-    var rawFg = (st && st.color) ? st.color : (textColor || '#ffffff');
-    var fg = (barColor && barColor !== 'transparent') ? getEffectiveTextColor(rawFg, barColor) : rawFg;
+    var effBarColor = (st && st.bgColor) ? st.bgColor : barColor;
+    var manualFg = (st && st.color) ? String(st.color).trim() : '';
+    var fg = manualFg ? manualFg : ((effBarColor && effBarColor !== 'transparent') ? getEffectiveTextColor(textColor || '#ffffff', effBarColor) : (textColor || '#ffffff'));
     var weight = (st && st.bold === false) ? 600 : 800;
     var isItalic = !!(st && st.italic);
 
     ctx.save();
+    var opFooter = getElOpacity('footer');
+    if (opFooter < 0.999) ctx.globalAlpha *= opFooter;
+    var flFooter = getElFlip('footer');
     applyCanvasRotationAround(ctx, fx + effW / 2, fy + footerH / 2, rot);
-    ctx.fillStyle = barColor;
+    applyCanvasFlipAround(ctx, fx + effW / 2, fy + footerH / 2, flFooter.h, flFooter.v);
+    ctx.fillStyle = effBarColor;
     ctx.fillRect(fx, fy, effW, footerH);
 
     ctx.fillStyle = accentColor || state.accentColor;
@@ -3365,8 +4230,10 @@
     var leftTxt = applyTextCase(String(state.footerUrl || '').trim() || String(state.brandName || '').trim(), st);
     var rightTxt = applyTextCase(String(state.dateText || '').trim(), st);
 
-    ctx.textAlign = 'left';
-    if (leftTxt) ctx.fillText(leftTxt, fx + pad, fy + footerH / 2 + 1, effW * 0.58);
+    if (!shouldSkipCanvasGlyphsForInlineEdit('footer')) {
+      ctx.textAlign = 'left';
+      if (leftTxt) ctx.fillText(leftTxt, fx + pad, fy + footerH / 2 + 1, effW * 0.58);
+    }
 
     ctx.textAlign = 'right';
     ctx.fillStyle = hexToRgba(fg, 0.96);
@@ -3382,9 +4249,19 @@
       y: fy,
       w: effW,
       h: footerH,
+      textBoxX: fx + pad,
+      textBoxY: fy + Math.max(4, Math.round((footerH - fSz * 1.35) / 2)),
+      textBoxW: Math.round(effW * 0.58),
+      renderFontPx: fSz,
+      renderLineH: Math.round(fSz * 1.35),
+      renderFontFamily: fam,
+      renderWeight: weight,
+      renderItalic: isItalic,
+      renderColor: fg,
       fontSize: Math.round(fSz / (U * portBoost)),
       align: 'left',
-      rotation: rot
+      rotation: rot,
+      singleLine: true
     });
     return footerH;
   }
@@ -3394,6 +4271,7 @@
   function drawDetailCalloutBox(ctx, text, x, y, w, U, bgFill, borderStroke, textColor, iconLabel) {
     var raw = String(text || '').trim();
     if (!raw || isElHidden('detail')) return 0;
+    flushBehindCustomLayersIfNeeded(ctx);
 
     var rawIconSpec = String(iconLabel || '').trim();
     var semanticIcon = '';
@@ -3472,6 +4350,8 @@
     var maxAllowedLines = userResized ? 6 : 2;
 
     ctx.save();
+    var opDetail = getElOpacity('detail');
+    if (opDetail < 0.999) ctx.globalAlpha *= opDetail;
     while (true) {
       ctx.font = fontSpec(weight, fSz, fam, isItalic);
       lineH = Math.round(fSz * lineRatio);
@@ -3498,12 +4378,21 @@
     if (!userResized && minTopAllowed > 0) clampedBaseY = Math.max(minTopAllowed, clampedBaseY);
     var dx = baseX + off.dx;
     var dy = clampedBaseY + off.dy;
-    var rawFg = (st && st.color) ? st.color : textColor;
-    var fg = getEffectiveTextColor(rawFg, bgFill);
+    var effBgFill = (st && st.bgColor) ? st.bgColor : bgFill;
+    var manualFg = (st && st.color) ? String(st.color).trim() : '';
+    var fg = resolveElementTextColor(manualFg, textColor, effBgFill);
+    var flDetail = getElFlip('detail');
+    var skipDetailGlyphs = shouldSkipCanvasGlyphsForInlineEdit('detail');
 
     applyCanvasRotationAround(ctx, dx + effW / 2, dy + boxH / 2, rot);
-    fillRoundRect(ctx, dx, dy, effW, boxH, Math.round(16 * U), bgFill);
+    applyCanvasFlipAround(ctx, dx + effW / 2, dy + boxH / 2, flDetail.h, flDetail.v);
+    fillRoundRect(ctx, dx, dy, effW, boxH, Math.round(16 * U), effBgFill);
     strokeRoundRect(ctx, dx, dy, effW, boxH, Math.round(16 * U), borderStroke, Math.max(2, 2.5 * U));
+
+    var detailTextBoxX = dx + padX;
+    var detailTextBoxY = dy + padY;
+    var detailTextBoxW = innerW;
+    var detailTextAlign = 'center';
 
     if (isPayment && brands.length > 0) {
       var maxLineWidth = 0;
@@ -3533,17 +4422,24 @@
         drawPillIcon(brands[bi], bx);
       }
 
-      ctx.fillStyle = fg;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      applyTextEffectToCtx(ctx, st, null, state.accentColor);
       var textStartX = startGroupX + badgeTotalW + Math.round(14 * U);
       var textTotalLinesH = lines.length * lineH;
       var textStartY = dy + Math.round((boxH - textTotalLinesH) / 2);
-      for (var k = 0; k < lines.length; k++) {
-        ctx.fillText(lines[k], textStartX, textStartY + k * lineH, textInnerW);
-        var lw = Math.min(textInnerW, ctx.measureText(lines[k]).width);
-        drawTextDecorations(ctx, st, textStartX, textStartY + k * lineH, lw, fSz, fg);
+      detailTextBoxX = textStartX;
+      detailTextBoxY = textStartY;
+      detailTextBoxW = Math.max(60, dx + effW - padX - textStartX);
+      detailTextAlign = 'left';
+
+      if (!skipDetailGlyphs) {
+        ctx.fillStyle = fg;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        applyTextEffectToCtx(ctx, st, null, state.accentColor);
+        for (var k = 0; k < lines.length; k++) {
+          ctx.fillText(lines[k], textStartX, textStartY + k * lineH, textInnerW);
+          var lw = Math.min(textInnerW, ctx.measureText(lines[k]).width);
+          drawTextDecorations(ctx, st, textStartX, textStartY + k * lineH, lw, fSz, fg);
+        }
       }
     } else if (semanticIcon) {
       var uiIconSz = Math.round(24 * U);
@@ -3555,18 +4451,25 @@
       var grpW = uiIconSz + Math.round(12 * U) + maxLineW2;
       var grpX = grpW < innerW ? Math.round(dx + (effW - grpW) / 2) : (dx + padX);
       drawUiVectorIcon(ctx, semanticIcon, grpX + uiIconSz / 2, dy + boxH / 2, uiIconSz, fg);
-      ctx.fillStyle = fg;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      applyTextEffectToCtx(ctx, st, null, state.accentColor);
       var txStart = grpX + uiIconSz + Math.round(12 * U);
       var txMaxW = Math.max(40, innerW - uiIconSz - Math.round(12 * U));
-      for (var k3 = 0; k3 < lines.length; k3++) {
-        ctx.fillText(lines[k3], txStart, dy + padY + k3 * lineH, txMaxW);
-        var lw3 = Math.min(txMaxW, ctx.measureText(lines[k3]).width);
-        drawTextDecorations(ctx, st, txStart, dy + padY + k3 * lineH, lw3, fSz, fg);
+      detailTextBoxX = txStart;
+      detailTextBoxY = dy + padY;
+      detailTextBoxW = Math.max(60, dx + effW - padX - txStart);
+      detailTextAlign = 'left';
+
+      if (!skipDetailGlyphs) {
+        ctx.fillStyle = fg;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        applyTextEffectToCtx(ctx, st, null, state.accentColor);
+        for (var k3 = 0; k3 < lines.length; k3++) {
+          ctx.fillText(lines[k3], txStart, dy + padY + k3 * lineH, txMaxW);
+          var lw3 = Math.min(txMaxW, ctx.measureText(lines[k3]).width);
+          drawTextDecorations(ctx, st, txStart, dy + padY + k3 * lineH, lw3, fSz, fg);
+        }
       }
-    } else {
+    } else if (!skipDetailGlyphs) {
       ctx.fillStyle = fg;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
@@ -3588,8 +4491,17 @@
       y: dy,
       w: effW,
       h: boxH,
+      textBoxX: detailTextBoxX,
+      textBoxY: detailTextBoxY,
+      textBoxW: detailTextBoxW,
+      renderFontPx: fSz,
+      renderLineH: lineH,
+      renderFontFamily: fam,
+      renderWeight: weight,
+      renderItalic: isItalic,
+      renderColor: fg,
       fontSize: Math.round(fSz / (U * portBoost)),
-      align: 'center',
+      align: detailTextAlign,
       rotation: rot
     });
     return boxH;
@@ -3634,16 +4546,17 @@
     // Big 3D Blood Group Drop Badge on left-bottom of photo
     if (!isElHidden('badge')) {
       var bOff = getElOffset('badge');
+      var bSt = getElStyle('badge');
       var bloodLbl = 'গ্রুপ: ' + (state.badge || 'O+');
       var bFont = Math.max(18, Math.round((34 + getElFontDelta('badge')) * U * portBoost));
-      ctx.font = fontSpec(900, bFont);
+      ctx.font = fontSpec(900, bFont, getElFont('badge'));
       var bgBadgeW = Math.max(Math.round(215 * U * portBoost), Math.min(photoW - Math.round(36 * U), Math.round(ctx.measureText(bloodLbl).width + 48 * U)));
       var bgBadgeH = Math.round(78 * U * portBoost);
       var bx = pad + Math.round(18 * U) + bOff.dx;
       var by = photoY + photoH - bgBadgeH - Math.round(16 * U) + bOff.dy;
-      var pillFill = state.primaryColor || '#b91c1c';
+      var pillFill = (bSt && bSt.bgColor) ? bSt.bgColor : (state.primaryColor || '#b91c1c');
       var pillStroke = getEffectiveTextColor(state.accentColor || '#ffffff', pillFill);
-      var pillTextCol = getEffectiveTextColor('#ffffff', pillFill);
+      var pillTextCol = resolveElementTextColor(bSt && bSt.color, '#ffffff', pillFill);
       fillRoundRect(ctx, bx, by, bgBadgeW, bgBadgeH, Math.round(16 * U), pillFill);
       strokeRoundRect(ctx, bx, by, bgBadgeW, bgBadgeH, Math.round(16 * U), pillStroke, 3 * U);
       ctx.fillStyle = pillTextCol;
@@ -4185,13 +5098,15 @@
     // Yellow Broadcast Ticker Strip at bottom
     if (tickerH > 0) {
       var fOff = getElOffset('footer');
+      var fSt = getElStyle('footer');
       var ty = H - tickerH + fOff.dy;
       var tx = fOff.dx;
+      var tickerBg = (fSt && fSt.bgColor) ? fSt.bgColor : state.accentColor;
       ctx.save();
-      ctx.fillStyle = state.accentColor;
+      ctx.fillStyle = tickerBg;
       ctx.fillRect(tx, ty, W, tickerH);
-      ctx.fillStyle = getEffectiveTextColor('#0f172a', state.accentColor);
-      ctx.font = fontSpec(800, fSzTicker);
+      ctx.fillStyle = resolveElementTextColor(fSt && fSt.color, '#0f172a', tickerBg);
+      ctx.font = fontSpec(800, fSzTicker, getElFont('footer'));
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       var tickerTxt = (state.detail || state.footerUrl || '') + (state.dateText ? '  •  ' + state.dateText : '');
@@ -4367,10 +5282,14 @@
     }
 
     if (!isElHidden('badge')) {
+      var bSt = getElStyle('badge');
       var mastDateSz = Math.max(18, Math.round((27 + getElFontDelta('badge')) * U * portBoost));
-      ctx.font = fontSpec(800, mastDateSz);
+      ctx.font = fontSpec(800, mastDateSz, getElFont('badge'));
       ctx.textAlign = 'right';
-      ctx.fillStyle = state.primaryColor;
+      if (bSt && bSt.bgColor) {
+        fillRoundRect(ctx, pad + Math.round(innerW * 0.56), mastY + Math.round(6 * U), Math.round(innerW * 0.44), mastH - Math.round(12 * U), Math.round(8 * U), bSt.bgColor);
+      }
+      ctx.fillStyle = resolveElementTextColor(bSt && bSt.color, state.primaryColor, (bSt && bSt.bgColor) || state.bgColor);
       ctx.fillText((state.badge ? state.badge + ' • ' : '') + (state.dateText || ''), W - pad, mastY + mastH / 2 + 1, innerW * 0.42);
       registerHitRegion({
         id: 'badge',
@@ -4956,8 +5875,12 @@
 
     // Caption tag inside polaroid chin
     if (!isElHidden('badge')) {
-      ctx.fillStyle = '#1e293b';
-      ctx.font = fontSpec(800, chinFont);
+      var polBadgeSt = getElStyle('badge');
+      if (polBadgeSt && polBadgeSt.bgColor) {
+        fillRoundRect(ctx, -pw / 2 + borderP, ph / 2 - bottomChin + Math.round(4 * U), pw - borderP * 2, bottomChin - Math.round(8 * U), Math.round(8 * U), polBadgeSt.bgColor);
+      }
+      ctx.fillStyle = resolveElementTextColor(polBadgeSt && polBadgeSt.color, '#1e293b', (polBadgeSt && polBadgeSt.bgColor) || '#fafaf9');
+      ctx.font = fontSpec(800, chinFont, getElFont('badge'));
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(state.badge || 'স্মৃতির ফ্রেম', 0, ph / 2 - bottomChin / 2 + 2, pw - borderP * 2);
@@ -5384,20 +6307,21 @@
     drawUiVectorIcon(ctx, 'user', avCx, avCy, Math.round(28 * U), getEffectiveTextColor('#ffffff', state.primaryColor || '#7c3aed'));
 
     // Creator Name + Verified Badge
+    var creatorName = state.brandName || 'TechHat Creator';
     var nameY = avCy + avR + Math.round(20 * U);
     ctx.font = 'bold ' + Math.round(17 * U) + 'px "Hind Siliguri", "Anek Bangla", sans-serif';
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(state.defaultBrand || 'TechHat Creator', cardX + cardW / 2 - Math.round(10 * U), nameY);
+    ctx.fillText(creatorName, cardX + cardW / 2 - Math.round(10 * U), nameY);
     // Verified Blue Badge
     ctx.beginPath();
-    ctx.arc(cardX + cardW / 2 + Math.round(ctx.measureText(state.defaultBrand || 'TechHat Creator').width / 2) + Math.round(4 * U), nameY, Math.round(7 * U), 0, Math.PI * 2);
+    ctx.arc(cardX + cardW / 2 + Math.round(ctx.measureText(creatorName).width / 2) + Math.round(4 * U), nameY, Math.round(7 * U), 0, Math.PI * 2);
     ctx.fillStyle = '#1d9bf0';
     ctx.fill();
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold ' + Math.round(9 * U) + 'px sans-serif';
-    ctx.fillText('✓', cardX + cardW / 2 + Math.round(ctx.measureText(state.defaultBrand || 'TechHat Creator').width / 2) + Math.round(4 * U), nameY);
+    ctx.fillText('✓', cardX + cardW / 2 + Math.round(ctx.measureText(creatorName).width / 2) + Math.round(4 * U), nameY);
 
     // Milestone Metric Pill
     var pillH = Math.round(36 * U);
@@ -5661,27 +6585,44 @@
     // 4. Top-Left Series Pill Badge
     var pillH = drawCategoryPill(ctx, state.badge || 'একটুখানি কুরআন সিরিজ', padL, Math.round(36 * U), U, 'left', innerW * 0.65, state.primaryColor, '#ffffff');
 
-    // 5. 3D Extruded Pine Green Title Block
+    // 5. 3D Extruded Pine Green Title Block (with *word* Highlight Support)
     var titleY = Math.round(36 * U) + (pillH ? pillH + Math.round(18 * U) : Math.round(48 * U));
     var rawTitle = String(state.headline || 'সূরা *আল হাজ্জ*').trim();
     var cleanTitle = rawTitle.replace(/\*/g, '');
     var titleSz = Math.round((state.titleSize || 58) * 1.12 * U * portBoost);
     var fam = getElFont('headline') || state.fontFamily || 'Hind Siliguri';
+    var hSt = getElStyle('headline');
+    var headNormCol = resolveElementTextColor(hSt && hSt.color, state.primaryColor || '#1d3c34', bgCol);
+    var headManualHi = (hSt && hSt.highlightColor) || state.highlightColor || '';
+    var headHiMode = (hSt && hSt.highlightBgMode) || state.highlightBgMode || '';
+    var headTokens = tokenizeRichText(rawTitle, getElRichSpans('headline', state.headline));
 
     ctx.save();
     ctx.font = fontSpec(900, titleSz, fam, false);
     ctx.textBaseline = 'top';
     ctx.textAlign = 'left';
 
-    // 3D Extrusion Pass (Down-Right Layering)
     var extrudeDepth = Math.max(3, Math.round(6 * U));
-    for (var d = extrudeDepth; d >= 1; d--) {
-      ctx.fillStyle = (d === extrudeDepth) ? '#0a1a15' : '#142c25';
-      ctx.fillText(cleanTitle, padL + d, titleY + d, innerW);
+    var tSpaceW = ctx.measureText(' ').width;
+    var txCur = padL;
+    for (var ti = 0; ti < headTokens.length; ti++) {
+      var tIt = headTokens[ti];
+      var tW = ctx.measureText(tIt.word).width;
+      if (tIt.hi && headHiMode === 'marker') {
+        var mCol = headManualHi || state.accentColor || '#fde047';
+        fillRoundRect(ctx, txCur - 5, titleY + titleSz * 0.06, tW + 10, titleSz * 1.12, 6, mCol);
+        ctx.fillStyle = (hSt && hSt.color) ? hSt.color : getEffectiveTextColor('#0f172a', mCol);
+        ctx.fillText(tIt.word, txCur, titleY);
+      } else {
+        for (var d = extrudeDepth; d >= 1; d--) {
+          ctx.fillStyle = (d === extrudeDepth) ? '#0a1a15' : '#142c25';
+          ctx.fillText(tIt.word, txCur + d, titleY + d);
+        }
+        ctx.fillStyle = (tIt.hi && headManualHi) ? headManualHi : headNormCol;
+        ctx.fillText(tIt.word, txCur, titleY);
+      }
+      txCur += tW + tSpaceW;
     }
-    // Front Face Pass
-    ctx.fillStyle = getEffectiveTextColor(state.primaryColor || '#1d3c34', bgCol);
-    ctx.fillText(cleanTitle, padL, titleY, innerW);
     ctx.restore();
 
     var titleMeasureW = 0;
@@ -5709,15 +6650,16 @@
     var curY = titleY + Math.round(titleSz * 1.26);
     if (state.tagline) {
       ctx.save();
+      var tSt = getElStyle('tagline');
       var tagStr = String(state.tagline).trim();
       var tagSz = Math.round(25 * U * portBoost);
-      ctx.font = fontSpec(800, tagSz, fam, false);
+      ctx.font = fontSpec(800, tagSz, getElFont('tagline') || fam, false);
       var tagW = ctx.measureText(tagStr).width;
       var tagPillW = tagW + Math.round(30 * U);
       var tagPillH = Math.round(40 * U * portBoost);
-      var tagPillBg = state.primaryColor || '#1d3c34';
+      var tagPillBg = (tSt && tSt.bgColor) || state.primaryColor || '#1d3c34';
       fillRoundRect(ctx, padL, curY, tagPillW, tagPillH, Math.round(8 * U), tagPillBg);
-      ctx.fillStyle = getEffectiveTextColor('#ffffff', tagPillBg);
+      ctx.fillStyle = resolveElementTextColor(tSt && tSt.color, '#ffffff', tagPillBg);
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
       ctx.fillText(tagStr, padL + tagPillW / 2, curY + tagPillH / 2);
@@ -5785,8 +6727,9 @@
       ctx.textBaseline = 'top';
       ctx.textAlign = 'left';
 
-      var bodyPrimaryInk = getEffectiveTextColor(state.primaryColor || '#1d3c34', bgCol);
-      var bodyAccentInk = getEffectiveTextColor(state.accentColor || '#047857', bgCol);
+      var dSt = getElStyle('detail');
+      var bodyPrimaryInk = resolveElementTextColor(dSt && dSt.color, state.primaryColor || '#1d3c34', bgCol);
+      var bodyAccentInk = ((dSt && dSt.highlightColor) || state.highlightColor) || getEffectiveTextColor(state.accentColor || '#047857', bgCol);
       var bodyY = curY;
       for (var p = 0; p < paragraphs.length; p++) {
         var pText = paragraphs[p].trim();
@@ -5871,17 +6814,18 @@
     ctx.fillText('الكريم', crestCx, crestCy + Math.round(10 * U));
 
     // Footer Text & Attribution
+    var fStTafseer = getElStyle('footer');
     var textLeftX = crestCx + crestR + Math.round(24 * U);
-    var brandStr = state.defaultBrand || state.brandName || 'কুরআন ও জীবন স্টাডি';
-    var footerStr = state.defaultFooter || 'নিয়মিত কুরআনের অর্থ ও তাফসির পড়ুন • ilman.org';
+    var brandStr = state.brandName || 'কুরআন ও জীবন স্টাডি';
+    var footerStr = state.footerUrl || 'নিয়মিত কুরআনের অর্থ ও তাফসির পড়ুন • ilman.org';
 
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = (fStTafseer && fStTafseer.color) ? fStTafseer.color : '#ffffff';
     ctx.font = fontSpec(800, Math.round(19 * U * portBoost), fam, false);
     ctx.fillText(brandStr, textLeftX, footerY + Math.round(footerH * 0.38));
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    ctx.fillStyle = (fStTafseer && fStTafseer.color) ? fStTafseer.color : 'rgba(255, 255, 255, 0.75)';
     ctx.font = fontSpec(600, Math.round(14 * U * portBoost), fam, false);
     ctx.fillText(footerStr, textLeftX, footerY + Math.round(footerH * 0.68));
 
@@ -5898,7 +6842,7 @@
     registerHitRegion({
       id: 'footer',
       kind: 'text',
-      field: 'footer',
+      field: 'footerUrl',
       labelBn: tr('ফুটার তথ্য', 'Footer'),
       x: 0,
       y: footerY,
@@ -6111,26 +7055,27 @@
     ctx.fillStyle = '#475569';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(state.defaultFooter || 'বিস্তারিত ক্যাপশনে....', W / 2, H - footerH - Math.round(8 * U));
+    ctx.fillText('বিস্তারিত ক্যাপশনে....', W / 2, H - footerH - Math.round(8 * U));
     ctx.restore();
 
     // 4. Bottom Dark Footer Bar
-    var btmBarFill = '#08332e';
+    var fStSplit = getElStyle('footer');
+    var btmBarFill = (fStSplit && fStSplit.bgColor) || '#08332e';
     ctx.save();
     ctx.fillStyle = btmBarFill;
     ctx.fillRect(0, H - footerH, W, footerH);
 
-    ctx.font = fontSpec(700, Math.round(13 * U), fam, false);
-    ctx.fillStyle = getEffectiveTextColor('#ffffff', btmBarFill);
+    ctx.font = fontSpec(700, Math.round(13 * U), getElFont('footer') || fam, false);
+    ctx.fillStyle = resolveElementTextColor(fStSplit && fStSplit.color, '#ffffff', btmBarFill);
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
-    ctx.fillText(state.defaultBrand || 'muslimsdeed  f • i • t', W / 2, H - footerH / 2);
+    ctx.fillText(state.footerUrl || state.brandName || 'muslimsdeed  f • i • t', W / 2, H - footerH / 2);
     ctx.restore();
 
     registerHitRegion({
       id: 'footer',
       kind: 'text',
-      field: 'footer',
+      field: 'footerUrl',
       labelBn: tr('ফুটার তথ্য', 'Footer'),
       x: 0,
       y: H - footerH,
@@ -6195,11 +7140,14 @@
     var innerW = W - padX * 2;
     var textY = quoteY + qmH + Math.round(16 * U);
 
-    // Line 1: Ultra-Bold Black
+    // Line 1: Ultra-Bold Black (or manual headline color)
+    var hStMin = getElStyle('headline');
+    var minManualHi = (hStMin && hStMin.highlightColor) || state.highlightColor || '';
+    var minHiMode = (hStMin && hStMin.highlightBgMode) || state.highlightBgMode || '';
     var l1Sz = Math.round(38 * U * portBoost);
     ctx.save();
     ctx.font = fontSpec(900, l1Sz, fam, false);
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = resolveElementTextColor(hStMin && hStMin.color, '#000000', '#ffffff');
     ctx.textBaseline = 'top';
     ctx.textAlign = 'center';
     ctx.fillText(line1Text, cx, textY);
@@ -6207,12 +7155,19 @@
 
     var l1Bottom = textY + Math.round(l1Sz * 1.25);
 
-    // Line 2: Giant Bold Crimson Maroon
+    // Line 2: Giant Bold Crimson Maroon (or manual highlight / headline color)
     if (line2Text) {
       var l2Sz = Math.round(52 * U * portBoost);
       ctx.save();
       ctx.font = fontSpec(900, l2Sz, fam, false);
-      ctx.fillStyle = state.primaryColor || '#991b1b';
+      var l2Fill = minManualHi || (hStMin && hStMin.color) || state.primaryColor || '#991b1b';
+      if (minHiMode === 'marker') {
+        var l2W = ctx.measureText(line2Text).width;
+        fillRoundRect(ctx, cx - l2W / 2 - Math.round(10 * U), l1Bottom + Math.round(6 * U), l2W + Math.round(20 * U), Math.round(l2Sz * 1.18), Math.round(8 * U), l2Fill);
+        ctx.fillStyle = (hStMin && hStMin.color) ? hStMin.color : getEffectiveTextColor('#0f172a', l2Fill);
+      } else {
+        ctx.fillStyle = l2Fill;
+      }
       ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
       ctx.fillText(line2Text, cx, l1Bottom + Math.round(6 * U));
@@ -6237,11 +7192,12 @@
 
     // 4. Script Reference Citation
     if (state.tagline) {
+      var tStMin = getElStyle('tagline');
       var tagY = l1Bottom + Math.round(12 * U);
       var tagSz = Math.round(20 * U * portBoost);
       ctx.save();
-      ctx.font = fontSpec(600, tagSz, fam, true);
-      ctx.fillStyle = '#78716c';
+      ctx.font = fontSpec(600, tagSz, getElFont('tagline') || fam, true);
+      ctx.fillStyle = resolveElementTextColor(tStMin && tStMin.color, '#78716c', '#ffffff');
       ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
       ctx.fillText(state.tagline, cx, tagY);
@@ -6307,18 +7263,33 @@
     ctx.restore();
 
     // 8. Bottom Brand & Social Attribution
-    var footStr = state.defaultBrand || state.brandName || 'Fi Amanillah Officials';
+    var fStMin = getElStyle('footer');
+    var footStr = state.footerUrl || state.brandName || 'Fi Amanillah Officials';
     var footX = Math.round(36 * U);
     var footY = H - Math.round(38 * U);
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
     ctx.shadowBlur = 6;
-    ctx.font = fontSpec(700, Math.round(15 * U), fam, false);
-    ctx.fillStyle = '#ffffff';
+    ctx.font = fontSpec(700, Math.round(15 * U), getElFont('footer') || fam, false);
+    ctx.fillStyle = (fStMin && fStMin.color) ? fStMin.color : '#ffffff';
     ctx.textBaseline = 'bottom';
     ctx.textAlign = 'left';
     ctx.fillText('f • t  ' + footStr, footX, footY);
     ctx.restore();
+
+    registerHitRegion({
+      id: 'footer',
+      kind: 'text',
+      field: 'footerUrl',
+      labelBn: tr('ফুটার তথ্য', 'Footer'),
+      x: footX - 4,
+      y: footY - Math.round(24 * U),
+      w: Math.round(W * 0.6),
+      h: Math.round(28 * U),
+      fontSize: Math.round(15 * U),
+      align: 'left',
+      rotation: 0
+    });
 
     drawBrandOverlay(ctx, W, H, U);
   }
@@ -6404,11 +7375,13 @@
     var stmtSz = Math.round((state.titleSize || 34) * U * portBoost);
     var lineH = Math.round(stmtSz * 1.55);
     var headSt = getElStyle('headline');
-    var stmtInk = getEffectiveTextColor((headSt && headSt.color) ? headSt.color : '#ffffff', bg);
-    var underlineCol = lightBg ? (state.primaryColor || '#b91c1c') : (state.accentColor || '#dc2626');
+    var stmtInk = resolveElementTextColor(headSt && headSt.color, '#ffffff', bg);
+    var burgManualHi = (headSt && headSt.highlightColor) || state.highlightColor || '';
+    var burgHiMode = (headSt && headSt.highlightBgMode) || state.highlightBgMode || '';
+    var underlineCol = burgManualHi || (lightBg ? (state.primaryColor || '#b91c1c') : (state.accentColor || '#dc2626'));
 
     var rawHeadline = String(state.headline || '').trim();
-    var tokens = tokenizeRichText(rawHeadline);
+    var tokens = tokenizeRichText(rawHeadline, getElRichSpans('headline', state.headline));
 
     ctx.save();
     ctx.font = fontSpec(800, stmtSz, fam, false);
@@ -6422,13 +7395,22 @@
 
       for (var k = 0; k < rLine.items.length; k++) {
         var it = rLine.items[k];
-        ctx.fillStyle = stmtInk;
+        if (it.hi && burgHiMode === 'marker') {
+          ctx.save();
+          fillRoundRect(ctx, cx - 5, curY + stmtSz * 0.06, it.width + 10, stmtSz * 1.14, 6, underlineCol);
+          ctx.restore();
+          ctx.fillStyle = (headSt && headSt.color) ? headSt.color : getEffectiveTextColor('#0f172a', underlineCol);
+        } else if (it.hi && (burgManualHi || burgHiMode === 'text')) {
+          ctx.fillStyle = underlineCol;
+        } else {
+          ctx.fillStyle = stmtInk;
+        }
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
         ctx.fillText(it.word, cx, curY);
 
-        // Punchline Underline on Highlighted Words
-        if (it.hi) {
+        // Punchline Underline on Highlighted Words (unless marker box is used)
+        if (it.hi && burgHiMode !== 'marker') {
           ctx.save();
           ctx.fillStyle = underlineCol;
           ctx.fillRect(cx - 2, curY + Math.round(stmtSz * 1.16), it.width + 4, Math.round(4.5 * U));
@@ -6455,12 +7437,13 @@
     });
 
     // 6. Lower Floating Speaker Pill & Overlapping Avatar Frame
+    var tStBurg = getElStyle('tagline');
     var pillH = Math.round(84 * U * portBoost);
     var pillW = Math.round(W * 0.74);
     var pillX = Math.round(W * 0.20);
     var pillY = H - Math.round(230 * U * portBoost);
-    var spkPillFill = lightBg ? '#0f172a' : '#ffffff';
-    var spkPillText = getEffectiveTextColor(lightBg ? '#ffffff' : '#0f172a', spkPillFill);
+    var spkPillFill = (tStBurg && tStBurg.bgColor) || (lightBg ? '#0f172a' : '#ffffff');
+    var spkPillText = resolveElementTextColor(tStBurg && tStBurg.color, lightBg ? '#ffffff' : '#0f172a', spkPillFill);
 
     // Pill Drop Shadow
     ctx.save();
@@ -6511,13 +7494,29 @@
     drawPhotoSlot(ctx, avatarX, avatarY, avatarSz, avatarSz, { radius: Math.round(18 * U) });
 
     // 7. Minimalist Social Handle Footer
+    var fStBurg = getElStyle('footer');
+    var burgFootTxt = state.footerUrl || state.brandName || 'Fi Amanillah Official';
     ctx.save();
-    ctx.font = fontSpec(600, Math.round(13 * U), fam, false);
-    ctx.fillStyle = getEffectiveTextColor('rgba(255, 255, 255, 0.85)', bg);
+    ctx.font = fontSpec(600, Math.round(13 * U), getElFont('footer') || fam, false);
+    ctx.fillStyle = resolveElementTextColor(fStBurg && fStBurg.color, 'rgba(255, 255, 255, 0.85)', bg);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('f • t  ' + (state.defaultFooter || 'Fi Amanillah Official'), W / 2, H - Math.round(26 * U));
+    ctx.fillText('f • t  ' + burgFootTxt, W / 2, H - Math.round(26 * U));
     ctx.restore();
+
+    registerHitRegion({
+      id: 'footer',
+      kind: 'text',
+      field: 'footerUrl',
+      labelBn: tr('ফুটার তথ্য', 'Footer'),
+      x: Math.round(W * 0.2),
+      y: H - Math.round(52 * U),
+      w: Math.round(W * 0.6),
+      h: Math.round(30 * U),
+      fontSize: Math.round(14 * U),
+      align: 'center',
+      rotation: 0
+    });
 
     drawBrandOverlay(ctx, W, H, U, {
       forcePos: (!state.logoPos || state.logoPos === 'top-right') ? 'top-left' : state.logoPos,
@@ -6585,10 +7584,13 @@
     }
 
     // 3D Drop Shadow & Emerald Face Pass
+    var hStJum = getElStyle('headline');
+    var jumManualHi = (hStJum && hStJum.highlightColor) || state.highlightColor || '';
+    var jumHiMode = (hStJum && hStJum.highlightBgMode) || state.highlightBgMode || '';
     ctx.shadowColor = 'rgba(4, 120, 87, 0.45)';
     ctx.shadowBlur = Math.round(10 * U);
     ctx.shadowOffsetY = Math.round(4 * U);
-    ctx.fillStyle = getEffectiveTextColor(state.primaryColor || '#047857', bgCol);
+    ctx.fillStyle = resolveElementTextColor(hStJum && hStJum.color, state.primaryColor || '#047857', bgCol);
     ctx.fillText(mainTitle, W / 2, titleY, W - Math.round(64 * U));
     ctx.restore();
 
@@ -6617,12 +7619,13 @@
     ctx.restore();
 
     // 5. Dark Emerald Ribbon Banner with Triangular Notched Swallowtail Ends (Scaled +25%)
+    var bStJum = getElStyle('badge');
     var ribbonY = attrY + Math.round(20 * U);
     var ribbonW = Math.round(W * 0.76);
     var ribbonH = Math.round(58 * U * portBoost);
     var ribbonX = Math.round((W - ribbonW) / 2);
     var notch = Math.round(20 * U);
-    var ribbonFill = '#065f46';
+    var ribbonFill = (bStJum && bStJum.bgColor) || (jumHiMode === 'text' ? '#065f46' : (jumManualHi || '#065f46'));
 
     ctx.save();
     ctx.beginPath();
@@ -6636,10 +7639,12 @@
     ctx.fillStyle = ribbonFill;
     ctx.fill();
 
-    // White Bold Text inside Ribbon
+    // Bold Text inside Ribbon
     var ribbonFontSz = Math.round(30 * U * portBoost);
-    ctx.font = fontSpec(800, ribbonFontSz, fam, false);
-    ctx.fillStyle = getEffectiveTextColor('#ffffff', ribbonFill);
+    ctx.font = fontSpec(800, ribbonFontSz, getElFont('badge') || fam, false);
+    ctx.fillStyle = (bStJum && bStJum.color)
+      ? bStJum.color
+      : ((jumHiMode === 'text' && jumManualHi) ? jumManualHi : getEffectiveTextColor('#ffffff', ribbonFill));
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(ribbonText, W / 2, ribbonY + ribbonH / 2, ribbonW - notch * 2 - Math.round(16 * U));
@@ -6660,6 +7665,8 @@
     });
 
     // 6. Framed Rounded Hadith Box with Green Keyword Highlights (Scaled +25% with Auto-Fit)
+    var dStJum = getElStyle('detail');
+    var tStJum = getElStyle('tagline');
     var boxW = Math.round(W * 0.90);
     var boxX = Math.round((W - boxW) / 2);
     var boxY = ribbonY + ribbonH + Math.round(16 * U);
@@ -6679,13 +7686,15 @@
     // Line 1: Narrator Header
     var narratorSz = Math.round(26 * U * portBoost);
     ctx.font = fontSpec(800, narratorSz, fam, false);
-    ctx.fillStyle = getEffectiveTextColor(state.primaryColor || '#047857', '#ffffff');
+    ctx.fillStyle = resolveElementTextColor(dStJum && dStJum.color, state.primaryColor || '#047857', '#ffffff');
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillText('রাসূল (সাল্লাল্লাহু আলাইহি ওয়া সাল্লাম) বলেন,', W / 2, bCurY, boxInnerW);
     bCurY += Math.round(narratorSz * 1.42);
 
     // Hadith Body Lines with Keyword Highlighting
+    var hadithNormInk = resolveElementTextColor(dStJum && dStJum.color, '#1f2937', '#ffffff');
+    var hadithHiInk = ((dStJum && dStJum.highlightColor) || state.highlightColor) || (state.primaryColor || '#047857');
     if (state.detail) {
       var hadithSz = Math.max(16, Math.round(27 * U * portBoost));
       var minHadithSz = Math.max(14, Math.round(18 * U));
@@ -6718,7 +7727,7 @@
       for (var w = 0; w < words.length; w++) {
         var testH = hBuf ? (hBuf + ' ' + words[w]) : words[w];
         if (ctx.measureText(testH).width > boxInnerW && hBuf) {
-          drawHadithFormattedLine(ctx, hBuf, W / 2, bCurY, hadithSz, fam, '#1f2937', state.primaryColor || '#047857');
+          drawHadithFormattedLine(ctx, hBuf, W / 2, bCurY, hadithSz, fam, hadithNormInk, hadithHiInk);
           bCurY += hLineH;
           hBuf = words[w];
           if (bCurY + hLineH > maxBodyY) break;
@@ -6727,15 +7736,15 @@
         }
       }
       if (hBuf && bCurY + hLineH <= maxBodyY) {
-        drawHadithFormattedLine(ctx, hBuf, W / 2, bCurY, hadithSz, fam, '#1f2937', state.primaryColor || '#047857');
+        drawHadithFormattedLine(ctx, hBuf, W / 2, bCurY, hadithSz, fam, hadithNormInk, hadithHiInk);
         bCurY += hLineH;
       }
     }
 
     // Citation at Bottom of Hadith Box
     if (state.tagline) {
-      ctx.font = fontSpec(700, Math.round(21 * U * portBoost), fam, true);
-      ctx.fillStyle = '#334155';
+      ctx.font = fontSpec(700, Math.round(21 * U * portBoost), getElFont('tagline') || fam, true);
+      ctx.fillStyle = resolveElementTextColor(tStJum && tStJum.color, '#334155', '#ffffff');
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       ctx.fillText(state.tagline, W / 2, boxY + boxH - Math.round(12 * U), boxInnerW);
@@ -6758,6 +7767,7 @@
 
     // 7. Footer Mosque Arch Crest & Twin Social Pill Bars
     var footY = H - Math.round(52 * U);
+    var fStJum = getElStyle('footer');
 
     // Central Mosque Arch Crest
     ctx.save();
@@ -6780,17 +7790,34 @@
     var pillBarH = Math.round(28 * U);
     var leftPillX = Math.round(W * 0.06);
     var rightPillX = W - leftPillX - pillBarW;
+    var jumPillBg = (fStJum && fStJum.bgColor) || '#065f46';
 
-    fillRoundRect(ctx, leftPillX, footY - pillBarH / 2, pillBarW, pillBarH, pillBarH / 2, '#065f46');
-    fillRoundRect(ctx, rightPillX, footY - pillBarH / 2, pillBarW, pillBarH, pillBarH / 2, '#065f46');
+    fillRoundRect(ctx, leftPillX, footY - pillBarH / 2, pillBarW, pillBarH, pillBarH / 2, jumPillBg);
+    fillRoundRect(ctx, rightPillX, footY - pillBarH / 2, pillBarW, pillBarH, pillBarH / 2, jumPillBg);
 
-    ctx.font = fontSpec(700, Math.round(12 * U), fam, false);
-    ctx.fillStyle = '#ffffff';
+    ctx.font = fontSpec(700, Math.round(12 * U), getElFont('footer') || fam, false);
+    ctx.fillStyle = resolveElementTextColor(fStJum && fStJum.color, '#ffffff', jumPillBg);
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
-    ctx.fillText('f • i  me.mhassan.15', leftPillX + pillBarW / 2, footY);
-    ctx.fillText('p • t  mahmudulhassan15', rightPillX + pillBarW / 2, footY);
+    var jumLeftTxt = state.brandWebsite ? state.brandWebsite : (state.footerUrl || 'f • i  me.mhassan.15');
+    var jumRightTxt = state.brandPhone ? state.brandPhone : (state.userEditedBrand && state.brandName ? state.brandName : 'p • t  mahmudulhassan15');
+    ctx.fillText(jumLeftTxt, leftPillX + pillBarW / 2, footY, pillBarW - Math.round(12 * U));
+    ctx.fillText(jumRightTxt, rightPillX + pillBarW / 2, footY, pillBarW - Math.round(12 * U));
     ctx.restore();
+
+    registerHitRegion({
+      id: 'footer',
+      kind: 'text',
+      field: 'footerUrl',
+      labelBn: tr('ফুটার তথ্য', 'Footer'),
+      x: leftPillX,
+      y: footY - pillBarH / 2,
+      w: W - leftPillX * 2,
+      h: pillBarH,
+      fontSize: Math.round(13 * U),
+      align: 'center',
+      rotation: 0
+    });
 
     drawBrandOverlay(ctx, W, H, U);
   }
@@ -7196,12 +8223,13 @@
     ctx.restore();
 
     // 7. Footer Bar (Date, Comment prompt, Website)
+    var fStC24 = getElStyle('footer');
     ctx.save();
-    ctx.fillStyle = '#0a0103';
+    ctx.fillStyle = (fStC24 && fStC24.bgColor) || '#0a0103';
     ctx.fillRect(0, H - footerH, W, footerH);
 
-    ctx.fillStyle = '#ffffff';
-    ctx.font = fontSpec(700, Math.round(18 * U), state.fontFamily, false);
+    ctx.fillStyle = (fStC24 && fStC24.color) || '#ffffff';
+    ctx.font = fontSpec(700, Math.round(18 * U), getElFont('footer') || state.fontFamily, false);
     ctx.textBaseline = 'middle';
 
     ctx.textAlign = 'left';
@@ -7212,9 +8240,24 @@
     ctx.fillText('বিস্তারিত কমেন্টে ⌵', W / 2, H - footerH / 2);
 
     ctx.textAlign = 'right';
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = (fStC24 && fStC24.color) || '#ffffff';
     ctx.fillText(state.footerUrl || 'www.channel24bd.tv', W - pad, H - footerH / 2);
     ctx.restore();
+
+    registerHitRegion({
+      id: 'footer',
+      kind: 'text',
+      field: 'footerUrl',
+      labelBn: tr('ফুটার তথ্য', 'Footer'),
+      x: 0,
+      y: H - footerH,
+      w: W,
+      h: footerH,
+      fontSize: Math.round(18 * U),
+      align: 'right',
+      rotation: 0
+    });
+    if (state.logoImg) drawBrandOverlay(ctx, W, H, U);
   }
 
   // 44. ব্যঙ্গ-রস ও স্যাটায়ার পোর্টাল (Editorial Parody & Social Satire)
@@ -7302,24 +8345,40 @@
     });
 
     // 5. Minimalist Editorial Footer Bar
+    var fStSat = getElStyle('footer');
     var footerY = H - footerH;
     ctx.save();
-    ctx.fillStyle = '#f8fafc';
+    ctx.fillStyle = (fStSat && fStSat.bgColor) || '#f8fafc';
     ctx.fillRect(0, footerY, W, footerH);
     ctx.fillStyle = '#e2e8f0';
     ctx.fillRect(0, footerY, W, 1);
 
-    ctx.font = fontSpec(700, Math.round(18 * U), state.fontFamily, false);
+    ctx.font = fontSpec(700, Math.round(18 * U), getElFont('footer') || state.fontFamily, false);
     ctx.textBaseline = 'middle';
 
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#334155';
+    ctx.fillStyle = resolveElementTextColor(fStSat && fStSat.color, '#334155', (fStSat && fStSat.bgColor) || '#f8fafc');
     ctx.fillText(state.footerUrl || state.brandName || 'baaleralo.com', pad, footerY + footerH / 2);
 
     ctx.textAlign = 'right';
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = resolveElementTextColor(fStSat && fStSat.color, '#475569', (fStSat && fStSat.bgColor) || '#f8fafc');
     ctx.fillText(state.dateText || '১১/১১/২০২৩ ইং', W - pad, footerY + footerH / 2);
     ctx.restore();
+
+    registerHitRegion({
+      id: 'footer',
+      kind: 'text',
+      field: 'footerUrl',
+      labelBn: tr('ফুটার তথ্য', 'Footer'),
+      x: 0,
+      y: footerY,
+      w: W,
+      h: footerH,
+      fontSize: Math.round(18 * U),
+      align: 'left',
+      rotation: 0
+    });
+    if (state.logoImg) drawBrandOverlay(ctx, W, H, U);
   }
 
   // 45. হিউম্যানিটারিয়ান হটলাইন স্প্লিট (Humanitarian Hotline & NGO Service Split)
@@ -7361,30 +8420,51 @@
     var cDiam = Math.round(52 * U);
     var cRadius = cDiam / 2;
     var cCenterY = logoY + cRadius;
-    ctx.beginPath();
-    ctx.arc(padX + cRadius, cCenterY, cRadius, 0, Math.PI * 2);
-    ctx.fillStyle = '#059669';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(padX + cRadius, cCenterY, cRadius - 3 * U, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-    ctx.fillStyle = '#dc2626';
-    ctx.beginPath();
-    ctx.arc(padX + cRadius, cCenterY, cRadius * 0.62, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(padX + cRadius + 4 * U, cCenterY - 1 * U, cRadius * 0.52, 0, Math.PI * 2);
-    ctx.fill();
+    if (state.logoImg) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(padX + cRadius, cCenterY, cRadius, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(state.logoImg, padX, logoY, cDiam, cDiam);
+      ctx.restore();
+      registerHitRegion({
+        id: 'logo',
+        kind: 'logo',
+        field: 'brandName',
+        labelBn: tr('ব্র্যান্ড লোগো', 'Brand Logo'),
+        x: padX,
+        y: logoY,
+        w: colInnerW,
+        h: cDiam,
+        rotation: 0
+      });
+    } else {
+      ctx.beginPath();
+      ctx.arc(padX + cRadius, cCenterY, cRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#059669';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(padX + cRadius, cCenterY, cRadius - 3 * U, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath();
+      ctx.arc(padX + cRadius, cCenterY, cRadius * 0.62, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(padX + cRadius + 4 * U, cCenterY - 1 * U, cRadius * 0.52, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     var txtStartX = padX + cDiam + Math.round(10 * U);
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold ' + Math.round(10 * U) + 'px sans-serif';
-    ctx.fillText('BANGLADESH RED CRESCENT SOCIETY', txtStartX, cCenterY - 8 * U, colInnerW - cDiam - 12 * U);
-    ctx.fillStyle = '#dc2626';
+    var topHeaderSub = (state.brandWebsite && state.userEditedBrand) ? state.brandWebsite : 'BANGLADESH RED CRESCENT SOCIETY';
+    ctx.fillText(topHeaderSub, txtStartX, cCenterY - 8 * U, colInnerW - cDiam - 12 * U);
+    ctx.fillStyle = state.primaryColor || '#dc2626';
     ctx.font = fontSpec(800, Math.round(13 * U), state.fontFamily, false);
     ctx.fillText(state.brandName || 'বাংলাদেশ রেড ক্রিসেন্ট সোসাইটি', txtStartX, cCenterY + 8 * U, colInnerW - cDiam - 12 * U);
     ctx.restore();
@@ -7417,9 +8497,10 @@
     ctx.restore();
 
     // 3d. Large Red Hotline Pill Button
+    var dStHot = getElStyle('detail');
     var pillY = ecgY + Math.round(24 * U);
     var pillH = Math.round(76 * U);
-    var hotlineFill = state.primaryColor || '#dc2626';
+    var hotlineFill = (dStHot && dStHot.bgColor) || state.primaryColor || '#dc2626';
     ctx.save();
     ctx.shadowColor = 'rgba(220, 38, 38, 0.35)';
     ctx.shadowBlur = Math.round(14 * U);
@@ -7437,13 +8518,28 @@
 
     drawUiVectorIcon(ctx, 'phone', phoneCenterX, phoneCenterY, Math.round(26 * U), getEffectiveTextColor(hotlineFill, '#ffffff'));
 
-    var phoneNum = (state.detail && state.detail.match(/\d[\d\-]+/)) ? state.detail.match(/\d[\d\-]+/)[0] : '01811458541';
-    ctx.fillStyle = getEffectiveTextColor('#ffffff', hotlineFill);
-    ctx.font = '900 ' + Math.round(33 * U) + 'px sans-serif';
+    var phoneMatch = state.detail && String(state.detail).match(/[\d০-৯][\d০-৯\-]{4,}/);
+    var phoneNum = state.brandPhone || (phoneMatch ? phoneMatch[0] : '') || state.footerUrl || '01811458541';
+    ctx.fillStyle = resolveElementTextColor(dStHot && dStHot.color, '#ffffff', hotlineFill);
+    ctx.font = fontSpec(900, Math.round(31 * U), getElFont('detail') || state.fontFamily, false);
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(phoneNum, phoneCenterX + phoneR + Math.round(12 * U), phoneCenterY);
+    ctx.fillText(phoneNum, phoneCenterX + phoneR + Math.round(12 * U), phoneCenterY, colInnerW - phoneR * 2 - Math.round(32 * U));
     ctx.restore();
+
+    registerHitRegion({
+      id: 'detail',
+      kind: 'text',
+      field: 'detail',
+      labelBn: tr('হটলাইন নাম্বার', 'Hotline'),
+      x: padX,
+      y: pillY,
+      w: colInnerW,
+      h: pillH,
+      fontSize: Math.round(31 * U),
+      align: 'left',
+      rotation: 0
+    });
 
     // 3e. Service Operating Hours Table
     var schedY = pillY + pillH + Math.round(28 * U);
@@ -7476,18 +8572,34 @@
     ctx.restore();
 
     // 3f. Bottom Organization Motto / Slogan
+    var fStHot = getElStyle('footer');
     var mottoY = H - Math.round(96 * U * portBoost);
     ctx.save();
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillStyle = state.primaryColor || '#dc2626';
+    ctx.fillStyle = resolveElementTextColor(fStHot && fStHot.color, state.primaryColor || '#dc2626', '#ffffff');
     ctx.font = fontSpec(900, Math.round(20 * U), state.fontFamily, false);
-    ctx.fillText('বাংলাদেশ রেড ক্রিসেন্ট সোসাইটি', padX, mottoY);
+    ctx.fillText(state.brandName || 'বাংলাদেশ রেড ক্রিসেন্ট সোসাইটি', padX, mottoY, colInnerW);
 
     ctx.fillStyle = state.accentColor || '#16a34a';
     ctx.font = fontSpec(800, Math.round(18 * U), state.fontFamily, false);
-    ctx.fillText('মানবতার পাশে, সর্বসময়', padX, mottoY + Math.round(26 * U));
+    var mottoLine2 = state.brandWebsite || state.tagline || 'মানবতার পাশে, সর্বসময়';
+    ctx.fillText(mottoLine2, padX, mottoY + Math.round(26 * U), colInnerW);
     ctx.restore();
+
+    registerHitRegion({
+      id: 'footer',
+      kind: 'text',
+      field: 'footerUrl',
+      labelBn: tr('ফুটার তথ্য', 'Footer'),
+      x: padX,
+      y: mottoY,
+      w: colInnerW,
+      h: Math.round(56 * U),
+      fontSize: Math.round(18 * U),
+      align: 'left',
+      rotation: 0
+    });
   }
 
   // Aliases for compatibility
@@ -7564,86 +8676,548 @@
     'humanitarian-hotline-split': renderHumanitarianHotlineSplit
   };
 
-  // Draws user-added free-floating Canva text boxes, badge stickers, shapes & floating image layers
-  function renderCustomLayers(ctx, W, H, U) {
+  function drawRegularPolygonPath(ctx, cx, cy, rx, ry, sides, startAngle) {
+    ctx.beginPath();
+    for (var s = 0; s < sides; s++) {
+      var ang = startAngle + (s * Math.PI * 2) / sides;
+      var px = cx + Math.cos(ang) * rx;
+      var py = cy + Math.sin(ang) * ry;
+      if (s === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
+
+  function drawStarPolygonPath(ctx, cx, cy, outerRx, outerRy, innerRatio, points) {
+    ctx.beginPath();
+    var total = points * 2;
+    for (var s = 0; s < total; s++) {
+      var rMul = s % 2 === 0 ? 1 : innerRatio;
+      var ang = -Math.PI / 2 + (s * Math.PI) / points;
+      var px = cx + Math.cos(ang) * outerRx * rMul;
+      var py = cy + Math.sin(ang) * outerRy * rMul;
+      if (s === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
+
+  function buildCustomShapePath(ctx, kind, x, y, w, h, rad) {
+    var cx = x + w / 2;
+    var cy = y + h / 2;
+    var rx = w / 2;
+    var ry = h / 2;
+    switch (kind) {
+      case 'circle':
+      case 'ring':
+        ctx.beginPath();
+        if (typeof ctx.ellipse === 'function') {
+          ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        } else {
+          ctx.arc(cx, cy, Math.min(rx, ry), 0, Math.PI * 2);
+        }
+        ctx.closePath();
+        break;
+      case 'triangle':
+        ctx.beginPath();
+        ctx.moveTo(cx, y);
+        ctx.lineTo(x + w, y + h);
+        ctx.lineTo(x, y + h);
+        ctx.closePath();
+        break;
+      case 'diamond':
+        ctx.beginPath();
+        ctx.moveTo(cx, y);
+        ctx.lineTo(x + w, cy);
+        ctx.lineTo(cx, y + h);
+        ctx.lineTo(x, cy);
+        ctx.closePath();
+        break;
+      case 'pentagon':
+        drawRegularPolygonPath(ctx, cx, cy, rx, ry, 5, -Math.PI / 2);
+        break;
+      case 'hexagon':
+        drawRegularPolygonPath(ctx, cx, cy, rx, ry, 6, -Math.PI / 2);
+        break;
+      case 'octagon':
+        drawRegularPolygonPath(ctx, cx, cy, rx, ry, 8, -Math.PI / 8);
+        break;
+      case 'star':
+        drawStarPolygonPath(ctx, cx, cy, rx, ry, 0.42, 5);
+        break;
+      case 'starburst':
+        drawStarPolygonPath(ctx, cx, cy, rx, ry, 0.76, 14);
+        break;
+      case 'shield':
+        ctx.beginPath();
+        ctx.moveTo(cx, y);
+        ctx.lineTo(x + w, y + h * 0.2);
+        ctx.lineTo(x + w, y + h * 0.54);
+        ctx.quadraticCurveTo(x + w * 0.9, y + h * 0.86, cx, y + h);
+        ctx.quadraticCurveTo(x + w * 0.1, y + h * 0.86, x, y + h * 0.54);
+        ctx.lineTo(x, y + h * 0.2);
+        ctx.closePath();
+        break;
+      case 'ribbon':
+        var notch = Math.min(w * 0.12, h * 0.42);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + w, y);
+        ctx.lineTo(x + w - notch, cy);
+        ctx.lineTo(x + w, y + h);
+        ctx.lineTo(x, y + h);
+        ctx.lineTo(x + notch, cy);
+        ctx.closePath();
+        break;
+      case 'speech':
+        var bh = h * 0.8;
+        var br = Math.min(rad || 16, Math.min(w, bh) * 0.35);
+        ctx.beginPath();
+        ctx.moveTo(x + br, y);
+        ctx.lineTo(x + w - br, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + br);
+        ctx.lineTo(x + w, y + bh - br);
+        ctx.quadraticCurveTo(x + w, y + bh, x + w - br, y + bh);
+        ctx.lineTo(x + w * 0.42, y + bh);
+        ctx.lineTo(x + w * 0.24, y + h);
+        ctx.lineTo(x + w * 0.26, y + bh);
+        ctx.lineTo(x + br, y + bh);
+        ctx.quadraticCurveTo(x, y + bh, x, y + bh - br);
+        ctx.lineTo(x, y + br);
+        ctx.quadraticCurveTo(x, y, x + br, y);
+        ctx.closePath();
+        break;
+      case 'arrow-right':
+        var headW = Math.min(w * 0.38, h * 0.95);
+        var shaftH = h * 0.5;
+        var syTop = cy - shaftH / 2;
+        ctx.beginPath();
+        ctx.moveTo(x, syTop);
+        ctx.lineTo(x + w - headW, syTop);
+        ctx.lineTo(x + w - headW, y);
+        ctx.lineTo(x + w, cy);
+        ctx.lineTo(x + w - headW, y + h);
+        ctx.lineTo(x + w - headW, syTop + shaftH);
+        ctx.lineTo(x, syTop + shaftH);
+        ctx.closePath();
+        break;
+      case 'arch':
+        var archR = Math.min(w / 2, h * 0.65);
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        ctx.lineTo(x, y + archR);
+        ctx.arc(cx, y + archR, archR, Math.PI, 0, false);
+        ctx.lineTo(x + w, y + h);
+        ctx.closePath();
+        break;
+      default:
+        roundRectPath(ctx, x, y, w, h, rad);
+        break;
+    }
+  }
+
+  function drawGraphicElement(ctx, gKind, x, y, w, h, U, primaryCol, accentCol) {
+    var cx = x + w / 2;
+    var cy = y + h / 2;
+    var pCol = primaryCol || state.primaryColor || '#dc2626';
+    var aCol = accentCol || state.accentColor || '#fbbf24';
+    ctx.save();
+    switch (gKind) {
+      case 'breaking-frame':
+        strokeRoundRect(ctx, x, y, w, h, Math.round(14 * U), pCol, Math.max(4, Math.round(6 * U)));
+        var tagW = Math.min(w * 0.56, Math.round(210 * U));
+        var tagH = Math.min(h * 0.26, Math.round(44 * U));
+        fillRoundRect(ctx, x + Math.round(18 * U), y - Math.round(tagH * 0.45), tagW, tagH, Math.round(8 * U), pCol);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = fontSpec(800, Math.max(12, Math.round(tagH * 0.52)), 'Hind Siliguri', false);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('BREAKING', x + Math.round(18 * U) + tagW / 2, y - Math.round(tagH * 0.45) + tagH / 2 + 1);
+        break;
+      case 'corner-brackets':
+        var arm = Math.min(w, h) * 0.26;
+        ctx.strokeStyle = pCol;
+        ctx.lineWidth = Math.max(4, Math.round(7 * U));
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x, y + arm); ctx.lineTo(x, y); ctx.lineTo(x + arm, y);
+        ctx.moveTo(x + w - arm, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + arm);
+        ctx.moveTo(x + w, y + h - arm); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w - arm, y + h);
+        ctx.moveTo(x + arm, y + h); ctx.lineTo(x, y + h); ctx.lineTo(x, y + h - arm);
+        ctx.stroke();
+        break;
+      case 'award-seal':
+        var sr = Math.min(w, h) / 2;
+        drawStarPolygonPath(ctx, cx, cy, sr, sr, 0.84, 16);
+        ctx.fillStyle = pCol;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx, cy, sr * 0.68, 0, Math.PI * 2);
+        ctx.strokeStyle = aCol;
+        ctx.lineWidth = Math.max(2, Math.round(3.5 * U));
+        ctx.stroke();
+        drawStarPolygonPath(ctx, cx, cy, sr * 0.36, sr * 0.36, 0.42, 5);
+        ctx.fillStyle = aCol;
+        ctx.fill();
+        break;
+      case 'quote-frame':
+        strokeRoundRect(ctx, x, y + h * 0.12, w, h * 0.88, Math.round(18 * U), pCol, Math.max(3, Math.round(4.5 * U)));
+        fillRoundRect(ctx, cx - Math.round(46 * U), y, Math.round(92 * U), Math.round(48 * U), Math.round(24 * U), pCol);
+        drawUiVectorIcon(ctx, 'quote', cx, y + Math.round(24 * U), Math.round(26 * U), '#ffffff');
+        break;
+      case 'live-banner':
+        fillRoundRect(ctx, x, y, w, h, h / 2, pCol);
+        var dotR = Math.max(5, h * 0.18);
+        var dotX = x + h * 0.52;
+        ctx.beginPath();
+        ctx.arc(dotX, cy, dotR, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(dotX, cy, dotR * 1.65, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+        ctx.lineWidth = Math.max(1.5, Math.round(2 * U));
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = fontSpec(800, Math.max(14, Math.round(h * 0.48)), 'Hind Siliguri', false);
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('LIVE', dotX + dotR * 2.4, cy + 1);
+        break;
+      case 'paper-strip':
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.04, y);
+        ctx.lineTo(x + w, y + h * 0.06);
+        ctx.lineTo(x + w * 0.96, y + h);
+        ctx.lineTo(x, y + h * 0.94);
+        ctx.closePath();
+        ctx.fillStyle = pCol;
+        ctx.fill();
+        break;
+      case 'dots-grid':
+        var cols = 5, rows = 5;
+        var gxStep = w / cols, gyStep = h / rows;
+        var dr = Math.max(2.5, Math.min(gxStep, gyStep) * 0.24);
+        ctx.fillStyle = pCol;
+        for (var rIdx = 0; rIdx < rows; rIdx++) {
+          for (var cIdx = 0; cIdx < cols; cIdx++) {
+            ctx.beginPath();
+            ctx.arc(x + (cIdx + 0.5) * gxStep, y + (rIdx + 0.5) * gyStep, dr, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        break;
+      case 'hazard-stripe':
+        roundRectPath(ctx, x, y, w, h, Math.round(8 * U));
+        ctx.fillStyle = aCol;
+        ctx.fill();
+        ctx.save();
+        roundRectPath(ctx, x, y, w, h, Math.round(8 * U));
+        ctx.clip();
+        ctx.fillStyle = pCol;
+        var stripeW = Math.max(14, Math.round(26 * U));
+        for (var sxSt = x - h; sxSt < x + w + h; sxSt += stripeW * 2) {
+          ctx.beginPath();
+          ctx.moveTo(sxSt, y + h);
+          ctx.lineTo(sxSt + stripeW, y + h);
+          ctx.lineTo(sxSt + stripeW + h, y);
+          ctx.lineTo(sxSt + h, y);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+        break;
+      case 'islamic-arch':
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        ctx.lineTo(x, y + h * 0.42);
+        ctx.quadraticCurveTo(x, y + h * 0.12, cx, y);
+        ctx.quadraticCurveTo(x + w, y + h * 0.12, x + w, y + h * 0.42);
+        ctx.lineTo(x + w, y + h);
+        ctx.closePath();
+        ctx.strokeStyle = pCol;
+        ctx.lineWidth = Math.max(3, Math.round(5 * U));
+        ctx.stroke();
+        break;
+      case 'glow-orb':
+        var grOrb = Math.min(w, h) / 2;
+        var radGrad = ctx.createRadialGradient(cx, cy, grOrb * 0.05, cx, cy, grOrb);
+        radGrad.addColorStop(0, hexToRgba(pCol, 0.85));
+        radGrad.addColorStop(0.55, hexToRgba(pCol, 0.32));
+        radGrad.addColorStop(1, hexToRgba(pCol, 0));
+        ctx.fillStyle = radGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, grOrb, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      case 'curved-arrow':
+        ctx.strokeStyle = pCol;
+        ctx.lineWidth = Math.max(4, Math.round(6.5 * U));
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.1, y + h * 0.82);
+        ctx.quadraticCurveTo(x + w * 0.25, y + h * 0.12, x + w * 0.88, y + h * 0.28);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.68, y + h * 0.1);
+        ctx.lineTo(x + w * 0.9, y + h * 0.28);
+        ctx.lineTo(x + w * 0.68, y + h * 0.46);
+        ctx.stroke();
+        break;
+      case 'verified-stamp':
+      default:
+        var vr = Math.min(w, h) / 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, vr * 0.92, 0, Math.PI * 2);
+        ctx.strokeStyle = pCol;
+        ctx.lineWidth = Math.max(3, Math.round(5 * U));
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy, vr * 0.74, 0, Math.PI * 2);
+        if (typeof ctx.setLineDash === 'function') {
+          ctx.setLineDash([Math.max(4, Math.round(6 * U)), Math.max(3, Math.round(4 * U))]);
+        }
+        ctx.lineWidth = Math.max(1.5, Math.round(2.5 * U));
+        ctx.stroke();
+        if (typeof ctx.setLineDash === 'function') ctx.setLineDash([]);
+        drawUiVectorIcon(ctx, 'verified', cx, cy, vr * 0.95, pCol);
+        break;
+    }
+    ctx.restore();
+  }
+
+  // Draws user-added free-floating Canva text boxes, badge stickers, shapes, icons, social logos, graphics & floating images
+  function renderCustomLayers(ctx, W_or_pass, H, U, passMode) {
     var layers = state.customLayers || [];
     if (!layers.length) return;
+    var W = W_or_pass;
+    if (typeof W_or_pass === 'string') {
+      passMode = W_or_pass;
+      W = state.width || 1080;
+      H = state.height || 1080;
+      U = Math.min(W, H * 1.28) / 1080;
+    }
+    if (passMode === 'front' && pendingBehindCustomLayers) {
+      pendingBehindCustomLayers = false;
+      renderCustomLayers(ctx, W, H, U, 'behind');
+    }
     var sx = W / 1080;
     var sy = H / 1080;
 
     for (var i = 0; i < layers.length; i++) {
       var lyr = layers[i];
-      if (!lyr) continue;
+      if (!lyr || lyr.hidden || isElHidden('layer:' + lyr.id)) continue;
+      if (passMode === 'behind' && !lyr.behindTemplate) continue;
+      if (passMode === 'front' && lyr.behindTemplate) continue;
+
       var lType = lyr.layerType || 'text';
       var rot = Number(lyr.rotation) || 0;
       var lyrAlpha = (lyr.opacity != null && !isNaN(Number(lyr.opacity)))
-        ? Math.max(0.05, Math.min(1, Number(lyr.opacity)))
+        ? clamp(Number(lyr.opacity) > 1.0001 ? Number(lyr.opacity) / 100 : Number(lyr.opacity), 0, 1)
         : 1;
       var cx = ((lyr.x != null ? lyr.x : 540) / 1080) * W;
       var cy = ((lyr.y != null ? lyr.y : 540) / 1080) * H;
+      var flipH = !!lyr.flipH;
+      var flipV = !!lyr.flipV;
+      var hitId = 'layer:' + lyr.id;
+
+      if (lType === 'icon') {
+        var iwBox = Math.max(24, Math.round((lyr.w || 110) * sx));
+        var ihBox = Math.max(24, Math.round((lyr.h || 110) * sy));
+        var ixBox = Math.round(cx - iwBox / 2);
+        var iyBox = Math.round(cy - ihBox / 2);
+        ctx.save();
+        ctx.globalAlpha = lyrAlpha;
+        applyCanvasRotationAround(ctx, ixBox + iwBox / 2, iyBox + ihBox / 2, rot);
+        applyCanvasFlipAround(ctx, ixBox + iwBox / 2, iyBox + ihBox / 2, flipH, flipV);
+        if (lyr.bgColor && lyr.bgColor !== 'transparent') {
+          var iRad = lyr.shapeKind === 'circle' ? Math.min(iwBox, ihBox) / 2 : Math.round((lyr.radius != null ? lyr.radius : 20) * U);
+          fillRoundRect(ctx, ixBox, iyBox, iwBox, ihBox, iRad, lyr.bgColor);
+        }
+        var icSz = Math.round(Math.min(iwBox, ihBox) * (lyr.bgColor && lyr.bgColor !== 'transparent' ? 0.62 : 0.88));
+        drawUiVectorIcon(ctx, lyr.iconKey || lyr.icon || 'sparkle', ixBox + iwBox / 2, iyBox + ihBox / 2, icSz, lyr.fill || lyr.color || '#dc2626');
+        ctx.restore();
+
+        registerHitRegion({
+          id: hitId,
+          kind: 'vector',
+          layerId: lyr.id,
+          labelBn: tr('ভেক্টর আইকন', 'Vector Icon'),
+          x: ixBox,
+          y: iyBox,
+          w: iwBox,
+          h: ihBox,
+          rotation: rot
+        });
+        continue;
+      }
+
+      if (lType === 'social') {
+        var socMeta = SOCIAL_BRAND_VECTORS[lyr.socialKey] || SOCIAL_BRAND_VECTORS.facebook;
+        var hasSocText = !!String(lyr.text || '').trim();
+        var socW = Math.max(36, Math.round((lyr.w || (hasSocText ? 250 : 96)) * sx));
+        var socH = Math.max(36, Math.round((lyr.h || (hasSocText ? 72 : 96)) * sy));
+        var socX = Math.round(cx - socW / 2);
+        var socY = Math.round(cy - socH / 2);
+
+        ctx.save();
+        ctx.globalAlpha = lyrAlpha;
+        applyCanvasRotationAround(ctx, socX + socW / 2, socY + socH / 2, rot);
+        applyCanvasFlipAround(ctx, socX + socW / 2, socY + socH / 2, flipH, flipV);
+        if (hasSocText) {
+          var pillBg = lyr.bgColor || '#ffffff';
+          fillRoundRect(ctx, socX, socY, socW, socH, socH / 2, pillBg);
+          if (lyr.stroke !== 'transparent') {
+            strokeRoundRect(ctx, socX, socY, socW, socH, socH / 2, lyr.stroke || 'rgba(15,23,42,0.12)', Math.max(1.5, Math.round(2 * U)));
+          }
+          var sIconSz = Math.round(socH * 0.76);
+          drawSocialVectorIcon(ctx, lyr.socialKey, socX + Math.round(socH * 0.52), socY + socH / 2, sIconSz, lyr.fill || '');
+          var sFg = lyr.color || (isLightColor(pillBg) ? '#0f172a' : '#ffffff');
+          var sFSz = Math.max(12, Math.round((lyr.fontSize || 24) * U));
+          if (!shouldSkipCanvasGlyphsForInlineEdit(hitId)) {
+            ctx.font = fontSpec(700, sFSz, lyr.fontFamily || state.fontFamily || 'Hind Siliguri', !!lyr.italic);
+            ctx.fillStyle = sFg;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(lyr.text || '').trim(), socX + Math.round(socH * 0.96), socY + socH / 2 + 1, Math.max(30, socW - Math.round(socH * 1.12)));
+          }
+        } else {
+          drawSocialVectorIcon(ctx, lyr.socialKey, socX + socW / 2, socY + socH / 2, Math.min(socW, socH), lyr.fill || '');
+        }
+        ctx.restore();
+
+        registerHitRegion({
+          id: hitId,
+          kind: 'vector',
+          layerId: lyr.id,
+          labelBn: (socMeta && (isEn() ? socMeta.name : socMeta.nameBn)) || tr('সোশ্যাল লোগো', 'Social Logo'),
+          x: socX,
+          y: socY,
+          w: socW,
+          h: socH,
+          renderFontPx: Math.max(12, Math.round((lyr.fontSize || 24) * U)),
+          renderFontFamily: lyr.fontFamily || state.fontFamily || 'Hind Siliguri',
+          renderColor: lyr.color || '#0f172a',
+          rotation: rot,
+          singleLine: true
+        });
+        continue;
+      }
+
+      if (lType === 'graphic') {
+        var gw = Math.max(32, Math.round((lyr.w || 260) * sx));
+        var gh = Math.max(24, Math.round((lyr.h || 180) * sy));
+        var gx = Math.round(cx - gw / 2);
+        var gy = Math.round(cy - gh / 2);
+        ctx.save();
+        ctx.globalAlpha = lyrAlpha;
+        applyCanvasRotationAround(ctx, gx + gw / 2, gy + gh / 2, rot);
+        applyCanvasFlipAround(ctx, gx + gw / 2, gy + gh / 2, flipH, flipV);
+        drawGraphicElement(ctx, lyr.graphicKind || 'breaking-frame', gx, gy, gw, gh, U, lyr.fill || state.primaryColor, lyr.stroke || state.accentColor);
+        ctx.restore();
+
+        registerHitRegion({
+          id: hitId,
+          kind: 'vector',
+          layerId: lyr.id,
+          labelBn: tr('গ্রাফিক্স এলিমেন্ট', 'Graphic Element'),
+          x: gx,
+          y: gy,
+          w: gw,
+          h: gh,
+          rotation: rot
+        });
+        continue;
+      }
 
       if (lType === 'shape') {
         var sw = Math.max(24, Math.round((lyr.w || 320) * sx));
         var sh = Math.max(10, Math.round((lyr.h || 110) * sy));
         var sxBox = Math.round(cx - sw / 2);
         var syBox = Math.round(cy - sh / 2);
-        var rad = lyr.shapeKind === 'circle' || lyr.shapeKind === 'pill'
+        var sKind = lyr.shapeKind || 'rounded';
+        var rad = (sKind === 'circle' || sKind === 'pill')
           ? Math.min(sw, sh) / 2
-          : Math.round((lyr.radius != null ? lyr.radius : 16) * U);
+          : (sKind === 'rect' ? Math.round((lyr.radius != null ? lyr.radius : 0) * U) : Math.round((lyr.radius != null ? lyr.radius : 16) * U));
 
         ctx.save();
         ctx.globalAlpha = lyrAlpha;
         applyCanvasRotationAround(ctx, sxBox + sw / 2, syBox + sh / 2, rot);
-        ctx.shadowColor = 'rgba(0,0,0,0.28)';
+        applyCanvasFlipAround(ctx, sxBox + sw / 2, syBox + sh / 2, flipH, flipV);
+        ctx.shadowColor = 'rgba(0,0,0,0.24)';
         ctx.shadowBlur = 12;
         ctx.shadowOffsetY = 3;
 
-        if (lyr.shapeKind === 'line') {
+        var strokeW = lyr.strokeWidth != null
+          ? Math.max(0, Math.round(Number(lyr.strokeWidth) * U))
+          : (sKind === 'outline' || sKind === 'ring' ? Math.max(4, Math.round(7 * U)) : Math.max(1.5, Math.round(2.5 * U)));
+
+        if (typeof ctx.setLineDash === 'function') {
+          if (lyr.strokeDash === 'dashed' || sKind === 'dashed-line') {
+            ctx.setLineDash([Math.max(6, Math.round(12 * U)), Math.max(4, Math.round(8 * U))]);
+          } else if (lyr.strokeDash === 'dotted') {
+            ctx.setLineDash([Math.max(3, Math.round(4 * U)), Math.max(4, Math.round(7 * U))]);
+          }
+        }
+
+        if (sKind === 'line' || sKind === 'dashed-line') {
           var lh = Math.max(4, Math.min(sh, Math.round((lyr.h || 12) * U)));
-          fillRoundRect(ctx, sxBox, Math.round(cy - lh / 2), sw, lh, lh / 2, lyr.fill || state.accentColor || '#fde047');
-        } else if (lyr.shapeKind === 'circle') {
-          var cr = Math.min(sw, sh) / 2;
-          ctx.beginPath();
-          ctx.arc(sxBox + sw / 2, syBox + sh / 2, cr, 0, Math.PI * 2);
-          ctx.closePath();
+          if (sKind === 'dashed-line') {
+            ctx.beginPath();
+            ctx.moveTo(sxBox, cy);
+            ctx.lineTo(sxBox + sw, cy);
+            ctx.strokeStyle = lyr.fill || lyr.stroke || state.accentColor || '#fde047';
+            ctx.lineWidth = lh;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          } else {
+            fillRoundRect(ctx, sxBox, Math.round(cy - lh / 2), sw, lh, lh / 2, lyr.fill || state.accentColor || '#fde047');
+          }
+        } else if (sKind === 'ring') {
+          buildCustomShapePath(ctx, 'ring', sxBox + strokeW / 2, syBox + strokeW / 2, Math.max(8, sw - strokeW), Math.max(8, sh - strokeW), rad);
+          ctx.strokeStyle = (lyr.stroke && lyr.stroke !== 'transparent') ? lyr.stroke : (lyr.fill || state.accentColor || '#38bdf8');
+          ctx.lineWidth = Math.max(5, strokeW * 1.6);
+          ctx.stroke();
+        } else {
+          buildCustomShapePath(ctx, sKind, sxBox, syBox, sw, sh, rad);
           if (lyr.fill && lyr.fill !== 'transparent') {
             ctx.fillStyle = lyr.fill;
             ctx.fill();
           }
-          if (lyr.stroke && lyr.stroke !== 'transparent') {
+          if (lyr.stroke && lyr.stroke !== 'transparent' && strokeW > 0) {
             ctx.shadowColor = 'transparent';
+            buildCustomShapePath(ctx, sKind, sxBox, syBox, sw, sh, rad);
             ctx.strokeStyle = lyr.stroke;
-            ctx.lineWidth = Math.max(2, Math.round(3 * U));
-            ctx.stroke();
-          }
-        } else {
-          if (lyr.fill && lyr.fill !== 'transparent') {
-            fillRoundRect(ctx, sxBox, syBox, sw, sh, rad, lyr.fill);
-          }
-          if (lyr.stroke && lyr.stroke !== 'transparent') {
-            ctx.shadowColor = 'transparent';
-            roundRectPath(ctx, sxBox, syBox, sw, sh, rad);
-            ctx.strokeStyle = lyr.stroke;
-            ctx.lineWidth = lyr.shapeKind === 'outline' ? Math.max(3, Math.round(5 * U)) : Math.max(1.5, Math.round(2.5 * U));
+            ctx.lineWidth = strokeW;
             ctx.stroke();
           }
         }
+        if (typeof ctx.setLineDash === 'function') ctx.setLineDash([]);
 
         var shpTxt = String(lyr.text || '').trim();
-        if (shpTxt) {
-          var shpFSz = Math.max(12, Math.round((lyr.fontSize || 30) * U));
-          var shpFam = lyr.fontFamily || state.fontFamily || 'Hind Siliguri';
-          var shpWeight = lyr.bold === false ? 500 : 800;
-          var shpItalic = !!lyr.italic;
-          var shpBgRef = (lyr.fill && lyr.fill !== 'transparent') ? lyr.fill : state.bgColor;
-          var shpCol = getEffectiveTextColor(lyr.color || lyr.textColor || (isLightColor(shpBgRef) ? '#0f172a' : '#ffffff'), shpBgRef);
-          var shpHiCol = getEffectiveTextColor(state.accentColor, shpBgRef);
+        var shpFSz = Math.max(12, Math.round((lyr.fontSize || 30) * U));
+        var shpFam = lyr.fontFamily || state.fontFamily || 'Hind Siliguri';
+        var shpWeight = lyr.bold === false ? 500 : 800;
+        var shpItalic = !!lyr.italic;
+        var shpBgRef = (lyr.fill && lyr.fill !== 'transparent') ? lyr.fill : state.bgColor;
+        var manualShpCol = lyr.customColor ? (lyr.color || lyr.textColor || '') : '';
+        var shpCol = resolveElementTextColor(manualShpCol, lyr.color || lyr.textColor || (isLightColor(shpBgRef) ? '#0f172a' : '#ffffff'), shpBgRef);
+        var manualShpHi = lyr.highlightColor || state.highlightColor || '';
+        var shpHiMode = lyr.highlightBgMode || state.highlightBgMode || '';
+        var shpUseMarker = shpHiMode === 'marker' || (!shpHiMode && lyr.effect === 'marker');
+        var shpMarkerFill = manualShpHi || hexToRgba(state.accentColor, 0.35);
+        var shpHiCol = shpUseMarker
+          ? (manualShpCol || (manualShpHi ? getEffectiveTextColor('#0f172a', manualShpHi) : getEffectiveTextColor(state.accentColor, shpBgRef)))
+          : (manualShpHi ? manualShpHi : getEffectiveTextColor(state.accentColor, shpBgRef));
+        var shpLineH = Math.round(shpFSz * (lyr.lineRatio ? Number(lyr.lineRatio) : 1.28));
+
+        if (shpTxt && !shouldSkipCanvasGlyphsForInlineEdit(hitId)) {
           ctx.shadowColor = 'transparent';
           ctx.font = fontSpec(shpWeight, shpFSz, shpFam, shpItalic);
-          var shpTokens = tokenizeRichText(applyTextCase(shpTxt, lyr));
+          var shpTokens = tokenizeRichText(applyTextCase(shpTxt, lyr), getElRichSpans(hitId, lyr.text));
           var shpMaxW = Math.max(40, sw - Math.round(24 * U));
           var shpLayout = layoutRichLines(ctx, shpTokens, shpMaxW);
-          var shpLineH = Math.round(shpFSz * (lyr.lineRatio ? Number(lyr.lineRatio) : 1.28));
           var shpTotH = shpLayout.lines.length * shpLineH;
           var shpCurY = syBox + Math.round((sh - shpTotH) / 2);
           ctx.textBaseline = 'top';
@@ -7657,8 +9231,20 @@
             var sWx = sLx;
             for (var sWi = 0; sWi < sLn.items.length; sWi++) {
               var sIt = sLn.items[sWi];
-              applyTextEffectToCtx(ctx, lyr, null, shpHiCol);
-              ctx.fillStyle = sIt.hi ? shpHiCol : shpCol;
+              var sItMarker = sIt.hiMode === 'marker' ? true : (sIt.hiMode === 'text' ? false : shpUseMarker);
+              var sItBg = sIt.hiColor || shpMarkerFill;
+              var sItFg = shpCol;
+              if (sIt.hi) {
+                sItFg = sItMarker ? (sIt.hiColor ? getEffectiveTextColor('#0f172a', sIt.hiColor) : shpHiCol) : (sIt.hiColor || shpHiCol);
+              }
+              if (sIt.hi && sItMarker) {
+                ctx.save();
+                ctx.shadowColor = 'transparent';
+                fillRoundRect(ctx, sWx - 4, shpCurY + shpFSz * 0.06, sIt.width + 8, shpFSz * 1.12, 5, sItBg);
+                ctx.restore();
+              }
+              applyTextEffectToCtx(ctx, lyr, null, sItFg);
+              ctx.fillStyle = sItFg;
               ctx.fillText(sIt.word, sWx, shpCurY);
               sWx += sIt.width + shpLayout.spaceW;
             }
@@ -7669,7 +9255,7 @@
         ctx.restore();
 
         registerHitRegion({
-          id: 'layer:' + lyr.id,
+          id: hitId,
           kind: 'shape',
           layerId: lyr.id,
           labelBn: tr('শেপ / ফ্রেম', 'Shape'),
@@ -7677,6 +9263,18 @@
           y: syBox,
           w: sw,
           h: sh,
+          textBoxX: sxBox + Math.round(12 * U),
+          textBoxY: syBox + Math.max(4, Math.round((sh - shpLineH) / 2)),
+          textBoxW: Math.max(40, sw - Math.round(24 * U)),
+          renderFontPx: shpFSz,
+          renderLineH: shpLineH,
+          renderFontFamily: shpFam,
+          renderWeight: shpWeight,
+          renderItalic: shpItalic,
+          renderColor: shpCol,
+          renderHiColor: shpHiCol,
+          renderUseMarker: shpUseMarker,
+          renderMarkerFill: shpMarkerFill,
           fontSize: lyr.fontSize || 30,
           align: lyr.align || 'center',
           rotation: rot
@@ -7701,6 +9299,7 @@
         ctx.save();
         ctx.globalAlpha = lyrAlpha;
         applyCanvasRotationAround(ctx, vx + vw / 2, vy + vh / 2, rot);
+        applyCanvasFlipAround(ctx, vx + vw / 2, vy + vh / 2, flipH, flipV);
         roundRectPath(ctx, vx, vy, vw, vh, Math.round((lyr.radius != null ? lyr.radius : 14) * U));
         ctx.clip();
         var iw = fImg.naturalWidth || fImg.width || 1;
@@ -7713,7 +9312,7 @@
         ctx.restore();
 
         registerHitRegion({
-          id: 'layer:' + lyr.id,
+          id: hitId,
           kind: 'customImage',
           layerId: lyr.id,
           labelBn: tr('ভাসমান ছবি', 'Image Layer'),
@@ -7735,29 +9334,40 @@
         ctx.save();
         ctx.globalAlpha = lyrAlpha;
         applyCanvasRotationAround(ctx, vx + vw / 2, vy + vh / 2, rot);
+        applyCanvasFlipAround(ctx, vx + vw / 2, vy + vh / 2, flipH, flipV);
 
-        // Background pill backing
-        fillRoundRect(ctx, vx, vy, vw, vh, Math.round(14 * U), lyr.fill || '#ffffff');
-        strokeRoundRect(ctx, vx, vy, vw, vh, Math.round(14 * U), lyr.stroke || '#cbd5e1', Math.max(1.5, Math.round(2 * U)));
-
-        // Brand vector icon centered on left/center
-        var iconSz = Math.round(Math.min(vh * 0.76, 52 * U));
-        drawBrandVectorIcon(ctx, lyr.vectorKind, vx + Math.round(vh * 0.52), vy + vh / 2, iconSz);
-
-        // Brand name text
         var vMeta = PAYMENT_BRAND_VECTORS[lyr.vectorKind];
-        if (vMeta) {
-          ctx.font = fontSpec(800, Math.round(22 * U), 'Hind Siliguri');
-          ctx.fillStyle = '#0f172a';
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(vMeta.nameBn || vMeta.name, vx + Math.round(vh * 0.95), vy + vh / 2);
+        var vLabel = lyr.text != null ? String(lyr.text).trim() : (vMeta ? (vMeta.nameBn || vMeta.name) : '');
+        if (lyr.iconOnly) {
+          drawBrandVectorIcon(ctx, lyr.vectorKind, vx + vw / 2, vy + vh / 2, Math.min(vw, vh) * 0.88);
+        } else {
+          // Background pill backing
+          if (lyr.fill !== 'transparent') {
+            fillRoundRect(ctx, vx, vy, vw, vh, Math.round((lyr.radius != null ? lyr.radius : 14) * U), lyr.fill || '#ffffff');
+          }
+          if (lyr.stroke !== 'transparent') {
+            strokeRoundRect(ctx, vx, vy, vw, vh, Math.round((lyr.radius != null ? lyr.radius : 14) * U), lyr.stroke || '#cbd5e1', Math.max(1.5, Math.round(2 * U)));
+          }
+
+          var iconSz = Math.round(Math.min(vh * 0.76, 52 * U));
+          if (vLabel) {
+            drawBrandVectorIcon(ctx, lyr.vectorKind, vx + Math.round(vh * 0.52), vy + vh / 2, iconSz);
+            if (!shouldSkipCanvasGlyphsForInlineEdit(hitId)) {
+              ctx.font = fontSpec(800, Math.round(22 * U), lyr.fontFamily || 'Hind Siliguri');
+              ctx.fillStyle = lyr.color || '#0f172a';
+              ctx.textAlign = 'left';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(vLabel, vx + Math.round(vh * 0.95), vy + vh / 2);
+            }
+          } else {
+            drawBrandVectorIcon(ctx, lyr.vectorKind, vx + vw / 2, vy + vh / 2, iconSz);
+          }
         }
 
         ctx.restore();
 
         registerHitRegion({
-          id: 'layer:' + lyr.id,
+          id: hitId,
           kind: 'shape',
           layerId: lyr.id,
           labelBn: tr('পেমেন্ট লোগো', 'Payment Logo'),
@@ -7788,7 +9398,7 @@
       ctx.save();
       ctx.globalAlpha = lyrAlpha;
       ctx.font = fontSpec(weight, fSz, fam, isItalic);
-      var tokens = tokenizeRichText(applyTextCase(lyr.text, lyr));
+      var tokens = tokenizeRichText(applyTextCase(lyr.text, lyr), getElRichSpans(hitId, lyr.text));
       var layout = layoutRichLines(ctx, tokens, Math.max(60, maxW - iconSlotW));
       var lineH = Math.round(fSz * lineRatio);
       var contentW = 0;
@@ -7805,14 +9415,18 @@
       var boxY = Math.round(cy - boxH / 2);
 
       applyCanvasRotationAround(ctx, boxX + boxW / 2, boxY + boxH / 2, rot);
+      applyCanvasFlipAround(ctx, boxX + boxW / 2, boxY + boxH / 2, flipH, flipV);
 
       if (badgeBg) {
         ctx.shadowColor = 'rgba(0,0,0,0.32)';
         ctx.shadowBlur = 14;
         ctx.shadowOffsetY = 4;
-        fillRoundRect(ctx, boxX, boxY, boxW, boxH, Math.round(12 * U), badgeBg);
+        var bRad = Math.round((lyr.radius != null ? lyr.radius : 12) * U);
+        fillRoundRect(ctx, boxX, boxY, boxW, boxH, bRad, badgeBg);
         ctx.shadowColor = 'transparent';
-        strokeRoundRect(ctx, boxX, boxY, boxW, boxH, Math.round(12 * U), lyr.stroke || lyr.strokeColor || 'rgba(255,255,255,0.22)', 1.5);
+        if (lyr.stroke !== 'transparent') {
+          strokeRoundRect(ctx, boxX, boxY, boxW, boxH, bRad, lyr.stroke || lyr.strokeColor || 'rgba(255,255,255,0.22)', lyr.strokeWidth != null ? Math.max(0, lyr.strokeWidth * U) : 1.5);
+        }
       }
 
       ctx.textBaseline = 'top';
@@ -7822,34 +9436,55 @@
 
       var bgCtx = badgeBg || state.bgColor;
       var rawTxtCol = lyr.color || lyr.textColor;
-      var effLyrColor = getEffectiveTextColor(rawTxtCol || (isLightColor(bgCtx) ? '#0f172a' : '#ffffff'), bgCtx);
-      var effLyrHiColor = getEffectiveTextColor(state.accentColor, bgCtx);
+      var manualLyrCol = lyr.customColor ? (rawTxtCol || '') : '';
+      var effLyrColor = resolveElementTextColor(manualLyrCol, rawTxtCol || (isLightColor(bgCtx) ? '#0f172a' : '#ffffff'), bgCtx);
+      var manualLyrHi = lyr.highlightColor || state.highlightColor || '';
+      var lyrHiMode = lyr.highlightBgMode || state.highlightBgMode || '';
+      var lyrUseMarker = lyrHiMode === 'marker' || (!lyrHiMode && lyr.effect === 'marker');
+      var lyrMarkerFill = manualLyrHi || hexToRgba(state.accentColor, 0.35);
+      var effLyrHiColor = lyrUseMarker
+        ? (manualLyrCol || (manualLyrHi ? getEffectiveTextColor('#0f172a', manualLyrHi) : getEffectiveTextColor(state.accentColor, bgCtx)))
+        : (manualLyrHi ? manualLyrHi : getEffectiveTextColor(state.accentColor, bgCtx));
 
       if (hasIcon) {
         drawUiVectorIcon(ctx, lyr.icon, boxX + padX + Math.round(fSz * 0.36), boxY + boxH / 2, Math.round(fSz * 0.72), effLyrColor);
       }
 
-      for (var lnIdx = 0; lnIdx < layout.lines.length; lnIdx++) {
-        var ln = layout.lines[lnIdx];
-        var sxLine = boxX + padX + iconSlotW;
-        if (align === 'center') sxLine = boxX + iconSlotW / 2 + (boxW - ln.width) / 2;
-        else if (align === 'right') sxLine = boxX + boxW - padX - ln.width;
+      if (!shouldSkipCanvasGlyphsForInlineEdit(hitId)) {
+        for (var lnIdx = 0; lnIdx < layout.lines.length; lnIdx++) {
+          var ln = layout.lines[lnIdx];
+          var sxLine = boxX + padX + iconSlotW;
+          if (align === 'center') sxLine = boxX + iconSlotW / 2 + (boxW - ln.width) / 2;
+          else if (align === 'right') sxLine = boxX + boxW - padX - ln.width;
 
-        var wx = sxLine;
-        for (var wi = 0; wi < ln.items.length; wi++) {
-          var it = ln.items[wi];
-          applyTextEffectToCtx(ctx, lyr, defaultSh, effLyrHiColor);
-          ctx.fillStyle = it.hi ? effLyrHiColor : effLyrColor;
-          ctx.fillText(it.word, wx, curY);
-          wx += it.width + layout.spaceW;
+          var wx = sxLine;
+          for (var wi = 0; wi < ln.items.length; wi++) {
+            var it = ln.items[wi];
+            var itUseMarker = it.hiMode === 'marker' ? true : (it.hiMode === 'text' ? false : lyrUseMarker);
+            var itBg = it.hiColor || lyrMarkerFill;
+            var itFg = effLyrColor;
+            if (it.hi) {
+              itFg = itUseMarker ? (it.hiColor ? getEffectiveTextColor('#0f172a', it.hiColor) : effLyrHiColor) : (it.hiColor || effLyrHiColor);
+            }
+            if (it.hi && itUseMarker) {
+              ctx.save();
+              ctx.shadowColor = 'transparent';
+              fillRoundRect(ctx, wx - 4, curY + fSz * 0.06, it.width + 8, fSz * 1.12, 5, itBg);
+              ctx.restore();
+            }
+            applyTextEffectToCtx(ctx, lyr, defaultSh, itFg);
+            ctx.fillStyle = itFg;
+            ctx.fillText(it.word, wx, curY);
+            wx += it.width + layout.spaceW;
+          }
+          drawTextDecorations(ctx, lyr, sxLine, curY, ln.width, fSz, effLyrColor);
+          curY += lineH;
         }
-        drawTextDecorations(ctx, lyr, sxLine, curY, ln.width, fSz, effLyrColor);
-        curY += lineH;
       }
       ctx.restore();
 
       registerHitRegion({
-        id: 'layer:' + lyr.id,
+        id: hitId,
         kind: 'customText',
         layerId: lyr.id,
         labelBn: badgeBg ? tr('স্টিকার ব্যাজ', 'Sticker Badge') : tr('টেক্সট বক্স', 'Text Box'),
@@ -7857,6 +9492,18 @@
         y: boxY,
         w: boxW,
         h: boxH,
+        textBoxX: boxX + padX + iconSlotW,
+        textBoxY: boxY + padY,
+        textBoxW: Math.max(40, boxW - padX * 2 - iconSlotW),
+        renderFontPx: fSz,
+        renderLineH: lineH,
+        renderFontFamily: fam,
+        renderWeight: weight,
+        renderItalic: isItalic,
+        renderColor: effLyrColor,
+        renderHiColor: effLyrHiColor,
+        renderUseMarker: lyrUseMarker,
+        renderMarkerFill: lyrMarkerFill,
         fontSize: lyr.fontSize || 34,
         align: align,
         rotation: rot
@@ -7878,6 +9525,7 @@
 
     currentHitRegions = [];
     isTrackingHits = true;
+    pendingBehindCustomLayers = true;
     lastPhotoOrigBox = null;
 
     var U = Math.min(W, H * 1.28) / 1080;
@@ -7886,12 +9534,14 @@
     var fn = (typeof RENDERERS[state.template] === 'function') ? RENDERERS[state.template] : renderBreakingNews;
     try {
       fn(ctx, W, H, U);
-      renderCustomLayers(ctx, W, H, U);
+      renderCustomLayers(ctx, W, H, U, 'front');
     } finally {
+      pendingBehindCustomLayers = false;
       isTrackingHits = false;
     }
 
     syncOverlayBoxes();
+    if (typeof refreshPositionDrawerIfOpen === 'function') refreshPositionDrawerIfOpen();
   }
 
   /* =========================================================================
@@ -7917,10 +9567,13 @@
     for (var i = 0; i < keys.length; i++) savedState[keys[i]] = state[keys[i]];
     var prevTracking = isTrackingHits;
     var prevOrigBox = lastPhotoOrigBox;
+    var prevBehind = pendingBehindCustomLayers;
 
     try {
       isTrackingHits = false;
+      pendingBehindCustomLayers = false;
       lastPhotoOrigBox = null;
+      var parsedThumbHead = extractRichTextAndSpans(meta.headline);
       state.template = tplId;
       state.width = 1080;
       state.height = 1080;
@@ -7930,11 +9583,19 @@
       state.textAlign = meta.align || 'left';
       state.titleSize = meta.titleSize || 44;
       state.badge = meta.badge;
-      state.headline = meta.headline;
+      state.headline = parsedThumbHead.text;
       state.tagline = meta.tagline;
       state.detail = meta.detail;
       state.footerUrl = meta.defaultFooter;
       state.brandName = meta.defaultBrand;
+      state.userEditedBrand = false;
+      state.brandWebsite = '';
+      state.brandPhone = '';
+      state.brandExtraInfo = '';
+      state.brandFooterFormat = 'both';
+      state.logoDataUrl = '';
+      state.highlightColor = '';
+      state.highlightBgMode = '';
       state.dateText = todayBnString();
       state.verdict = meta.verdict || 'false';
       state.leftLabel = meta.leftLabel || 'সম্পাদিত ভুয়া কার্ড';
@@ -7954,6 +9615,11 @@
       state.elementCrop = {};
       state.elementBoxW = {};
       state.elementRotation = {};
+      state.elementOpacity = {};
+      state.elementFlip = {};
+      state.elementRichSpans = parsedThumbHead.spans.length ? {
+        headline: { text: parsedThumbHead.text, spans: parsedThumbHead.spans }
+      } : {};
       state.userResized = {};
       state.elementHidden = {};
       state.customLayers = [];
@@ -7970,6 +9636,7 @@
     } finally {
       for (var j = 0; j < keys.length; j++) state[keys[j]] = savedState[keys[j]];
       isTrackingHits = prevTracking;
+      pendingBehindCustomLayers = prevBehind;
       lastPhotoOrigBox = prevOrigBox;
     }
   }
@@ -8080,6 +9747,11 @@
       userEditedText: state.userEditedText,
       brandName: state.brandName,
       userEditedBrand: state.userEditedBrand,
+      brandWebsite: state.brandWebsite || '',
+      brandPhone: state.brandPhone || '',
+      brandExtraInfo: state.brandExtraInfo || '',
+      brandFooterFormat: state.brandFooterFormat || 'both',
+      logoDataUrl: state.logoDataUrl || '',
       logoPos: state.logoPos,
       logoBgStyle: state.logoBgStyle,
       logoSize: state.logoSize,
@@ -8089,6 +9761,9 @@
       photoAssetId: state.photoAssetId || '',
       photoZoom: state.photoZoom,
       photoBright: state.photoBright,
+      photoContrast: state.photoContrast != null ? state.photoContrast : 100,
+      photoSaturate: state.photoSaturate != null ? state.photoSaturate : 100,
+      photoBlur: state.photoBlur || 0,
       photoPanX: state.photoPanX,
       photoPanY: state.photoPanY,
       photo2AssetId: state.photo2AssetId || '',
@@ -8096,6 +9771,8 @@
       primaryColor: state.primaryColor,
       accentColor: state.accentColor,
       bgColor: state.bgColor,
+      highlightColor: state.highlightColor || '',
+      highlightBgMode: state.highlightBgMode || '',
       titleSize: state.titleSize,
       textAlign: state.textAlign,
       overlayAlpha: state.overlayAlpha,
@@ -8107,6 +9784,9 @@
       elementCrop: cloneJson(state.elementCrop, {}),
       elementBoxW: cloneJson(state.elementBoxW, {}),
       elementRotation: cloneJson(state.elementRotation, {}),
+      elementOpacity: cloneJson(state.elementOpacity, {}),
+      elementFlip: cloneJson(state.elementFlip, {}),
+      elementRichSpans: cloneJson(state.elementRichSpans, {}),
       userResized: cloneJson(state.userResized, {}),
       elementHidden: cloneJson(state.elementHidden, {}),
       elementLocked: cloneJson(state.elementLocked, {}),
@@ -8134,6 +9814,11 @@
 
     state.brandName = s.brandName !== undefined ? s.brandName : '';
     state.userEditedBrand = !!s.userEditedBrand;
+    state.brandWebsite = s.brandWebsite || '';
+    state.brandPhone = s.brandPhone || '';
+    state.brandExtraInfo = s.brandExtraInfo || '';
+    state.brandFooterFormat = s.brandFooterFormat || 'both';
+    state.logoDataUrl = s.logoDataUrl || '';
     state.logoPos = s.logoPos || 'top-right';
     state.logoBgStyle = s.logoBgStyle || 'light';
     state.logoSize = Number(s.logoSize) || 100;
@@ -8148,6 +9833,9 @@
     state.photoAssetId = s.photoAssetId || '';
     state.photoZoom = Number(s.photoZoom) || 100;
     state.photoBright = Number(s.photoBright) || 100;
+    state.photoContrast = s.photoContrast != null ? Number(s.photoContrast) : 100;
+    state.photoSaturate = s.photoSaturate != null ? Number(s.photoSaturate) : 100;
+    state.photoBlur = Number(s.photoBlur) || 0;
     state.photoPanX = Number(s.photoPanX) || 0;
     state.photoPanY = Number(s.photoPanY) || 0;
     state.photo2AssetId = s.photo2AssetId || '';
@@ -8156,6 +9844,8 @@
     state.primaryColor = s.primaryColor || '#dc2626';
     state.accentColor = s.accentColor || '#fde047';
     state.bgColor = s.bgColor || '#1c080b';
+    state.highlightColor = s.highlightColor || '';
+    state.highlightBgMode = s.highlightBgMode || '';
     state.titleSize = Number(s.titleSize) || 44;
     state.textAlign = s.textAlign || 'left';
     state.overlayAlpha = Number(s.overlayAlpha) || 85;
@@ -8168,6 +9858,16 @@
     state.elementCrop = cloneJson(s.elementCrop, {});
     state.elementBoxW = cloneJson(s.elementBoxW, {});
     state.elementRotation = cloneJson(s.elementRotation, {});
+    state.elementOpacity = cloneJson(s.elementOpacity, {});
+    state.elementFlip = cloneJson(s.elementFlip, {});
+    state.elementRichSpans = cloneJson(s.elementRichSpans, {});
+    if (state.headline && state.headline.indexOf('*') !== -1 && (!state.elementRichSpans || !state.elementRichSpans.headline)) {
+      var migHead = extractRichTextAndSpans(state.headline);
+      if (migHead.spans.length) {
+        state.headline = migHead.text;
+        state.elementRichSpans.headline = { text: migHead.text, spans: migHead.spans };
+      }
+    }
     state.userResized = cloneJson(s.userResized, {});
     state.elementHidden = cloneJson(s.elementHidden, {});
     state.elementLocked = cloneJson(s.elementLocked, {});
@@ -8191,10 +9891,25 @@
 
     return Promise.all(jobs).then(function (loaded) {
       state.logoImg = state.logoAssetId ? loaded[0].img : null;
+      if (!state.logoImg && state.logoDataUrl) {
+        if (typeof Image !== 'undefined') {
+          var snapLogo = new Image();
+          snapLogo.src = state.logoDataUrl;
+          state.logoImg = snapLogo;
+        } else {
+          state.logoImg = { src: state.logoDataUrl, width: 120, height: 120, naturalWidth: 120, naturalHeight: 120 };
+        }
+      }
       state.photoImg = state.photoAssetId ? loaded[1].img : null;
       state.photo2Img = state.photo2AssetId ? loaded[2].img : null;
-      if (loaded[0].rec) updateActiveLogoThumb(loaded[0].rec.thumbDataUrl);
-      else if (!state.logoImg) updateActiveLogoThumb('');
+      if (loaded[0].rec) {
+        state.logoDataUrl = loaded[0].rec.thumbDataUrl || state.logoDataUrl || '';
+        updateActiveLogoThumb(loaded[0].rec.thumbDataUrl);
+      } else if (state.logoDataUrl && state.logoImg) {
+        updateActiveLogoThumb(state.logoDataUrl);
+      } else if (!state.logoImg) {
+        updateActiveLogoThumb('');
+      }
       syncControlsFromState();
       renderUploadsGallery();
       requestRender();
@@ -8288,11 +10003,13 @@
     var keys = Object.keys(state);
     for (var i = 0; i < keys.length; i++) saved[keys[i]] = state[keys[i]];
     var prevTracking = isTrackingHits;
+    var prevBehind = pendingBehindCustomLayers;
     var prevOrigBox = lastPhotoOrigBox;
     var prevFooterH = currentRenderFooterH;
     var prevBottomY = lastTextBottomY;
     try {
       isTrackingHits = false;
+      pendingBehindCustomLayers = true;
       lastPhotoOrigBox = null;
       var sKeys = Object.keys(snap);
       for (var j = 0; j < sKeys.length; j++) {
@@ -8303,12 +10020,13 @@
       lastTextBottomY = 0;
       var fn = (typeof RENDERERS[state.template] === 'function') ? RENDERERS[state.template] : renderBreakingNews;
       fn(ctx, W, H, U);
-      renderCustomLayers(ctx, W, H, U);
+      renderCustomLayers(ctx, W, H, U, 'front');
     } catch (err) {
       console.warn('renderSnapshotToCanvas warning:', err);
     } finally {
       for (var k = 0; k < keys.length; k++) state[keys[k]] = saved[keys[k]];
       isTrackingHits = prevTracking;
+      pendingBehindCustomLayers = prevBehind;
       lastPhotoOrigBox = prevOrigBox;
       currentRenderFooterH = prevFooterH;
       lastTextBottomY = prevBottomY;
@@ -8660,14 +10378,22 @@
     freshSnap.elementCrop = {};
     freshSnap.elementBoxW = {};
     freshSnap.elementRotation = {};
+    freshSnap.elementOpacity = {};
+    freshSnap.elementFlip = {};
     freshSnap.userResized = {};
     freshSnap.elementHidden = {};
     freshSnap.elementLocked = {};
     freshSnap.customLayers = [];
     freshSnap.pageLocked = false;
     freshSnap.userEditedText = false;
+    freshSnap.highlightColor = state.highlightColor || '';
+    freshSnap.highlightBgMode = state.highlightBgMode || '';
+    var parsedBlankHead = extractRichTextAndSpans(meta.headline);
     freshSnap.badge = meta.badge;
-    freshSnap.headline = meta.headline;
+    freshSnap.headline = parsedBlankHead.text;
+    freshSnap.elementRichSpans = parsedBlankHead.spans.length ? {
+      headline: { text: parsedBlankHead.text, spans: parsedBlankHead.spans }
+    } : {};
     freshSnap.tagline = meta.tagline;
     freshSnap.detail = meta.detail;
 
@@ -8750,12 +10476,423 @@
       localStorage.setItem(BRAND_PREF_KEY, JSON.stringify({
         brandName: state.brandName,
         userEditedBrand: state.userEditedBrand,
+        brandWebsite: state.brandWebsite || '',
+        brandPhone: state.brandPhone || '',
+        brandExtraInfo: state.brandExtraInfo || '',
+        brandFooterFormat: state.brandFooterFormat || 'both',
         logoAssetId: state.logoAssetId || '',
+        logoDataUrl: state.logoDataUrl || '',
         logoPos: state.logoPos === 'custom' ? 'top-right' : state.logoPos,
         logoBgStyle: state.logoBgStyle,
         logoSize: state.logoSize
       }));
     } catch (e) {}
+  }
+
+  /* =========================================================================
+   * 10B. MULTI-BRAND KIT / SAVED BRAND PROFILES ENGINE
+   * ========================================================================= */
+  var editingBrandProfileId = '';
+
+  function getBrandProfiles() {
+    try {
+      var raw = localStorage.getItem(BRAND_PROFILES_KEY);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.filter(function (x) { return x && typeof x === 'object' && x.id; }) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function setBrandProfiles(list) {
+    try {
+      localStorage.setItem(BRAND_PROFILES_KEY, JSON.stringify(Array.isArray(list) ? list : []));
+    } catch (e) {}
+  }
+
+  function getActiveBrandId() {
+    try {
+      return String(localStorage.getItem(ACTIVE_BRAND_KEY) || '');
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function setActiveBrandId(id) {
+    try {
+      if (id) localStorage.setItem(ACTIVE_BRAND_KEY, String(id));
+      else localStorage.removeItem(ACTIVE_BRAND_KEY);
+    } catch (e) {}
+  }
+
+  function getActiveBrandProfile() {
+    var aid = getActiveBrandId();
+    if (!aid) return null;
+    var list = getBrandProfiles();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === aid) return list[i];
+    }
+    return null;
+  }
+
+  function formatBrandFooterContact(brand, tplId) {
+    if (!brand) return '';
+    var web = String(brand.website !== undefined ? brand.website : (brand.brandWebsite || '')).trim();
+    var ph = String(brand.phone !== undefined ? brand.phone : (brand.brandPhone || '')).trim();
+    var fmt = String(brand.footerFormat || brand.brandFooterFormat || 'both').toLowerCase();
+    if (tplId === 'humanitarian-hotline-split' && ph && fmt !== 'website') {
+      return ph;
+    }
+    if (fmt === 'website') return web || ph;
+    if (fmt === 'phone') return ph || web;
+    return [web, ph].filter(Boolean).join('  •  ');
+  }
+
+  function syncBrandDrawerFormFromProfile(brand) {
+    if (!brand) return;
+    var setIfNotFocused = function (sel, val) {
+      var el = $(sel);
+      if (el && (typeof document === 'undefined' || document.activeElement !== el)) {
+        el.value = val != null ? val : '';
+      }
+    };
+    setIfNotFocused('#pcBrandName', brand.name || '');
+    setIfNotFocused('#pcBrandWebsite', brand.website || '');
+    setIfNotFocused('#pcBrandPhone', brand.phone || '');
+    setIfNotFocused('#pcBrandFooterFormat', brand.footerFormat || 'both');
+    setIfNotFocused('#pcBrandExtraInfo', brand.extraInfo || '');
+    setIfNotFocused('#pcBrandPrimaryColor', toSafeHex(brand.primaryColor, '#dc2626'));
+    setIfNotFocused('#pcBrandAccentColor', toSafeHex(brand.accentColor, '#fde047'));
+    setIfNotFocused('#pcBrandBgColor', toSafeHex(brand.bgColor, '#1c080b'));
+    var applyChk = $('#pcBrandApplyColorsToggle');
+    if (applyChk) applyChk.checked = brand.applyColorsOnSelect !== false;
+  }
+
+  function applyBrandProfileToState(brand, tplId, opts) {
+    if (!brand) return;
+    opts = opts || {};
+    var targetTpl = tplId || state.template;
+    if (brand.name !== undefined && String(brand.name).trim()) {
+      state.brandName = String(brand.name).trim();
+      state.userEditedBrand = true;
+    }
+    state.brandWebsite = String(brand.website || '').trim();
+    state.brandPhone = String(brand.phone || '').trim();
+    state.brandExtraInfo = String(brand.extraInfo || '').trim();
+    state.brandFooterFormat = brand.footerFormat || 'both';
+
+    var contactStr = formatBrandFooterContact(brand, targetTpl);
+    if (contactStr) {
+      state.footerUrl = contactStr;
+      state.elementHidden.footer = false;
+    }
+
+    var tplMeta = TEMPLATE_META[targetTpl];
+    if (state.brandExtraInfo && !state.userEditedText && tplMeta && tplMeta.cat === 'humanitarian') {
+      state.detail = state.brandExtraInfo;
+      state.elementHidden.detail = false;
+    }
+
+    if (brand.logoPos) state.logoPos = brand.logoPos;
+    if (brand.logoBgStyle) state.logoBgStyle = brand.logoBgStyle;
+    if (brand.logoSize) state.logoSize = Number(brand.logoSize) || 100;
+    state.logoAssetId = brand.logoAssetId || '';
+    state.logoDataUrl = brand.logoDataUrl || '';
+
+    if (brand.logoDataUrl) {
+      if (typeof Image !== 'undefined') {
+        var bImg = new Image();
+        bImg.src = brand.logoDataUrl;
+        state.logoImg = bImg;
+      } else {
+        state.logoImg = { src: brand.logoDataUrl, width: 120, height: 120, naturalWidth: 120, naturalHeight: 120 };
+      }
+      state.elementHidden.logo = false;
+      updateActiveLogoThumb(brand.logoDataUrl);
+    } else if (!brand.logoAssetId && opts.explicitSelect) {
+      state.logoImg = null;
+      updateActiveLogoThumb('');
+    }
+
+    if (brand.logoAssetId) {
+      var expectedAssetId = brand.logoAssetId;
+      loadAssetImageById(expectedAssetId).then(function (res) {
+        if (res && res.img && state.logoAssetId === expectedAssetId) {
+          state.logoImg = res.img;
+          state.elementHidden.logo = false;
+          if (res.rec && res.rec.thumbDataUrl) {
+            state.logoDataUrl = res.rec.thumbDataUrl;
+            updateActiveLogoThumb(res.rec.thumbDataUrl);
+          }
+          requestRender();
+        }
+      });
+    }
+
+    if (brand.applyColorsOnSelect !== false) {
+      if (brand.primaryColor) state.primaryColor = toSafeHex(brand.primaryColor, state.primaryColor);
+      if (brand.accentColor) state.accentColor = toSafeHex(brand.accentColor, state.accentColor);
+      if (brand.bgColor) state.bgColor = toSafeHex(brand.bgColor, state.bgColor);
+      if (brand.highlightColor !== undefined) {
+        state.highlightColor = brand.highlightColor ? toSafeHex(brand.highlightColor, '') : '';
+      }
+    }
+  }
+
+  function syncCanvaBrandKitHeaderUi(profiles, activeId) {
+    var activeBrand = null;
+    for (var i = 0; i < profiles.length; i++) {
+      if (profiles[i].id === activeId) { activeBrand = profiles[i]; break; }
+    }
+    var kitLbl = $('#pcBrandKitDropdownLabel');
+    if (kitLbl) {
+      kitLbl.textContent = activeBrand ? (activeBrand.name || 'Brand Kit') : (state.brandName && state.userEditedBrand ? state.brandName : tr('ব্র্যান্ড কিট (Brand Kit)', 'Brand Kit'));
+    }
+    var kitAv = $('#pcBrandKitDropdownAvatar');
+    if (kitAv) {
+      var logoSrc = (activeBrand && activeBrand.logoDataUrl) || state.logoDataUrl || '';
+      if (logoSrc) {
+        kitAv.innerHTML = '<img src="' + escapeHtml(logoSrc) + '" alt="Brand" class="w-full h-full object-contain p-0.5" />';
+      } else {
+        var initCh = String((activeBrand && activeBrand.name) || state.brandName || 'BK').trim().slice(0, 2).toUpperCase();
+        kitAv.innerHTML = '<span class="text-[10px] font-black text-[#2563eb] dark:text-sky-300">' + escapeHtml(initCh) + '</span>';
+      }
+    }
+    var palPrev = $('#pcBrandPaletteSwatchesRow');
+    if (palPrev) {
+      var p1 = toSafeHex((activeBrand && activeBrand.primaryColor) || state.primaryColor, '#dc2626');
+      var p2 = toSafeHex((activeBrand && activeBrand.accentColor) || state.accentColor, '#fde047');
+      var p3 = toSafeHex((activeBrand && activeBrand.bgColor) || state.bgColor, '#1c080b');
+      palPrev.innerHTML = [p1, p2, p3].map(function (c) {
+        return '<button type="button" data-brand-apply-swatch="' + escapeHtml(c) + '" title="' + escapeHtml(c) + '" class="w-9 h-9 rounded-xl border border-black/15 dark:border-white/15 shadow-xs cursor-pointer hover:scale-105 transition" style="background:' + escapeHtml(c) + ';"></button>';
+      }).join('');
+    }
+    var fontPrev = $('#pcBrandFontActiveCard');
+    if (fontPrev) {
+      var curFam = state.fontFamily || 'Hind Siliguri';
+      fontPrev.innerHTML =
+        '<div class="flex items-center justify-between gap-2">' +
+          '<div class="min-w-0">' +
+            '<span class="block text-[13px] font-extrabold text-slate-900 dark:text-white truncate" style="font-family:\'' + escapeHtml(curFam) + '\', sans-serif;">' + escapeHtml(curFam) + '</span>' +
+            '<span class="block text-[10px] text-slate-400">' + escapeHtml(tr('শিরোনাম ও মূল ব্র্যান্ড ফন্ট', 'Primary Brand Font')) + '</span>' +
+          '</div>' +
+          '<span class="text-[10px] font-bold text-[#2563eb] dark:text-sky-400 shrink-0">' + escapeHtml(tr('বদলান →', 'Change →')) + '</span>' +
+        '</div>';
+    }
+  }
+
+  function renderSavedBrandProfilesList() {
+    var listEl = $('#pcSavedBrandProfilesList');
+    var ddListEl = $('#pcBrandKitDropdownList');
+    var deactBtn = $('#pcDeactivateBrandBtn');
+    var activeId = getActiveBrandId();
+    if (deactBtn) deactBtn.hidden = !activeId;
+
+    var profiles = getBrandProfiles();
+    syncCanvaBrandKitHeaderUi(profiles, activeId);
+
+    if (ddListEl) {
+      if (!profiles.length) {
+        ddListEl.innerHTML = '<div class="px-3 py-2 text-[11px] text-slate-400 text-center">' + escapeHtml(tr('এখনো কোনো ব্র্যান্ড কিট সেভ করা নেই', 'No saved Brand Kits yet')) + '</div>';
+      } else {
+        ddListEl.innerHTML = profiles.map(function (b) {
+          var isAct = b.id === activeId;
+          var init2 = String(b.name || 'B').trim().slice(0, 2).toUpperCase();
+          var avHtml = b.logoDataUrl
+            ? '<img src="' + escapeHtml(b.logoDataUrl) + '" alt="" class="w-full h-full object-contain p-0.5" />'
+            : '<span class="text-[9.5px] font-black text-[#2563eb]">' + escapeHtml(init2) + '</span>';
+          return (
+            '<button type="button" data-select-brand="' + escapeHtml(b.id) + '" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left cursor-pointer border-0 transition ' +
+            (isAct ? 'bg-blue-50 dark:bg-blue-950/45 text-[#1d4ed8] dark:text-sky-300 font-extrabold' : 'bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-slate-200 font-semibold') + '">' +
+              '<span class="w-7 h-7 rounded-full bg-slate-100 dark:bg-[#0f131b] border border-slate-200 dark:border-white/10 flex items-center justify-center overflow-hidden shrink-0">' + avHtml + '</span>' +
+              '<span class="flex-1 min-w-0 truncate text-[12px]">' + escapeHtml(b.name || 'Brand Kit') + '</span>' +
+              (isAct ? '<span class="text-[11px] font-black">✓</span>' : '') +
+            '</button>'
+          );
+        }).join('');
+      }
+    }
+
+    if (!listEl) return;
+
+    if (!profiles.length) {
+      listEl.innerHTML =
+        '<div class="text-[11px] text-slate-400 py-2.5 text-center border border-dashed border-slate-200 dark:border-white/10 rounded-xl">' +
+          escapeHtml(tr('কোনো ব্র্যান্ড সেভ করা নেই — নিচে তথ্য দিয়ে সেভ করুন', 'No saved brands yet — fill details below & save')) +
+        '</div>';
+      return;
+    }
+
+    listEl.innerHTML = profiles.map(function (b) {
+      var isAct = b.id === activeId;
+      var initials = String(b.name || 'B').trim().slice(0, 2).toUpperCase();
+      var contactPreview = [b.website, b.phone].filter(Boolean).join(' • ') || tr('ওয়েবসাইট বা নাম্বার যুক্ত নেই', 'No website or phone');
+      var logoCell = b.logoDataUrl
+        ? '<img src="' + escapeHtml(b.logoDataUrl) + '" alt="' + escapeHtml(b.name || 'Logo') + '" class="w-full h-full object-contain p-1" />'
+        : '<span class="text-[10.5px] font-black text-[#2563eb] dark:text-sky-300">' + escapeHtml(initials) + '</span>';
+
+      return (
+        '<div class="group/br flex items-center gap-2 p-2 rounded-xl border transition ' +
+        (isAct
+          ? 'bg-blue-50/90 dark:bg-blue-950/35 border-[#2563eb] ring-1 ring-[#2563eb]/35'
+          : 'bg-white dark:bg-[#171c26] border-slate-200/90 dark:border-white/10 hover:border-[#2563eb]') +
+        '">' +
+          '<button type="button" data-select-brand="' + escapeHtml(b.id) + '" class="flex-1 min-w-0 flex items-center gap-2.5 text-left cursor-pointer bg-transparent border-0 p-0">' +
+            '<div class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-[#0f131b] border border-slate-200/80 dark:border-white/10 flex items-center justify-center overflow-hidden shrink-0">' +
+              logoCell +
+            '</div>' +
+            '<div class="min-w-0 flex-1">' +
+              '<div class="flex items-center gap-1.5">' +
+                '<strong class="text-[11.5px] font-extrabold text-slate-900 dark:text-white truncate">' + escapeHtml(b.name || 'Unnamed Brand') + '</strong>' +
+                (isAct ? '<span class="px-1.5 py-0.5 rounded-full bg-[#2563eb] text-white text-[8.5px] font-extrabold shrink-0">✓ সক্রিয়</span>' : '') +
+              '</div>' +
+              '<span class="block text-[10px] font-medium text-slate-500 dark:text-slate-400 truncate">' + escapeHtml(contactPreview) + '</span>' +
+            '</div>' +
+            '<div class="inline-flex items-center gap-0.5 shrink-0 pr-0.5">' +
+              '<span class="w-3 h-3 rounded-full border border-black/15" style="background:' + escapeHtml(toSafeHex(b.primaryColor, '#dc2626')) + ';"></span>' +
+              '<span class="w-3 h-3 rounded-full border border-black/15" style="background:' + escapeHtml(toSafeHex(b.accentColor, '#fde047')) + ';"></span>' +
+              '<span class="w-3 h-3 rounded-full border border-black/15" style="background:' + escapeHtml(toSafeHex(b.bgColor, '#1c080b')) + ';"></span>' +
+            '</div>' +
+          '</button>' +
+          '<button type="button" data-delete-brand="' + escapeHtml(b.id) + '" title="' + escapeHtml(tr('ব্র্যান্ড মুছুন', 'Delete brand')) + '" class="w-6 h-6 rounded-md hover:bg-rose-500/15 text-slate-400 hover:text-rose-600 inline-flex items-center justify-center text-[11px] font-bold shrink-0 cursor-pointer border-0 bg-transparent">✕</button>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function saveBrandProfile(profileInput, asNew) {
+    var inp = (profileInput && typeof profileInput === 'object') ? profileInput : null;
+    var readDomVal = function (sel, fallback) {
+      var el = $(sel);
+      return el ? el.value : fallback;
+    };
+
+    var nameVal = String((inp && inp.name !== undefined) ? inp.name : readDomVal('#pcBrandName', state.brandName || '')).trim();
+    if (!nameVal) nameVal = state.brandName || tr('আমার ব্র্যান্ড', 'My Brand');
+
+    var thumbEl = $('#pcActiveLogoThumb');
+    var domThumbSrc = (thumbEl && !thumbEl.hidden && thumbEl.getAttribute('src')) ? thumbEl.getAttribute('src') : '';
+
+    var targetId = '';
+    if (asNew) {
+      targetId = uid('brand');
+    } else if (inp && inp.id) {
+      targetId = String(inp.id);
+    } else if (editingBrandProfileId) {
+      targetId = editingBrandProfileId;
+    } else if (getActiveBrandId()) {
+      targetId = getActiveBrandId();
+    } else {
+      targetId = uid('brand');
+    }
+
+    var applyChk = $('#pcBrandApplyColorsToggle');
+    var record = {
+      id: targetId,
+      name: nameVal,
+      tagline: String((inp && inp.tagline !== undefined) ? inp.tagline : '').trim(),
+      website: String((inp && inp.website !== undefined) ? inp.website : readDomVal('#pcBrandWebsite', state.brandWebsite || '')).trim(),
+      phone: String((inp && inp.phone !== undefined) ? inp.phone : readDomVal('#pcBrandPhone', state.brandPhone || '')).trim(),
+      extraInfo: String((inp && inp.extraInfo !== undefined) ? inp.extraInfo : readDomVal('#pcBrandExtraInfo', state.brandExtraInfo || '')).trim(),
+      footerFormat: String((inp && inp.footerFormat !== undefined) ? inp.footerFormat : readDomVal('#pcBrandFooterFormat', state.brandFooterFormat || 'both')) || 'both',
+      logoAssetId: String((inp && inp.logoAssetId !== undefined) ? inp.logoAssetId : (state.logoAssetId || '')),
+      logoDataUrl: String((inp && inp.logoDataUrl !== undefined) ? inp.logoDataUrl : (state.logoDataUrl || domThumbSrc || '')),
+      logoPos: String((inp && inp.logoPos !== undefined) ? inp.logoPos : (state.logoPos === 'custom' ? 'top-right' : (state.logoPos || 'top-right'))),
+      logoBgStyle: String((inp && inp.logoBgStyle !== undefined) ? inp.logoBgStyle : (state.logoBgStyle || 'light')),
+      logoSize: Number((inp && inp.logoSize !== undefined) ? inp.logoSize : (state.logoSize || 100)) || 100,
+      primaryColor: toSafeHex((inp && inp.primaryColor !== undefined) ? inp.primaryColor : readDomVal('#pcBrandPrimaryColor', state.primaryColor), '#dc2626'),
+      accentColor: toSafeHex((inp && inp.accentColor !== undefined) ? inp.accentColor : readDomVal('#pcBrandAccentColor', state.accentColor), '#fde047'),
+      bgColor: toSafeHex((inp && inp.bgColor !== undefined) ? inp.bgColor : readDomVal('#pcBrandBgColor', state.bgColor), '#1c080b'),
+      highlightColor: (inp && inp.highlightColor !== undefined)
+        ? (inp.highlightColor ? toSafeHex(inp.highlightColor, '') : '')
+        : (state.highlightColor || ''),
+      applyColorsOnSelect: (inp && inp.applyColorsOnSelect !== undefined)
+        ? !!inp.applyColorsOnSelect
+        : (applyChk ? !!applyChk.checked : true),
+      updatedAt: Date.now()
+    };
+
+    var list = getBrandProfiles();
+    var foundIdx = -1;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === targetId) { foundIdx = i; break; }
+    }
+    if (foundIdx >= 0) {
+      list[foundIdx] = record;
+    } else {
+      list.unshift(record);
+    }
+
+    setBrandProfiles(list);
+    setActiveBrandId(record.id);
+    editingBrandProfileId = record.id;
+
+    applyBrandProfileToState(record, state.template, { explicitSelect: true });
+    saveBrandPrefs();
+    syncBrandDrawerFormFromProfile(record);
+    syncControlsFromState();
+    syncActivePageSlot();
+    renderNow();
+    scheduleAutosave();
+    notify(tr('"' + record.name + '" ব্র্যান্ড প্রোফাইল সেভ ও প্রয়োগ হয়েছে!', 'Saved & applied brand "' + record.name + '"!'));
+    return record;
+  }
+
+  function selectBrandProfile(brandId) {
+    if (!brandId) return null;
+    var list = getBrandProfiles();
+    var brand = null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === brandId) { brand = list[i]; break; }
+    }
+    if (!brand) return null;
+
+    pushHistorySnapshot();
+    setActiveBrandId(brand.id);
+    editingBrandProfileId = brand.id;
+    applyBrandProfileToState(brand, state.template, { explicitSelect: true });
+    saveBrandPrefs();
+    syncBrandDrawerFormFromProfile(brand);
+    syncControlsFromState();
+    syncActivePageSlot();
+    renderNow();
+    scheduleAutosave();
+    notify(tr('"' + brand.name + '" ব্র্যান্ড অটোমেটিক সেট হয়েছে!', 'Applied brand "' + brand.name + '"!'));
+    return brand;
+  }
+
+  function deleteBrandProfile(brandId) {
+    if (!brandId) return false;
+    var list = getBrandProfiles().filter(function (b) { return b.id !== brandId; });
+    setBrandProfiles(list);
+    if (getActiveBrandId() === brandId) {
+      setActiveBrandId('');
+    }
+    if (editingBrandProfileId === brandId) {
+      editingBrandProfileId = getActiveBrandId() || '';
+    }
+    renderSavedBrandProfilesList();
+    notify(tr('ব্র্যান্ড প্রোফাইল মুছে ফেলা হয়েছে', 'Brand profile deleted'));
+    return true;
+  }
+
+  function deactivateBrandProfile() {
+    pushHistorySnapshot();
+    setActiveBrandId('');
+    editingBrandProfileId = '';
+    state.userEditedBrand = false;
+    state.brandWebsite = '';
+    state.brandPhone = '';
+    state.brandExtraInfo = '';
+    state.logoImg = null;
+    state.logoAssetId = '';
+    state.logoDataUrl = '';
+    updateActiveLogoThumb('');
+    saveBrandPrefs();
+    applyTemplate(state.template, false);
+    renderSavedBrandProfilesList();
+    notify(tr('ব্র্যান্ড ডিফল্ট অবস্থায় রিসেট করা হয়েছে', 'Reset to template default brand'));
   }
 
   function setAutosaveLabel(txt) {
@@ -9055,6 +11192,31 @@
     return (state.customLayers || []).filter(function (x) { return x.id === lid; })[0] || null;
   }
 
+  var PADLOCK_UNLOCKED_SVG = '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>';
+  var PADLOCK_LOCKED_SVG = '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>';
+
+  function syncPadlockButtonDom(btnEl, isLocked) {
+    if (!btnEl) return;
+    var locked = !!isLocked;
+    var svgEl = (btnEl.tagName && String(btnEl.tagName).toLowerCase() === 'svg')
+      ? btnEl
+      : (btnEl.querySelector ? btnEl.querySelector('svg') : null);
+    if (svgEl) {
+      svgEl.innerHTML = locked ? PADLOCK_LOCKED_SVG : PADLOCK_UNLOCKED_SVG;
+    }
+    if (btnEl.setAttribute) {
+      btnEl.setAttribute('aria-pressed', locked ? 'true' : 'false');
+      btnEl.setAttribute('data-locked', locked ? 'true' : 'false');
+    }
+    btnEl.title = locked ? tr('আনলক করুন (Unlock)', 'Unlock layer') : tr('লক করুন (Lock)', 'Lock layer');
+    if (btnEl.classList) {
+      btnEl.classList.toggle('bg-amber-500/15', locked);
+      btnEl.classList.toggle('text-amber-600', locked);
+      btnEl.classList.toggle('dark:text-amber-400', locked);
+      btnEl.classList.remove('text-rose-500', 'hover:text-rose-600');
+    }
+  }
+
   function syncOverlayBoxes() {
     var canvas = $('#pcCanvas');
     var wrap = $('#pcArtboardWrap');
@@ -9078,9 +11240,13 @@
     var offLeft = cRect.left - wRect.left;
     var offTop = cRect.top - wRect.top;
 
+    if (activeInlineTarget) {
+      positionInlineRichEditor(activeInlineTarget);
+    }
+
     // Hover Box
     var hReg = (hoveredElId && hoveredElId !== selectedElId) ? getRegionById(hoveredElId) : null;
-    if (hReg) {
+    if (hReg && !activeInlineTarget) {
       hovBox.hidden = false;
       hovBox.style.left = Math.round(offLeft + hReg.x * scaleX) + 'px';
       hovBox.style.top = Math.round(offTop + hReg.y * scaleY) + 'px';
@@ -9094,7 +11260,9 @@
     // Active Selection Box
     var sReg = getRegionById(selectedElId);
     var inl = $('#pcInlineEditor');
-    if (!sReg || (inl && !inl.hidden)) {
+    var richInl = $('#pcInlineRichEditor');
+    var inlineActive = (inl && !inl.hidden) || (richInl && !richInl.hidden);
+    if (!sReg || inlineActive) {
       selBox.hidden = true;
       return;
     }
@@ -9121,18 +11289,682 @@
     }
 
     var locked = isElLocked(selectedElId);
+    if (selBox.setAttribute) selBox.setAttribute('data-locked', locked ? 'true' : 'false');
     if (moveHandle) moveHandle.hidden = locked;
     if (rotHandle) rotHandle.hidden = locked;
     $$('[data-pc-handle]', selBox).forEach(function (h) {
       h.hidden = locked;
     });
+
+    syncPadlockButtonDom($('#pcMiniLockBtn'), locked);
+    syncPadlockButtonDom($('#pcTopLockBtn'), locked);
+
+    var mEdit = $('#pcMiniEditBtn');
+    var mDup = $('#pcMiniDupBtn');
+    var mDel = $('#pcMiniDelBtn');
+    var mTint = $('#pcMiniTintGroup');
+    if (locked) {
+      if (mEdit) mEdit.hidden = true;
+      if (mDup) mDup.hidden = true;
+      if (mDel) mDel.hidden = true;
+      if (mTint) mTint.hidden = true;
+    } else {
+      if (mDel) mDel.hidden = false;
+      if (mDup) mDup.hidden = !sReg || sReg.kind === 'photo' || sReg.kind === 'logo';
+      if (mEdit) {
+        var selLyrM = getSelectedCustomLayer();
+        mEdit.hidden = !!(selLyrM && (selLyrM.layerType === 'vector' || selLyrM.layerType === 'icon' || selLyrM.layerType === 'graphic'));
+      }
+    }
   }
 
   function toSafeHex(col, fallback) {
     var s = String(col || '').trim();
-    if (/^#[0-9a-fA-F]{6}$/.test(s)) return s;
-    if (/^#[0-9a-fA-F]{3}$/.test(s)) return '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
+    if (/^#[0-9a-fA-F]{6}$/.test(s)) return s.toLowerCase();
+    if (/^#[0-9a-fA-F]{3}$/.test(s)) return ('#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3]).toLowerCase();
     return fallback || '#2563eb';
+  }
+
+  function normalizeHexColor(raw) {
+    var s = String(raw || '').trim();
+    if (!s) return '';
+    if (s.charAt(0) !== '#') s = '#' + s;
+    if (/^#[0-9a-fA-F]{6}$/.test(s)) return s.toLowerCase();
+    if (/^#[0-9a-fA-F]{3}$/.test(s)) return ('#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3]).toLowerCase();
+    return '';
+  }
+
+  /* =========================================================================
+   * 12B. ANCHORED CANVA-STYLE COLOR POPOVER, TOOL POPOVER & SELECTION HIGHLIGHT
+   * ========================================================================= */
+  var activePopoverState = {
+    open: false,
+    target: 'text',
+    anchorEl: null
+  };
+
+  var activeToolPopoverState = {
+    open: false,
+    kind: '',
+    anchorEl: null
+  };
+
+  var lastTextSelection = {
+    elId: '',
+    source: '',
+    inputId: '',
+    start: 0,
+    end: 0,
+    ts: 0
+  };
+
+  var SIDEBAR_INPUT_TO_EL = {
+    pcHeadlineText: 'headline',
+    pcBadgeText: 'badge',
+    pcTaglineText: 'tagline',
+    pcDetailText: 'detail',
+    pcFooterUrl: 'footer'
+  };
+
+  function recordSidebarTextSelection(inputEl) {
+    if (!inputEl || !inputEl.id) return;
+    var mapped = SIDEBAR_INPUT_TO_EL[inputEl.id];
+    if (!mapped) return;
+    var s = Number(inputEl.selectionStart) || 0;
+    var e = Number(inputEl.selectionEnd) || 0;
+    if (e > s) {
+      lastTextSelection = {
+        elId: mapped,
+        source: 'sidebar',
+        inputId: inputEl.id,
+        start: s,
+        end: e,
+        ts: Date.now()
+      };
+    } else if (lastTextSelection.source === 'sidebar' && lastTextSelection.inputId === inputEl.id) {
+      lastTextSelection.start = 0;
+      lastTextSelection.end = 0;
+    }
+  }
+
+  function getRichEditorPlainSelectionRange() {
+    if (typeof window === 'undefined' || typeof window.getSelection !== 'function') return null;
+    var richEd = $('#pcInlineRichEditor');
+    if (!richEd || richEd.hidden || !activeInlineTarget) return null;
+    var sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return null;
+    var range = sel.getRangeAt(0);
+    if (!richEd.contains(range.commonAncestorContainer)) return null;
+
+    var computeOffsetTo = function (targetContainer, targetOffset) {
+      var count = 0;
+      var done = false;
+      var walk = function (node) {
+        if (done || !node) return;
+        if (node === targetContainer) {
+          if (node.nodeType === 3) {
+            count += Math.min(targetOffset, (node.nodeValue || '').length);
+          } else {
+            var ch = node.childNodes || [];
+            for (var k = 0; k < targetOffset && k < ch.length; k++) {
+              walkSubtreeLength(ch[k]);
+            }
+          }
+          done = true;
+          return;
+        }
+        if (node.nodeType === 3) {
+          count += (node.nodeValue || '').length;
+          return;
+        }
+        if (node.nodeName === 'BR') {
+          if (node.parentNode !== richEd || node.nextSibling !== null) count += 1;
+          return;
+        }
+        var isBlock = node !== richEd && (node.nodeName === 'DIV' || node.nodeName === 'P');
+        if (isBlock && count > 0) count += 1;
+        var children = node.childNodes || [];
+        for (var i = 0; i < children.length; i++) {
+          walk(children[i]);
+          if (done) return;
+        }
+      };
+      var walkSubtreeLength = function (sub) {
+        if (!sub) return;
+        if (sub.nodeType === 3) { count += (sub.nodeValue || '').length; return; }
+        if (sub.nodeName === 'BR') {
+          if (sub.parentNode !== richEd || sub.nextSibling !== null) count += 1;
+          return;
+        }
+        var sb = sub !== richEd && (sub.nodeName === 'DIV' || sub.nodeName === 'P');
+        if (sb && count > 0) count += 1;
+        var cs = sub.childNodes || [];
+        for (var j = 0; j < cs.length; j++) walkSubtreeLength(cs[j]);
+      };
+      walk(richEd);
+      return count;
+    };
+
+    var sOff = computeOffsetTo(range.startContainer, range.startOffset);
+    var eOff = computeOffsetTo(range.endContainer, range.endOffset);
+    if (eOff < sOff) { var tmp = sOff; sOff = eOff; eOff = tmp; }
+    return {
+      elId: activeInlineTarget,
+      start: sOff,
+      end: eOff,
+      rect: (typeof range.getBoundingClientRect === 'function') ? range.getBoundingClientRect() : null
+    };
+  }
+
+  function resolveActiveHighlightRange() {
+    var liveInline = getRichEditorPlainSelectionRange();
+    if (liveInline && liveInline.end > liveInline.start) {
+      lastTextSelection = {
+        elId: liveInline.elId,
+        source: 'inline',
+        inputId: '',
+        start: liveInline.start,
+        end: liveInline.end,
+        ts: Date.now()
+      };
+      return liveInline;
+    }
+    if (typeof document !== 'undefined' && document.activeElement && SIDEBAR_INPUT_TO_EL[document.activeElement.id]) {
+      var ae = document.activeElement;
+      var s = Number(ae.selectionStart) || 0;
+      var e = Number(ae.selectionEnd) || 0;
+      if (e > s) {
+        return { elId: SIDEBAR_INPUT_TO_EL[ae.id], start: s, end: e, source: 'sidebar' };
+      }
+    }
+    if (lastTextSelection && lastTextSelection.elId && lastTextSelection.end > lastTextSelection.start && (Date.now() - lastTextSelection.ts) < 20000) {
+      return {
+        elId: lastTextSelection.elId,
+        start: lastTextSelection.start,
+        end: lastTextSelection.end,
+        source: lastTextSelection.source
+      };
+    }
+    return null;
+  }
+
+  function syncSelectionQuickBar() {
+    var qBar = $('#pcSelectionQuickBar');
+    var wrap = $('#pcArtboardWrap');
+    if (!qBar || !wrap) return;
+    var liveInline = getRichEditorPlainSelectionRange();
+    if (!liveInline || liveInline.end <= liveInline.start || !liveInline.rect || (liveInline.rect.width === 0 && liveInline.rect.height === 0)) {
+      qBar.hidden = true;
+      return;
+    }
+    var wRect = wrap.getBoundingClientRect();
+    var leftPx = Math.round((liveInline.rect.left - wRect.left) + liveInline.rect.width / 2);
+    var topPx = Math.round((liveInline.rect.top - wRect.top) - 44);
+    if (topPx < 6) topPx = Math.round((liveInline.rect.bottom - wRect.top) + 8);
+    qBar.style.left = Math.max(80, Math.min(Math.max(80, wRect.width - 80), leftPx)) + 'px';
+    qBar.style.top = topPx + 'px';
+    qBar.hidden = false;
+  }
+
+  function applySelectionHighlight(colorHex, modeOverride, explicitElId, explicitStart, explicitEnd) {
+    var rangeInfo = (explicitElId && explicitEnd > explicitStart)
+      ? { elId: explicitElId, start: Number(explicitStart) || 0, end: Number(explicitEnd) || 0 }
+      : resolveActiveHighlightRange();
+    if (!rangeInfo || !(rangeInfo.end > rangeInfo.start)) return false;
+
+    var elId = rangeInfo.elId;
+    var rawText = getTextValueForElement(elId);
+    if (!rawText) return false;
+
+    pushHistorySnapshot();
+    if (rawText.indexOf('*') !== -1) {
+      var migrated = extractRichTextAndSpans(rawText);
+      if (migrated.spans.length) {
+        rawText = migrated.text;
+        setTextValueForElement(elId, rawText);
+        setElRichSpans(elId, rawText, migrated.spans);
+      }
+    }
+
+    var curSpans = getElRichSpans(elId, rawText);
+    var hex = normalizeHexColor(colorHex) || getCurrentColorForTarget('highlight') || '#fde047';
+    var useMode = modeOverride !== undefined ? modeOverride : (state.highlightBgMode || '');
+    var nextSpans = applyHighlightRangeToSpans(curSpans, rangeInfo.start, rangeInfo.end, { color: hex, mode: useMode, clear: false }, rawText.length);
+    setElRichSpans(elId, rawText, nextSpans);
+    state.highlightColor = hex;
+    markTextUserEdited();
+
+    if (activeInlineTarget === elId) {
+      populateInlineRichEditorHtml(elId, rangeInfo.start, rangeInfo.end);
+    }
+    syncControlsFromState();
+    renderNow();
+    scheduleAutosave();
+    return true;
+  }
+
+  function clearSelectionHighlight(explicitElId) {
+    var rangeInfo = resolveActiveHighlightRange();
+    var targetId = explicitElId || (rangeInfo && rangeInfo.elId) || (selectedElId && selectedElId !== 'card' ? selectedElId : 'headline');
+    var rawText = getTextValueForElement(targetId);
+    if (!rawText) return false;
+
+    pushHistorySnapshot();
+    if (rawText.indexOf('*') !== -1) {
+      var parsed = extractRichTextAndSpans(rawText);
+      rawText = parsed.text;
+      setTextValueForElement(targetId, rawText);
+      setElRichSpans(targetId, rawText, parsed.spans);
+    }
+
+    if (rangeInfo && rangeInfo.elId === targetId && rangeInfo.end > rangeInfo.start) {
+      var cur = getElRichSpans(targetId, rawText);
+      var trimmed = applyHighlightRangeToSpans(cur, rangeInfo.start, rangeInfo.end, { clear: true }, rawText.length);
+      setElRichSpans(targetId, rawText, trimmed);
+    } else {
+      setElRichSpans(targetId, rawText, []);
+    }
+
+    if (activeInlineTarget === targetId) {
+      populateInlineRichEditorHtml(targetId);
+    }
+    var qBar = $('#pcSelectionQuickBar');
+    if (qBar) qBar.hidden = true;
+    syncControlsFromState();
+    renderNow();
+    scheduleAutosave();
+    return true;
+  }
+
+  function getCurrentColorForTarget(targetMode) {
+    var mode = targetMode || activePopoverState.target || 'text';
+    var lyr = getSelectedCustomLayer();
+    var st = getElStyle(selectedElId || 'headline');
+
+    if (mode === 'highlight') {
+      return toSafeHex(
+        (lyr && lyr.highlightColor) ||
+        (st && st.highlightColor) ||
+        state.highlightColor ||
+        state.accentColor,
+        '#fde047'
+      );
+    }
+    if (mode === 'bg') {
+      if (lyr) return toSafeHex(lyr.bgColor || lyr.fill || '#dc2626', '#dc2626');
+      return toSafeHex((st && st.bgColor) || state.primaryColor || '#dc2626', '#dc2626');
+    }
+    if (mode === 'vectorFill') {
+      return toSafeHex((lyr && (lyr.fill || lyr.color)) || state.primaryColor, '#dc2626');
+    }
+    if (mode === 'vectorStroke') {
+      return toSafeHex((lyr && (lyr.stroke || lyr.bgColor)) || state.accentColor, '#fde047');
+    }
+    if (lyr) {
+      return toSafeHex(lyr.color || lyr.textColor || '#ffffff', '#ffffff');
+    }
+    if (selectedElId === 'badge') {
+      return toSafeHex((st && st.color) || '#ffffff', '#ffffff');
+    }
+    if (selectedElId && selectedElId !== 'card') {
+      return toSafeHex((st && st.color) || (selectedElId === 'headline' ? state.accentColor : '#ffffff'), '#fde047');
+    }
+    return toSafeHex((getElStyle('headline').color) || state.accentColor, '#fde047');
+  }
+
+  function syncHighlightUiControls() {
+    var lyr = getSelectedCustomLayer();
+    var st = getElStyle((selectedElId && selectedElId !== 'card') ? selectedElId : 'headline');
+    var activeHi = toSafeHex(
+      (lyr && lyr.highlightColor) ||
+      (st && st.highlightColor) ||
+      state.highlightColor ||
+      state.accentColor,
+      '#fde047'
+    );
+    var dot = $('#pcHeadlineHighlightColorDot');
+    if (dot) dot.style.background = activeHi;
+    var ctxHiBar = $('#pcCtxHighlightColorBar');
+    if (ctxHiBar) ctxHiBar.style.background = activeHi;
+
+    var rawManualHi = ((lyr && lyr.highlightColor) || (st && st.highlightColor) || state.highlightColor || '').toLowerCase();
+    $$('#pcHeadlineHighlightPresets [data-pc-hi-preset]').forEach(function (btn) {
+      var pHex = String(btn.getAttribute('data-pc-hi-preset') || '').toLowerCase();
+      var matched = rawManualHi && pHex === rawManualHi;
+      btn.classList.toggle('ring-2', !!matched);
+      btn.classList.toggle('ring-[#2563eb]', !!matched);
+    });
+
+    var modeBtn = $('#pcHighlightModeBtn');
+    var modeLbl = $('#pcHighlightModeLabel');
+    var curMode = state.highlightBgMode || '';
+    if (modeBtn) modeBtn.setAttribute('data-hi-mode', curMode);
+    if (modeLbl) {
+      if (curMode === 'text') modeLbl.textContent = tr('লেখা', 'Text');
+      else if (curMode === 'marker') modeLbl.textContent = tr('মার্কার', 'Marker');
+      else modeLbl.textContent = tr('অটো', 'Auto');
+    }
+  }
+
+  function renderPopoverBrandSwatches() {
+    var row = $('#pcColorPopoverBrandRow');
+    var wrap = $('#pcColorPopoverBrandSwatches');
+    if (!row || !wrap) return;
+
+    var colors = [];
+    var pushUnique = function (c) {
+      var hex = normalizeHexColor(c);
+      if (hex && colors.indexOf(hex) === -1) colors.push(hex);
+    };
+
+    var activeBrand = getActiveBrandProfile();
+    if (activeBrand) {
+      pushUnique(activeBrand.primaryColor);
+      pushUnique(activeBrand.accentColor);
+      pushUnique(activeBrand.bgColor);
+      pushUnique(activeBrand.highlightColor);
+    }
+    getBrandProfiles().slice(0, 3).forEach(function (b) {
+      pushUnique(b.primaryColor);
+      pushUnique(b.accentColor);
+      pushUnique(b.bgColor);
+    });
+
+    if (!colors.length) {
+      row.hidden = true;
+      wrap.innerHTML = '';
+      return;
+    }
+
+    row.hidden = false;
+    wrap.innerHTML = colors.slice(0, 8).map(function (hex) {
+      return (
+        '<button type="button" data-pc-pop-swatch="' + escapeHtml(hex) + '" title="' + escapeHtml(hex) + '" ' +
+        'class="w-6.5 h-6.5 rounded-lg border border-slate-300 dark:border-white/20 cursor-pointer hover:scale-110 transition shadow-2xs" ' +
+        'style="background:' + escapeHtml(hex) + ';"></button>'
+      );
+    }).join('');
+  }
+
+  function positionAnchoredFloatingBox(pop, anchorEl, popW, popH) {
+    if (!pop) return { left: 0, top: 0 };
+    var winW = (typeof window !== 'undefined' && window.innerWidth) ? window.innerWidth : 1280;
+    var winH = (typeof window !== 'undefined' && window.innerHeight) ? window.innerHeight : 800;
+    var rect = (anchorEl && typeof anchorEl.getBoundingClientRect === 'function')
+      ? anchorEl.getBoundingClientRect()
+      : { left: 80, right: 120, top: 48, bottom: 80, width: 40, height: 32 };
+
+    var left = Math.max(8, Math.min(Math.round(rect.left), Math.max(8, winW - popW - 12)));
+    var belowTop = Math.round(rect.bottom + 8);
+    var aboveTop = Math.round(rect.top - popH - 8);
+    var top = (belowTop + popH > winH - 8 && aboveTop >= 8)
+      ? aboveTop
+      : Math.max(8, Math.min(belowTop, Math.max(8, winH - popH - 8)));
+
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+    return { left: left, top: top };
+  }
+
+  function positionColorPopover(anchorEl) {
+    return positionAnchoredFloatingBox($('#pcColorPopover'), anchorEl, 276, 316);
+  }
+
+  function syncPopoverSwatchSelection(hex) {
+    var clean = normalizeHexColor(hex);
+    var prev = $('#pcColorPopoverLivePreview');
+    if (prev && clean) prev.style.background = clean;
+    var hexInp = $('#pcColorPopoverHexInput');
+    if (hexInp && clean && (typeof document === 'undefined' || document.activeElement !== hexInp)) {
+      hexInp.value = clean.toUpperCase();
+    }
+    var natInp = $('#pcColorPopoverNativeInput');
+    if (natInp && clean) natInp.value = clean;
+
+    $$('#pcColorPopover [data-pc-pop-swatch]').forEach(function (sw) {
+      var sHex = normalizeHexColor(sw.getAttribute('data-pc-pop-swatch'));
+      var active = clean && sHex === clean;
+      sw.classList.toggle('ring-2', !!active);
+      sw.classList.toggle('ring-[#2563eb]', !!active);
+    });
+  }
+
+  function openColorPopover(anchorEl, targetMode) {
+    var pop = $('#pcColorPopover');
+    if (!pop) return null;
+
+    closeContextMenu();
+    closeShareDropdown();
+    closeToolPopover();
+
+    var mode = targetMode || 'text';
+    activePopoverState.open = true;
+    activePopoverState.target = mode;
+    activePopoverState.anchorEl = anchorEl || null;
+
+    var titleEl = $('#pcColorPopoverTitle');
+    if (titleEl) {
+      if (mode === 'highlight') titleEl.textContent = tr('হাইলাইট রঙ', 'Highlight Color');
+      else if (mode === 'bg') titleEl.textContent = tr('ব্যাকগ্রাউন্ড রঙ', 'Background Color');
+      else if (mode === 'vectorFill') titleEl.textContent = tr('প্রাইমারি / আইকন রঙ', 'Icon / Fill Color');
+      else if (mode === 'vectorStroke') titleEl.textContent = tr('সেকেন্ডারি / বর্ডার রঙ', 'Secondary / Stroke Color');
+      else titleEl.textContent = tr('টেক্সট রঙ', 'Text Color');
+    }
+
+    renderPopoverBrandSwatches();
+    var curHex = getCurrentColorForTarget(mode);
+    syncPopoverSwatchSelection(curHex);
+
+    pop.hidden = false;
+    return positionColorPopover(anchorEl);
+  }
+
+  function closeColorPopover() {
+    var pop = $('#pcColorPopover');
+    if (pop && !pop.hidden) pop.hidden = true;
+    activePopoverState.open = false;
+  }
+
+  function applyPopoverColor(rawHex, targetOverride) {
+    var hex = normalizeHexColor(rawHex);
+    if (!hex) return false;
+
+    var mode = targetOverride || activePopoverState.target || 'text';
+    if (mode === 'highlight') {
+      var activeSel = resolveActiveHighlightRange();
+      if (activeSel && activeSel.end > activeSel.start) {
+        applySelectionHighlight(hex, state.highlightBgMode, activeSel.elId, activeSel.start, activeSel.end);
+        syncPopoverSwatchSelection(hex);
+        return true;
+      }
+    }
+
+    recordBeforeTextEdit();
+    var lyr = getSelectedCustomLayer();
+
+    if (mode === 'highlight') {
+      state.highlightColor = hex;
+      if (lyr) {
+        lyr.highlightColor = hex;
+      } else if (selectedElId && selectedElId !== 'card') {
+        ensureElStyleObj(selectedElId).highlightColor = hex;
+      }
+    } else if (mode === 'bg') {
+      if (lyr) {
+        lyr.bgColor = hex;
+      } else if (selectedElId && selectedElId !== 'card') {
+        ensureElStyleObj(selectedElId).bgColor = hex;
+      }
+    } else if (mode === 'vectorFill') {
+      if (lyr) {
+        lyr.fill = hex;
+        if (lyr.layerType === 'icon') lyr.color = hex;
+      }
+    } else if (mode === 'vectorStroke') {
+      if (lyr) {
+        if (lyr.layerType === 'icon' || lyr.layerType === 'social') lyr.bgColor = hex;
+        else lyr.stroke = hex;
+      }
+    } else {
+      if (lyr) {
+        lyr.color = hex;
+        lyr.textColor = hex;
+        lyr.customColor = true;
+      } else {
+        var elTarget = (selectedElId && selectedElId !== 'card') ? selectedElId : 'headline';
+        ensureElStyleObj(elTarget).color = hex;
+      }
+    }
+
+    if (activeInlineTarget) {
+      renderNow();
+      populateInlineRichEditorHtml(activeInlineTarget);
+    } else {
+      requestRender();
+    }
+    syncPopoverSwatchSelection(hex);
+    syncHighlightUiControls();
+    updateContextToolbarForSelection();
+    scheduleAutosave();
+    return true;
+  }
+
+  function resetPopoverColor(targetOverride) {
+    pushHistorySnapshot();
+    var mode = targetOverride || activePopoverState.target || 'text';
+    var lyr = getSelectedCustomLayer();
+
+    if (mode === 'highlight') {
+      state.highlightColor = '';
+      if (lyr) delete lyr.highlightColor;
+      if (state.elementStyles) {
+        if (selectedElId && state.elementStyles[selectedElId]) delete state.elementStyles[selectedElId].highlightColor;
+        if (state.elementStyles.headline) delete state.elementStyles.headline.highlightColor;
+      }
+    } else if (mode === 'bg') {
+      if (lyr) {
+        lyr.bgColor = lyr.icon ? '#dc2626' : '';
+      } else if (selectedElId && state.elementStyles && state.elementStyles[selectedElId]) {
+        delete state.elementStyles[selectedElId].bgColor;
+      }
+    } else if (mode === 'vectorFill') {
+      if (lyr) lyr.fill = '';
+    } else if (mode === 'vectorStroke') {
+      if (lyr) { lyr.bgColor = ''; lyr.stroke = ''; }
+    } else {
+      if (lyr) {
+        lyr.customColor = false;
+        lyr.color = isLightColor(state.bgColor) ? '#0f172a' : '#ffffff';
+        delete lyr.textColor;
+      } else {
+        var targetEl = (selectedElId && selectedElId !== 'card') ? selectedElId : 'headline';
+        if (state.elementStyles && state.elementStyles[targetEl]) {
+          delete state.elementStyles[targetEl].color;
+        }
+      }
+    }
+
+    syncPopoverSwatchSelection(getCurrentColorForTarget(mode));
+    syncHighlightUiControls();
+    updateContextToolbarForSelection();
+    renderNow();
+    if (activeInlineTarget) populateInlineRichEditorHtml(activeInlineTarget);
+    scheduleAutosave();
+    return true;
+  }
+
+  function syncToolPopoverControls() {
+    var pop = $('#pcToolPopover');
+    if (!pop || pop.hidden) return;
+    var kind = activeToolPopoverState.kind;
+    var elId = (selectedElId && selectedElId !== 'card') ? selectedElId : 'card';
+    var lyr = getSelectedCustomLayer();
+    var st = elId !== 'card' ? getElStyle(elId) : {};
+
+    $$('[data-tool-pop-sec]', pop).forEach(function (sec) {
+      sec.hidden = sec.getAttribute('data-tool-pop-sec') !== kind;
+    });
+
+    if (kind === 'transparency') {
+      var pct = elId === 'card' ? Math.round(Number(state.overlayAlpha != null ? state.overlayAlpha : 85)) : Math.round(getElOpacity(elId) * 100);
+      var opRange = $('#pcPopOpacityRange', pop);
+      var opInp = $('#pcPopOpacityInput', pop);
+      if (opRange) opRange.value = String(pct);
+      if (opInp && (typeof document === 'undefined' || document.activeElement !== opInp)) opInp.value = String(pct);
+    } else if (kind === 'spacing') {
+      var lr = Number((lyr && lyr.lineRatio) || (st && st.lineRatio) || 1.32);
+      var lrRange = $('#pcPopLineHeightRange', pop);
+      var lrVal = $('#pcPopLineHeightVal', pop);
+      if (lrRange) lrRange.value = String(lr.toFixed(2));
+      if (lrVal) lrVal.textContent = lr.toFixed(2);
+    } else if (kind === 'effects') {
+      var curFx = (lyr && lyr.effect) || (st && st.effect) || 'default';
+      $$('[data-pop-fx]', pop).forEach(function (b) {
+        var act = b.getAttribute('data-pop-fx') === curFx;
+        b.setAttribute('aria-pressed', act ? 'true' : 'false');
+      });
+    } else if (kind === 'border') {
+      var sw = lyr && lyr.strokeWidth != null ? Number(lyr.strokeWidth) : 3;
+      var rad = lyr && lyr.radius != null ? Number(lyr.radius) : 16;
+      var dash = (lyr && lyr.strokeDash) || 'solid';
+      var swR = $('#pcPopStrokeWidthRange', pop); if (swR) swR.value = String(sw);
+      var swV = $('#pcPopStrokeWidthVal', pop); if (swV) swV.textContent = sw + 'px';
+      var rdR = $('#pcPopRadiusRange', pop); if (rdR) rdR.value = String(rad);
+      var rdV = $('#pcPopRadiusVal', pop); if (rdV) rdV.textContent = rad + 'px';
+      $$('[data-pop-dash]', pop).forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-pop-dash') === dash ? 'true' : 'false');
+      });
+    } else if (kind === 'adjust') {
+      var brR = $('#pcPopBrightRange', pop); if (brR) brR.value = String(state.photoBright || 100);
+      var brV = $('#pcPopBrightVal', pop); if (brV) brV.textContent = (state.photoBright || 100) + '%';
+      var ctR = $('#pcPopContrastRange', pop); if (ctR) ctR.value = String(state.photoContrast != null ? state.photoContrast : 100);
+      var ctV = $('#pcPopContrastVal', pop); if (ctV) ctV.textContent = (state.photoContrast != null ? state.photoContrast : 100) + '%';
+      var stR = $('#pcPopSaturateRange', pop); if (stR) stR.value = String(state.photoSaturate != null ? state.photoSaturate : 100);
+      var stV = $('#pcPopSaturateVal', pop); if (stV) stV.textContent = (state.photoSaturate != null ? state.photoSaturate : 100) + '%';
+      var blR = $('#pcPopBlurRange', pop); if (blR) blR.value = String(state.photoBlur || 0);
+      var blV = $('#pcPopBlurVal', pop); if (blV) blV.textContent = (state.photoBlur || 0) + 'px';
+    } else if (kind === 'flip') {
+      var fl = getElFlip(elId);
+      var fhB = $('#pcPopFlipHBtn', pop); if (fhB) fhB.setAttribute('aria-pressed', fl.h ? 'true' : 'false');
+      var fvB = $('#pcPopFlipVBtn', pop); if (fvB) fvB.setAttribute('aria-pressed', fl.v ? 'true' : 'false');
+    }
+  }
+
+  function openToolPopover(anchorEl, kind) {
+    var pop = $('#pcToolPopover');
+    if (!pop) return null;
+    if (activeToolPopoverState.open && activeToolPopoverState.kind === kind && activeToolPopoverState.anchorEl === anchorEl) {
+      closeToolPopover();
+      return null;
+    }
+    closeColorPopover();
+    closeContextMenu();
+    closeShareDropdown();
+
+    activeToolPopoverState.open = true;
+    activeToolPopoverState.kind = kind || 'transparency';
+    activeToolPopoverState.anchorEl = anchorEl || null;
+
+    var titles = {
+      transparency: tr('ট্রান্সপারেন্সি (স্বচ্ছতা)', 'Transparency'),
+      spacing: tr('লাইন স্পেসিং', 'Line Spacing'),
+      effects: tr('টেক্সট ইফেক্টস', 'Text Effects'),
+      border: tr('বর্ডার ও কর্নার রেডিয়াস', 'Border & Corner Rounding'),
+      adjust: tr('ছবির আলো ও রঙ অ্যাডজাস্ট', 'Photo Adjustments'),
+      flip: tr('ফ্লিপ / মিরর (Flip)', 'Flip Layer')
+    };
+    var tEl = $('#pcToolPopoverTitle', pop);
+    if (tEl) tEl.textContent = titles[activeToolPopoverState.kind] || 'Tools';
+
+    pop.hidden = false;
+    syncToolPopoverControls();
+    return positionAnchoredFloatingBox(pop, anchorEl, 268, 220);
+  }
+
+  function closeToolPopover() {
+    var pop = $('#pcToolPopover');
+    if (pop && !pop.hidden) pop.hidden = true;
+    activeToolPopoverState.open = false;
   }
 
   function updateContextToolbarForSelection() {
@@ -9141,6 +11973,9 @@
     pane.setAttribute('data-selected-el', selectedElId || 'card');
 
     var sReg = getRegionById(selectedElId);
+    var lyr = getSelectedCustomLayer();
+    var locked = sReg ? isElLocked(selectedElId) : false;
+
     var nameEl = $('#pcSelectedElName');
     if (nameEl) {
       nameEl.textContent = sReg ? (sReg.labelBn || tr('এলিমেন্ট', 'Element')) : tr('ক্যানভাস', 'Canvas');
@@ -9148,7 +11983,9 @@
 
     var activePanel = 'card';
     if (sReg) {
-      if (sReg.kind === 'photo' || sReg.kind === 'customImage') activePanel = 'photo';
+      if (locked) activePanel = 'locked';
+      else if (sReg.kind === 'photo' || sReg.kind === 'customImage') activePanel = 'photo';
+      else if (sReg.kind === 'vector' || (lyr && (lyr.layerType === 'vector' || lyr.layerType === 'icon' || lyr.layerType === 'social' || lyr.layerType === 'graphic'))) activePanel = 'vector';
       else if (sReg.kind === 'shape') activePanel = 'shape';
       else if (sReg.kind === 'logo') activePanel = 'logo';
       else activePanel = 'text';
@@ -9158,8 +11995,30 @@
       el.hidden = el.getAttribute('data-ctx-panel') !== activePanel;
     });
 
+    // Universal right-side Canva action bar sync (Position, Transparency, Copy Style, Lock, Duplicate, Delete)
+    var hasElem = !!(sReg && selectedElId && selectedElId !== 'card');
+    var opPct = hasElem ? Math.round(getElOpacity(selectedElId) * 100) : Math.round(Number(state.overlayAlpha != null ? state.overlayAlpha : 85));
+    var topOpVal = $('#pcTopTransparencyVal');
+    if (topOpVal) topOpVal.textContent = opPct + '%';
+
+    var topLockBtn = $('#pcTopLockBtn');
+    if (topLockBtn) {
+      topLockBtn.hidden = !hasElem;
+      syncPadlockButtonDom(topLockBtn, locked);
+    }
+    var topCopyStyleBtn = $('#pcTopCopyStyleBtn');
+    if (topCopyStyleBtn) {
+      topCopyStyleBtn.hidden = !hasElem || locked;
+      topCopyStyleBtn.setAttribute('aria-pressed', state.stylePaintMode ? 'true' : 'false');
+    }
+    var topDupBtn = $('#pcTopDuplicateBtn');
+    if (topDupBtn) topDupBtn.hidden = !hasElem || locked || sReg.kind === 'photo' || sReg.kind === 'logo';
+    var topDelBtn = $('#pcTopDeleteBtn');
+    if (topDelBtn) topDelBtn.hidden = !hasElem || locked;
+    var topFlipBtn = $('#pcTopFlipBtn');
+    if (topFlipBtn) topFlipBtn.hidden = !hasElem || locked;
+
     if (activePanel === 'text') {
-      var lyr = getSelectedCustomLayer();
       var curFont = getElFont(selectedElId);
       var fLbl = $('#pcCtxFontLabel');
       if (fLbl) {
@@ -9174,7 +12033,7 @@
         ? (lyr.fontSize || 34)
         : (selectedElId === 'headline' ? state.titleSize : (sReg && sReg.fontSize ? sReg.fontSize : 30));
       var szInp = $('#pcCtxFontSizeInput');
-      if (szInp && document.activeElement !== szInp) szInp.value = String(Math.round(curSz));
+      if (szInp && (typeof document === 'undefined' || document.activeElement !== szInp)) szInp.value = String(Math.round(curSz));
       var szLbl = $('#pcCtxFontSizeLabel');
       if (szLbl) szLbl.textContent = String(Math.round(curSz));
 
@@ -9183,15 +12042,23 @@
         var b = $(sel);
         if (b) b.setAttribute('aria-pressed', on ? 'true' : 'false');
       };
-      setPressed('#pcCtxBoldBtn', st.bold !== false);
-      setPressed('#pcCtxItalicBtn', !!st.italic);
-      setPressed('#pcCtxUnderlineBtn', !!st.underline);
-      setPressed('#pcCtxStrikeBtn', !!st.strike);
-      setPressed('#pcCtxUpperBtn', !!st.uppercase);
+      setPressed('#pcCtxBoldBtn', lyr ? (lyr.bold !== false) : (st.bold !== false));
+      setPressed('#pcCtxItalicBtn', lyr ? !!lyr.italic : !!st.italic);
+      setPressed('#pcCtxUnderlineBtn', lyr ? !!lyr.underline : !!st.underline);
+      setPressed('#pcCtxStrikeBtn', lyr ? !!lyr.strike : !!st.strike);
+      setPressed('#pcCtxUpperBtn', lyr ? !!lyr.uppercase : !!st.uppercase);
 
-      var colHex = toSafeHex(lyr ? (lyr.color || '#ffffff') : ((st && st.color) || state.accentColor), '#fde047');
+      var colHex = toSafeHex(
+        lyr
+          ? (lyr.color || lyr.textColor || '#ffffff')
+          : ((st && st.color) || (selectedElId === 'badge' ? '#ffffff' : state.accentColor)),
+        '#fde047'
+      );
       var cBar = $('#pcCtxColorBar'); if (cBar) cBar.style.background = colHex;
       var cInp = $('#pcCtxTextColorInput'); if (cInp) cInp.value = colHex;
+
+      var hiHex = toSafeHex((lyr && lyr.highlightColor) || (st && st.highlightColor) || state.highlightColor || state.accentColor, '#fde047');
+      var hiBar = $('#pcCtxHighlightColorBar'); if (hiBar) hiBar.style.background = hiHex;
 
       var bgWrapper = $('#pcCtxTextBgWrapper');
       var bgInp = $('#pcCtxTextBgColorInput');
@@ -9202,9 +12069,9 @@
       var miniFgInp = $('#pcMiniFgColorInput');
       var miniFgInd = $('#pcMiniFgIndicator');
 
-      if (lyr && lyr.bgColor) {
-        var safeBg = toSafeHex(lyr.bgColor, '#dc2626');
-        var safeFg = toSafeHex(lyr.color, '#ffffff');
+      if ((lyr && lyr.bgColor) || selectedElId === 'badge') {
+        var safeBg = toSafeHex(lyr ? lyr.bgColor : ((st && st.bgColor) || state.primaryColor), '#dc2626');
+        var safeFg = toSafeHex(lyr ? (lyr.color || '#ffffff') : ((st && st.color) || '#ffffff'), '#ffffff');
         if (bgWrapper) bgWrapper.hidden = false;
         if (bgInp) bgInp.value = safeBg;
         if (bgBar) bgBar.style.background = safeBg;
@@ -9222,7 +12089,7 @@
       if (rstBtn) {
         var hasCustom = false;
         if (lyr) {
-          hasCustom = !!(lyr.rotation || lyr.maxWidth);
+          hasCustom = !!(lyr.rotation || lyr.maxWidth || lyr.customColor || lyr.highlightColor);
         } else if (selectedElId) {
           hasCustom = !!(
             (state.elementOffsets && state.elementOffsets[selectedElId] && (state.elementOffsets[selectedElId].dx || state.elementOffsets[selectedElId].dy)) ||
@@ -9230,6 +12097,7 @@
             (state.elementBoxW && state.elementBoxW[selectedElId]) ||
             getElRotation(selectedElId) !== 0 ||
             (state.elementFonts && state.elementFonts[selectedElId]) ||
+            (st && (st.color || st.bgColor || st.highlightColor)) ||
             (state.userResized && state.userResized[selectedElId])
           );
         }
@@ -9238,16 +12106,28 @@
     } else if (activePanel === 'photo') {
       var pz = $('#pcCtxPhotoZoom');
       if (pz) pz.value = state.photoZoom;
+      var pBorderBtn = $('#pcCtxPhotoBorderBtn');
+      if (pBorderBtn) pBorderBtn.hidden = !(lyr && lyr.layerType === 'image');
     } else if (activePanel === 'shape') {
-      var shLyr = getSelectedCustomLayer();
-      if (shLyr) {
-        var sf = $('#pcCtxShapeFillInput'); if (sf) sf.value = toSafeHex(shLyr.fill, '#dc2626');
-        var ss = $('#pcCtxShapeStrokeInput'); if (ss) ss.value = toSafeHex(shLyr.stroke, '#ffffff');
+      if (lyr) {
+        var sf = $('#pcCtxShapeFillInput'); if (sf) sf.value = toSafeHex(lyr.fill, '#dc2626');
+        var sfSw = $('#pcCtxShapeFillSwatch'); if (sfSw) sfSw.style.background = toSafeHex(lyr.fill, '#dc2626');
+        var ss = $('#pcCtxShapeStrokeInput'); if (ss) ss.value = toSafeHex(lyr.stroke, '#ffffff');
+        var ssSw = $('#pcCtxShapeStrokeSwatch'); if (ssSw) ssSw.style.background = toSafeHex(lyr.stroke, '#ffffff');
+      }
+    } else if (activePanel === 'vector') {
+      if (lyr) {
+        var vfCol = toSafeHex(lyr.fill || lyr.color || state.primaryColor, '#dc2626');
+        var vsCol = toSafeHex(lyr.bgColor || lyr.stroke || state.accentColor, '#ffffff');
+        var vfSw = $('#pcCtxVectorFillSwatch'); if (vfSw) vfSw.style.background = vfCol;
+        var vsSw = $('#pcCtxVectorStrokeSwatch'); if (vsSw) vsSw.style.background = vsCol;
+        var vEditTxt = $('#pcCtxVectorEditTextBtn');
+        if (vEditTxt) vEditTxt.hidden = !(lyr.layerType === 'social');
       }
     } else if (activePanel === 'logo') {
       var lbg = $('#pcCtxLogoBgSelect'); if (lbg) lbg.value = state.logoBgStyle;
       var lsz = $('#pcCtxLogoSize'); if (lsz) lsz.value = state.logoSize;
-    } else {
+    } else if (activePanel === 'card') {
       var cp = $('#pcCtxPrimaryColor'); if (cp) cp.value = state.primaryColor;
       var ca = $('#pcCtxAccentColor'); if (ca) ca.value = state.accentColor;
       var cb = $('#pcCtxBgColor'); if (cb) cb.value = state.bgColor;
@@ -9260,8 +12140,7 @@
 
     var miniEdit = $('#pcMiniEditBtn');
     if (miniEdit) {
-      var selLyrMini = getSelectedCustomLayer();
-      miniEdit.hidden = !!(selLyrMini && selLyrMini.layerType === 'vector');
+      miniEdit.hidden = locked || !!(lyr && (lyr.layerType === 'vector' || lyr.layerType === 'icon' || lyr.layerType === 'graphic'));
       var editSpan = $('span', miniEdit);
       if (editSpan) {
         editSpan.textContent = (sReg && (sReg.kind === 'photo' || sReg.kind === 'customImage'))
@@ -9270,19 +12149,26 @@
       }
     }
     var miniDup = $('#pcMiniDupBtn');
-    if (miniDup) miniDup.hidden = !sReg || sReg.kind === 'photo' || sReg.kind === 'logo';
+    if (miniDup) miniDup.hidden = locked || !sReg || sReg.kind === 'photo' || sReg.kind === 'logo';
+
+    syncToolPopoverControls();
+    refreshPositionDrawerIfOpen();
   }
 
   function selectElement(elId) {
     selectedElId = elId || 'card';
     state.selectedElementId = selectedElId;
+    if (state.stylePaintMode && selectedElId && selectedElId !== 'card') {
+      state.stylePaintMode = false;
+      pasteStyleToSelected();
+    }
     updateContextToolbarForSelection();
     syncOverlayBoxes();
   }
 
-  // Direct On-Canvas Inline Textarea Editor
-  var activeInlineTarget = '';
-
+  /* =========================================================================
+   * 12C. LIVE WYSIWYG ON-CANVAS RICH TEXT EDITOR (NO DARK BOX / NO ASTERISKS)
+   * ========================================================================= */
   function getTextValueForElement(elId) {
     if (!elId) return '';
     if (elId.indexOf('layer:') === 0) {
@@ -9301,6 +12187,14 @@
 
   function setTextValueForElement(elId, val) {
     if (!elId) return;
+    var prevVal = getTextValueForElement(elId);
+    if (prevVal !== val) {
+      var prevSpans = getElRichSpans(elId, prevVal);
+      if (prevSpans && prevSpans.length) {
+        var adjusted = adjustRichSpansForTextEdit(prevVal, val, prevSpans);
+        setElRichSpans(elId, val, adjusted);
+      }
+    }
     if (elId.indexOf('layer:') === 0) {
       var lid = elId.slice(6);
       var l = (state.customLayers || []).filter(function (x) { return x.id === lid; })[0];
@@ -9320,13 +12214,183 @@
     }
   }
 
+  function buildRichEditorHtml(plainText, spans, sReg) {
+    var txt = String(plainText || '');
+    if (!txt) return '';
+    var norm = normalizeRichSpans(spans, txt.length);
+    var defaultHiCol = (sReg && sReg.renderHiColor) || state.highlightColor || state.accentColor || '#fde047';
+    var defaultMarker = !!(sReg && sReg.renderUseMarker);
+    var defaultMarkerBg = (sReg && sReg.renderMarkerFill) || state.highlightColor || '#fde047';
+
+    var encodeChunk = function (chunk) {
+      return escapeHtml(chunk).replace(/\n/g, '<br>');
+    };
+
+    if (!norm.length) return encodeChunk(txt);
+
+    var html = '';
+    var cursor = 0;
+    for (var i = 0; i < norm.length; i++) {
+      var sp = norm[i];
+      if (sp.start > cursor) {
+        html += encodeChunk(txt.slice(cursor, sp.start));
+      }
+      var seg = txt.slice(sp.start, sp.end);
+      var useMarker = sp.mode === 'marker' ? true : (sp.mode === 'text' ? false : defaultMarker);
+      var cHex = sp.color || defaultHiCol;
+      var styleCss = useMarker
+        ? ('background:' + escapeHtml(sp.color || defaultMarkerBg) + ';color:' + escapeHtml(getEffectiveTextColor('#0f172a', sp.color || defaultMarkerBg)) + ';border-radius:4px;padding:0 3px;')
+        : ('background:transparent;color:' + escapeHtml(cHex) + ';');
+      html += '<mark data-rich-hi="1" data-hi-color="' + escapeHtml(sp.color || '') + '" data-hi-mode="' + escapeHtml(sp.mode || '') + '" style="' + styleCss + '">' + encodeChunk(seg) + '</mark>';
+      cursor = sp.end;
+    }
+    if (cursor < txt.length) {
+      html += encodeChunk(txt.slice(cursor));
+    }
+    return html;
+  }
+
+  function parseRichEditorDom(richEd) {
+    var outText = '';
+    var spans = [];
+    if (!richEd) return { text: '', spans: [] };
+
+    var walk = function (node) {
+      if (!node) return;
+      if (node.nodeType === 3) {
+        outText += node.nodeValue || '';
+        return;
+      }
+      if (node.nodeName === 'BR') {
+        if (node.parentNode !== richEd || node.nextSibling !== null) {
+          outText += '\n';
+        }
+        return;
+      }
+      var isMark = node.nodeType === 1 && (node.nodeName === 'MARK' || (node.getAttribute && node.getAttribute('data-rich-hi') === '1'));
+      var isBlock = node !== richEd && (node.nodeName === 'DIV' || node.nodeName === 'P');
+      if (isBlock && outText.length > 0 && outText.charAt(outText.length - 1) !== '\n') {
+        outText += '\n';
+      }
+      var sIdx = outText.length;
+      var ch = node.childNodes || [];
+      for (var i = 0; i < ch.length; i++) walk(ch[i]);
+      var eIdx = outText.length;
+      if (isMark && eIdx > sIdx) {
+        spans.push({
+          start: sIdx,
+          end: eIdx,
+          color: (node.getAttribute && node.getAttribute('data-hi-color')) || '',
+          mode: (node.getAttribute && node.getAttribute('data-hi-mode')) || ''
+        });
+      }
+    };
+    walk(richEd);
+    return {
+      text: outText,
+      spans: normalizeRichSpans(spans, outText.length)
+    };
+  }
+
+  function restoreRichEditorSelection(richEd, startChar, endChar) {
+    if (!richEd || typeof window === 'undefined' || typeof document === 'undefined' || !document.createRange || !window.getSelection) return;
+    var range = document.createRange();
+    var count = 0;
+    var startSet = false;
+    var endSet = false;
+
+    var walk = function (node) {
+      if (!node || endSet) return;
+      if (node.nodeType === 3) {
+        var len = (node.nodeValue || '').length;
+        if (!startSet && startChar <= count + len) {
+          range.setStart(node, Math.max(0, startChar - count));
+          startSet = true;
+        }
+        if (startSet && endChar <= count + len) {
+          range.setEnd(node, Math.max(0, endChar - count));
+          endSet = true;
+          return;
+        }
+        count += len;
+        return;
+      }
+      if (node.nodeName === 'BR') {
+        if (node.parentNode !== richEd || node.nextSibling !== null) count += 1;
+        return;
+      }
+      var ch = node.childNodes || [];
+      for (var i = 0; i < ch.length; i++) {
+        walk(ch[i]);
+        if (endSet) return;
+      }
+    };
+    walk(richEd);
+    if (startSet) {
+      if (!endSet) range.collapse(false);
+      var sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
+  }
+
+  function positionInlineRichEditor(elId) {
+    var richEd = $('#pcInlineRichEditor');
+    var canvas = $('#pcCanvas');
+    var wrap = $('#pcArtboardWrap');
+    if (!richEd || !canvas || !wrap) return;
+    var sReg = getRegionById(elId);
+    if (!sReg) return;
+
+    var cRect = canvas.getBoundingClientRect();
+    var wRect = wrap.getBoundingClientRect();
+    var scaleX = cRect.width / Math.max(1, canvas.width || 1080);
+    var scaleY = cRect.height / Math.max(1, canvas.height || 1080);
+    var offLeft = cRect.left - wRect.left;
+    var offTop = cRect.top - wRect.top;
+
+    var tbX = sReg.textBoxX != null ? sReg.textBoxX : sReg.x;
+    var tbY = sReg.textBoxY != null ? sReg.textBoxY : sReg.y;
+    var tbW = sReg.textBoxW != null ? sReg.textBoxW : sReg.w;
+    var fontPx = Math.max(11, Math.round((sReg.renderFontPx || sReg.fontSize || 34) * scaleY));
+    var lineHPx = Math.max(fontPx + 2, Math.round((sReg.renderLineH || ((sReg.renderFontPx || sReg.fontSize || 34) * 1.3)) * scaleY));
+
+    richEd.style.left = Math.round(offLeft + tbX * scaleX) + 'px';
+    richEd.style.top = Math.round(offTop + tbY * scaleY) + 'px';
+    richEd.style.width = Math.max(72, Math.round(tbW * scaleX)) + 'px';
+    richEd.style.minHeight = Math.max(lineHPx, Math.round(sReg.h * scaleY * 0.7)) + 'px';
+    richEd.style.fontFamily = '"' + (sReg.renderFontFamily || getElFont(elId)) + '", "Hind Siliguri", sans-serif';
+    richEd.style.fontSize = fontPx + 'px';
+    richEd.style.lineHeight = lineHPx + 'px';
+    richEd.style.fontWeight = String(sReg.renderWeight || 800);
+    richEd.style.fontStyle = sReg.renderItalic ? 'italic' : 'normal';
+    richEd.style.textAlign = sReg.align || 'left';
+    richEd.style.color = sReg.renderColor || '#ffffff';
+    richEd.style.transform = sReg.rotation ? ('rotate(' + sReg.rotation + 'deg)') : '';
+  }
+
+  function populateInlineRichEditorHtml(elId, restoreStart, restoreEnd) {
+    var richEd = $('#pcInlineRichEditor');
+    if (!richEd) return;
+    var sReg = getRegionById(elId);
+    var txt = getTextValueForElement(elId);
+    var spans = getElRichSpans(elId, txt);
+    positionInlineRichEditor(elId);
+    richEd.innerHTML = buildRichEditorHtml(txt, spans, sReg);
+    if (restoreStart != null && restoreEnd != null) {
+      restoreRichEditorSelection(richEd, restoreStart, restoreEnd);
+    }
+  }
+
   function openInlineEditorForElement(elId) {
     var sReg = getRegionById(elId);
     if (!sReg) return;
     var editLyr = (elId && elId.indexOf('layer:') === 0)
       ? (state.customLayers || []).filter(function (x) { return x && x.id === elId.slice(6); })[0]
       : null;
-    if (editLyr && editLyr.layerType === 'vector') return;
+    if (editLyr && (editLyr.layerType === 'vector' || editLyr.layerType === 'icon' || editLyr.layerType === 'graphic')) return;
 
     if (sReg.kind === 'photo') {
       var fInput = $(elId === 'photo2' ? '#pcSecondPhotoInput' : '#pcPhotoInput');
@@ -9344,6 +12408,7 @@
     }
 
     var editor = $('#pcInlineEditor');
+    var richEd = $('#pcInlineRichEditor');
     var canvas = $('#pcCanvas');
     var wrap = $('#pcArtboardWrap');
     if (!editor || !canvas || !wrap) return;
@@ -9351,47 +12416,91 @@
     pushHistorySnapshot();
     activeInlineTarget = elId;
 
-    var cRect = canvas.getBoundingClientRect();
-    var wRect = wrap.getBoundingClientRect();
-    var scaleX = cRect.width / (canvas.width || 1080);
-    var scaleY = cRect.height / (canvas.height || 1080);
-    var offLeft = cRect.left - wRect.left;
-    var offTop = cRect.top - wRect.top;
+    var curRaw = getTextValueForElement(elId);
+    if (curRaw && curRaw.indexOf('*') !== -1) {
+      var cleanParsed = extractRichTextAndSpans(curRaw);
+      if (cleanParsed.spans.length) {
+        curRaw = cleanParsed.text;
+        setTextValueForElement(elId, curRaw);
+        setElRichSpans(elId, curRaw, cleanParsed.spans);
+      }
+    }
 
-    var boxW = Math.max(180, Math.min(cRect.width - 12, Math.round(sReg.w * scaleX + 16)));
-    var boxH = Math.max(54, Math.round(sReg.h * scaleY + 18));
-    var boxL = Math.max(6, Math.min(cRect.width - boxW - 6, Math.round(offLeft + sReg.x * scaleX - 8)));
-    var boxT = Math.max(6, Math.min(cRect.height - boxH - 6, Math.round(offTop + sReg.y * scaleY - 6)));
-
-    editor.style.left = boxL + 'px';
-    editor.style.top = boxT + 'px';
-    editor.style.width = boxW + 'px';
-    editor.style.height = boxH + 'px';
-    editor.style.fontFamily = '"' + getElFont(elId) + '", "Hind Siliguri", sans-serif';
-    editor.style.fontSize = Math.max(13, Math.min(28, Math.round((sReg.fontSize || 34) * scaleY * 0.92))) + 'px';
-    editor.style.textAlign = sReg.align || 'left';
-    editor.value = getTextValueForElement(elId);
+    editor.value = curRaw;
+    inlineEditorSyncedValue = curRaw;
     editor.hidden = false;
 
     var selBox = $('#pcSelectionBox');
     if (selBox) selBox.hidden = true;
 
-    setTimeout(function () {
-      editor.focus();
-      editor.select();
-    }, 15);
+    if (richEd) {
+      renderNow();
+      populateInlineRichEditorHtml(elId);
+      richEd.hidden = false;
+      setTimeout(function () {
+        if (richEd.focus) richEd.focus();
+        restoreRichEditorSelection(richEd, 0, curRaw.length);
+      }, 15);
+    } else {
+      var cRect = canvas.getBoundingClientRect();
+      var wRect = wrap.getBoundingClientRect();
+      var scaleX = cRect.width / (canvas.width || 1080);
+      var scaleY = cRect.height / (canvas.height || 1080);
+      var offLeft = cRect.left - wRect.left;
+      var offTop = cRect.top - wRect.top;
+      var boxW = Math.max(180, Math.min(cRect.width - 12, Math.round(sReg.w * scaleX + 16)));
+      var boxH = Math.max(54, Math.round(sReg.h * scaleY + 18));
+      var boxL = Math.max(6, Math.min(cRect.width - boxW - 6, Math.round(offLeft + sReg.x * scaleX - 8)));
+      var boxT = Math.max(6, Math.min(cRect.height - boxH - 6, Math.round(offTop + sReg.y * scaleY - 6)));
+      editor.style.left = boxL + 'px';
+      editor.style.top = boxT + 'px';
+      editor.style.width = boxW + 'px';
+      editor.style.height = boxH + 'px';
+      editor.style.fontFamily = '"' + getElFont(elId) + '", "Hind Siliguri", sans-serif';
+      editor.style.fontSize = Math.max(13, Math.min(28, Math.round((sReg.fontSize || 34) * scaleY * 0.92))) + 'px';
+      editor.style.textAlign = sReg.align || 'left';
+      setTimeout(function () {
+        editor.focus();
+        editor.select();
+      }, 15);
+    }
   }
 
   function closeInlineEditor(commit) {
     var editor = $('#pcInlineEditor');
-    if (!editor || editor.hidden) return;
-    if (commit && activeInlineTarget) {
-      setTextValueForElement(activeInlineTarget, editor.value);
+    var richEd = $('#pcInlineRichEditor');
+    var qBar = $('#pcSelectionQuickBar');
+    var wasOpen = (editor && !editor.hidden) || (richEd && !richEd.hidden);
+    if (!wasOpen) return;
+
+    var targetId = activeInlineTarget;
+    if (commit && targetId) {
+      if (editor && editor.value !== inlineEditorSyncedValue) {
+        var extVal = editor.value || '';
+        if (extVal.indexOf('*') !== -1) {
+          var extRich = extractRichTextAndSpans(extVal);
+          setTextValueForElement(targetId, extRich.text);
+          if (extRich.spans.length) setElRichSpans(targetId, extRich.text, extRich.spans);
+        } else {
+          setTextValueForElement(targetId, extVal);
+        }
+      } else if (richEd && !richEd.hidden) {
+        var parsedDom = parseRichEditorDom(richEd);
+        setTextValueForElement(targetId, parsedDom.text);
+        setElRichSpans(targetId, parsedDom.text, parsedDom.spans);
+      } else if (editor) {
+        setTextValueForElement(targetId, editor.value);
+      }
       syncControlsFromState();
     }
-    editor.hidden = true;
+
+    if (editor) editor.hidden = true;
+    if (richEd) richEd.hidden = true;
+    if (qBar) qBar.hidden = true;
     activeInlineTarget = '';
+    inlineEditorSyncedValue = '';
     renderNow();
+    syncOverlayBoxes();
     scheduleAutosave();
   }
 
@@ -9416,6 +12525,7 @@
       uppercase: false,
       lineRatio: 1.32,
       rotation: 0,
+      opacity: 1,
       locked: false
     };
     if (preset === 'heading') {
@@ -9464,6 +12574,7 @@
       align: 'center',
       bold: true,
       rotation: 0,
+      opacity: 1,
       locked: false
     };
     state.customLayers.push(cfg);
@@ -9473,7 +12584,7 @@
     notify(tr('স্টিকার ব্যাজ যুক্ত হয়েছে — কর্নার টেনে সাইজ ও রোটেট করুন!', 'Sticker added — drag corners to resize or rotate!'));
   }
 
-  function addPaymentVectorLayer(brandKey) {
+  function addPaymentVectorLayer(brandKey, iconOnly) {
     pushHistorySnapshot();
     var count = (state.customLayers || []).length;
     var meta = PAYMENT_BRAND_VECTORS[brandKey] || PAYMENT_BRAND_VECTORS['bkash'];
@@ -9481,13 +12592,15 @@
       id: uid('vec'),
       layerType: 'vector',
       vectorKind: brandKey || 'bkash',
+      iconOnly: !!iconOnly,
       x: 540,
       y: 320 + (count % 4) * 60,
-      w: 160,
-      h: 70,
+      w: iconOnly ? 104 : 168,
+      h: iconOnly ? 104 : 72,
       fill: '#ffffff',
       stroke: meta.brandColor,
       rotation: 0,
+      opacity: 1,
       locked: false
     };
     state.customLayers.push(cfg);
@@ -9495,6 +12608,90 @@
     selectElement('layer:' + cfg.id);
     scheduleAutosave();
     notify(tr((meta.nameBn || meta.name) + ' ভেক্টর লোগো যুক্ত হয়েছে!', meta.name + ' vector logo added!'));
+  }
+
+  function addUiIconLayer(iconKey, fillCol, bgCol, shapeKind) {
+    pushHistorySnapshot();
+    var count = (state.customLayers || []).length;
+    var cfg = {
+      id: uid('ico'),
+      layerType: 'icon',
+      iconKey: iconKey || 'phone',
+      fill: fillCol || '#ffffff',
+      color: fillCol || '#ffffff',
+      bgColor: bgCol !== undefined ? bgCol : (state.primaryColor || '#dc2626'),
+      shapeKind: shapeKind || 'circle',
+      radius: 24,
+      x: 540,
+      y: 340 + (count % 4) * 52,
+      w: 96,
+      h: 96,
+      rotation: 0,
+      opacity: 1,
+      locked: false
+    };
+    state.customLayers.push(cfg);
+    renderNow();
+    selectElement('layer:' + cfg.id);
+    scheduleAutosave();
+    notify(tr('আইকন যুক্ত হয়েছে — রঙ ও সাইজ পরিবর্তনযোগ্য!', 'Icon added — customizable color & size!'));
+    return cfg;
+  }
+
+  function addSocialLogoLayer(socialKey, handleText) {
+    pushHistorySnapshot();
+    var count = (state.customLayers || []).length;
+    var meta = SOCIAL_BRAND_VECTORS[socialKey] || SOCIAL_BRAND_VECTORS.facebook;
+    var txt = handleText ? String(handleText) : '';
+    var cfg = {
+      id: uid('soc'),
+      layerType: 'social',
+      socialKey: socialKey || 'facebook',
+      text: txt,
+      fontSize: 24,
+      fontFamily: state.fontFamily || 'Hind Siliguri',
+      color: '#0f172a',
+      bgColor: txt ? '#ffffff' : '',
+      stroke: txt ? meta.brandColor : 'transparent',
+      x: 540,
+      y: 360 + (count % 4) * 56,
+      w: txt ? 250 : 92,
+      h: txt ? 70 : 92,
+      rotation: 0,
+      opacity: 1,
+      locked: false
+    };
+    state.customLayers.push(cfg);
+    renderNow();
+    selectElement('layer:' + cfg.id);
+    scheduleAutosave();
+    notify(tr((meta.nameBn || meta.name) + ' লোগো যুক্ত হয়েছে!', meta.name + ' logo added!'));
+    return cfg;
+  }
+
+  function addGraphicElementLayer(graphicKind, primaryCol, accentCol, w, h) {
+    pushHistorySnapshot();
+    var count = (state.customLayers || []).length;
+    var cfg = {
+      id: uid('gfx'),
+      layerType: 'graphic',
+      graphicKind: graphicKind || 'breaking-frame',
+      fill: primaryCol || state.primaryColor || '#dc2626',
+      stroke: accentCol || state.accentColor || '#fde047',
+      x: 540,
+      y: 420 + (count % 4) * 44,
+      w: Number(w) || 280,
+      h: Number(h) || 180,
+      rotation: 0,
+      opacity: 1,
+      locked: false
+    };
+    state.customLayers.push(cfg);
+    renderNow();
+    selectElement('layer:' + cfg.id);
+    scheduleAutosave();
+    notify(tr('গ্রাফিক্স এলিমেন্ট যুক্ত হয়েছে!', 'Graphic element added!'));
+    return cfg;
   }
 
   function addShapeLayer(shapeKind, fill, stroke, w, h, radius, text) {
@@ -9517,6 +12714,7 @@
       h: Number(h) || 110,
       radius: Number(radius != null ? radius : 16),
       rotation: 0,
+      opacity: 1,
       locked: false
     };
     state.customLayers.push(cfg);
@@ -9556,6 +12754,7 @@
           radius: 14,
           crop: { top: 0, right: 0, bottom: 0, left: 0 },
           rotation: 0,
+          opacity: 1,
           locked: false
         };
         state.customLayers.push(cfg);
@@ -9580,7 +12779,12 @@
       copy.id = uid('lyr');
       copy.x = Math.min(980, (lyr.x || 540) + 28);
       copy.y = Math.min(980, (lyr.y || 540) + 36);
+      copy.locked = false;
+      var origSpans = getElRichSpans(selectedElId, lyr.text);
       state.customLayers.push(copy);
+      if (origSpans && origSpans.length) {
+        setElRichSpans('layer:' + copy.id, copy.text, origSpans);
+      }
       renderNow();
       selectElement('layer:' + copy.id);
     } else {
@@ -9599,9 +12803,14 @@
         align: sReg.align || 'center',
         bold: true,
         rotation: getElRotation(selectedElId),
+        opacity: getElOpacity(selectedElId),
         locked: false
       };
+      var tplSpans = getElRichSpans(selectedElId, txt);
       state.customLayers.push(newLyr);
+      if (tplSpans && tplSpans.length) {
+        setElRichSpans('layer:' + newLyr.id, txt, tplSpans);
+      }
       renderNow();
       selectElement('layer:' + newLyr.id);
     }
@@ -9620,6 +12829,7 @@
     if (selectedElId.indexOf('layer:') === 0) {
       var lid = selectedElId.slice(6);
       state.customLayers = (state.customLayers || []).filter(function (x) { return x.id !== lid; });
+      if (state.elementRichSpans) delete state.elementRichSpans[selectedElId];
       selectElement('card');
       requestRender();
       notify(tr('এলিমেন্ট মুছে ফেলা হয়েছে (Ctrl+Z দিয়ে ফিরিয়ে আনা যাবে)', 'Layer deleted (Ctrl+Z to undo)'));
@@ -9665,20 +12875,58 @@
     notify(tr('এলিমেন্ট মুছে ফেলা হয়েছে — ফিরিয়ে আনতে Undo (↶) চাপুন', 'Element removed — press Undo (↶) to restore'));
   }
 
-  function toggleLockSelectedElement() {
-    if (!selectedElId || selectedElId === 'card') return;
-    var lyr = getSelectedCustomLayer();
-    var lockedNow;
-    if (lyr) {
+  function toggleLockElementById(targetId) {
+    var elId = targetId || selectedElId;
+    if (!elId || elId === 'card') return false;
+    var lockedNow = false;
+    if (elId.indexOf('layer:') === 0) {
+      var lid = elId.slice(6);
+      var lyr = (state.customLayers || []).filter(function (x) { return x && x.id === lid; })[0];
+      if (!lyr) return false;
       lyr.locked = !lyr.locked;
-      lockedNow = lyr.locked;
+      lockedNow = !!lyr.locked;
     } else {
-      state.elementLocked[selectedElId] = !state.elementLocked[selectedElId];
-      lockedNow = state.elementLocked[selectedElId];
+      state.elementLocked[elId] = !state.elementLocked[elId];
+      lockedNow = !!state.elementLocked[elId];
     }
+    if (lockedNow && activeInlineTarget === elId) {
+      closeInlineEditor(true);
+    }
+    updateContextToolbarForSelection();
     syncOverlayBoxes();
     scheduleAutosave();
     notify(lockedNow ? tr('এলিমেন্ট লক করা হয়েছে', 'Locked') : tr('এলিমেন্ট আনলক করা হয়েছে', 'Unlocked'));
+    return lockedNow;
+  }
+
+  function toggleLockSelectedElement() {
+    return toggleLockElementById(selectedElId);
+  }
+
+  function toggleVisibilityElementById(targetId) {
+    if (!targetId || targetId === 'card') return;
+    pushHistorySnapshot();
+    if (targetId.indexOf('layer:') === 0) {
+      var lid = targetId.slice(6);
+      var lyr = (state.customLayers || []).filter(function (x) { return x && x.id === lid; })[0];
+      if (!lyr) return;
+      lyr.hidden = !lyr.hidden;
+      if (lyr.hidden && selectedElId === targetId) selectElement('card');
+    } else if (targetId === 'logo') {
+      if (state.logoPos === 'hidden' || state.elementHidden.logo) {
+        state.logoPos = 'top-right';
+        state.elementHidden.logo = false;
+      } else {
+        state.elementHidden.logo = true;
+      }
+    } else {
+      state.elementHidden[targetId] = !state.elementHidden[targetId];
+      if (state.elementHidden[targetId] && selectedElId === targetId) selectElement('card');
+    }
+    renderNow();
+    syncControlsFromState();
+    refreshPositionDrawerIfOpen();
+    scheduleAutosave();
   }
 
   /* =========================================================================
@@ -9760,6 +13008,15 @@
     setVal('#pcRightLabelInput', state.rightLabel);
 
     setVal('#pcBrandName', state.brandName);
+    setVal('#pcBrandWebsite', state.brandWebsite);
+    setVal('#pcBrandPhone', state.brandPhone);
+    setVal('#pcBrandFooterFormat', state.brandFooterFormat || 'both');
+    setVal('#pcBrandExtraInfo', state.brandExtraInfo);
+    if (!getActiveBrandId()) {
+      setVal('#pcBrandPrimaryColor', state.primaryColor);
+      setVal('#pcBrandAccentColor', state.accentColor);
+      setVal('#pcBrandBgColor', state.bgColor);
+    }
     setVal('#pcLogoPos', state.logoPos);
     setVal('#pcLogoBgStyle', state.logoBgStyle);
     setVal('#pcLogoSize', state.logoSize);
@@ -9785,6 +13042,8 @@
       btn.setAttribute('aria-pressed', match ? 'true' : 'false');
     });
 
+    syncHighlightUiControls();
+    renderSavedBrandProfilesList();
     updateContextToolbarForSelection();
     renderPagesUi();
   }
@@ -9801,6 +13060,7 @@
     if (!meta) return;
 
     closeInlineEditor(true);
+    closeColorPopover();
     pushHistorySnapshot();
     pushRecentTemplate(tplId);
     pagesStripOpen = false;
@@ -9811,6 +13071,8 @@
     state.primaryColor = meta.primary;
     state.accentColor = meta.accent;
     state.bgColor = meta.bg;
+    state.highlightColor = '';
+    state.highlightBgMode = '';
     state.textAlign = meta.align || 'left';
     state.titleSize = meta.titleSize || 44;
 
@@ -9821,6 +13083,8 @@
     state.elementCrop = {};
     state.elementBoxW = {};
     state.elementRotation = {};
+    state.elementOpacity = {};
+    state.elementFlip = {};
     state.userResized = {};
     state.elementHidden = {};
     state.elementStyles = {};
@@ -9845,8 +13109,12 @@
     var shouldLoadSample = forceLoadSample || (autoToggle ? autoToggle.checked : !state.userEditedText);
 
     if (shouldLoadSample) {
+      var parsedSampleHead = extractRichTextAndSpans(meta.headline);
       state.badge = meta.badge;
-      state.headline = meta.headline;
+      state.headline = parsedSampleHead.text;
+      state.elementRichSpans = parsedSampleHead.spans.length ? {
+        headline: { text: parsedSampleHead.text, spans: parsedSampleHead.spans }
+      } : {};
       state.tagline = meta.tagline;
       state.detail = meta.detail;
       state.footerUrl = meta.defaultFooter;
@@ -9854,6 +13122,18 @@
         state.brandName = meta.defaultBrand;
       }
       if (forceLoadSample) state.userEditedText = false;
+    } else if (state.headline && state.headline.indexOf('*') !== -1) {
+      var migCurHead = extractRichTextAndSpans(state.headline);
+      if (migCurHead.spans.length) {
+        state.headline = migCurHead.text;
+        state.elementRichSpans = state.elementRichSpans || {};
+        state.elementRichSpans.headline = { text: migCurHead.text, spans: migCurHead.spans };
+      }
+    }
+
+    var activeBrand = getActiveBrandProfile();
+    if (activeBrand) {
+      applyBrandProfileToState(activeBrand, tplId, { explicitSelect: false });
     }
 
     syncControlsFromState();
@@ -9881,6 +13161,9 @@
       state.photo2Img = null;
       state.photoZoom = 100;
       state.photoBright = 100;
+      state.photoContrast = 100;
+      state.photoSaturate = 100;
+      state.photoBlur = 0;
       state.photoPanX = 0;
       state.photoPanY = 0;
       state.elementOffsets = {};
@@ -9891,12 +13174,17 @@
       state.elementCrop = {};
       state.elementBoxW = {};
       state.elementRotation = {};
+      state.elementOpacity = {};
+      state.elementFlip = {};
+      state.elementRichSpans = {};
       state.userResized = {};
       state.elementHidden = {};
       state.elementLocked = {};
       state.customLayers = [];
       state.pageLocked = false;
       state.userEditedText = false;
+      state.highlightColor = '';
+      state.highlightBgMode = '';
       var autoToggle = $('#pcAutoSampleToggle');
       if (autoToggle) autoToggle.checked = true;
 
@@ -10002,7 +13290,7 @@
       }
       if (typeof window.TechHatEnsureScript === 'function') {
         try {
-          await window.TechHatEnsureScript('/js/photo-card-metadata.js?v=98');
+          await window.TechHatEnsureScript('/js/photo-card-metadata.js?v=99');
           return window.PhotoCardMetadata || window.TechHatPhotoCardMetadata || null;
         } catch (e) {
           return null;
@@ -10013,7 +13301,7 @@
         try {
           await new Promise(function (resolve, reject) {
             var s = document.createElement('script');
-            s.src = '/js/photo-card-metadata.js?v=98';
+            s.src = '/js/photo-card-metadata.js?v=99';
             s.onload = resolve;
             s.onerror = reject;
             document.body.appendChild(s);
@@ -10371,6 +13659,8 @@
         fontFamily: lyr.fontFamily || state.fontFamily || 'Hind Siliguri',
         fontSize: Number(lyr.fontSize) || 34,
         color: lyr.color || lyr.textColor || '',
+        customColor: !!lyr.customColor,
+        highlightColor: lyr.highlightColor || state.highlightColor || '',
         bgColor: lyr.bgColor || '',
         fill: lyr.fill || lyr.bgColor || '',
         stroke: lyr.stroke || '',
@@ -10392,8 +13682,10 @@
         fontFamily: getElFont(selectedElId),
         fontSize: selectedElId === 'headline' ? (state.titleSize || 44) : ((sReg && sReg.fontSize) || 32),
         color: stObj.color || (selectedElId === 'headline' ? state.accentColor : ''),
-        bgColor: selectedElId === 'badge' ? state.primaryColor : '',
-        fill: selectedElId === 'badge' ? state.primaryColor : '',
+        customColor: !!stObj.color,
+        highlightColor: stObj.highlightColor || state.highlightColor || '',
+        bgColor: stObj.bgColor || (selectedElId === 'badge' ? state.primaryColor : ''),
+        fill: stObj.bgColor || (selectedElId === 'badge' ? state.primaryColor : ''),
         stroke: '',
         bold: stObj.bold !== undefined ? !!stObj.bold : true,
         italic: !!stObj.italic,
@@ -10432,7 +13724,8 @@
       if (lyr.layerType === 'shape') {
         if (sc.fill) lyr.fill = sc.fill;
         if (sc.stroke) lyr.stroke = sc.stroke;
-        if (sc.color) lyr.color = sc.color;
+        if (sc.color) { lyr.color = sc.color; lyr.textColor = sc.color; lyr.customColor = true; }
+        if (sc.highlightColor) lyr.highlightColor = sc.highlightColor;
         lyr.fontFamily = sc.fontFamily;
         lyr.fontSize = sc.fontSize;
         lyr.bold = sc.bold;
@@ -10445,7 +13738,8 @@
       } else if (!lyr.layerType || lyr.layerType === 'text' || lyr.layerType === 'sticker' || lyr.layerType === 'badge') {
         lyr.fontFamily = sc.fontFamily;
         lyr.fontSize = sc.fontSize;
-        if (sc.color) lyr.color = sc.color;
+        if (sc.color) { lyr.color = sc.color; lyr.textColor = sc.color; lyr.customColor = true; }
+        if (sc.highlightColor) lyr.highlightColor = sc.highlightColor;
         if (sc.bgColor !== undefined) lyr.bgColor = sc.bgColor;
         lyr.bold = sc.bold;
         lyr.italic = sc.italic;
@@ -10480,6 +13774,8 @@
       }
       var st = ensureElStyleObj(selectedElId);
       if (sc.color) st.color = sc.color;
+      if (sc.highlightColor) st.highlightColor = sc.highlightColor;
+      if (selectedElId === 'badge' && sc.bgColor) st.bgColor = sc.bgColor;
       st.bold = sc.bold;
       st.italic = sc.italic;
       st.underline = sc.underline;
@@ -10588,18 +13884,82 @@
     pushHistorySnapshot();
     var item = layers.splice(idx, 1)[0];
     if (direction === 'front') {
+      item.behindTemplate = false;
       layers.push(item);
     } else if (direction === 'forward') {
-      layers.splice(Math.min(layers.length, idx + 1), 0, item);
+      if (item.behindTemplate && idx >= layers.length) {
+        item.behindTemplate = false;
+        layers.push(item);
+      } else if (item.behindTemplate) {
+        item.behindTemplate = false;
+        layers.splice(Math.min(layers.length, idx + 1), 0, item);
+      } else {
+        layers.splice(Math.min(layers.length, idx + 1), 0, item);
+      }
     } else if (direction === 'backward') {
-      layers.splice(Math.max(0, idx - 1), 0, item);
+      if (!item.behindTemplate && idx === 0) {
+        item.behindTemplate = true;
+        layers.unshift(item);
+      } else {
+        layers.splice(Math.max(0, idx - 1), 0, item);
+      }
     } else if (direction === 'back') {
+      item.behindTemplate = true;
       layers.unshift(item);
     }
     renderNow();
     syncOverlayBoxes();
+    refreshPositionDrawerIfOpen();
     scheduleAutosave();
     notify(tr('লেয়ারের ক্রম পরিবর্তন করা হয়েছে', 'Layer order updated'));
+  }
+
+  function reorderLayerByDrop(dragElId, targetElId) {
+    if (!dragElId || dragElId.indexOf('layer:') !== 0 || dragElId === targetElId) return;
+    var dragLid = dragElId.slice(6);
+    var layers = state.customLayers || [];
+    var dragIdx = -1;
+    for (var i = 0; i < layers.length; i++) {
+      if (layers[i].id === dragLid) { dragIdx = i; break; }
+    }
+    if (dragIdx === -1) return;
+
+    var origTargetIdx = -1;
+    if (targetElId && targetElId.indexOf('layer:') === 0) {
+      var targetLidOrig = targetElId.slice(6);
+      for (var k = 0; k < layers.length; k++) {
+        if (layers[k].id === targetLidOrig) { origTargetIdx = k; break; }
+      }
+    }
+
+    pushHistorySnapshot();
+    var dragItem = layers.splice(dragIdx, 1)[0];
+
+    if (targetElId && targetElId.indexOf('layer:') === 0) {
+      var targetLid = targetElId.slice(6);
+      var targetIdx = -1;
+      for (var j = 0; j < layers.length; j++) {
+        if (layers[j].id === targetLid) { targetIdx = j; break; }
+      }
+      if (targetIdx !== -1) {
+        dragItem.behindTemplate = !!layers[targetIdx].behindTemplate;
+        var insertAt = (origTargetIdx !== -1 && dragIdx > origTargetIdx) ? targetIdx : (targetIdx + 1);
+        layers.splice(insertAt, 0, dragItem);
+      } else {
+        layers.push(dragItem);
+      }
+    } else if (targetElId === 'card' || targetElId === 'photo' || targetElId === 'photo2') {
+      dragItem.behindTemplate = true;
+      layers.unshift(dragItem);
+    } else {
+      dragItem.behindTemplate = false;
+      layers.unshift(dragItem);
+    }
+
+    renderNow();
+    selectElement(dragElId);
+    refreshPositionDrawerIfOpen();
+    scheduleAutosave();
   }
 
   /* Alignment Algorithms Relative to Page Bounds */
@@ -10627,6 +13987,7 @@
       else if (alignment === 'bottom') lyr.y = Math.round(1080 - halfHNorm);
       renderNow();
       syncOverlayBoxes();
+      refreshPositionDrawerIfOpen();
       scheduleAutosave();
       return;
     }
@@ -10667,6 +14028,7 @@
 
     renderNow();
     syncOverlayBoxes();
+    refreshPositionDrawerIfOpen();
     scheduleAutosave();
     notify(tr('পেজে সাজানো হয়েছে', 'Aligned to page'));
   }
@@ -10681,9 +14043,7 @@
     if (lockLabel) lockLabel.textContent = isLocked ? tr('আনলক করুন', 'Unlock') : tr('লক করুন', 'Lock');
     var lockIcon = $('#pcCtxLockIcon');
     if (lockIcon) {
-      lockIcon.innerHTML = isLocked
-        ? '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
-        : '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>';
+      lockIcon.innerHTML = isLocked ? PADLOCK_LOCKED_SVG : PADLOCK_UNLOCKED_SVG;
     }
 
     var isLayer = selectedElId && selectedElId.indexOf('layer:') === 0;
@@ -10701,7 +14061,7 @@
     if (pasteStyleBtn) pasteStyleBtn.classList.toggle('opacity-40', !hasSelection || !styleClipboardBuffer);
     if (dupBtn) dupBtn.classList.toggle('opacity-40', !hasSelection);
     if (delBtn) delBtn.classList.toggle('opacity-40', !hasSelection);
-    if (layerParent) layerParent.classList.toggle('opacity-40', !isLayer);
+    if (layerParent) layerParent.classList.toggle('opacity-40', false);
     if (alignParent) alignParent.classList.toggle('opacity-40', !hasSelection);
 
     menu.hidden = false;
@@ -10775,6 +14135,7 @@
     fonts: 'ফন্ট লাইব্রেরি ও আপলোড',
     brand: 'ব্র্যান্ড কিট ও লোগো',
     uploads: 'আপলোডস ভল্ট',
+    position: 'পজিশন ও লেয়ার',
     projects: 'আমার প্রজেক্টস'
   };
 
@@ -10785,8 +14146,521 @@
     fonts: 'Fonts & Custom Upload',
     brand: 'Brand Kit & Logos',
     uploads: 'Uploads Vault',
+    position: 'Position & Layers',
     projects: 'My Saved Projects'
   };
+
+  /* =========================================================================
+   * CANVA-STYLE POSITION & LAYERS DRAWER CONTROLLER (Arrange | Layers)
+   * ========================================================================= */
+  var EYE_OPEN_SVG = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
+  var EYE_OFF_SVG = '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/>';
+  var DRAG_GRIP_SVG = '<circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/>';
+
+  function refreshPositionDrawerIfOpen() {
+    var posDrw = $('[data-pc-drawer="position"]');
+    if (posDrw && !posDrw.hidden) {
+      renderPositionDrawer();
+    }
+  }
+
+  function openPositionDrawer(defaultTab) {
+    if (defaultTab === 'arrange' || defaultTab === 'layers') {
+      state.positionTab = defaultTab;
+    }
+    switchDrawerTab('position');
+    renderPositionDrawer();
+  }
+
+  function regionsIntersect(a, b) {
+    if (!a || !b) return false;
+    return !(a.x + a.w < b.x || b.x + b.w < a.x || a.y + a.h < b.y || b.y + b.h < a.y);
+  }
+
+  function buildLayerPreviewHtml(item) {
+    if (item.id === 'card') {
+      var cBg = toSafeHex(state.bgColor, '#1c080b');
+      var cPr = toSafeHex(state.primaryColor, '#dc2626');
+      return '<div class="flex items-center justify-center gap-2 min-w-0">' +
+        '<span class="w-8 h-5 rounded border border-black/15 shrink-0" style="background:linear-gradient(135deg,' + cBg + ' 55%,' + cPr + ' 100%)"></span>' +
+        '<span class="text-[11.5px] font-bold text-slate-700 dark:text-slate-200 truncate">' + escapeHtml(tr('ব্যাকগ্রাউন্ড কার্ড', 'Background Card')) + '</span>' +
+        '</div>';
+    }
+    if (item.kind === 'photo' || item.kind === 'customImage') {
+      return '<div class="flex items-center justify-center gap-2 min-w-0">' +
+        '<span class="w-8 h-6 rounded bg-slate-300 dark:bg-slate-700 inline-flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">' +
+        '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>' +
+        '</span>' +
+        '<span class="text-[11.5px] font-bold text-slate-700 dark:text-slate-200 truncate">' + escapeHtml(item.label) + '</span>' +
+        '</div>';
+    }
+    if (item.kind === 'logo') {
+      var logoThumb = state.logoDataUrl
+        ? '<img src="' + escapeHtml(state.logoDataUrl) + '" alt="" class="w-6 h-6 rounded object-contain bg-white border border-slate-200 shrink-0" />'
+        : '<span class="w-6 h-6 rounded bg-blue-600 text-white text-[10px] font-black inline-flex items-center justify-center shrink-0">B</span>';
+      return '<div class="flex items-center justify-center gap-2 min-w-0">' +
+        logoThumb +
+        '<span class="text-[11.5px] font-bold text-slate-700 dark:text-slate-200 truncate">' + escapeHtml(state.brandName || item.label) + '</span>' +
+        '</div>';
+    }
+    if (item.lyr) {
+      var lyr = item.lyr;
+      if (lyr.layerType === 'shape') {
+        var sFill = toSafeHex(lyr.fill, '#dc2626');
+        return '<div class="flex items-center justify-center gap-2 min-w-0">' +
+          '<span class="w-6 h-4 rounded-sm border border-black/15 shrink-0" style="background:' + sFill + '"></span>' +
+          '<span class="text-[11.5px] font-bold text-slate-700 dark:text-slate-200 truncate">' + escapeHtml(lyr.text || item.label) + '</span>' +
+          '</div>';
+      }
+      if (lyr.layerType === 'vector' || lyr.layerType === 'social' || lyr.layerType === 'icon' || lyr.layerType === 'graphic') {
+        var brandCol = '';
+        if (lyr.layerType === 'vector' && PAYMENT_BRAND_VECTORS[lyr.vectorKind]) {
+          brandCol = PAYMENT_BRAND_VECTORS[lyr.vectorKind].brandColor;
+        } else if (lyr.layerType === 'social' && SOCIAL_BRAND_VECTORS[lyr.socialKey]) {
+          brandCol = SOCIAL_BRAND_VECTORS[lyr.socialKey].brandColor;
+        } else if (lyr.layerType === 'icon') {
+          brandCol = lyr.bgColor || lyr.fill || state.primaryColor;
+        } else {
+          brandCol = lyr.fill || lyr.stroke || state.primaryColor;
+        }
+        var vFill = toSafeHex(brandCol, '#2563eb');
+        var vTitle = lyr.text || item.label;
+        var vGlyph = String(vTitle || 'V').trim().charAt(0).toUpperCase() || 'V';
+        return '<div class="flex items-center justify-center gap-2 min-w-0">' +
+          '<span class="w-5 h-5 rounded-full border border-black/10 inline-flex items-center justify-center text-white text-[9.5px] font-black shrink-0" style="background:' + vFill + '">' + escapeHtml(vGlyph) + '</span>' +
+          '<span class="text-[11.5px] font-bold text-slate-700 dark:text-slate-200 truncate">' + escapeHtml(vTitle) + '</span>' +
+          '</div>';
+      }
+      if (lyr.bgColor) {
+        var bBg = toSafeHex(lyr.bgColor, '#dc2626');
+        var bFg = toSafeHex(lyr.color, '#ffffff');
+        return '<div class="flex items-center justify-center min-w-0">' +
+          '<span class="px-2.5 py-0.5 rounded-md text-[11px] font-extrabold truncate max-w-[175px]" style="background:' + bBg + ';color:' + bFg + ';font-family:\'' + escapeHtml(lyr.fontFamily || state.fontFamily) + '\',sans-serif">' +
+          escapeHtml(lyr.text || item.label) +
+          '</span></div>';
+      }
+    }
+    var txtSample = String(item.text || item.label || '').replace(/\s+/g, ' ').trim();
+    if (!txtSample) txtSample = item.label;
+    var fam = getElFont(item.id);
+    if (item.id === 'badge') {
+      var pillBg = toSafeHex((state.elementStyles && state.elementStyles.badge && state.elementStyles.badge.bgColor) || state.primaryColor, '#dc2626');
+      return '<div class="flex items-center justify-center min-w-0">' +
+        '<span class="px-2.5 py-0.5 rounded-md text-[11px] font-extrabold text-white truncate max-w-[175px]" style="background:' + pillBg + ';font-family:\'' + escapeHtml(fam) + '\',sans-serif">' +
+        escapeHtml(txtSample) +
+        '</span></div>';
+    }
+    return '<div class="text-center min-w-0 px-1">' +
+      '<span class="block text-[12.5px] font-extrabold text-slate-800 dark:text-slate-100 truncate" style="font-family:\'' + escapeHtml(fam) + '\',\'Hind Siliguri\',sans-serif">' +
+      escapeHtml(txtSample) +
+      '</span></div>';
+  }
+
+  function renderPositionDrawer() {
+    var pane = $('#img-pane-photo-card');
+    if (!pane) return;
+    var tab = state.positionTab === 'layers' ? 'layers' : 'arrange';
+
+    $$('[data-pos-tab]', pane).forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-pos-tab') === tab ? 'true' : 'false');
+    });
+    var arrangePane = $('#pcPosArrangePane', pane);
+    var layersPane = $('#pcPosLayersPane', pane);
+    if (arrangePane) arrangePane.hidden = tab !== 'arrange';
+    if (layersPane) layersPane.hidden = tab !== 'layers';
+
+    var locked = isElLocked(selectedElId);
+    var isCustom = !!(selectedElId && selectedElId.indexOf('layer:') === 0);
+    var hasSel = !!(selectedElId && selectedElId !== 'card');
+
+    $$('[data-pos-order]', pane).forEach(function (btn) {
+      var canOrd = isCustom && !locked;
+      btn.disabled = !canOrd;
+      btn.classList.toggle('opacity-45', !canOrd);
+    });
+    $$('[data-pos-align]', pane).forEach(function (btn) {
+      var canAl = hasSel && !locked;
+      btn.disabled = !canAl;
+      btn.classList.toggle('opacity-45', !canAl);
+    });
+
+    // Populate Advanced X, Y, W, H, Rotate, Ratio Lock
+    var reg = hasSel ? getRegionById(selectedElId) : null;
+    var setAdv = function (id, val, disabled) {
+      var inp = $(id, pane);
+      if (!inp) return;
+      inp.disabled = !!disabled;
+      if (document.activeElement !== inp) inp.value = val;
+    };
+    if (reg) {
+      setAdv('#pcPosAdvW', Math.round(reg.w), locked);
+      setAdv('#pcPosAdvH', Math.round(reg.h), locked);
+      setAdv('#pcPosAdvX', Math.round(reg.x), locked);
+      setAdv('#pcPosAdvY', Math.round(reg.y), locked);
+      setAdv('#pcPosAdvRot', Math.round(getElRotation(selectedElId)) + '°', locked);
+    } else {
+      setAdv('#pcPosAdvW', state.width || 1080, true);
+      setAdv('#pcPosAdvH', state.height || 1080, true);
+      setAdv('#pcPosAdvX', 0, true);
+      setAdv('#pcPosAdvY', 0, true);
+      setAdv('#pcPosAdvRot', '0°', true);
+    }
+    var ratioBtn = $('#pcPosRatioLockBtn', pane);
+    if (ratioBtn) {
+      syncPadlockButtonDom(ratioBtn, !!state.ratioLocked, tr('অনুপাত লক', 'Lock aspect ratio'), tr('অনুপাত আনলক', 'Unlock aspect ratio'));
+    }
+
+    // Populate Canva-Style Visual Layers Stack
+    var flt = state.layersFilter === 'overlapping' ? 'overlapping' : 'all';
+    $$('[data-layers-filter]', pane).forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-layers-filter') === flt ? 'true' : 'false');
+    });
+
+    var listEl = $('#pcLayersStackList', pane);
+    if (!listEl) return;
+
+    var resolveCustomLayerLabel = function (l, regObj, fallbackText) {
+      if (!l) return fallbackText;
+      if (l.text) return l.text;
+      if (l.layerType === 'vector' && PAYMENT_BRAND_VECTORS[l.vectorKind]) {
+        var pv = PAYMENT_BRAND_VECTORS[l.vectorKind];
+        return pv.name + ' (' + (pv.nameBn || pv.name) + ')';
+      }
+      if (l.layerType === 'social' && SOCIAL_BRAND_VECTORS[l.socialKey]) {
+        var sv = SOCIAL_BRAND_VECTORS[l.socialKey];
+        return sv.name + ' (' + (sv.nameBn || sv.name) + ')';
+      }
+      if (l.layerType === 'icon') {
+        return (regObj && regObj.labelBn) || tr('আইকন (' + (l.iconKey || 'icon') + ')', 'Icon (' + (l.iconKey || 'icon') + ')');
+      }
+      if (l.layerType === 'graphic') {
+        return (regObj && regObj.labelBn) || tr('গ্রাফিক্স (' + (l.graphicKind || 'graphic') + ')', 'Graphic');
+      }
+      if (l.layerType === 'shape') {
+        return (regObj && regObj.labelBn) || tr('শেপ (' + (l.shapeKind || 'shape') + ')', 'Shape');
+      }
+      if (l.layerType === 'image') return tr('ছবি লেয়ার', 'Image Layer');
+      return (regObj && regObj.labelBn) || fallbackText;
+    };
+
+    var customLayers = state.customLayers || [];
+    var stack = [];
+    var ci;
+    for (ci = customLayers.length - 1; ci >= 0; ci--) {
+      var fl = customLayers[ci];
+      if (fl && !fl.behindTemplate) {
+        var fId = 'layer:' + fl.id;
+        var fReg = getRegionById(fId);
+        stack.push({
+          id: fId,
+          kind: (fReg && fReg.kind) || (fl.layerType === 'image' ? 'customImage' : (fl.layerType === 'shape' ? 'shape' : 'customText')),
+          label: resolveCustomLayerLabel(fl, fReg, tr('কাস্টম লেয়ার', 'Layer')),
+          text: fl.text || '',
+          lyr: fl,
+          reg: fReg,
+          draggable: true,
+          canHide: true
+        });
+      }
+    }
+
+    var builtinDefs = [
+      { id: 'logo', kind: 'logo', label: tr('ব্র্যান্ড লোগো', 'Brand Logo'), text: state.brandName },
+      { id: 'badge', kind: 'text', label: tr('ব্যাজ পিল', 'Badge Pill'), text: state.badge },
+      { id: 'headline', kind: 'text', label: tr('প্রধান শিরোনাম', 'Headline'), text: state.headline },
+      { id: 'tagline', kind: 'text', label: tr('সাব-হেডলাইন', 'Sub-headline'), text: state.tagline },
+      { id: 'detail', kind: 'text', label: tr('বিস্তারিত তথ্য', 'Details'), text: state.detail },
+      { id: 'footer', kind: 'text', label: tr('ফুটার বার', 'Footer Strip'), text: state.footerUrl },
+      { id: 'photo2', kind: 'photo', label: tr('২য় ছবি', '2nd Photo'), text: '' },
+      { id: 'photo', kind: 'photo', label: tr('মূল ছবি স্লট', 'Main Photo'), text: '' }
+    ];
+    builtinDefs.forEach(function (bd) {
+      if (bd.id === 'photo2' && state.template !== 'factcheck-dual') return;
+      var bReg = getRegionById(bd.id);
+      var bHid = isElHidden(bd.id);
+      if (!bReg && !bHid) return;
+      stack.push({
+        id: bd.id,
+        kind: bd.kind,
+        label: bd.label,
+        text: bd.text,
+        lyr: null,
+        reg: bReg,
+        draggable: false,
+        canHide: true
+      });
+    });
+
+    for (ci = customLayers.length - 1; ci >= 0; ci--) {
+      var bl = customLayers[ci];
+      if (bl && bl.behindTemplate) {
+        var bId = 'layer:' + bl.id;
+        var blReg = getRegionById(bId);
+        stack.push({
+          id: bId,
+          kind: (blReg && blReg.kind) || (bl.layerType === 'shape' ? 'shape' : 'customText'),
+          label: bl.text || tr('পেছনের লেয়ার', 'Back Layer'),
+          text: bl.text || '',
+          lyr: bl,
+          reg: blReg,
+          draggable: true,
+          canHide: true
+        });
+      }
+    }
+
+    stack.push({
+      id: 'card',
+      kind: 'card',
+      label: tr('ব্যাকগ্রাউন্ড কার্ড', 'Background Card'),
+      text: '',
+      lyr: null,
+      reg: { x: 0, y: 0, w: state.width || 1080, h: state.height || 1080 },
+      draggable: false,
+      canHide: false
+    });
+
+    if (flt === 'overlapping' && hasSel && reg) {
+      stack = stack.filter(function (it) {
+        if (it.id === selectedElId || it.id === 'card') return true;
+        return regionsIntersect(reg, it.reg);
+      });
+    }
+
+    var rowsHtml = '';
+    stack.forEach(function (it) {
+      var isAct = selectedElId === it.id;
+      var itemLocked = isElLocked(it.id);
+      var itemHidden = it.canHide ? isElHidden(it.id) : false;
+      rowsHtml +=
+        '<div class="group flex items-center gap-2 rounded-xl px-2.5 py-2 border transition select-none ' +
+        (isAct
+          ? 'bg-violet-50/90 dark:bg-violet-950/35 border-[#7c3aed] ring-2 ring-[#7c3aed]/25'
+          : 'bg-slate-100/90 hover:bg-slate-200/75 dark:bg-[#171c27] dark:hover:bg-[#1f2635] border-slate-200/80 dark:border-white/10') +
+        (itemHidden ? ' opacity-50' : '') +
+        '" data-select-layer="' + escapeHtml(it.id) + '"' +
+        (it.draggable ? ' draggable="true" data-drag-layer-id="' + escapeHtml(it.id) + '"' : '') +
+        '>' +
+        '<span class="w-5 h-7 inline-flex items-center justify-center shrink-0 ' +
+        (it.draggable ? 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 cursor-grab' : 'text-slate-300/50 dark:text-slate-600/40') +
+        '" title="' + escapeHtml(it.draggable ? tr('টেনে লেয়ারের ক্রম বদলান', 'Drag to reorder layer') : tr('টেমপ্লেট লেয়ার', 'Template layer')) + '">' +
+        '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">' + DRAG_GRIP_SVG + '</svg>' +
+        '</span>' +
+        '<div class="flex-1 min-w-0 py-0.5 cursor-pointer">' + buildLayerPreviewHtml(it) + '</div>' +
+        '<div class="flex items-center gap-0.5 shrink-0">' +
+        (it.id !== 'card'
+          ? '<button type="button" data-layer-lock="' + escapeHtml(it.id) + '" class="w-6 h-6 rounded-md inline-flex items-center justify-center transition cursor-pointer ' +
+            (itemLocked
+              ? 'text-amber-600 dark:text-amber-400 bg-amber-500/15'
+              : 'text-slate-400 opacity-0 group-hover:opacity-100 hover:text-slate-700 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10') +
+            '" title="' + escapeHtml(itemLocked ? tr('আনলক করুন', 'Unlock') : tr('লক করুন', 'Lock')) + '">' +
+            '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+            (itemLocked ? PADLOCK_LOCKED_SVG : PADLOCK_UNLOCKED_SVG) +
+            '</svg></button>'
+          : '') +
+        (it.canHide
+          ? '<button type="button" data-layer-vis="' + escapeHtml(it.id) + '" class="w-6 h-6 rounded-md inline-flex items-center justify-center transition cursor-pointer ' +
+            (itemHidden
+              ? 'text-rose-500 bg-rose-500/10'
+              : 'text-slate-400 opacity-0 group-hover:opacity-100 hover:text-slate-700 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10') +
+            '" title="' + escapeHtml(itemHidden ? tr('দেখান', 'Show layer') : tr('লুকান', 'Hide layer')) + '">' +
+            '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+            (itemHidden ? EYE_OFF_SVG : EYE_OPEN_SVG) +
+            '</svg></button>'
+          : '') +
+        '</div></div>';
+    });
+
+    listEl.innerHTML = rowsHtml;
+  }
+
+  function applyAdvancedPositionField(field, rawVal) {
+    if (!selectedElId || selectedElId === 'card' || isElLocked(selectedElId)) return;
+    var num = parseFloat(String(rawVal || '').replace(/[^0-9.-]/g, ''));
+    if (isNaN(num)) return;
+    var W = state.width || 1080;
+    var H = state.height || 1080;
+    var reg = getRegionById(selectedElId);
+    if (!reg) return;
+
+    pushHistorySnapshot();
+    var lyr = getSelectedCustomLayer();
+
+    if (field === 'rot') {
+      var deg = Math.max(-180, Math.min(180, Math.round(num)));
+      if (lyr) lyr.rotation = deg;
+      else {
+        if (!state.elementRotation) state.elementRotation = {};
+        state.elementRotation[selectedElId] = deg;
+      }
+    } else if (lyr) {
+      var aspect = (lyr.w && lyr.h) ? (lyr.w / Math.max(1, lyr.h)) : (reg.w / Math.max(1, reg.h));
+      if (field === 'w') {
+        var nw = Math.max(20, Math.min(2000, Math.round(num * (1080 / W))));
+        if (lyr.layerType === 'text' || !lyr.layerType) lyr.maxWidth = nw;
+        else {
+          lyr.w = nw;
+          if (state.ratioLocked && aspect > 0) lyr.h = Math.max(12, Math.round(nw / aspect));
+        }
+      } else if (field === 'h') {
+        var nh = Math.max(12, Math.min(2000, Math.round(num * (1080 / H))));
+        if (lyr.layerType && lyr.layerType !== 'text') {
+          lyr.h = nh;
+          if (state.ratioLocked && aspect > 0) lyr.w = Math.max(20, Math.round(nh * aspect));
+        }
+      } else if (field === 'x') {
+        lyr.x = Math.round(((num + reg.w / 2) / W) * 1080);
+      } else if (field === 'y') {
+        lyr.y = Math.round(((num + reg.h / 2) / H) * 1080);
+      }
+    } else {
+      if (field === 'x') {
+        var curOffX = getElOffset(selectedElId);
+        var baseX = reg.x - curOffX.dx;
+        if (!state.elementOffsets) state.elementOffsets = {};
+        if (!state.elementOffsets[selectedElId]) state.elementOffsets[selectedElId] = { dx: 0, dy: 0 };
+        state.elementOffsets[selectedElId].dx = Math.round((num - baseX) * (1080 / W));
+      } else if (field === 'y') {
+        var curOffY = getElOffset(selectedElId);
+        var baseY = reg.y - curOffY.dy;
+        if (!state.elementOffsets) state.elementOffsets = {};
+        if (!state.elementOffsets[selectedElId]) state.elementOffsets[selectedElId] = { dx: 0, dy: 0 };
+        state.elementOffsets[selectedElId].dy = Math.round((num - baseY) * (1080 / H));
+      } else if (field === 'w') {
+        if (selectedElId === 'logo') {
+          state.logoSize = Math.max(35, Math.min(260, Math.round((num / Math.max(1, reg.w)) * (state.logoSize || 100))));
+        } else if (selectedElId !== 'photo' && selectedElId !== 'photo2') {
+          if (!state.elementBoxW) state.elementBoxW = {};
+          state.elementBoxW[selectedElId] = Math.max(140, Math.min(1040, Math.round(num * (1080 / W))));
+        }
+      }
+    }
+
+    renderNow();
+    syncOverlayBoxes();
+    refreshPositionDrawerIfOpen();
+    scheduleAutosave();
+  }
+
+  /* =========================================================================
+   * CANVA-STYLE ORGANIZED ELEMENTS & BRAND DRAWER CONTROLLERS
+   * ========================================================================= */
+  var ELEMENTS_CAT_LABELS_BN = {
+    all: 'সব এলিমেন্টস',
+    icons: 'বিভিন্ন আইকন (UI Icons)',
+    social: 'অল সোশ্যাল লোগো (Social Logos)',
+    payment: 'পেমেন্ট ও ব্যাংকিং লোগো',
+    shapes: 'বিভিন্ন শেপ (Shapes & Lines)',
+    graphics: 'গ্রাফিক্স এলিমেন্ট (Graphics)',
+    badges: 'রেডি ব্যাজ ও স্টিকার',
+    colors: 'কালার ও থিম সেটিংস'
+  };
+  var ELEMENTS_CAT_LABELS_EN = {
+    all: 'All Elements',
+    icons: 'UI Icons',
+    social: 'All Social Logos',
+    payment: 'Payment & Banking Logos',
+    shapes: 'Shapes & Lines',
+    graphics: 'Graphics Elements',
+    badges: 'Editable Badges & Pills',
+    colors: 'Card Colors & Theme'
+  };
+
+  function setElementsCategory(cat) {
+    state.elementsCat = cat || 'all';
+    filterElementsDrawer();
+  }
+
+  function filterElementsDrawer() {
+    var pane = $('#img-pane-photo-card');
+    if (!pane) return;
+    var cat = state.elementsCat || 'all';
+    var qInp = $('#pcElementsSearchInput', pane);
+    var q = qInp ? String(qInp.value || '').trim().toLowerCase() : '';
+
+    $$('#pcElementsCatChips [data-el-cat]', pane).forEach(function (chip) {
+      chip.setAttribute('aria-pressed', chip.getAttribute('data-el-cat') === cat ? 'true' : 'false');
+    });
+
+    var drillHdr = $('#pcElementsDrillHeader', pane);
+    var drillTitle = $('#pcElementsDrillTitle', pane);
+    if (drillHdr) drillHdr.hidden = (cat === 'all' && !q);
+    if (drillTitle) {
+      drillTitle.textContent = q
+        ? tr('সার্চ ফলাফল: "' + q + '"', 'Search results: "' + q + '"')
+        : ((isEn() ? ELEMENTS_CAT_LABELS_EN : ELEMENTS_CAT_LABELS_BN)[cat] || '');
+    }
+
+    var isOverview = (cat === 'all' && !q);
+    $$('[data-el-shelf]', pane).forEach(function (shelf) {
+      var sId = shelf.getAttribute('data-el-shelf');
+      var catMatch = (cat === 'all' || sId === cat);
+      if (!catMatch) {
+        shelf.hidden = true;
+        return;
+      }
+
+      var seeAllBtn = $('[data-el-see-all]', shelf);
+      if (seeAllBtn) seeAllBtn.hidden = !isOverview;
+
+      var items = $$('[data-el-item]', shelf);
+      if (!items.length) {
+        shelf.hidden = false;
+        return;
+      }
+
+      var visibleCount = 0;
+      items.forEach(function (it) {
+        var kw = String(it.getAttribute('data-el-keywords') || it.textContent || '').toLowerCase();
+        var matchesQ = !q || kw.indexOf(q) !== -1;
+        var isOverflow = it.getAttribute('data-el-overflow') === '1';
+        var show = matchesQ && (!isOverview || !isOverflow);
+        it.hidden = !show;
+        if (show) visibleCount++;
+      });
+
+      var badgeClamp = $('#pcBadgesOverviewClamp', shelf);
+      if (badgeClamp) {
+        badgeClamp.style.maxHeight = isOverview ? '210px' : 'none';
+        badgeClamp.style.overflow = isOverview ? 'hidden' : 'visible';
+      }
+
+      shelf.hidden = !!(q && visibleCount === 0 && sId !== 'badges');
+    });
+  }
+
+  function setBrandSection(sec) {
+    state.brandSec = sec || 'all';
+    filterBrandDrawer();
+  }
+
+  function filterBrandDrawer() {
+    var pane = $('#img-pane-photo-card');
+    if (!pane) return;
+    var sec = state.brandSec || 'all';
+    var qInp = $('#pcBrandSearchInput', pane);
+    var q = qInp ? String(qInp.value || '').trim().toLowerCase() : '';
+
+    $$('#pcBrandSectionNav [data-brand-sec]', pane).forEach(function (btn) {
+      btn.setAttribute('aria-pressed', btn.getAttribute('data-brand-sec') === sec ? 'true' : 'false');
+    });
+
+    var backBtn = $('#pcBrandBackToAllBtn', pane);
+    if (backBtn) backBtn.hidden = (sec === 'all');
+
+    $$('[data-brand-card]', pane).forEach(function (card) {
+      var cSec = card.getAttribute('data-brand-card');
+      var secMatch = (sec === 'all' || cSec === sec || (sec === 'logos' && cSec === 'saved'));
+      var kw = String(card.getAttribute('data-brand-keywords') || card.textContent || '').toLowerCase();
+      var qMatch = !q || kw.indexOf(q) !== -1;
+      card.hidden = !(secMatch && qMatch);
+    });
+
+    var fName = $('#pcBrandActiveFontName', pane);
+    var fSample = $('#pcBrandActiveFontSample', pane);
+    if (fName) fName.textContent = state.fontFamily || 'Hind Siliguri';
+    if (fSample) fSample.style.fontFamily = "'" + (state.fontFamily || 'Hind Siliguri') + "', sans-serif";
+  }
 
   function pushRecentFont(family) {
     if (!family) return;
@@ -11020,7 +14894,9 @@
       openFontDrawer();
       return;
     }
-    state.lastMainDrawer = tabName;
+    if (tabName !== 'position') {
+      state.lastMainDrawer = tabName;
+    }
 
     var curActiveBtn = $('#pcStudioNavRail [data-pc-nav][aria-pressed="true"]', pane);
     var fontsDrawer = $('[data-pc-drawer="fonts"]', pane);
@@ -11049,6 +14925,9 @@
       drw.hidden = drw.getAttribute('data-pc-drawer') !== tabName;
     });
     if (tabName === 'uploads' || tabName === 'brand') renderUploadsGallery();
+    if (tabName === 'brand') filterBrandDrawer();
+    if (tabName === 'elements') filterElementsDrawer();
+    if (tabName === 'position') renderPositionDrawer();
     if (tabName === 'projects') renderSavedDesignsGrid();
     setTimeout(syncOverlayBoxes, 60);
   }
@@ -11073,6 +14952,7 @@
     saveAssetDeduplicated(file, 'logo').then(function (res) {
       state.logoImg = res.img;
       state.logoAssetId = res.record.id;
+      state.logoDataUrl = res.record.thumbDataUrl || '';
       state.elementHidden.logo = false;
       if (state.logoPos === 'hidden') state.logoPos = 'top-right';
       updateActiveLogoThumb(res.record.thumbDataUrl);
@@ -11124,6 +15004,7 @@
       if (kind === 'logo') {
         state.logoImg = res.img;
         state.logoAssetId = assetId;
+        state.logoDataUrl = (res.rec && res.rec.thumbDataUrl) ? res.rec.thumbDataUrl : '';
         state.elementHidden.logo = false;
         if (state.logoPos === 'hidden') state.logoPos = 'top-right';
         updateActiveLogoThumb(res.rec ? res.rec.thumbDataUrl : '');
@@ -11463,7 +15344,258 @@
         if (window.innerWidth < 1024) pane.setAttribute('data-mob-sheet', 'closed');
         return;
       }
+      var uiIconBtn = e.target.closest('[data-add-ui-icon]');
+      if (uiIconBtn) {
+        addUiIconLayer(
+          uiIconBtn.getAttribute('data-add-ui-icon'),
+          uiIconBtn.getAttribute('data-fill') || undefined,
+          uiIconBtn.getAttribute('data-bg') || undefined,
+          uiIconBtn.getAttribute('data-shape') || undefined
+        );
+        if (window.innerWidth < 1024) pane.setAttribute('data-mob-sheet', 'closed');
+        return;
+      }
+      var socBtn = e.target.closest('[data-add-social]');
+      if (socBtn) {
+        var withHdl = socBtn.getAttribute('data-with-handle') === '1';
+        var defaultHdl = (state.brandWebsite || '').replace(/^https?:\/\/(www\.)?/i, '').split('/')[0] || '@techhat';
+        addSocialLogoLayer(
+          socBtn.getAttribute('data-add-social'),
+          withHdl ? (socBtn.getAttribute('data-handle') || defaultHdl) : ''
+        );
+        if (window.innerWidth < 1024) pane.setAttribute('data-mob-sheet', 'closed');
+        return;
+      }
+      var brSwatchBtn = e.target.closest('[data-brand-apply-swatch]');
+      if (brSwatchBtn) {
+        var swCol = brSwatchBtn.getAttribute('data-brand-apply-swatch');
+        if (swCol) {
+          if (selectedElId && selectedElId !== 'card') {
+            applyPopoverColor(swCol, 'text');
+          } else {
+            pushHistorySnapshot();
+            state.primaryColor = swCol;
+            syncControlsFromState();
+            requestRender();
+          }
+        }
+        return;
+      }
+      var grpBtn = e.target.closest('[data-add-graphic]');
+      if (grpBtn) {
+        addGraphicElementLayer(
+          grpBtn.getAttribute('data-add-graphic'),
+          grpBtn.getAttribute('data-fill'),
+          grpBtn.getAttribute('data-accent'),
+          grpBtn.getAttribute('data-w'),
+          grpBtn.getAttribute('data-h')
+        );
+        if (window.innerWidth < 1024) pane.setAttribute('data-mob-sheet', 'closed');
+        return;
+      }
+      var elCatBtn = e.target.closest('[data-el-cat]');
+      if (elCatBtn) {
+        setElementsCategory(elCatBtn.getAttribute('data-el-cat'));
+        return;
+      }
+      var elSeeAllBtn = e.target.closest('[data-el-see-all]');
+      if (elSeeAllBtn) {
+        setElementsCategory(elSeeAllBtn.getAttribute('data-el-see-all'));
+        return;
+      }
+      var brandSecBtn = e.target.closest('[data-brand-sec]');
+      if (brandSecBtn) {
+        setBrandSection(brandSecBtn.getAttribute('data-brand-sec'));
+        return;
+      }
+      var brandSeeAllBtn = e.target.closest('[data-brand-see-all]');
+      if (brandSeeAllBtn) {
+        setBrandSection(brandSeeAllBtn.getAttribute('data-brand-see-all'));
+        return;
+      }
+      var posTabBtn = e.target.closest('[data-pos-tab]');
+      if (posTabBtn) {
+        state.positionTab = posTabBtn.getAttribute('data-pos-tab') === 'layers' ? 'layers' : 'arrange';
+        renderPositionDrawer();
+        return;
+      }
+      var lyrFltBtn = e.target.closest('[data-layers-filter]');
+      if (lyrFltBtn) {
+        state.layersFilter = lyrFltBtn.getAttribute('data-layers-filter') === 'overlapping' ? 'overlapping' : 'all';
+        renderPositionDrawer();
+        return;
+      }
+      var posOrdBtn = e.target.closest('[data-pos-order]');
+      if (posOrdBtn) {
+        reorderCustomLayer(posOrdBtn.getAttribute('data-pos-order'));
+        return;
+      }
+      var posAlBtn = e.target.closest('[data-pos-align]');
+      if (posAlBtn) {
+        alignSelectedToPage(posAlBtn.getAttribute('data-pos-align'));
+        return;
+      }
     });
+
+    // Elements & Brand Search + Drilldown Back + Brand Kit Dropdown + Position Layers Stack
+    var elSearchInp = $('#pcElementsSearchInput', pane);
+    if (elSearchInp) {
+      elSearchInp.addEventListener('input', filterElementsDrawer);
+    }
+    var elBackBtn = $('#pcElementsBackBtn', pane);
+    if (elBackBtn) {
+      elBackBtn.addEventListener('click', function () {
+        if (elSearchInp) elSearchInp.value = '';
+        setElementsCategory('all');
+      });
+    }
+
+    var brSearchInp = $('#pcBrandSearchInput', pane);
+    if (brSearchInp) {
+      brSearchInp.addEventListener('input', filterBrandDrawer);
+    }
+    var brBackBtn = $('#pcBrandBackToAllBtn', pane);
+    if (brBackBtn) {
+      brBackBtn.addEventListener('click', function () {
+        if (brSearchInp) brSearchInp.value = '';
+        setBrandSection('all');
+      });
+    }
+    var brFontCard = $('#pcBrandFontActiveCard', pane);
+    if (brFontCard) {
+      brFontCard.addEventListener('click', openFontDrawer);
+    }
+
+    var brDdBtn = $('#pcBrandKitDropdownBtn', pane);
+    var brDdMenu = $('#pcBrandKitDropdownMenu', pane);
+    if (brDdBtn && brDdMenu) {
+      brDdBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var nextOpen = !!brDdMenu.hidden;
+        brDdMenu.hidden = !nextOpen;
+        brDdBtn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+      });
+      brDdMenu.addEventListener('click', function (e) {
+        var newKitB = e.target.closest('#pcBrandDropdownNewBtn');
+        if (newKitB) {
+          brDdMenu.hidden = true;
+          brDdBtn.setAttribute('aria-expanded', 'false');
+          setBrandSection('info');
+          var nb = $('#pcNewBrandProfileBtn', pane);
+          if (nb) nb.click();
+          return;
+        }
+        var deactB = e.target.closest('#pcBrandDropdownDeactivateBtn');
+        if (deactB) {
+          brDdMenu.hidden = true;
+          brDdBtn.setAttribute('aria-expanded', 'false');
+          deactivateBrandProfile();
+          return;
+        }
+        var pickB = e.target.closest('[data-select-brand]');
+        if (pickB) {
+          brDdMenu.hidden = true;
+          brDdBtn.setAttribute('aria-expanded', 'false');
+          selectBrandProfile(pickB.getAttribute('data-select-brand'));
+        }
+      });
+      document.addEventListener('pointerdown', function (e) {
+        if (!brDdMenu.hidden && !brDdMenu.contains(e.target) && !brDdBtn.contains(e.target)) {
+          brDdMenu.hidden = true;
+          brDdBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    var closePosBtn = $('#pcClosePositionDrawerBtn', pane);
+    if (closePosBtn) {
+      closePosBtn.addEventListener('click', function () {
+        switchDrawerTab(state.lastMainDrawer || 'templates');
+      });
+    }
+    var ratioLockB = $('#pcPosRatioLockBtn', pane);
+    if (ratioLockB) {
+      ratioLockB.addEventListener('click', function () {
+        state.ratioLocked = !state.ratioLocked;
+        renderPositionDrawer();
+      });
+    }
+    [
+      ['#pcPosAdvW', 'w'],
+      ['#pcPosAdvH', 'h'],
+      ['#pcPosAdvX', 'x'],
+      ['#pcPosAdvY', 'y'],
+      ['#pcPosAdvRot', 'rot']
+    ].forEach(function (pair) {
+      var advInp = $(pair[0], pane);
+      if (!advInp) return;
+      advInp.addEventListener('change', function () {
+        applyAdvancedPositionField(pair[1], advInp.value);
+      });
+      advInp.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyAdvancedPositionField(pair[1], advInp.value);
+        }
+      });
+    });
+
+    var layersStackEl = $('#pcLayersStackList', pane);
+    if (layersStackEl) {
+      var draggingLayerRowId = '';
+      layersStackEl.addEventListener('click', function (e) {
+        var lkBtn = e.target.closest('[data-layer-lock]');
+        if (lkBtn) {
+          e.stopPropagation();
+          toggleLockElementById(lkBtn.getAttribute('data-layer-lock'));
+          renderPositionDrawer();
+          return;
+        }
+        var visBtn = e.target.closest('[data-layer-vis]');
+        if (visBtn) {
+          e.stopPropagation();
+          toggleVisibilityElementById(visBtn.getAttribute('data-layer-vis'));
+          renderPositionDrawer();
+          return;
+        }
+        var row = e.target.closest('[data-select-layer]');
+        if (row) {
+          selectElement(row.getAttribute('data-select-layer'));
+          renderPositionDrawer();
+        }
+      });
+      layersStackEl.addEventListener('dragstart', function (e) {
+        var row = e.target.closest('[data-drag-layer-id]');
+        if (!row) return;
+        draggingLayerRowId = row.getAttribute('data-drag-layer-id') || '';
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = 'move';
+          try { e.dataTransfer.setData('text/plain', draggingLayerRowId); } catch (err) {}
+        }
+      });
+      layersStackEl.addEventListener('dragover', function (e) {
+        if (!draggingLayerRowId) return;
+        var overRow = e.target.closest('[data-select-layer]');
+        if (overRow) {
+          e.preventDefault();
+          if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+        }
+      });
+      layersStackEl.addEventListener('drop', function (e) {
+        if (!draggingLayerRowId) return;
+        e.preventDefault();
+        var targetRow = e.target.closest('[data-select-layer]');
+        var targetId = targetRow ? targetRow.getAttribute('data-select-layer') : '';
+        var srcId = draggingLayerRowId;
+        draggingLayerRowId = '';
+        if (srcId && targetId && srcId !== targetId) {
+          reorderLayerByDrop(srcId, targetId);
+        }
+      });
+      layersStackEl.addEventListener('dragend', function () {
+        draggingLayerRowId = '';
+      });
+    }
 
     // 4. Resize Presets (Desktop + Mobile) & Undo/Redo
     var onSizeClick = function (e) {
@@ -11493,9 +15625,21 @@
       el.addEventListener('input', function () {
         recordBeforeTextEdit();
         if (markEdit) markTextUserEdited();
+        var mappedEl = SIDEBAR_INPUT_TO_EL[el.id];
+        if (mappedEl && state.elementRichSpans && state.elementRichSpans[mappedEl]) {
+          var adjusted = getElRichSpans(mappedEl, el.value);
+          setElRichSpans(mappedEl, el.value, adjusted);
+        }
         fn(el.value);
         requestRender();
       });
+      if (SIDEBAR_INPUT_TO_EL[el.id]) {
+        ['select', 'mouseup', 'keyup'].forEach(function (evName) {
+          el.addEventListener(evName, function () {
+            recordSidebarTextSelection(el);
+          });
+        });
+      }
     };
 
     bindInput('#pcDesignTitleInput', function (v) { state.designTitle = v; state.userEditedTitle = true; }, false);
@@ -11508,25 +15652,18 @@
     bindInput('#pcLeftLabelInput', function (v) { state.leftLabel = v; }, false);
     bindInput('#pcRightLabelInput', function (v) { state.rightLabel = v; }, false);
 
-    // Inline On-Canvas Textarea Events
+    // Inline On-Canvas Live WYSIWYG Rich Editor + Hidden Backing Textarea
     var inlineEd = $('#pcInlineEditor', pane);
+    var inlineRichEd = $('#pcInlineRichEditor', pane);
+    var selQuickBar = $('#pcSelectionQuickBar', pane);
+
     if (inlineEd) {
       inlineEd.addEventListener('input', function () {
         if (!activeInlineTarget) return;
         setTextValueForElement(activeInlineTarget, inlineEd.value);
+        inlineEditorSyncedValue = inlineEd.value;
         syncControlsFromState();
-        var canvas = $('#pcCanvas');
-        if (canvas) {
-          var W = state.width || 1080, H = state.height || 1080;
-          var ctx = canvas.getContext('2d');
-          ctx.clearRect(0, 0, W, H);
-          var U = Math.min(W, H * 1.28) / 1080;
-          currentRenderFooterH = isElHidden('footer') ? 0 : Math.round(78 * U * getPortBoost());
-          lastTextBottomY = 0;
-          var rFn = (typeof RENDERERS[state.template] === 'function') ? RENDERERS[state.template] : renderBreakingNews;
-          rFn(ctx, W, H, U);
-          renderCustomLayers(ctx, W, H, U);
-        }
+        renderNow();
       });
       inlineEd.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
@@ -11538,11 +15675,81 @@
         }
       });
       inlineEd.addEventListener('blur', function () {
-        closeInlineEditor(true);
+        if (!inlineRichEd || inlineRichEd.hidden) {
+          closeInlineEditor(true);
+        }
       });
     }
 
-    // Floating Context Toolbar Rich Text & Shape Actions
+    if (inlineRichEd) {
+      inlineRichEd.addEventListener('input', function () {
+        if (!activeInlineTarget) return;
+        recordBeforeTextEdit();
+        markTextUserEdited();
+        var parsedDom = parseRichEditorDom(inlineRichEd);
+        setTextValueForElement(activeInlineTarget, parsedDom.text);
+        setElRichSpans(activeInlineTarget, parsedDom.text, parsedDom.spans);
+        if (inlineEd) {
+          inlineEd.value = parsedDom.text;
+          inlineEditorSyncedValue = parsedDom.text;
+        }
+        syncControlsFromState();
+        renderNow();
+        positionInlineRichEditor(activeInlineTarget);
+      });
+      inlineRichEd.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeInlineEditor(true);
+        } else if (e.key === 'Enter' && !e.shiftKey && activeInlineTarget !== 'headline' && activeInlineTarget !== 'detail') {
+          e.preventDefault();
+          closeInlineEditor(true);
+        }
+      });
+      ['mouseup', 'keyup', 'touchend'].forEach(function (evN) {
+        inlineRichEd.addEventListener(evN, function () {
+          setTimeout(function () {
+            resolveActiveHighlightRange();
+            syncSelectionQuickBar();
+          }, 10);
+        });
+      });
+    }
+
+    if (selQuickBar) {
+      selQuickBar.addEventListener('pointerdown', function (e) {
+        // Keep contenteditable text selection intact when clicking quick highlight bar!
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      selQuickBar.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var sw = e.target.closest('[data-quick-hi-swatch]');
+        if (sw) {
+          applySelectionHighlight(sw.getAttribute('data-quick-hi-swatch'));
+          return;
+        }
+        var qClear = e.target.closest('#pcQuickClearHighlightBtn');
+        if (qClear) {
+          clearSelectionHighlight();
+          return;
+        }
+        var qMode = e.target.closest('#pcQuickHighlightModeBtn');
+        if (qMode) {
+          var modes = ['', 'text', 'marker'];
+          var curM = state.highlightBgMode || '';
+          state.highlightBgMode = modes[(modes.indexOf(curM) + 1) % modes.length];
+          applySelectionHighlight(state.highlightColor || state.accentColor, state.highlightBgMode);
+          return;
+        }
+        var qMore = e.target.closest('#pcQuickMoreColorBtn');
+        if (qMore) {
+          openColorPopover(qMore, 'highlight');
+        }
+      });
+    }
+
+    // Floating Context Toolbar Rich Text, Vector, Shape, Photo & Universal Actions
     var ctxFont = $('#pcCtxFontSelect', pane);
     if (ctxFont) {
       ctxFont.addEventListener('change', function () {
@@ -11569,6 +15776,7 @@
         state.titleSize = Math.max(18, Math.min(150, clean));
       }
       renderNow();
+      if (activeInlineTarget) positionInlineRichEditor(activeInlineTarget);
       syncControlsFromState();
       scheduleAutosave();
     };
@@ -11595,39 +15803,75 @@
       });
     }
 
+    // Anchored Color Popover Triggers (Top Context Bar + Floating Mini Pill)
+    var ctxTextColBtn = $('#pcCtxTextColorBtn', pane);
+    if (ctxTextColBtn) {
+      ctxTextColBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openColorPopover(ctxTextColBtn, 'text');
+      });
+    }
+    var ctxHiColBtn = $('#pcCtxHighlightColorBtn', pane);
+    if (ctxHiColBtn) {
+      ctxHiColBtn.addEventListener('pointerdown', function (e) {
+        if (activeInlineTarget) e.preventDefault();
+      });
+      ctxHiColBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openColorPopover(ctxHiColBtn, 'highlight');
+      });
+    }
+    var ctxTextBgBtn = $('#pcCtxTextBgBtn', pane);
+    if (ctxTextBgBtn) {
+      ctxTextBgBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openColorPopover(ctxTextBgBtn, 'bg');
+      });
+    }
+    var ctxVecFillBtn = $('#pcCtxVectorFillBtn', pane);
+    if (ctxVecFillBtn) {
+      ctxVecFillBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openColorPopover(ctxVecFillBtn, 'vectorFill');
+      });
+    }
+    var ctxVecStrokeBtn = $('#pcCtxVectorStrokeBtn', pane);
+    if (ctxVecStrokeBtn) {
+      ctxVecStrokeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openColorPopover(ctxVecStrokeBtn, 'vectorStroke');
+      });
+    }
+    var ctxVecEditTxtBtn = $('#pcCtxVectorEditTextBtn', pane);
+    if (ctxVecEditTxtBtn) {
+      ctxVecEditTxtBtn.addEventListener('click', function () {
+        if (selectedElId) openInlineEditorForElement(selectedElId);
+      });
+    }
+    var miniBgBtn = $('#pcMiniBgColorBtn', pane);
+    if (miniBgBtn) {
+      miniBgBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openColorPopover(miniBgBtn, 'bg');
+      });
+    }
+    var miniFgBtn = $('#pcMiniFgColorBtn', pane);
+    if (miniFgBtn) {
+      miniFgBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openColorPopover(miniFgBtn, 'text');
+      });
+    }
+
     var ctxCol = $('#pcCtxTextColorInput', pane);
     if (ctxCol) {
       ctxCol.addEventListener('input', function () {
-        recordBeforeTextEdit();
-        var lyr = getSelectedCustomLayer();
-        if (lyr) {
-          lyr.color = ctxCol.value;
-        } else if (selectedElId && selectedElId !== 'card') {
-          ensureElStyleObj(selectedElId).color = ctxCol.value;
-        } else {
-          state.accentColor = ctxCol.value;
-        }
-        var cBar = $('#pcCtxColorBar', pane);
-        if (cBar) cBar.style.background = ctxCol.value;
-        var miniFgInd = $('#pcMiniFgIndicator', pane);
-        if (miniFgInd) miniFgInd.style.background = ctxCol.value;
-        var miniFgInp = $('#pcMiniFgColorInput', pane);
-        if (miniFgInp) miniFgInp.value = ctxCol.value;
-        requestRender();
+        applyPopoverColor(ctxCol.value, 'text');
       });
     }
 
     var onBgChange = function (newBg) {
-      recordBeforeTextEdit();
-      var lyr = getSelectedCustomLayer();
-      if (lyr) {
-        lyr.bgColor = newBg;
-      }
-      var bgBar = $('#pcCtxTextBgBar', pane); if (bgBar) bgBar.style.background = newBg;
-      var miniBgInd = $('#pcMiniBgIndicator', pane); if (miniBgInd) miniBgInd.style.background = newBg;
-      var bgInp = $('#pcCtxTextBgColorInput', pane); if (bgInp) bgInp.value = newBg;
-      var miniBgInp = $('#pcMiniBgColorInput', pane); if (miniBgInp) miniBgInp.value = newBg;
-      requestRender();
+      applyPopoverColor(newBg, 'bg');
     };
 
     var ctxBgCol = $('#pcCtxTextBgColorInput', pane);
@@ -11638,13 +15882,219 @@
     var miniFgCol = $('#pcMiniFgColorInput', pane);
     if (miniFgCol) {
       miniFgCol.addEventListener('input', function () {
+        applyPopoverColor(miniFgCol.value, 'text');
+      });
+    }
+
+    // Anchored Color Popover Internal Controls (#pcColorPopover)
+    var colorPop = $('#pcColorPopover', pane) || $('#pcColorPopover');
+    if (colorPop) {
+      var popClose = $('#pcColorPopoverCloseBtn', colorPop);
+      if (popClose) popClose.addEventListener('click', closeColorPopover);
+
+      var popReset = $('#pcColorPopoverResetBtn', colorPop);
+      if (popReset) {
+        popReset.addEventListener('click', function () {
+          resetPopoverColor();
+          notify(tr('ডিফল্ট অটো রঙে রিসেট করা হয়েছে', 'Reset to auto color'));
+        });
+      }
+
+      colorPop.addEventListener('click', function (e) {
+        var sw = e.target.closest('[data-pc-pop-swatch]');
+        if (sw) {
+          applyPopoverColor(sw.getAttribute('data-pc-pop-swatch'));
+        }
+      });
+
+      var popHexInp = $('#pcColorPopoverHexInput', colorPop);
+      if (popHexInp) {
+        popHexInp.addEventListener('input', function () {
+          var raw = String(popHexInp.value || '').trim();
+          if (/^#?[0-9a-fA-F]{6}$/.test(raw)) {
+            applyPopoverColor(raw);
+          }
+        });
+        popHexInp.addEventListener('change', function () {
+          var norm = normalizeHexColor(popHexInp.value);
+          if (norm) {
+            popHexInp.value = norm.toUpperCase();
+            applyPopoverColor(norm);
+          }
+        });
+        popHexInp.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            var norm = normalizeHexColor(popHexInp.value);
+            if (norm) {
+              popHexInp.value = norm.toUpperCase();
+              applyPopoverColor(norm);
+            }
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            closeColorPopover();
+          }
+        });
+      }
+
+      var popNativeInp = $('#pcColorPopoverNativeInput', colorPop);
+      if (popNativeInp) {
+        popNativeInp.addEventListener('input', function () {
+          applyPopoverColor(popNativeInp.value);
+        });
+      }
+    }
+
+    document.addEventListener('pointerdown', function (e) {
+      var pop = $('#pcColorPopover');
+      if (pop && !pop.hidden && !pop.contains(e.target)) {
+        if (!(e.target && e.target.closest && e.target.closest('#pcCtxTextColorBtn, #pcCtxHighlightColorBtn, #pcCtxTextBgBtn, #pcCtxVectorFillBtn, #pcCtxVectorStrokeBtn, #pcHeadlineHighlightColorBtn, #pcMiniBgColorBtn, #pcMiniFgColorBtn, #pcQuickMoreColorBtn'))) {
+          closeColorPopover();
+        }
+      }
+      var tPop = $('#pcToolPopover');
+      if (tPop && !tPop.hidden && !tPop.contains(e.target)) {
+        if (!(e.target && e.target.closest && e.target.closest('#pcTopTransparencyBtn, #pcTopFlipBtn, #pcCtxLineSpacingBtn, #pcCtxEffectBtn, #pcCtxShapeBorderBtn, #pcCtxPhotoBorderBtn, #pcCtxPhotoAdjustBtn'))) {
+          closeToolPopover();
+        }
+      }
+    });
+
+    // Anchored Tool Popover (#pcToolPopover — Transparency, Spacing, Effects, Border, Adjust, Flip)
+    var toolPop = $('#pcToolPopover', pane) || $('#pcToolPopover');
+    if (toolPop) {
+      var tPopClose = $('#pcToolPopoverCloseBtn', toolPop);
+      if (tPopClose) tPopClose.addEventListener('click', closeToolPopover);
+
+      var applyOpacityVal = function (rawPct) {
+        var cleanPct = Math.max(0, Math.min(100, Math.round(Number(rawPct))));
+        if (isNaN(cleanPct)) return;
         recordBeforeTextEdit();
-        var lyr = getSelectedCustomLayer();
-        if (lyr) lyr.color = miniFgCol.value;
-        var cBar = $('#pcCtxColorBar', pane); if (cBar) cBar.style.background = miniFgCol.value;
-        var cInp = $('#pcCtxTextColorInput', pane); if (cInp) cInp.value = miniFgCol.value;
-        var miniFgInd = $('#pcMiniFgIndicator', pane); if (miniFgInd) miniFgInd.style.background = miniFgCol.value;
+        if (!selectedElId || selectedElId === 'card') {
+          state.overlayAlpha = cleanPct;
+          var oav = $('#pcOverlayAlphaVal', pane); if (oav) oav.textContent = cleanPct + '%';
+          var oas = $('#pcOverlayAlpha', pane); if (oas) oas.value = String(cleanPct);
+        } else {
+          setElOpacity(selectedElId, cleanPct / 100);
+        }
+        syncToolPopoverControls();
         requestRender();
+        scheduleAutosave();
+      };
+      var opRange = $('#pcPopOpacityRange', toolPop);
+      var opInp = $('#pcPopOpacityInput', toolPop);
+      if (opRange) opRange.addEventListener('input', function () { applyOpacityVal(opRange.value); });
+      if (opInp) opInp.addEventListener('input', function () { applyOpacityVal(opInp.value); });
+
+      var lhRange = $('#pcPopLineHeightRange', toolPop);
+      if (lhRange) {
+        lhRange.addEventListener('input', function () {
+          if (!selectedElId || selectedElId === 'card') return;
+          recordBeforeTextEdit();
+          var v = Math.max(0.9, Math.min(2.2, Number(lhRange.value) || 1.32));
+          var obj = getSelectedCustomLayer() || ensureElStyleObj(selectedElId);
+          obj.lineRatio = v;
+          syncToolPopoverControls();
+          requestRender();
+        });
+      }
+
+      var swRange = $('#pcPopStrokeWidthRange', toolPop);
+      if (swRange) {
+        swRange.addEventListener('input', function () {
+          var lyr = getSelectedCustomLayer();
+          if (!lyr) return;
+          recordBeforeTextEdit();
+          lyr.strokeWidth = Math.max(0, Math.min(24, Number(swRange.value) || 0));
+          syncToolPopoverControls();
+          requestRender();
+        });
+      }
+      var rdRange = $('#pcPopRadiusRange', toolPop);
+      if (rdRange) {
+        rdRange.addEventListener('input', function () {
+          var lyr = getSelectedCustomLayer();
+          if (!lyr) return;
+          recordBeforeTextEdit();
+          lyr.radius = Math.max(0, Math.min(120, Number(rdRange.value) || 0));
+          syncToolPopoverControls();
+          requestRender();
+        });
+      }
+
+      [
+        ['#pcPopBrightRange', 'photoBright', 100],
+        ['#pcPopContrastRange', 'photoContrast', 100],
+        ['#pcPopSaturateRange', 'photoSaturate', 100],
+        ['#pcPopBlurRange', 'photoBlur', 0]
+      ].forEach(function (cfg) {
+        var rEl = $(cfg[0], toolPop);
+        if (!rEl) return;
+        rEl.addEventListener('input', function () {
+          recordBeforeTextEdit();
+          state[cfg[1]] = Number(rEl.value);
+          if (cfg[1] === 'photoBright') {
+            var pb = $('#pcPhotoBright', pane); if (pb) pb.value = String(state.photoBright);
+            var pbv = $('#pcPhotoBrightVal', pane); if (pbv) pbv.textContent = state.photoBright + '%';
+          }
+          syncToolPopoverControls();
+          requestRender();
+        });
+      });
+
+      var rstAdjBtn = $('#pcPopResetAdjustBtn', toolPop);
+      if (rstAdjBtn) {
+        rstAdjBtn.addEventListener('click', function () {
+          pushHistorySnapshot();
+          state.photoBright = 100;
+          state.photoContrast = 100;
+          state.photoSaturate = 100;
+          state.photoBlur = 0;
+          syncControlsFromState();
+          syncToolPopoverControls();
+          requestRender();
+        });
+      }
+
+      toolPop.addEventListener('click', function (e) {
+        var fxB = e.target.closest('[data-pop-fx]');
+        if (fxB) {
+          if (!selectedElId || selectedElId === 'card') return;
+          pushHistorySnapshot();
+          var fxVal = fxB.getAttribute('data-pop-fx') || 'default';
+          var obj = getSelectedCustomLayer() || ensureElStyleObj(selectedElId);
+          obj.effect = fxVal;
+          syncToolPopoverControls();
+          requestRender();
+          return;
+        }
+        var dashB = e.target.closest('[data-pop-dash]');
+        if (dashB) {
+          var lyr = getSelectedCustomLayer();
+          if (!lyr) return;
+          pushHistorySnapshot();
+          lyr.strokeDash = dashB.getAttribute('data-pop-dash') || 'solid';
+          syncToolPopoverControls();
+          requestRender();
+          return;
+        }
+        var fhB = e.target.closest('#pcPopFlipHBtn');
+        if (fhB) {
+          if (!selectedElId || selectedElId === 'card') return;
+          pushHistorySnapshot();
+          toggleElFlip(selectedElId, 'h');
+          syncToolPopoverControls();
+          requestRender();
+          return;
+        }
+        var fvB = e.target.closest('#pcPopFlipVBtn');
+        if (fvB) {
+          if (!selectedElId || selectedElId === 'card') return;
+          pushHistorySnapshot();
+          toggleElFlip(selectedElId, 'v');
+          syncToolPopoverControls();
+          requestRender();
+        }
       });
     }
 
@@ -11661,7 +16111,8 @@
         st[prop] = !curSt;
       }
       syncControlsFromState();
-      requestRender();
+      renderNow();
+      if (activeInlineTarget) populateInlineRichEditorHtml(activeInlineTarget);
     };
 
     var bBold = $('#pcCtxBoldBtn', pane);
@@ -11677,8 +16128,13 @@
 
     var spBtn = $('#pcCtxLineSpacingBtn', pane);
     if (spBtn) {
-      spBtn.addEventListener('click', function () {
+      spBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
         if (!selectedElId || selectedElId === 'card') return;
+        if ($('#pcToolPopover')) {
+          openToolPopover(spBtn, 'spacing');
+          return;
+        }
         pushHistorySnapshot();
         var steps = [1.18, 1.32, 1.48, 1.66];
         var obj = getSelectedCustomLayer() || ensureElStyleObj(selectedElId);
@@ -11689,23 +16145,103 @@
         }
         obj.lineRatio = next;
         requestRender();
-        notify(tr('লাইন স্পেসিং: ' + next.toFixed(2), 'Line spacing: ' + next.toFixed(2)));
       });
     }
 
     var fxBtn = $('#pcCtxEffectBtn', pane);
     if (fxBtn) {
-      fxBtn.addEventListener('click', function () {
+      fxBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
         if (!selectedElId || selectedElId === 'card') return;
+        if ($('#pcToolPopover')) {
+          openToolPopover(fxBtn, 'effects');
+          return;
+        }
         pushHistorySnapshot();
         var fxList = ['default', 'shadow', 'lift', 'glow', 'outline', 'none'];
-        var lyr = getSelectedCustomLayer();
-        var obj = lyr || ensureElStyleObj(selectedElId);
+        var obj = getSelectedCustomLayer() || ensureElStyleObj(selectedElId);
         var cur = obj.effect || 'default';
-        var next = fxList[(fxList.indexOf(cur) + 1) % fxList.length];
-        obj.effect = next;
+        obj.effect = fxList[(fxList.indexOf(cur) + 1) % fxList.length];
         requestRender();
-        notify(tr('টেক্সট ইফেক্ট: ' + next.toUpperCase(), 'Text effect: ' + next.toUpperCase()));
+      });
+    }
+
+    // Universal Top Context Bar Buttons (Position, Layers, Transparency, Flip, Copy Style, Duplicate, Lock/Unlock, Delete)
+    var topPosBtn = $('#pcTopPositionBtn', pane);
+    if (topPosBtn) topPosBtn.addEventListener('click', function () { openPositionDrawer('arrange'); });
+    var topLayersBtn = $('#pcTopLayersBtn', pane);
+    if (topLayersBtn) topLayersBtn.addEventListener('click', function () { openPositionDrawer('layers'); });
+    var topTransBtn = $('#pcTopTransparencyBtn', pane);
+    if (topTransBtn) {
+      topTransBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openToolPopover(topTransBtn, 'transparency');
+      });
+    }
+    var topFlipBtn = $('#pcTopFlipBtn', pane);
+    if (topFlipBtn) {
+      topFlipBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openToolPopover(topFlipBtn, 'flip');
+      });
+    }
+    var topCopyStyleBtn = $('#pcTopCopyStyleBtn', pane);
+    if (topCopyStyleBtn) {
+      topCopyStyleBtn.addEventListener('click', function () {
+        if (state.stylePaintMode) {
+          state.stylePaintMode = false;
+          updateContextToolbarForSelection();
+          return;
+        }
+        if (selectedElId && selectedElId !== 'card') {
+          copySelectedStyle();
+          state.stylePaintMode = true;
+          updateContextToolbarForSelection();
+          notify(tr('স্টাইল কপি হয়েছে — যেকোনো এলিমেন্টে ক্লিক করে পেস্ট করুন', 'Style copied — click another layer to apply'));
+        }
+      });
+    }
+    var topLockBtn = $('#pcTopLockBtn', pane);
+    if (topLockBtn) topLockBtn.addEventListener('click', toggleLockSelectedElement);
+    var unlockBannerBtn = $('#pcCtxUnlockBannerBtn', pane);
+    if (unlockBannerBtn) unlockBannerBtn.addEventListener('click', toggleLockSelectedElement);
+    var topDupBtn = $('#pcTopDuplicateBtn', pane);
+    if (topDupBtn) topDupBtn.addEventListener('click', duplicateSelectedElement);
+    var topDelBtn = $('#pcTopDeleteBtn', pane);
+    if (topDelBtn) topDelBtn.addEventListener('click', deleteSelectedElement);
+
+    var shpBorderBtn = $('#pcCtxShapeBorderBtn', pane);
+    if (shpBorderBtn) {
+      shpBorderBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openToolPopover(shpBorderBtn, 'border');
+      });
+    }
+    var phoBorderBtn = $('#pcCtxPhotoBorderBtn', pane);
+    if (phoBorderBtn) {
+      phoBorderBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openToolPopover(phoBorderBtn, 'border');
+      });
+    }
+    var phoAdjustBtn = $('#pcCtxPhotoAdjustBtn', pane);
+    if (phoAdjustBtn) {
+      phoAdjustBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openToolPopover(phoAdjustBtn, 'adjust');
+      });
+    }
+    var phoReplaceBtn = $('#pcCtxPhotoReplaceBtn', pane);
+    if (phoReplaceBtn) {
+      phoReplaceBtn.addEventListener('click', function () {
+        openInlineEditorForElement(selectedElId || 'photo');
+      });
+    }
+    var logoChangeBtn = $('#pcCtxLogoChangeBtn', pane);
+    if (logoChangeBtn) {
+      logoChangeBtn.addEventListener('click', function () {
+        var li = $('#pcLogoInput', pane);
+        if (li) li.click();
       });
     }
 
@@ -11726,7 +16262,8 @@
             state.textAlign = al;
           }
           syncControlsFromState();
-          requestRender();
+          renderNow();
+          if (activeInlineTarget) positionInlineRichEditor(activeInlineTarget);
         }
       });
     }
@@ -11742,6 +16279,8 @@
         var lyr = getSelectedCustomLayer();
         if (lyr) {
           lyr.rotation = 0;
+          lyr.customColor = false;
+          delete lyr.highlightColor;
           delete lyr.maxWidth;
         } else {
           if (state.elementOffsets) delete state.elementOffsets[selectedElId];
@@ -11777,6 +16316,9 @@
         var pid = selectedElId === 'photo2' ? 'photo2' : 'photo';
         state.photoZoom = 100;
         state.photoBright = 100;
+        state.photoContrast = 100;
+        state.photoSaturate = 100;
+        state.photoBlur = 0;
         state.photoPanX = 0;
         state.photoPanY = 0;
         if (state.elementScale) { delete state.elementScale[pid]; delete state.elementScale.photo; }
@@ -11806,6 +16348,7 @@
         if (lyr && lyr.layerType === 'shape') {
           recordBeforeTextEdit();
           lyr.fill = shpFill.value;
+          var sw = $('#pcCtxShapeFillSwatch', pane); if (sw) sw.style.background = shpFill.value;
           requestRender();
         }
       });
@@ -11816,6 +16359,7 @@
         if (lyr && lyr.layerType === 'shape') {
           recordBeforeTextEdit();
           lyr.stroke = shpStroke.value;
+          var sw = $('#pcCtxShapeStrokeSwatch', pane); if (sw) sw.style.background = shpStroke.value;
           requestRender();
         }
       });
@@ -11878,7 +16422,7 @@
     if (mLock) mLock.addEventListener('click', function (e) { e.stopPropagation(); toggleLockSelectedElement(); });
     if (mDel) mDel.addEventListener('click', function (e) { e.stopPropagation(); deleteSelectedElement(); });
 
-    // Quick Badges, Verdict & Word Highlight
+    // Quick Badges, Verdict & Direct Selection Highlight (Zero * Syntax)
     var qBadges = $('#pcQuickBadges', pane);
     if (qBadges) {
       qBadges.addEventListener('click', function (e) {
@@ -11906,23 +16450,101 @@
 
     var hiBtn = $('#pcHighlightSelectionBtn', pane);
     if (hiBtn) {
+      hiBtn.addEventListener('pointerdown', function (e) {
+        if (activeInlineTarget) e.preventDefault();
+      });
       hiBtn.addEventListener('click', function () {
-        var ta = $('#pcHeadlineText', pane);
-        if (!ta) return;
-        var s = ta.selectionStart || 0;
-        var ePos = ta.selectionEnd || 0;
-        var val = ta.value || '';
-        if (ePos > s) {
-          pushHistorySnapshot();
-          var selTxt = val.slice(s, ePos).replace(/^\*+|\*+$/g, '');
-          ta.value = val.slice(0, s) + '*' + selTxt + '*' + val.slice(ePos);
-          state.headline = ta.value;
-          markTextUserEdited();
-          requestRender();
-          notify('নির্বাচিত অংশ হাইলাইট করা হয়েছে!');
+        var ok = applySelectionHighlight(state.highlightColor || state.accentColor || '#fde047');
+        if (ok) {
+          notify(tr('নির্বাচিত অংশ হাইলাইট করা হয়েছে!', 'Selected text highlighted!'));
         } else {
-          notify('হাইলাইট করতে শিরোনামের যেকোনো শব্দ সিলেক্ট করুন');
+          notify(tr('কার্ডে বা বক্সে যেকোনো শব্দ মাউস দিয়ে সিলেক্ট করে হাইলাইট চাপুন', 'Select any word or phrase to highlight'));
         }
+      });
+    }
+
+    var clearHiBtn = $('#pcClearHighlightBtn', pane);
+    if (clearHiBtn) {
+      clearHiBtn.addEventListener('pointerdown', function (e) {
+        if (activeInlineTarget) e.preventDefault();
+      });
+      clearHiBtn.addEventListener('click', function () {
+        clearSelectionHighlight();
+        notify(tr('হাইলাইট মুছে ফেলা হয়েছে', 'Highlight cleared'));
+      });
+    }
+
+    var hiPresets = $('#pcHeadlineHighlightPresets', pane);
+    if (hiPresets) {
+      hiPresets.addEventListener('pointerdown', function (e) {
+        if (activeInlineTarget && e.target.closest('[data-pc-hi-preset]')) e.preventDefault();
+      });
+      hiPresets.addEventListener('click', function (e) {
+        var pBtn = e.target.closest('[data-pc-hi-preset]');
+        if (!pBtn) return;
+        pushHistorySnapshot();
+        applyPopoverColor(pBtn.getAttribute('data-pc-hi-preset'), 'highlight');
+      });
+    }
+
+    var headHiColBtn = $('#pcHeadlineHighlightColorBtn', pane);
+    if (headHiColBtn) {
+      headHiColBtn.addEventListener('pointerdown', function (e) {
+        if (activeInlineTarget) e.preventDefault();
+      });
+      headHiColBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openColorPopover(headHiColBtn, 'highlight');
+      });
+    }
+
+    var hiModeBtn = $('#pcHighlightModeBtn', pane);
+    if (hiModeBtn) {
+      hiModeBtn.addEventListener('pointerdown', function (e) {
+        if (activeInlineTarget) e.preventDefault();
+      });
+      hiModeBtn.addEventListener('click', function () {
+        pushHistorySnapshot();
+        var modes = ['', 'text', 'marker'];
+        var cur = state.highlightBgMode || '';
+        var next = modes[(modes.indexOf(cur) + 1) % modes.length];
+        state.highlightBgMode = next;
+        var activeRange = resolveActiveHighlightRange();
+        if (activeRange && activeRange.end > activeRange.start) {
+          applySelectionHighlight(state.highlightColor || state.accentColor || '#fde047', next, activeRange.elId, activeRange.start, activeRange.end);
+        }
+        syncHighlightUiControls();
+        renderNow();
+        if (activeInlineTarget) populateInlineRichEditorHtml(activeInlineTarget);
+        scheduleAutosave();
+        var lblMap = { '': 'অটো (টেমপ্লেট ডিফল্ট)', 'text': 'শুধু লেখার রঙ', 'marker': 'মার্কার বক্স' };
+        notify(tr('হাইলাইট স্টাইল: ' + lblMap[next], 'Highlight mode: ' + (next || 'auto')));
+      });
+    }
+
+    var syncFooterToBrandBtn = $('#pcSyncFooterToBrandBtn', pane);
+    if (syncFooterToBrandBtn) {
+      syncFooterToBrandBtn.addEventListener('click', function () {
+        var rawFooter = String(($('#pcFooterUrl', pane) && $('#pcFooterUrl', pane).value) || state.footerUrl || '').trim();
+        if (!rawFooter) {
+          switchDrawerTab('brand');
+          return;
+        }
+        var parts = rawFooter.split(/\s*[•|]\s*/).map(function (s) { return s.trim(); }).filter(Boolean);
+        var detectedWeb = state.brandWebsite || '';
+        var detectedPhone = state.brandPhone || '';
+        parts.forEach(function (part) {
+          if (/[0-9০-৯]{5,}/.test(part) && !/\.[a-z]{2,}/i.test(part)) {
+            detectedPhone = part;
+          } else {
+            detectedWeb = part;
+          }
+        });
+        state.brandWebsite = detectedWeb;
+        state.brandPhone = detectedPhone;
+        var wInp = $('#pcBrandWebsite', pane); if (wInp) wInp.value = detectedWeb;
+        var pInp = $('#pcBrandPhone', pane); if (pInp) pInp.value = detectedPhone;
+        saveBrandProfile(null, false);
       });
     }
 
@@ -11958,6 +16580,7 @@
         pushHistorySnapshot();
         state.logoImg = null;
         state.logoAssetId = '';
+        state.logoDataUrl = '';
         updateActiveLogoThumb('');
         saveBrandPrefs();
         renderUploadsGallery();
@@ -11971,6 +16594,105 @@
       state.elementHidden.logo = false;
       saveBrandPrefs();
     }, false);
+
+    var syncLiveBrandContactToFooter = function () {
+      var contact = formatBrandFooterContact({
+        website: state.brandWebsite,
+        phone: state.brandPhone,
+        footerFormat: state.brandFooterFormat
+      }, state.template);
+      if (contact) {
+        state.footerUrl = contact;
+        state.elementHidden.footer = false;
+        var fInp = $('#pcFooterUrl', pane);
+        if (fInp && document.activeElement !== fInp) fInp.value = contact;
+      }
+      saveBrandPrefs();
+    };
+
+    bindInput('#pcBrandWebsite', function (v) {
+      state.brandWebsite = v;
+      syncLiveBrandContactToFooter();
+    }, false);
+
+    bindInput('#pcBrandPhone', function (v) {
+      state.brandPhone = v;
+      syncLiveBrandContactToFooter();
+    }, false);
+
+    bindInput('#pcBrandExtraInfo', function (v) {
+      state.brandExtraInfo = v;
+      saveBrandPrefs();
+    }, false);
+
+    var brandFmtSel = $('#pcBrandFooterFormat', pane);
+    if (brandFmtSel) {
+      brandFmtSel.addEventListener('change', function () {
+        pushHistorySnapshot();
+        state.brandFooterFormat = brandFmtSel.value || 'both';
+        syncLiveBrandContactToFooter();
+        requestRender();
+      });
+    }
+
+    var grabColorsBtn = $('#pcBrandGrabCurrentColorsBtn', pane);
+    if (grabColorsBtn) {
+      grabColorsBtn.addEventListener('click', function () {
+        var bp = $('#pcBrandPrimaryColor', pane); if (bp) bp.value = toSafeHex(state.primaryColor, '#dc2626');
+        var ba = $('#pcBrandAccentColor', pane); if (ba) ba.value = toSafeHex(state.accentColor, '#fde047');
+        var bb = $('#pcBrandBgColor', pane); if (bb) bb.value = toSafeHex(state.bgColor, '#1c080b');
+        notify(tr('বর্তমান কার্ডের কালার প্যালেট নেওয়া হয়েছে!', 'Grabbed current card colors!'));
+      });
+    }
+
+    var newBrandBtn = $('#pcNewBrandProfileBtn', pane);
+    if (newBrandBtn) {
+      newBrandBtn.addEventListener('click', function () {
+        editingBrandProfileId = '';
+        var bn = $('#pcBrandName', pane); if (bn) { bn.value = ''; bn.focus(); }
+        var bw = $('#pcBrandWebsite', pane); if (bw) bw.value = '';
+        var bph = $('#pcBrandPhone', pane); if (bph) bph.value = '';
+        var bex = $('#pcBrandExtraInfo', pane); if (bex) bex.value = '';
+        var bfmt = $('#pcBrandFooterFormat', pane); if (bfmt) bfmt.value = 'both';
+        var bchk = $('#pcBrandApplyColorsToggle', pane); if (bchk) bchk.checked = true;
+        notify(tr('নতুন ব্র্যান্ডের নাম, লোগো, ওয়েবসাইট ও নাম্বার দিয়ে সেভ করুন', 'Enter new brand details and click Save'));
+      });
+    }
+
+    var deactBrandBtn = $('#pcDeactivateBrandBtn', pane);
+    if (deactBrandBtn) {
+      deactBrandBtn.addEventListener('click', deactivateBrandProfile);
+    }
+
+    var saveBrandBtn = $('#pcSaveBrandProfileBtn', pane);
+    if (saveBrandBtn) {
+      saveBrandBtn.addEventListener('click', function () {
+        saveBrandProfile(null, false);
+      });
+    }
+
+    var saveAsNewBrandBtn = $('#pcSaveAsNewBrandBtn', pane);
+    if (saveAsNewBrandBtn) {
+      saveAsNewBrandBtn.addEventListener('click', function () {
+        saveBrandProfile(null, true);
+      });
+    }
+
+    var savedBrandsList = $('#pcSavedBrandProfilesList', pane);
+    if (savedBrandsList) {
+      savedBrandsList.addEventListener('click', function (e) {
+        var delB = e.target.closest('[data-delete-brand]');
+        if (delB) {
+          e.stopPropagation();
+          deleteBrandProfile(delB.getAttribute('data-delete-brand'));
+          return;
+        }
+        var selB = e.target.closest('[data-select-brand]');
+        if (selB) {
+          selectBrandProfile(selB.getAttribute('data-select-brand'));
+        }
+      });
+    }
 
     var logoPosSel = $('#pcLogoPos', pane);
     if (logoPosSel) {
@@ -12079,6 +16801,7 @@
             if (first.record.kind === 'logo') {
               state.logoImg = first.img;
               state.logoAssetId = first.record.id;
+              state.logoDataUrl = first.record.thumbDataUrl || '';
               if (state.logoPos === 'hidden') state.logoPos = 'top-right';
               updateActiveLogoThumb(first.record.thumbDataUrl);
               saveBrandPrefs();
@@ -12105,7 +16828,7 @@
         var delId = delBtn.getAttribute('data-del-upload');
         dbDelete('uploads', delId).then(function () {
           if (state.logoAssetId === delId) {
-            state.logoAssetId = ''; state.logoImg = null; updateActiveLogoThumb(''); saveBrandPrefs();
+            state.logoAssetId = ''; state.logoDataUrl = ''; state.logoImg = null; updateActiveLogoThumb(''); saveBrandPrefs();
           }
           if (state.photoAssetId === delId) { state.photoAssetId = ''; state.photoImg = null; }
           if (state.photo2AssetId === delId) { state.photo2AssetId = ''; state.photo2Img = null; }
@@ -12482,7 +17205,7 @@
         if (dragSession.kind === 'photo' && state.photoImg && !dragSession.forcedByHandle) {
           state.photoPanX = Math.round(dragSession.origPanX + dxCanvas * normFactorX);
           state.photoPanY = Math.round(dragSession.origPanY + dyCanvas * normFactorY);
-        } else if (dragSession.kind === 'customText' || dragSession.kind === 'shape' || dragSession.kind === 'customImage') {
+        } else if (dragSession.kind === 'customText' || dragSession.kind === 'shape' || dragSession.kind === 'customImage' || dragSession.kind === 'vector') {
           var lyr = getSelectedCustomLayer();
           if (lyr) {
             var nx = dragSession.origLayerX + dxCanvas * normFactorX;
@@ -12639,9 +17362,12 @@
             } else if (ts.kind === 'logo') {
               state.logoSize = Math.max(35, Math.min(260, Math.round(ts.origLogoSize * ratio)));
               readoutTxt = state.logoSize + '%';
-            } else if ((ts.kind === 'shape' || ts.kind === 'customImage') && lyr && ts.origLyr) {
+            } else if ((ts.kind === 'shape' || ts.kind === 'customImage' || ts.kind === 'vector') && lyr && ts.origLyr) {
               lyr.w = Math.max(32, Math.min(1400, Math.round((ts.origLyr.w || 300) * ratio)));
               lyr.h = Math.max(10, Math.min(1400, Math.round((ts.origLyr.h || 120) * ratio)));
+              if (lyr.layerType === 'social' && ts.origLyr.fontSize) {
+                lyr.fontSize = Math.max(12, Math.min(140, Math.round(ts.origLyr.fontSize * ratio)));
+              }
               readoutTxt = lyr.w + '×' + lyr.h;
             } else if (ts.kind === 'customText' && lyr && ts.origLyr) {
               lyr.fontSize = Math.max(12, Math.min(180, Math.round((ts.origLyr.fontSize || 36) * ratio)));
@@ -12694,7 +17420,7 @@
               else if (h === 'e') ic.right = Math.max(0, Math.min(maxIW, Math.round(ic.right - dNormX)));
               lyr.crop = ic;
               readoutTxt = tr('মাস্ক / ক্রপ', 'Mask / Crop');
-            } else if (ts.kind === 'shape' && lyr && ts.origLyr) {
+            } else if ((ts.kind === 'shape' || ts.kind === 'vector') && lyr && ts.origLyr) {
               if (h === 'e') {
                 var nwE = Math.max(28, Math.min(1400, Math.round(ts.origLyr.w + dNormX)));
                 lyr.w = nwE;
@@ -12787,7 +17513,7 @@
       // R4: Context Menu Interception on Any Page Canvas, Artboard Wrapper & Selection Box
       var handleContextMenuForCanvas = function (e, cvTarget) {
         var activeTag = document.activeElement ? document.activeElement.tagName : '';
-        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
+        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return;
         e.preventDefault();
         e.stopPropagation();
         if (cvTarget) ensurePageActivatedForNode(cvTarget);
@@ -12916,9 +17642,11 @@
                 return;
               }
               closeContextMenu();
+              closeToolPopover();
               if (transformSession) return;
               var inlEd = $('#pcInlineEditor');
-              if (inlEd && !inlEd.hidden) {
+              var inlRich = $('#pcInlineRichEditor');
+              if ((inlEd && !inlEd.hidden) || (inlRich && !inlRich.hidden)) {
                 closeInlineEditor(true);
               }
               try { cvNode.setPointerCapture(e.pointerId); } catch (err) {}
@@ -13012,6 +17740,21 @@
 
       var ctxMenu = $('#pcContextMenu');
       if (ctxMenu) {
+        var ctxLayerParent = $('#pcCtxLayerParentBtn', ctxMenu);
+        if (ctxLayerParent) {
+          ctxLayerParent.addEventListener('click', function (e) {
+            if (e.target.closest('[data-layer-action]') || e.target.closest('[data-open-layers-panel]')) return;
+            openPositionDrawer('layers');
+            closeContextMenu();
+          });
+        }
+        ctxMenu.querySelectorAll('[data-open-layers-panel]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            openPositionDrawer('layers');
+            closeContextMenu();
+          });
+        });
+
         ctxMenu.querySelectorAll('[data-layer-action]').forEach(function (btn) {
           btn.addEventListener('click', function () {
             reorderCustomLayer(btn.getAttribute('data-layer-action'));
@@ -13087,7 +17830,7 @@
     window.addEventListener('keydown', function (e) {
       if (pane.hidden) return;
       var activeTag = document.activeElement ? document.activeElement.tagName : '';
-      var inInput = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT';
+      var inInput = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT' || !!(document.activeElement && document.activeElement.isContentEditable);
 
       if ((e.ctrlKey || e.metaKey) && !inInput) {
         var k = e.key.toLowerCase();
@@ -13135,6 +17878,9 @@
             deleteSelectedElement();
           }
         } else if (e.key === 'Escape') {
+          state.stylePaintMode = false;
+          closeColorPopover();
+          closeToolPopover();
           closeContextMenu();
           closeShareDropdown();
           selectElement('card');
@@ -13143,7 +17889,16 @@
     });
 
     window.addEventListener('resize', function () {
-      if (!pane.hidden) syncOverlayBoxes();
+      if (!pane.hidden) {
+        syncOverlayBoxes();
+        if (activeInlineTarget) positionInlineRichEditor(activeInlineTarget);
+        if (activePopoverState.open && activePopoverState.anchorEl) {
+          positionColorPopover(activePopoverState.anchorEl);
+        }
+        if (activeToolPopoverState.open && activeToolPopoverState.anchorEl) {
+          positionAnchoredFloatingBox($('#pcToolPopover'), activeToolPopoverState.anchorEl, 268, 220);
+        }
+      }
     });
   }
 
@@ -13164,6 +17919,7 @@
           state.userEditedBrand = true;
         }
         if (parsed && parsed.logoDataUrl && parsed.logoDataUrl.indexOf('data:image') === 0) {
+          state.logoDataUrl = parsed.logoDataUrl;
           legacyPromise = fetch(parsed.logoDataUrl)
             .then(function (r) { return r.blob(); })
             .then(function (blob) {
@@ -13173,6 +17929,7 @@
             .then(function (res) {
               state.logoImg = res.img;
               state.logoAssetId = res.record.id;
+              state.logoDataUrl = res.record.thumbDataUrl || state.logoDataUrl || '';
               updateActiveLogoThumb(res.record.thumbDataUrl);
               saveBrandPrefs();
             })
@@ -13182,27 +17939,78 @@
     } catch (e) {}
 
     return legacyPromise.then(function () {
+      var prefLoadedPromise = Promise.resolve();
       try {
         var prefRaw = localStorage.getItem(BRAND_PREF_KEY);
-        if (!prefRaw) return;
-        var pref = JSON.parse(prefRaw);
-        if (pref.brandName) {
-          state.brandName = pref.brandName;
-          state.userEditedBrand = !!pref.userEditedBrand;
-        }
-        if (pref.logoPos) state.logoPos = pref.logoPos;
-        if (pref.logoBgStyle) state.logoBgStyle = pref.logoBgStyle;
-        if (pref.logoSize) state.logoSize = Number(pref.logoSize) || 100;
-        if (pref.logoAssetId) {
-          return loadAssetImageById(pref.logoAssetId).then(function (res) {
-            if (res.img) {
-              state.logoImg = res.img;
-              state.logoAssetId = pref.logoAssetId;
-              updateActiveLogoThumb(res.rec ? res.rec.thumbDataUrl : '');
-            }
-          });
+        if (prefRaw) {
+          var pref = JSON.parse(prefRaw);
+          if (pref.brandName) {
+            state.brandName = pref.brandName;
+            state.userEditedBrand = !!pref.userEditedBrand;
+          }
+          if (pref.brandWebsite) state.brandWebsite = pref.brandWebsite;
+          if (pref.brandPhone) state.brandPhone = pref.brandPhone;
+          if (pref.brandExtraInfo) state.brandExtraInfo = pref.brandExtraInfo;
+          if (pref.brandFooterFormat) state.brandFooterFormat = pref.brandFooterFormat;
+          if (pref.logoDataUrl) state.logoDataUrl = pref.logoDataUrl;
+          if (pref.logoPos) state.logoPos = pref.logoPos;
+          if (pref.logoBgStyle) state.logoBgStyle = pref.logoBgStyle;
+          if (pref.logoSize) state.logoSize = Number(pref.logoSize) || 100;
+          if (pref.logoAssetId) {
+            prefLoadedPromise = loadAssetImageById(pref.logoAssetId).then(function (res) {
+              if (res.img) {
+                state.logoImg = res.img;
+                state.logoAssetId = pref.logoAssetId;
+                state.logoDataUrl = (res.rec && res.rec.thumbDataUrl) ? res.rec.thumbDataUrl : (state.logoDataUrl || '');
+                updateActiveLogoThumb(res.rec ? res.rec.thumbDataUrl : state.logoDataUrl);
+              }
+            });
+          } else if (state.logoDataUrl && typeof Image !== 'undefined') {
+            var mImg = new Image();
+            mImg.src = state.logoDataUrl;
+            state.logoImg = mImg;
+            updateActiveLogoThumb(state.logoDataUrl);
+          }
         }
       } catch (e) {}
+
+      return prefLoadedPromise.then(function () {
+        var profiles = getBrandProfiles();
+        if (!profiles.length && (state.userEditedBrand || state.logoAssetId || state.logoDataUrl || state.brandWebsite || state.brandPhone)) {
+          var migrated = {
+            id: uid('brand'),
+            name: state.brandName || tr('আমার ব্র্যান্ড', 'My Brand'),
+            tagline: '',
+            website: state.brandWebsite || '',
+            phone: state.brandPhone || '',
+            extraInfo: state.brandExtraInfo || '',
+            footerFormat: state.brandFooterFormat || 'both',
+            logoAssetId: state.logoAssetId || '',
+            logoDataUrl: state.logoDataUrl || '',
+            logoPos: state.logoPos === 'custom' ? 'top-right' : (state.logoPos || 'top-right'),
+            logoBgStyle: state.logoBgStyle || 'light',
+            logoSize: Number(state.logoSize) || 100,
+            primaryColor: toSafeHex(state.primaryColor, '#dc2626'),
+            accentColor: toSafeHex(state.accentColor, '#fde047'),
+            bgColor: toSafeHex(state.bgColor, '#1c080b'),
+            highlightColor: '',
+            applyColorsOnSelect: false,
+            updatedAt: Date.now()
+          };
+          setBrandProfiles([migrated]);
+          setActiveBrandId(migrated.id);
+          editingBrandProfileId = migrated.id;
+          syncBrandDrawerFormFromProfile(migrated);
+        } else {
+          var activeProf = getActiveBrandProfile();
+          if (activeProf) {
+            editingBrandProfileId = activeProf.id;
+            syncBrandDrawerFormFromProfile(activeProf);
+            applyBrandProfileToState(activeProf, state.template, { explicitSelect: false });
+          }
+        }
+        renderSavedBrandProfilesList();
+      });
     });
   }
 
@@ -13265,6 +18073,8 @@
       ensurePagesInitialized();
       syncControlsFromState();
       renderFontDrawerList();
+      filterElementsDrawer();
+      filterBrandDrawer();
       renderNow();
       generateAllTemplateThumbnails(false);
 
@@ -13293,6 +18103,8 @@
           renderSavedDesignsGrid();
           renderRecentTemplates();
           renderFontDrawerList();
+          filterElementsDrawer();
+          filterBrandDrawer();
           renderPagesUi();
           updateUndoRedoButtons();
         });
@@ -13307,6 +18119,8 @@
       syncStudioLangUI();
       syncControlsFromState();
       renderFontDrawerList();
+      filterElementsDrawer();
+      filterBrandDrawer();
       renderUploadsGallery();
       renderSavedDesignsGrid();
       generateAllTemplateThumbnails(false);
@@ -13317,12 +18131,41 @@
   var api = {
     init: init,
     render: function () { renderNow(); },
+    renderCard: function () { renderNow(); },
     applyTemplate: applyTemplate,
     selectElement: selectElement,
     deleteSelectedElement: deleteSelectedElement,
     addTextBox: addCustomTextLayer,
     addShape: addShapeLayer,
+    addShapeLayer: addShapeLayer,
+    addUiIcon: addUiIconLayer,
+    addUiIconLayer: addUiIconLayer,
+    addSocialLogo: addSocialLogoLayer,
+    addSocialLogoLayer: addSocialLogoLayer,
+    addGraphicElement: addGraphicElementLayer,
+    addGraphicElementLayer: addGraphicElementLayer,
     openFontDrawer: openFontDrawer,
+    openPositionDrawer: openPositionDrawer,
+    renderPositionDrawer: renderPositionDrawer,
+    openToolPopover: openToolPopover,
+    closeToolPopover: closeToolPopover,
+    getElementOpacity: getElOpacity,
+    setElementOpacity: setElOpacity,
+    getElementFlip: getElFlip,
+    toggleElementFlip: toggleElFlip,
+    toggleLockSelectedElement: toggleLockSelectedElement,
+    toggleLockElementById: toggleLockElementById,
+    toggleVisibilityElementById: toggleVisibilityElementById,
+    syncPadlockButtonDom: syncPadlockButtonDom,
+    applySelectionHighlight: applySelectionHighlight,
+    clearSelectionHighlight: clearSelectionHighlight,
+    getElRichSpans: getElRichSpans,
+    setElRichSpans: setElRichSpans,
+    extractRichTextAndSpans: extractRichTextAndSpans,
+    setElementsCategory: setElementsCategory,
+    filterElementsDrawer: filterElementsDrawer,
+    setBrandSection: setBrandSection,
+    filterBrandDrawer: filterBrandDrawer,
     addPage: addNewPage,
     addBlankPage: addBlankPage,
     movePage: movePage,
@@ -13339,6 +18182,7 @@
     openInlineEditorForElement: openInlineEditorForElement,
     closeInlineEditor: closeInlineEditor,
     reorderCustomLayer: reorderCustomLayer,
+    reorderLayerByDrop: reorderLayerByDrop,
     alignSelectedToPage: alignSelectedToPage,
     openContextMenuAt: openContextMenuAt,
     closeContextMenu: closeContextMenu,
@@ -13369,6 +18213,20 @@
     getRelativeLuminance: getRelativeLuminance,
     getContrastRatio: getContrastRatio,
     getEffectiveTextColor: getEffectiveTextColor,
+    resolveElementTextColor: resolveElementTextColor,
+    openColorPopover: openColorPopover,
+    closeColorPopover: closeColorPopover,
+    applyPopoverColor: applyPopoverColor,
+    resetPopoverColor: resetPopoverColor,
+    positionColorPopover: positionColorPopover,
+    formatBrandFooterContact: formatBrandFooterContact,
+    getBrandProfiles: getBrandProfiles,
+    getActiveBrandId: getActiveBrandId,
+    getActiveBrandProfile: getActiveBrandProfile,
+    saveBrandProfile: saveBrandProfile,
+    selectBrandProfile: selectBrandProfile,
+    deleteBrandProfile: deleteBrandProfile,
+    deactivateBrandProfile: deactivateBrandProfile,
     parseRgbColorWithAlpha: parseRgbColorWithAlpha,
     STOCK_PHOTO_REGISTRY: STOCK_PHOTO_REGISTRY,
     STOCK_PHOTOS: STOCK_PHOTO_REGISTRY,
@@ -13380,7 +18238,9 @@
     renderPagesUi: renderPagesUi,
     PAYMENT_BRAND_VECTORS: PAYMENT_BRAND_VECTORS,
     PAYMENT_VECTORS: PAYMENT_BRAND_VECTORS,
+    SOCIAL_BRAND_VECTORS: SOCIAL_BRAND_VECTORS,
     drawBrandVectorIcon: drawBrandVectorIcon,
+    drawSocialVectorIcon: drawSocialVectorIcon,
     drawUiVectorIcon: drawUiVectorIcon,
     addPaymentVectorLayer: addPaymentVectorLayer,
     addStickerBadge: addStickerBadgeLayer,

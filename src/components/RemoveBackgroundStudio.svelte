@@ -30,8 +30,8 @@
       class="ds-empty-card pdf-dropzone relative flex flex-col items-center justify-center text-center py-12 px-5 sm:px-10 rounded-2xl border border-slate-200/80 dark:border-studio-border bg-[#f4f5f7] dark:bg-studio-panel/75 hover:border-indigo-400/70 dark:hover:border-indigo-500/60 cursor-pointer transition-all duration-200 [&.is-over]:border-indigo-500 [&.is-over]:bg-indigo-50/60 dark:[&.is-over]:bg-indigo-500/10 shadow-[0_1px_3px_rgba(15,23,42,0.03)]"
     >
       <!-- Studio Illustration: Subject Cutout over Checkerboard -->
-      <div class="ds-empty-symbol relative w-44 h-34 mb-4 select-none pointer-events-none flex items-center justify-center">
-        <svg viewBox="0 0 200 150" class="w-full h-full overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <div class="ds-empty-symbol relative w-44 h-34 mb-4 select-none pointer-events-none flex items-center justify-center" style="width: 176px; height: 136px;">
+        <svg width="176" height="136" style="width: 100%; height: 100%;" viewBox="0 0 200 150" class="!w-full !h-full overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
             <linearGradient id="rbgGlow" x1="65" y1="45" x2="135" y2="138" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stop-color="#6366f1" stop-opacity="0.28" />

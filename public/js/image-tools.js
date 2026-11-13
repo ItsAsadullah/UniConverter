@@ -229,7 +229,7 @@
       if (window.TechHatNidScanner && window.TechHatNidScanner.init) {
         window.TechHatNidScanner.init();
       } else {
-        loadScriptOnce('/js/nid-scanner.js?v=71').then(function () {
+        loadScriptOnce('/js/nid-scanner.js?v=96').then(function () {
           if (window.TechHatNidScanner && window.TechHatNidScanner.init) window.TechHatNidScanner.init();
         });
       }
@@ -238,7 +238,7 @@
       if (window.TechHatVector && window.TechHatVector.init) {
         window.TechHatVector.init();
       } else {
-        loadScriptOnce('/js/vector-tools.js?v=78').then(function () {
+        loadScriptOnce('/js/vector-tools.js?v=88').then(function () {
           if (window.TechHatVector && window.TechHatVector.init) window.TechHatVector.init();
         });
       }
@@ -252,8 +252,8 @@
       if (window.TechHatPhotoCard && window.TechHatPhotoCard.init) {
         window.TechHatPhotoCard.init();
       } else {
-        loadScriptOnce('/js/photo-card-metadata.js?v=98').then(function () {
-          return loadScriptOnce('/js/photo-card-engine.js?v=98');
+        loadScriptOnce('/js/photo-card-metadata.js?v=99').then(function () {
+          return loadScriptOnce('/js/photo-card-engine.js?v=99');
         }).then(function () {
           if (window.TechHatPhotoCard && window.TechHatPhotoCard.init) window.TechHatPhotoCard.init();
         });
@@ -296,12 +296,23 @@
 
   function wireDropzone(zone, input, onFiles) {
     if (!zone || !input) return;
-    input.addEventListener('change', function () {
-      if (input.files && input.files.length) {
-        onFiles(Array.prototype.slice.call(input.files));
-        input.value = '';
-      }
-    });
+    if (!input._thInputWired) {
+      input._thInputWired = true;
+      input.addEventListener('change', function () {
+        if (input.files && input.files.length) {
+          onFiles(Array.prototype.slice.call(input.files));
+          input.value = '';
+        }
+      });
+    }
+    if (zone._thDropWired) return;
+    zone._thDropWired = true;
+    if (zone.tagName !== 'LABEL') {
+      zone.addEventListener('click', function (e) {
+        if (e.target && e.target.closest && e.target.closest('button, label, input, a, select, textarea')) return;
+        input.click();
+      });
+    }
     ['dragenter', 'dragover'].forEach(function (ev) {
       zone.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); zone.classList.add('is-over'); });
     });
@@ -607,7 +618,9 @@
     var ratio = getSelectedCropRatio();
 
     // First check if autoDetectCardQuad finds a clean card/document box
-    var det = autoDetectCardQuad(cropState.item.img, cropState.rot || 0, cropState.flipH || 1, null, seedPt);
+    var det = (window.TechHatNidScanner && window.TechHatNidScanner.autoDetectCardQuad)
+      ? window.TechHatNidScanner.autoDetectCardQuad(cropState.item.img, cropState.rot || 0, cropState.flipH || 1, null, seedPt)
+      : null;
     var minX = 0.1, minY = 0.1, maxX = 0.9, maxY = 0.9;
     if (det && det.pts && det.pts.length === 4) {
       minX = Math.max(0.01, Math.min(det.pts[0].x, det.pts[1].x, det.pts[2].x, det.pts[3].x));
@@ -710,8 +723,13 @@
     if (!cropState) return;
     var canvas = $('#imgCropSourceCanvas');
     if (!canvas) return;
+    var nidApi = window.TechHatNidScanner;
+    if (!nidApi || !nidApi.buildMagneticSnapField || !nidApi.snapEdgeMagnetically) {
+      autoDetectCropSubjectBox();
+      return;
+    }
     if (!cropState.snapField || cropState._snapFieldKey !== 'crop' || !cropState.snapField.lum) {
-      cropState.snapField = buildMagneticSnapField(canvas);
+      cropState.snapField = nidApi.buildMagneticSnapField(canvas);
       cropState._snapFieldKey = 'crop';
     }
     var b = cropState.box;
@@ -721,10 +739,10 @@
       { x: b.x + b.w, y: b.y + b.h },
       { x: b.x, y: b.y + b.h }
     ];
-    var topS = snapEdgeMagnetically(cropState, pts[0], pts[1], 18);
-    var rightS = snapEdgeMagnetically(cropState, pts[1], pts[2], 18);
-    var botS = snapEdgeMagnetically(cropState, pts[2], pts[3], 18);
-    var leftS = snapEdgeMagnetically(cropState, pts[3], pts[0], 18);
+    var topS = nidApi.snapEdgeMagnetically(cropState, pts[0], pts[1], 18);
+    var rightS = nidApi.snapEdgeMagnetically(cropState, pts[1], pts[2], 18);
+    var botS = nidApi.snapEdgeMagnetically(cropState, pts[2], pts[3], 18);
+    var leftS = nidApi.snapEdgeMagnetically(cropState, pts[3], pts[0], 18);
 
     var nx0 = leftS.snapped ? leftS.p1.x : b.x;
     var ny0 = topS.snapped ? topS.p1.y : b.y;
@@ -5203,7 +5221,7 @@
     rbgItems.forEach(function (entry, idx) {
       var active = idx === activeRbgIdx;
       var card = document.createElement('div');
-      card.className = 'nid-card-tab ds-page group relative flex flex-col gap-1.5 p-2 rounded-xl border text-left transition-all cursor-pointer ' +
+      card.className = 'nid-card-tab ds-page shrink-0 w-full group relative flex flex-col gap-1.5 p-2 rounded-xl border text-left transition-all cursor-pointer ' +
         (active
           ? ' active is-active border-indigo-500 bg-indigo-500/10 dark:bg-indigo-500/15 ring-2 ring-indigo-500/25 shadow-xs'
           : ' border-slate-200 dark:border-studio-border bg-slate-50/80 dark:bg-studio-panel/60 hover:border-indigo-400');
@@ -6146,6 +6164,128 @@
         }
       });
     }
+  }
+
+  function buildRotatedCanvas(img, rotDeg, maxDim, flipH) {
+    if (window.TechHatNidScanner && window.TechHatNidScanner.rotate) {
+      return window.TechHatNidScanner.rotate(img, rotDeg, maxDim, flipH);
+    }
+    var rot = (((rotDeg || 0) % 360) + 360) % 360;
+    var swapped = rot === 90 || rot === 270;
+    var baseW = swapped ? (img.naturalHeight || img.height) : (img.naturalWidth || img.width);
+    var baseH = swapped ? (img.naturalWidth || img.width) : (img.naturalHeight || img.height);
+    var scale = maxDim ? Math.min(1, maxDim / Math.max(baseW, baseH)) : 1;
+    var w = Math.max(16, Math.round(baseW * scale));
+    var h = Math.max(16, Math.round(baseH * scale));
+    var c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    var ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.save();
+    ctx.translate(w / 2, h / 2);
+    if (flipH === -1) ctx.scale(-1, 1);
+    ctx.rotate((rot * Math.PI) / 180);
+    var dw = swapped ? h : w;
+    var dh = swapped ? w : h;
+    ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+    ctx.restore();
+    return c;
+  }
+
+  function warpPerspectiveCard(sourceCanvas, normPts, customMinW, customMaxW, preserveLongEdge, foldAxis) {
+    if (window.TechHatNidScanner && window.TechHatNidScanner.warp) {
+      return window.TechHatNidScanner.warp(sourceCanvas, normPts, customMinW, customMaxW, preserveLongEdge, foldAxis);
+    }
+    var sw = sourceCanvas.width;
+    var sh = sourceCanvas.height;
+    if (normPts && normPts.length === 6 && window.TechHatDocumentCore && window.TechHatDocumentCore.warpSixPoints) {
+      var dims6 = window.TechHatDocumentCore.computeSixPointDims(sw, sh, normPts, customMinW, customMaxW, preserveLongEdge, foldAxis);
+      var srcData6 = sourceCanvas._cachedPixelData;
+      if (!srcData6 || sourceCanvas._cachedPixelW !== sw || sourceCanvas._cachedPixelH !== sh) {
+        var srcCtx6 = sourceCanvas.getContext('2d', { willReadFrequently: true });
+        srcData6 = srcCtx6.getImageData(0, 0, sw, sh).data;
+        sourceCanvas._cachedPixelData = srcData6;
+        sourceCanvas._cachedPixelW = sw;
+        sourceCanvas._cachedPixelH = sh;
+      }
+      var outCanvas6 = document.createElement('canvas');
+      outCanvas6.width = dims6.outW;
+      outCanvas6.height = dims6.outH;
+      var outCtx6 = outCanvas6.getContext('2d', { willReadFrequently: true });
+      var outImg6 = outCtx6.createImageData(dims6.outW, dims6.outH);
+      window.TechHatDocumentCore.warpSixPoints(srcData6, sw, sh, normPts, dims6.outW, dims6.outH, foldAxis, outImg6.data);
+      outCtx6.putImageData(outImg6, 0, 0);
+      return outCanvas6;
+    }
+    var p = normPts.map(function (pt) {
+      return { x: pt.x * sw, y: pt.y * sh };
+    });
+    var topW = Math.hypot(p[1].x - p[0].x, p[1].y - p[0].y);
+    var botW = Math.hypot(p[2].x - p[3].x, p[2].y - p[3].y);
+    var leftH = Math.hypot(p[3].x - p[0].x, p[3].y - p[0].y);
+    var rightH = Math.hypot(p[2].x - p[1].x, p[2].y - p[1].y);
+    var natW = Math.max(60, Math.max(topW, botW));
+    var natH = Math.max(40, Math.max(leftH, rightH));
+    var minTargetW = customMinW || 1320;
+    var maxTargetW = customMaxW || 2600;
+    var upScale = natW < minTargetW ? (minTargetW / natW) : (natW > maxTargetW ? (maxTargetW / natW) : 1);
+    var outW = Math.max(120, Math.min(maxTargetW, Math.round(natW * upScale)));
+    var outH = Math.max(80, Math.min(maxTargetW, Math.round(natH * upScale)));
+    if (preserveLongEdge) {
+      var docScale = Math.min(1, maxTargetW / Math.max(natW, natH));
+      outW = Math.max(16, Math.round(natW * docScale));
+      outH = Math.max(16, Math.round(natH * docScale));
+    }
+    var x0 = p[0].x, y0 = p[0].y, x1 = p[1].x, y1 = p[1].y, x2 = p[2].x, y2 = p[2].y, x3 = p[3].x, y3 = p[3].y;
+    var dx1 = x1 - x2, dx2 = x3 - x2, sx = x0 - x1 + x2 - x3;
+    var dy1 = y1 - y2, dy2 = y3 - y2, sy = y0 - y1 + y2 - y3;
+    var denom = dx1 * dy2 - dx2 * dy1;
+    var g = 0, h = 0;
+    if (Math.abs(denom) > 1e-6) {
+      g = (sx * dy2 - dx2 * sy) / denom;
+      h = (dx1 * sy - sx * dy1) / denom;
+    }
+    var a = x1 - x0 + g * x1, b = x3 - x0 + h * x3, c = x0;
+    var d = y1 - y0 + g * y1, e = y3 - y0 + h * y3, f = y0;
+    var srcData = sourceCanvas._cachedPixelData;
+    if (!srcData || sourceCanvas._cachedPixelW !== sw || sourceCanvas._cachedPixelH !== sh) {
+      var srcCtx = sourceCanvas.getContext('2d', { willReadFrequently: true });
+      srcData = srcCtx.getImageData(0, 0, sw, sh).data;
+      sourceCanvas._cachedPixelData = srcData;
+      sourceCanvas._cachedPixelW = sw;
+      sourceCanvas._cachedPixelH = sh;
+    }
+    var outCanvas = document.createElement('canvas');
+    outCanvas.width = outW;
+    outCanvas.height = outH;
+    var outCtx = outCanvas.getContext('2d', { willReadFrequently: true });
+    var outImg = outCtx.createImageData(outW, outH);
+    var dst = outImg.data;
+    var invW = 1 / Math.max(1, outW - 1), invH = 1 / Math.max(1, outH - 1);
+    var maxSx = sw - 1.001, maxSy = sh - 1.001;
+    var dstIdx = 0;
+    for (var oy = 0; oy < outH; oy++) {
+      var v = oy * invH, bvX = b * v + c, evY = e * v + f, hvW = h * v + 1;
+      for (var ox = 0; ox < outW; ox++) {
+        var u = ox * invW, w = g * u + hvW;
+        var srcX = (a * u + bvX) / w, srcY = (d * u + evY) / w;
+        if (srcX < 0 || srcX > maxSx || srcY < 0 || srcY > maxSy) {
+          dst[dstIdx] = dst[dstIdx + 1] = dst[dstIdx + 2] = dst[dstIdx + 3] = 255;
+          dstIdx += 4;
+          continue;
+        }
+        var ix = srcX | 0, iy = srcY | 0, fx = srcX - ix, fy = srcY - iy;
+        var w00 = (1 - fx) * (1 - fy), w10 = fx * (1 - fy), w01 = (1 - fx) * fy, w11 = fx * fy;
+        var i00 = (iy * sw + ix) * 4, i10 = i00 + 4, i01 = i00 + sw * 4, i11 = i01 + 4;
+        dst[dstIdx]     = srcData[i00] * w00 + srcData[i10] * w10 + srcData[i01] * w01 + srcData[i11] * w11;
+        dst[dstIdx + 1] = srcData[i00 + 1] * w00 + srcData[i10 + 1] * w10 + srcData[i01 + 1] * w01 + srcData[i11 + 1] * w11;
+        dst[dstIdx + 2] = srcData[i00 + 2] * w00 + srcData[i10 + 2] * w10 + srcData[i01 + 2] * w01 + srcData[i11 + 2] * w11;
+        dst[dstIdx + 3] = 255;
+        dstIdx += 4;
+      }
+    }
+    outCtx.putImageData(outImg, 0, 0);
+    return outCanvas;
   }
 
   window.TechHatImageUtils = {

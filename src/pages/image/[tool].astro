@@ -44,17 +44,17 @@ const needsZip = sub.tabId === 'compress' || sub.tabId === 'scan' || sub.tabId =
     )}
     {sub.tabId === 'photo-card' && (
       <>
-        <script is:inline src="/js/photo-card-metadata.js?v=98" defer></script>
-        <script is:inline src="/js/photo-card-engine.js?v=98" defer></script>
+        <script is:inline src="/js/photo-card-metadata.js?v=99" defer></script>
+        <script is:inline src="/js/photo-card-engine.js?v=99" defer></script>
       </>
     )}
     <script is:inline src="/js/ps-studio-engine.js?v=87" defer></script>
-    <script is:inline src="/js/image-tools.js?v=98" defer></script>
+    <script is:inline src="/js/image-tools.js?v=106" defer></script>
     {sub.tabId === 'combine' && (
-      <script is:inline src="/js/nid-scanner.js?v=71" defer></script>
+      <script is:inline src="/js/nid-scanner.js?v=96" defer></script>
     )}
     {sub.tabId === 'vector' && (
-      <script is:inline src="/js/vector-tools.js?v=78" defer></script>
+      <script is:inline src="/js/vector-tools.js?v=88" defer></script>
     )}
     {(sub.tabId === 'scan' || sub.tabId === 'passport') && (
       <>

@@ -1026,7 +1026,7 @@
       dispatch(files);
     });
 
-    var ICON = '<svg class="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-studio-primary" viewBox="0 0 24 24" aria-hidden="true" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>';
+    var ICON = '<svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" fill="none"><rect x="4" y="4.5" width="14" height="16.5" rx="2.5" fill="#7c3aed"/><rect x="8" y="2.5" width="6" height="3.5" rx="1.2" fill="#fbbf24"/><rect x="7" y="9" width="8" height="8.5" rx="1.5" fill="#ffffff" fill-opacity="0.92"/><circle cx="17.5" cy="17.5" r="4.5" fill="#f59e0b" stroke="#ffffff" stroke-width="1.4"/><path d="M17.5 15.2V19.5M17.5 19.5L15.8 17.8M17.5 19.5L19.2 17.8" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
     function readClipboard(input) {
       if (!navigator.clipboard || !navigator.clipboard.read) {
@@ -1066,7 +1066,7 @@
       $$('.pdf-dropzone').forEach(function (zone) {
         var input = $('input[type="file"]', zone);
         if (!input || !acceptsImages(input) || zone.querySelector('.paste-btn')) return;
-        zone.appendChild(makeBtn('chip-btn paste-btn mt-3.5 inline-flex items-center justify-center gap-1.5 h-8.5 px-3.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-xs font-semibold text-slate-700 dark:text-studio-text shadow-2xs hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-studio-primary transition-all cursor-pointer', input));
+        zone.appendChild(makeBtn('chip-btn paste-btn mt-4 inline-flex items-center justify-center gap-2.5 min-h-[48px] px-5 py-2.5 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200 dark:border-studio-border text-[13.5px] font-medium text-slate-700 dark:text-studio-text shadow-2xs hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-studio-primary transition-all cursor-pointer', input));
       });
       var artboard = $('.th-empty-artboard__subactions');
       if (artboard && !artboard.querySelector('.paste-btn')) {
@@ -1095,7 +1095,16 @@
   // Record already-loaded scripts & stylesheets from initial document
   $$('script[src]').forEach(function (s) {
     var src = (s.getAttribute('src') || '').split('?')[0];
-    if (src) loadedScripts[src] = Promise.resolve();
+    if (!src) return;
+    if (document.readyState === 'complete') {
+      loadedScripts[src] = Promise.resolve();
+    } else {
+      loadedScripts[src] = new Promise(function (resolve) {
+        s.addEventListener('load', function () { resolve(); }, { once: true });
+        s.addEventListener('error', function () { resolve(); }, { once: true });
+        window.addEventListener('load', function () { resolve(); }, { once: true });
+      });
+    }
   });
   $$('link[rel="stylesheet"][href]').forEach(function (l) {
     var href = l.getAttribute('href');
@@ -1108,10 +1117,14 @@
     if (loadedScripts[cleanSrc]) return loadedScripts[cleanSrc];
     var existing = document.querySelector('script[src^="' + cleanSrc + '"]');
     if (existing) {
+      if (document.readyState === 'complete') {
+        loadedScripts[cleanSrc] = Promise.resolve();
+        return loadedScripts[cleanSrc];
+      }
       var ep = new Promise(function (resolve) {
         existing.addEventListener('load', function () { resolve(); }, { once: true });
         existing.addEventListener('error', function () { resolve(); }, { once: true });
-        setTimeout(resolve, 60);
+        window.addEventListener('load', function () { resolve(); }, { once: true });
       });
       loadedScripts[cleanSrc] = ep;
       return ep;
@@ -1318,6 +1331,9 @@
     if ($('#img-pane-scan') && window.TechHatScannerInit) {
       window.TechHatScannerInit();
     }
+    if ($('#img-pane-vector') && window.TechHatVector && window.TechHatVector.init) {
+      window.TechHatVector.init();
+    }
     if (($('#tool-calendar') || $('#tool-age') || $('#tool-datecalc') || $('#tool-invoice')) && window.TechHatTools && window.TechHatTools.initPage) {
       window.TechHatTools.initPage();
     }
@@ -1382,6 +1398,9 @@
       '/image/scanner': 'scan',
       '/image/passport': 'passport',
       '/image/passport-photo': 'passport-photo',
+      '/image/remove-bg': 'remove-bg',
+      '/image/vectorize': 'vector',
+      '/image/photo-card': 'photo-card',
       '/image/resize': 'resize',
       '/image/compress': 'compress',
       '/image/crop': 'crop',

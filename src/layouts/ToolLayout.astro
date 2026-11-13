@@ -73,13 +73,53 @@ const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
   <style is:inline>
+    @layer base {
+      svg:not([width]):not([class*="w-"]):not([class*="h-"]):not([class*="size-"]) {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
     html { scrollbar-gutter: stable; }
-    [hidden], dialog:not([open]), .sr-only { display: none !important; }
+    [hidden], dialog:not([open]) { display: none !important; }
+    .sr-only, .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+    .ds-empty-symbol {
+      width: 11rem !important;
+      height: 8.5rem !important;
+      min-width: 11rem !important;
+      min-height: 8.5rem !important;
+    }
+    .ds-empty-symbol svg {
+      width: 100% !important;
+      height: 100% !important;
+      min-width: 9.5rem !important;
+      min-height: 7.25rem !important;
+    }
+    .ds-empty-actions svg,
+    .pdf-dropzone .paste-btn svg {
+      width: 1.5rem !important;
+      height: 1.5rem !important;
+      min-width: 1.5rem !important;
+      min-height: 1.5rem !important;
+      flex-shrink: 0;
+    }
+    .pdf-dropzone__icon svg {
+      width: 1.75rem !important;
+      height: 1.75rem !important;
+    }
     .th-nav-dropdown { position: absolute; visibility: hidden; opacity: 0; pointer-events: none; }
     [data-nav-group]:hover > .th-nav-dropdown { visibility: visible; opacity: 1; pointer-events: auto; }
     @media (min-width: 1024px) { .lg\:hidden { display: none !important; } }
     @media (max-width: 1023.98px) { .max-lg\:hidden { display: none !important; } }
-    svg:not([width]) { width: 1.25rem; height: 1.25rem; }
     .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
   </style>
@@ -1026,7 +1066,7 @@ const mobRouteMetaJson = JSON.stringify(MOB_ROUTE_META);
   </script>
 
   <script is:inline src="/js/th-store.js?v=2"></script>
-  <script is:inline src="/js/shell.js?v=86"></script>
+  <script is:inline src="/js/shell.js?v=88"></script>
   <script is:inline src="/js/th-cloud.js?v=7"></script>
   <slot name="scripts" />
 </body>

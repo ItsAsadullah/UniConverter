@@ -577,12 +577,12 @@
     @apply text-xs font-mono font-bold text-slate-800 dark:text-studio-text;
   }
 
-  /* Dynamic NID Card Editor Tabs, SVG Overlay & Sheet Stage */
+  /* Dynamic NID Card Editor Sidebar Cards, SVG Overlay & Sheet Stage */
   .nid-card-tab {
-    @apply inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap bg-transparent text-slate-600 dark:text-studio-muted border-0 cursor-pointer transition-colors;
+    @apply flex flex-col shrink-0 w-full cursor-pointer transition-all;
   }
   .nid-card-tab.active {
-    @apply bg-white dark:bg-studio-sidebar text-emerald-600 dark:text-studio-primary shadow-2xs;
+    @apply shadow-xs;
   }
   .nid-card-tab__dot {
     @apply w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600;
@@ -721,7 +721,30 @@
 #img-pane-combine .nid-crop-loupe {
   background: #0f172a;
   box-shadow: 0 14px 36px rgba(9, 13, 22, 0.72), 0 0 0 2.5px #ffffff;
-  z-index: 20;
+  z-index: 30;
+}
+#img-pane-combine #nidCardTabs .nid-card-tab {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 100%;
+  height: auto;
+  white-space: normal;
+}
+#img-pane-combine #nidCardTabs .nid-card-tab--add {
+  align-items: center;
+  justify-content: center;
+  min-height: 112px;
+}
+#img-pane-combine #nidCardTabs .nid-card-tab__thumb-wrap {
+  width: 100%;
+  aspect-ratio: 1.586 / 1;
+  min-height: 104px;
+  flex-shrink: 0;
+}
+#img-pane-combine #nidCardTabs .nid-card-tab__thumb-wrap[class*="aspect-[1.2/1]"] {
+  aspect-ratio: 1.15 / 1;
+  min-height: 124px;
 }
 #img-pane-combine .nid-angle-badge {
   min-width: 2.75rem;

@@ -626,4 +626,869 @@ test('Passport Magic+ AI preserves portrait skin tones without scorching and nev
  const sat1=out[s1]-out[s1+1],sat2=out[s2]-out[s2+1];
  assert.ok(sat2>8&&Math.abs(sat1-sat2)<14,`Adjacent skin tones must keep smooth continuous warmth without gray/orange jump (${sat1} vs ${sat2})`);
 });
-console.log(`${passed} document scan tests passed`);
+test('image-tools.js, nid-scanner.js, and ToolLayout.astro upload icons, buttons, and ID card auto-detect work end-to-end',()=>{
+ const fs=require('fs');
+ const path=require('path');
+ const layoutSrc=fs.readFileSync(path.join(__dirname,'../src/layouts/ToolLayout.astro'),'utf8');
+ assert.ok(!layoutSrc.includes('[hidden], dialog:not([open]), .sr-only { display: none !important; }'),'ToolLayout.astro must not set display:none !important on .sr-only');
+ assert.ok(layoutSrc.includes('.ds-empty-symbol svg'),'ToolLayout.astro must guarantee full hero sizing for .ds-empty-symbol svg');
+
+ const nidSrc=fs.readFileSync(path.join(__dirname,'../public/js/nid-scanner.js'),'utf8');
+ const imgSrc=fs.readFileSync(path.join(__dirname,'../public/js/image-tools.js'),'utf8');
+
+ // Create lightweight DOM + 2D Canvas harness to run both scripts and test autoDetectCardQuad
+ const makeCanvas=(w=300,h=200)=>{
+  let cw=w,ch=h,buf=new Uint8ClampedArray(cw*ch*4);
+  let tx=0,ty=0,rot=0,sx=1,sy=1;const stack=[];
+  const c={
+   get width(){return cw;},
+   set width(v){cw=Math.max(1,v|0);buf=new Uint8ClampedArray(cw*ch*4);},
+   get height(){return ch;},
+   set height(v){ch=Math.max(1,v|0);buf=new Uint8ClampedArray(cw*ch*4);},
+   _getBuf(){return buf;},
+   _setPixels(arr){buf=new Uint8ClampedArray(arr);},
+   getContext(){
+    return {
+     save(){stack.push([tx,ty,rot,sx,sy]);},
+     restore(){const s=stack.pop();if(s){tx=s[0];ty=s[1];rot=s[2];sx=s[3];sy=s[4];}},
+     translate(dx,dy){tx+=dx;ty+=dy;},
+     scale(kx,ky){sx*=kx;sy*=ky;},
+     rotate(r){rot+=r;},
+     drawImage(src,dx=0,dy=0,dw,dh){
+      if(src&&src._drawInto){src._drawInto(buf,cw,ch);return;}
+      if(src&&src._getBuf){
+       const sBuf=src._getBuf(),sw=src.width,sh=src.height;
+       const wDst=dw||sw,hDst=dh||sh;
+       const cosR=Math.cos(-rot),sinR=Math.sin(-rot);
+       for(let y=0;y<ch;y++){
+        for(let x=0;x<cw;x++){
+         const rx=(x-tx),ry=(y-ty);
+         const lx=(rx*cosR-ry*sinR)/sx-dx,ly=(rx*sinR+ry*cosR)/sy-dy;
+         const u=Math.max(0,Math.min(sw-1,Math.round((lx/wDst)*sw)));
+         const v=Math.max(0,Math.min(sh-1,Math.round((ly/hDst)*sh)));
+         const si=(v*sw+u)*4,di=(y*cw+x)*4;
+         buf[di]=sBuf[si];buf[di+1]=sBuf[si+1];buf[di+2]=sBuf[si+2];buf[di+3]=sBuf[si+3];
+        }
+       }
+      }
+     },
+     getImageData(x=0,y=0,gw=cw,gh=ch){
+      if(x===0&&y===0&&gw===cw&&gh===ch)return {data:new Uint8ClampedArray(buf),width:gw,height:gh};
+      const sub=new Uint8ClampedArray(gw*gh*4);
+      for(let r=0;r<gh;r++){
+       const sy2=Math.max(0,Math.min(ch-1,y+r));
+       for(let col=0;col<gw;col++){
+        const sx2=Math.max(0,Math.min(cw-1,x+col));
+        const si=(sy2*cw+sx2)*4,di=(r*gw+col)*4;
+        sub[di]=buf[si];sub[di+1]=buf[si+1];sub[di+2]=buf[si+2];sub[di+3]=buf[si+3];
+       }
+      }
+      return {data:sub,width:gw,height:gh};
+     },
+     createImageData(gw,gh){return {data:new Uint8ClampedArray(gw*gh*4),width:gw,height:gh};},
+     putImageData(imgData){buf=new Uint8ClampedArray(imgData.data);}
+    };
+   }
+  };
+  return c;
+ };
+ const sandboxWin={
+  document:{
+   documentElement:{getAttribute:()=>'bn'},
+   querySelector:()=>null,
+   querySelectorAll:()=>[],
+   createElement:(tag)=>tag==='canvas'?makeCanvas():{style:{},setAttribute(){},addEventListener(){},appendChild(){},remove(){}},
+   addEventListener(){},
+   body:{appendChild(){}}
+  },
+  window:null,
+  location:{pathname:'/image/combine'},
+  history:{replaceState(){},pushState(){}},
+  navigator:{clipboard:{}},
+  URL:{createObjectURL:()=>'blob:test',revokeObjectURL(){}},
+  Image:function(){},
+  Blob:function(){},
+  ResizeObserver:function(){return {observe(){},disconnect(){}};},
+  requestAnimationFrame:(fn)=>fn(),
+  setTimeout:()=>1,
+  clearTimeout(){},
+  Math,Uint8Array,Uint8ClampedArray,Int16Array,Int32Array,Float32Array,Float64Array,Array,Object,String,Number,Boolean,RegExp,Promise,Error
+ };
+ sandboxWin.window=sandboxWin;
+ sandboxWin.TechHatDocumentCore=core;
+ const vm=require('vm');
+ vm.runInNewContext(nidSrc,sandboxWin);
+ vm.runInNewContext(imgSrc,sandboxWin);
+
+ assert.ok(sandboxWin.TechHatImage&&typeof sandboxWin.TechHatImage.init==='function','TechHatImage must initialize without ReferenceError');
+ assert.ok(sandboxWin.TechHatScanGeometry&&typeof sandboxWin.TechHatScanGeometry.rotate==='function'&&typeof sandboxWin.TechHatScanGeometry.warp==='function','TechHatScanGeometry must expose load, rotate, warp');
+ assert.ok(sandboxWin.TechHatNidScanner&&typeof sandboxWin.TechHatNidScanner.autoDetectCardQuad==='function','TechHatNidScanner must expose autoDetectCardQuad');
+
+ // Synthetic ID card on a white A4 flatbed scan (card occupies x=0.22..0.74, y=0.26..0.68)
+ const synthImg={
+  naturalWidth:340,naturalHeight:240,width:340,height:240,
+  _drawInto(dst,cw,ch){
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     const inCard=nx>=0.22&&nx<=0.74&&ny>=0.26&&ny<=0.68;
+     if(!inCard){
+      dst[i]=248;dst[i+1]=249;dst[i+2]=250;dst[i+3]=255;
+     }else{
+      const onBorder=nx<0.235||nx>0.725||ny<0.28||ny>0.66;
+      const inHeader=ny>=0.29&&ny<=0.36&&nx>=0.26&&nx<=0.70&&((x+y)%3===0);
+      const inPhoto=nx>=0.25&&nx<=0.38&&ny>=0.38&&ny<=0.62;
+      const inText=nx>=0.41&&nx<=0.70&&ny>=0.39&&ny<=0.63&&((y%4)<2)&&((x%3)<2);
+      if(onBorder){dst[i]=40;dst[i+1]=55;dst[i+2]=75;}
+      else if(inHeader){dst[i]=25;dst[i+1]=110;dst[i+2]=65;}
+      else if(inPhoto){dst[i]=95;dst[i+1]=80;dst[i+2]=75;}
+      else if(inText){dst[i]=30;dst[i+1]=35;dst[i+2]=42;}
+      else{dst[i]=224;dst[i+1]=232;dst[i+2]=238;}
+      dst[i+3]=255;
+     }
+    }
+   }
+  }
+ };
+ const det=sandboxWin.TechHatNidScanner.autoDetectCardQuad(synthImg,0,1,null,null,false);
+ assert.ok(det&&det.auto&&det.pts&&det.pts.length===4,'autoDetectCardQuad must detect ID card on white A4 flatbed scan');
+ assert.ok(Math.abs(det.pts[0].x-0.22)<0.06&&Math.abs(det.pts[0].y-0.26)<0.06,`Detected TL (${det.pts[0].x},${det.pts[0].y}) must lock near card TL (0.22,0.26)`);
+ assert.ok(Math.abs(det.pts[2].x-0.74)<0.06&&Math.abs(det.pts[2].y-0.68)<0.06,`Detected BR (${det.pts[2].x},${det.pts[2].y}) must lock near card BR (0.74,0.68)`);
+
+ // Verify Deliverable #3: maxSides = 2 enforced
+ assert.equal(sandboxWin.TechHatNidScanner.maxSides,2,'NID scanner must enforce maxSides === 2');
+ assert.ok(nidSrc.includes('var MAX_NID_SIDES = 2;')&&nidSrc.includes('syncNidAddLimitControls()'),'nid-scanner.js must define MAX_NID_SIDES = 2 and sync add-limit controls');
+
+ // Verify Deliverable #2: studio-design.css sidebar thumbnails are full card aspect ratio, never squashed to h-8 (32px)
+ const cssSrc=fs.readFileSync(path.join(__dirname,'../src/styles/studio-design.css'),'utf8');
+ assert.ok(!/\.nid-card-tab\s*\{[^}]*\bh-8\b/.test(cssSrc),'studio-design.css must not squash .nid-card-tab to h-8 (32px)');
+ assert.ok(cssSrc.includes('#img-pane-combine #nidCardTabs .nid-card-tab__thumb-wrap')&&cssSrc.includes('aspect-ratio: 1.586 / 1;'),'studio-design.css must enforce ID-card aspect ratio on sidebar thumbnails');
+
+ // Verify Deliverable #4: Zoom loupe enabled by default and mounted inside #nidCanvasViewport
+ const svelteSrc=fs.readFileSync(path.join(__dirname,'../src/components/NidCardScanner.svelte'),'utf8');
+ assert.ok(!nidSrc.includes('if (!window._nidEnableLoupe)'),'nid-scanner.js must enable #nidCropLoupe by default during manual corner/edge crop');
+ const vpPos=svelteSrc.indexOf('id="nidCanvasViewport"'),wrapClosePos=svelteSrc.indexOf('id="nidScanLaser"'),loupePos=svelteSrc.indexOf('id="nidCropLoupe"');
+ assert.ok(vpPos>0&&loupePos>vpPos&&loupePos>wrapClosePos,'#nidCropLoupe must live inside #nidCanvasViewport outside #nidCropInteractiveWrap so it never clips');
+
+ // Verify Deliverable #1: Perspective Smart NID Back card with specular white glare above PDF417 barcode + warm cream/red striped cloth
+ const glareBackImg={
+  naturalWidth:680,naturalHeight:510,width:680,height:510,
+  _drawInto(dst,cw,ch){
+   const q=[{x:cw*0.13,y:ch*0.26},{x:cw*0.79,y:ch*0.25},{x:cw*0.806,y:ch*0.818},{x:cw*0.12,y:ch*0.835}];
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     if(!inPoly(x,y,q)){
+      // Smooth woven stripes on warm cream/beige cloth matching card luminance
+      if(nx<0.50){dst[i]=168;dst[i+1]=30;dst[i+2]=28;}
+      else{
+       const stripe=Math.round(Math.sin(x*0.35)*7);
+       dst[i]=206+stripe;dst[i+1]=185+stripe;dst[i+2]=168+stripe;
+      }
+      dst[i+3]=255;
+     }else{
+      // Top card rim has bright polycarbonate flash glare (244..250); barcode sits below rim (relY 0.045..0.135)
+      const topEdgeY=0.26+(0.25-0.26)*((nx-0.13)/0.66);
+      const rightEdgeX=0.79+(0.806-0.79)*((ny-0.25)/0.568);
+      const relY=ny-topEdgeY;
+      const onOuterShadow=relY<0.004||(rightEdgeX-nx)<0.004;
+      const inBarcode=relY>=0.045&&relY<=0.135&&nx>=0.17&&nx<=0.755;
+      const inGlareRim=relY<0.045||(rightEdgeX-nx)<0.035;
+      const inAddr=relY>=0.17&&relY<=0.27&&nx>=0.16&&nx<=0.58&&((y%7)<2)&&((x%3)<2);
+      const inMrz=relY>=0.38&&relY<=0.50&&nx>=0.16&&nx<=0.75&&((y%8)<3)&&((x%5)<3);
+      if(onOuterShadow){
+       dst[i]=155;dst[i+1]=148;dst[i+2]=142;
+      }else if(inBarcode){
+       const bar=((y%8)===0||(x%4)<2)?24:232;
+       dst[i]=bar;dst[i+1]=bar+2;dst[i+2]=bar+2;
+      }else if(inGlareRim){
+       dst[i]=246;dst[i+1]=248;dst[i+2]=247;
+      }else if(inAddr||inMrz){
+       dst[i]=28;dst[i+1]=30;dst[i+2]=30;
+      }else{
+       dst[i]=202;dst[i+1]=210;dst[i+2]=207;
+      }
+      dst[i+3]=255;
+     }
+    }
+   }
+  }
+ };
+ const detBack=sandboxWin.TechHatNidScanner.autoDetectCardQuad(glareBackImg,0,1,null,null,true);
+ assert.ok(detBack&&detBack.pts&&detBack.pts.length===4,'autoDetectCardQuad must detect perspective glared Smart NID Back card');
+ assert.ok(detBack.pts[0].y<0.285&&detBack.pts[1].y<0.275,`Top edge (${detBack.pts[0].y}, ${detBack.pts[1].y}) must include white rim above barcode (<0.285), never snap to barcode (~0.302)`);
+ assert.ok(Math.abs(detBack.pts[1].x-0.79)<0.035&&Math.abs(detBack.pts[2].x-0.806)<0.035,`Right edge (${detBack.pts[1].x}, ${detBack.pts[2].x}) must reject warm cream cloth and track perspective slope`);
+
+ // Flatbed Smart NID Back on warm A4 scanner lid with bevel-lit bottom edge & 3-line MRZ
+ const flatbedSmartBack={
+  naturalWidth:744,naturalHeight:1024,width:744,height:1024,
+  _drawInto(dst,cw,ch){
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     const inCard=nx>=0.321&&nx<=0.721&&ny>=0.082&&ny<=0.264;
+     if(!inCard){
+      if(nx>=0.321&&nx<=0.721&&ny>=0.079&&ny<0.082){
+       dst[i]=150;dst[i+1]=145;dst[i+2]=142; // 2px top cast shadow
+      }else{
+       dst[i]=228;dst[i+1]=222;dst[i+2]=213; // warm flatbed lid (r-b = +15)
+      }
+      dst[i+3]=255;
+     }else{
+      const inBarcode=ny>=0.094&&ny<=0.125&&nx>=0.345&&nx<=0.698;
+      const inGuilloche=ny>=0.132&&ny<=0.192;
+      const inAddr=ny>=0.138&&ny<=0.178&&nx>=0.342&&nx<=0.56&&((y%5)<2)&&((x%3)<2);
+      const inMrz=(Math.abs(ny-0.214)<0.004||Math.abs(ny-0.229)<0.004||Math.abs(ny-0.244)<0.004)&&nx>=0.345&&nx<=0.695&&((x%5)<3);
+      if(inBarcode){
+       const bar=((y%7)===0||(x%4)<2)?38:224;
+       dst[i]=bar;dst[i+1]=bar;dst[i+2]=bar+2;
+      }else if(inAddr||inMrz){
+       dst[i]=55;dst[i+1]=52;dst[i+2]=54;
+      }else if(inGuilloche){
+       dst[i]=196;dst[i+1]=221;dst[i+2]=188;
+      }else{
+       dst[i]=224;dst[i+1]=221;dst[i+2]=219; // cool polycarbonate white rim (r-b = +5, same lum as lid!)
+      }
+      dst[i+3]=255;
+     }
+    }
+   }
+  }
+ };
+ const detFlatSmart=sandboxWin.TechHatNidScanner.autoDetectCardQuad(flatbedSmartBack,0,1,null,null,true);
+ assert.ok(detFlatSmart&&detFlatSmart.pts&&detFlatSmart.pts.length===4,'autoDetectCardQuad must detect flatbed Smart NID Back');
+ assert.ok(Math.abs(detFlatSmart.pts[0].y-0.082)<0.012&&Math.abs(detFlatSmart.pts[2].y-0.264)<0.012,`Flatbed Smart NID Back Y (${detFlatSmart.pts[0].y}, ${detFlatSmart.pts[2].y}) must lock onto (0.082, 0.264) and never cut MRZ (~0.244)`);
+ assert.ok(Math.abs(detFlatSmart.pts[0].x-0.321)<0.015&&Math.abs(detFlatSmart.pts[1].x-0.721)<0.015,`Flatbed Smart NID Back X (${detFlatSmart.pts[0].x}, ${detFlatSmart.pts[1].x}) must lock onto (0.321, 0.721)`);
+
+ // Flatbed Old Laminated Paper NID with 2px inner black printed border + 3.5mm white margin + asymmetric tan lamination pouch
+ const flatbedOldLam={
+  naturalWidth:744,naturalHeight:1024,width:744,height:1024,
+  _drawInto(dst,cw,ch){
+   const pX0=0.2823,pX1=0.6828,pY0=0.1270,pY1=0.3105;
+   const lX0=pX0-0.020,lX1=pX1+0.038,lY0=pY0-0.014,lY1=pY1+0.016;
+   const bX0=pX0+0.015,bX1=pX1-0.015,bY0=pY0+0.010,bY1=pY1-0.010;
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     let r=229,g=224,b=215;
+     if(nx>=lX0&&nx<=lX1&&ny>=lY0&&ny<=lY1){r=205;g=199;b=198;}
+     if(nx>=pX0&&nx<=pX1&&ny>=pY0&&ny<=pY1){
+      r=212;g=214;b=226;
+      const onFrame=((Math.abs(nx-bX0)<0.002||Math.abs(nx-bX1)<0.002)&&ny>=bY0&&ny<=bY1)||((Math.abs(ny-bY0)<0.002||Math.abs(ny-bY1)<0.002)&&nx>=bX0&&nx<=bX1);
+      if(onFrame){r=42;g=42;b=48;}
+      else if(nx>=bX0+0.01&&nx<=bX0+0.09&&ny>=bY0+0.04&&ny<=bY0+0.12){r=120;g=98;b=92;}
+      else if(Math.hypot((nx-0.49)*cw,(ny-0.22)*ch)<cw*0.05){r=216;g=198;b=112;}
+      else if(nx>=bX0+0.11&&nx<=bX1-0.04&&ny>=bY0+0.02&&ny<=bY1-0.02&&((y%9)<2)&&((x%4)<3)){r=48;g=48;b=55;}
+     }
+     dst[i]=r;dst[i+1]=g;dst[i+2]=b;dst[i+3]=255;
+    }
+   }
+  }
+ };
+ const detOldLam=sandboxWin.TechHatNidScanner.autoDetectCardQuad(flatbedOldLam,0,1,null,null,true);
+ assert.ok(detOldLam&&detOldLam.pts&&detOldLam.pts.length===4,'autoDetectCardQuad must detect flatbed Old Laminated NID');
+ assert.ok(Math.abs(detOldLam.pts[0].x-0.2823)<0.012&&Math.abs(detOldLam.pts[1].x-0.6828)<0.012,`Old Laminated NID X (${detOldLam.pts[0].x}, ${detOldLam.pts[1].x}) must lock onto white paper (0.2823, 0.6828), rejecting inner black frame (0.297, 0.668) and right pouch (0.721)`);
+ assert.ok(Math.abs(detOldLam.pts[0].y-0.1270)<0.012&&Math.abs(detOldLam.pts[2].y-0.3105)<0.012,`Old Laminated NID Y (${detOldLam.pts[0].y}, ${detOldLam.pts[2].y}) must lock onto white paper (0.1270, 0.3105)`);
+
+ // Asymmetric ultra-narrow (~3px) left white margin Old Laminated NID Back with 1px inner black frame + PDF417 barcode
+ const narrowLeftOldLam={
+  naturalWidth:416,naturalHeight:464,width:416,height:464,
+  _drawInto(dst,cw,ch){
+   const pX0=0.3317,pX1=0.8197,pY0=0.1379,pY1=0.4255;
+   const lX0=pX0-0.024,lX1=pX1+0.031,lY0=pY0-0.019,lY1=pY1+0.021;
+   const bX0=pX0+0.0082,bX1=pX1-0.019,bY0=pY0+0.014,bY1=pY1-0.014;
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     let r=229,g=224,b=215;
+     if(nx>=lX0&&nx<=lX1&&ny>=lY0&&ny<=lY1){r=206;g=200;b=196;}
+     if(nx>=pX0&&nx<=pX1&&ny>=pY0&&ny<=pY1){
+      r=212;g=215;b=227;
+      const onFrame=((Math.abs(nx-bX0)<0.0024||Math.abs(nx-bX1)<0.0024)&&ny>=bY0&&ny<=bY1)||((Math.abs(ny-bY0)<0.0024||Math.abs(ny-bY1)<0.0024)&&nx>=bX0&&nx<=bX1);
+      if(onFrame){r=46;g=46;b=52;}
+      else if(nx>=bX0+0.012&&nx<=bX1-0.012&&ny>=pY1-0.088&&ny<=bY1-0.012&&((x*7+y*3)%5<3)){r=54;g=54;b=60;}
+      else if(nx>=bX0+0.015&&nx<=bX1-0.03&&ny>=bY0+0.02&&ny<=pY1-0.11&&((y%11)<2)&&((x%4)<3)){r=64;g=64;b=70;}
+     }
+     dst[i]=r;dst[i+1]=g;dst[i+2]=b;dst[i+3]=255;
+    }
+   }
+  }
+ };
+ const detNarrowOld=sandboxWin.TechHatNidScanner.autoDetectCardQuad(narrowLeftOldLam,0,1,null,null,true);
+ assert.ok(detNarrowOld&&detNarrowOld.pts&&detNarrowOld.pts.length===4,'autoDetectCardQuad must detect narrow-margin Old Laminated NID Back');
+ assert.ok(Math.abs(detNarrowOld.pts[0].x-0.3317)<0.011,`Narrow-margin Old NID left X (${detNarrowOld.pts[0].x}) must lock onto white paper (~0.3317), rejecting 1px inner black frame (~0.340) and outer pouch (~0.308)`);
+
+ // Multi-object A4 scan: 2 side-by-side human passport photos above + 32%-wide Smart NID card below
+ const multiObjectPhotosAndNid={
+  naturalWidth:640,naturalHeight:880,width:640,height:880,
+  _drawInto(dst,cw,ch){
+   const cX0=0.325,cX1=0.645,cY0=0.315,cY1=0.458;
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     let r=218,g=219,b=222;
+     // Left passport photo (blue backdrop + portrait)
+     if(nx>=0.365&&nx<=0.495&&ny>=0.135&&ny<=0.278){
+      r=22;g=92;b=178;
+      if(Math.hypot((nx-0.43)*cw,(ny-0.20)*ch)<cw*0.038){r=165;g=128;b=108;}
+      else if(ny>0.235&&Math.abs(nx-0.43)<0.055){r=48;g=68;b=88;}
+     }
+     // Right passport photo (white bordered portrait)
+     if(nx>=0.525&&nx<=0.665&&ny>=0.125&&ny<=0.275){
+      r=232;g=232;b=235;
+      if(Math.abs(nx-0.525)<0.002||Math.abs(nx-0.665)<0.002||Math.abs(ny-0.125)<0.002||Math.abs(ny-0.275)<0.002){r=145;g=145;b=150;}
+      else if(Math.hypot((nx-0.595)*cw,(ny-0.185)*ch)<cw*0.035){r=182;g=142;b=124;}
+      else if(ny>0.228&&ny<0.268&&Math.abs(nx-0.595)<0.06){r=58;g=38;b=42;}
+     }
+     // Smart NID card below
+     if(nx>=cX0&&nx<=cX1&&ny>=cY0&&ny<=cY1){
+      r=184;g=202;b=198;
+      if(ny<cY0+0.032){
+       r=196;g=206;b=205;
+       if(nx>=cX0+0.06&&nx<=cX1-0.06&&((y%5)<2)&&((x%3)<2)){r=58;g=64;b=68;}
+      }else if(nx>=cX0+0.018&&nx<=cX0+0.095&&ny>=cY0+0.042&&ny<=cY1-0.024){
+       r=126;g=128;b=134;
+      }else if(Math.hypot((nx-0.505)*cw,(ny-0.392)*ch)<cw*0.036){
+       r=198;g=176;b=186;
+      }else if(nx>=cX1-0.075&&nx<=cX1-0.030&&ny>=0.380&&ny<=0.408){
+       r=158;g=146;b=124;
+      }else if(nx>=cX0+0.11&&nx<=cX0+0.24&&ny>=cY1-0.020&&ny<=cY1-0.011&&((x%3)<2)){
+       r=48;g=52;b=58; // bold NID No digits near bottom margin
+      }else if(nx>=cX0+0.11&&nx<=cX0+0.23&&ny>=cY0+0.045&&ny<=cY1-0.028&&((y%8)<2)&&((x%4)<3)){
+       r=68;g=72;b=78;
+      }
+     }
+     dst[i]=r;dst[i+1]=g;dst[i+2]=b;dst[i+3]=255;
+    }
+   }
+  }
+ };
+ const detMultiObj=sandboxWin.TechHatNidScanner.autoDetectCardQuad(multiObjectPhotosAndNid,0,1,null,null,true);
+ assert.ok(detMultiObj&&detMultiObj.pts&&detMultiObj.pts.length===4,'autoDetectCardQuad must detect NID card on multi-object photo+NID scan');
+ assert.ok(detMultiObj.pts[0].y>0.30&&Math.abs(detMultiObj.pts[0].y-0.315)<0.015,`Multi-object scan top Y (${detMultiObj.pts[0].y}) must ignore upper passport photos (0.125..0.278) and lock onto NID top (~0.315)`);
+ assert.ok(Math.abs(detMultiObj.pts[2].y-0.458)<0.015,`Multi-object scan bottom Y (${detMultiObj.pts[2].y}) must include margin below NID No (~0.458)`);
+ assert.ok(Math.abs(detMultiObj.pts[0].x-0.325)<0.015&&Math.abs(detMultiObj.pts[1].x-0.645)<0.015,`Multi-object scan X (${detMultiObj.pts[0].x}, ${detMultiObj.pts[1].x}) must lock onto (0.325, 0.645)`);
+
+ // Smart NID inside clear rigid plastic badge holder with right lanyard clip slot
+ const plasticBadgeHolderNid={
+  naturalWidth:510,naturalHeight:680,width:510,height:680,
+  _drawInto(dst,cw,ch){
+   const hX0=0.025,hX1=0.962,hY0=0.252,hY1=0.676;
+   const cX0=0.104,cX1=0.818,cY0=0.294,cY1=0.638;
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     let r=226,g=226,b=222;
+     if(nx<0.11&&ny>0.22&&ny<0.72){r=148;g=146;b=142;} // left drop shadow
+     if(nx>=hX0&&nx<=hX1&&ny>=hY0&&ny<=hY1){
+      const onRim=Math.abs(nx-hX0)<0.010||Math.abs(nx-hX1)<0.010||Math.abs(ny-hY0)<0.010||Math.abs(ny-hY1)<0.010;
+      r=onRim?118:166;g=onRim?116:164;b=onRim?108:154; // clear plastic holder rail + outer bevel + lanyard slot
+      if(nx>0.865&&ny>0.41&&ny<0.50){r=112;g=96;b=74;} // lanyard clip
+     }
+     if(nx>=cX0&&nx<=cX1&&ny>=cY0&&ny<=cY1){
+      const guil=Math.round(Math.sin(x*0.6+y*0.4)*6);
+      r=198+guil;g=216+guil;b=206+guil; // inner Smart NID mint guilloche substrate
+      if(Math.hypot((nx-(cX0+0.055))*cw,(ny-(cY0+0.045))*ch)<cw*0.028){r=208;g=58;b=52;} // red emblem
+      else if(ny<cY0+0.065&&nx>=cX0+0.12&&nx<=cX1-0.12&&((y%7)<2)&&((x%5)<3)){r=102;g=112;b=108;} // header
+      else if(nx>=cX0+0.02&&nx<=cX0+0.20&&ny>=cY0+0.09&&ny<=cY1-0.07){
+       const pTex=((x*3+y*5)%7===0)?-18:0;
+       r=106+pTex;g=108+pTex;b=108+pTex; // portrait
+      }else if(nx>=cX1-0.19&&nx<=cX1-0.07&&ny>=0.45&&ny<=0.52){
+       const cTex=(x%6===0||y%6===0)?-22:0;
+       r=168+cTex;g=154+cTex;b=118+cTex; // gold IC chip with contact lines
+      }else if(nx>=cX0+0.23&&nx<=cX0+0.60&&ny>=cY0+0.09&&ny<=cY1-0.03&&((y%11)<2)&&((x%5)<3)){
+       r=104;g=112;b=108; // realistic anti-aliased text lines
+      }
+     }
+     dst[i]=r;dst[i+1]=g;dst[i+2]=b;dst[i+3]=255;
+    }
+   }
+  }
+ };
+ const detHolder=sandboxWin.TechHatNidScanner.autoDetectCardQuad(plasticBadgeHolderNid,0,1,null,null,true);
+ assert.ok(detHolder&&detHolder.pts&&detHolder.pts.length===4,'autoDetectCardQuad must detect Smart NID inside clear plastic badge holder');
+ assert.ok(detHolder.pts[1].x<0.835&&Math.abs(detHolder.pts[1].x-0.818)<0.020,`Badge holder right X (${detHolder.pts[1].x}) must trim wide right lanyard slot (0.818..0.945) and lock onto inner card (~0.818)`);
+ assert.ok(Math.abs(detHolder.pts[0].y-0.294)<0.018&&Math.abs(detHolder.pts[2].y-0.635)<0.018,`Badge holder Y (${detHolder.pts[0].y}, ${detHolder.pts[2].y}) must trim top/bottom plastic rails onto (0.294, 0.635)`);
+
+ // Crisp 300-DPI Smart NID Front on A4 flatbed scan with bold black bottom Signature + NID No digits above faint cream card margin
+ const crispBottomInkSmartA4={
+  naturalWidth:668,naturalHeight:920,width:668,height:920,
+  _drawInto(dst,cw,ch){
+   const cX0=0.347,cX1=0.753,cY0=0.0978,cY1=0.2788;
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     let r=227,g=221,b=213; // warm cream-white flatbed scanner lid
+     if(nx>=cX0&&nx<=cX1&&ny>=cY0&&ny<=cY1){
+      const guil=Math.round(Math.sin(x*0.32)*2.5+Math.cos(y*0.29)*2.5);
+      // Smart NID mint-green substrate blending smoothly into warm cream bottom margin
+      const tCr=Math.max(0,Math.min(1,(ny-0.252)/0.018));
+      r=Math.round(205*(1-tCr)+212*tCr)+guil;
+      g=Math.round(215*(1-tCr)+205*tCr)+guil;
+      b=Math.round(204*(1-tCr)+200*tCr)+guil;
+      // Crisp top 1px border + header + red emblem + portrait + gold chip
+      if(Math.abs(ny-cY0)<0.0018){r=75;g=82;b=78;}
+      else if(Math.hypot((nx-(cX0+0.045))*cw,(ny-(cY0+0.032))*ch)<cw*0.022){r=210;g=56;b=48;}
+      else if(ny>=cY0+0.012&&ny<=cY0+0.048&&nx>=cX0+0.10&&nx<=cX1-0.10&&((y%5)<2)&&((x%4)<3)){r=68;g=74;b=72;}
+      else if(nx>=cX0+0.025&&nx<=cX0+0.19&&ny>=cY0+0.058&&ny<=0.245){
+       const pTex=((x*3+y*5)%7===0)?-18:0;
+       r=112+pTex;g=112+pTex;b=112+pTex;
+      }else if(nx>=cX1-0.16&&nx<=cX1-0.05&&ny>=0.185&&ny<=0.218){
+       r=166;g=152;b=116;
+      }else if(nx>=cX0+0.22&&nx<=cX0+0.58&&ny>=cY0+0.062&&ny<=0.248&&((y%10)<2)&&((x%5)<3)){
+       r=65;g=68;b=66;
+      }
+      // Collinear bold black cursive signature + NID No + 506 234 6597 at y=0.2575..0.2665 across 5 slices
+      if(ny>=0.2575&&ny<=0.2665&&nx>=0.382&&nx<=0.642&&((x%5)<4)){
+       r=24;g=24;b=24;
+      }
+     }
+     dst[i]=r;dst[i+1]=g;dst[i+2]=b;dst[i+3]=255;
+    }
+   }
+  }
+ };
+ const detSmartA4=sandboxWin.TechHatNidScanner.autoDetectCardQuad(crispBottomInkSmartA4,0,1,null,null,true);
+ assert.ok(detSmartA4&&detSmartA4.pts&&detSmartA4.pts.length===4,'autoDetectCardQuad must detect Smart NID Front on A4 scan');
+ assert.ok(Math.abs(detSmartA4.pts[2].y-0.2788)<0.008&&Math.abs(detSmartA4.pts[3].y-0.2788)<0.008,`Smart NID A4 bottom Y (${detSmartA4.pts[3].y}, ${detSmartA4.pts[2].y}) must lock onto true card edge (~0.2788), never snapping to NID No digits (~0.258..0.267)`);
+
+ // Old Laminated Paper NID Front on A4 flatbed scan: cool white paper with 1px black frame (ultra-narrow 2.5px right paper margin)
+ // inside a wide (~16px) warm-yellowed clear lamination pouch on a cream scanner bed
+ const wideYellowedPouchOldFrontA4={
+  naturalWidth:668,naturalHeight:920,width:668,height:920,
+  _drawInto(dst,cw,ch){
+   const pX0=0.359,pX1=0.831,pY0=0.106,pY1=0.348; // outer lamination pouch
+   const cX0=0.396,cX1=0.803,cY0=0.127,cY1=0.331; // inner cool-white paper card
+   const fX0=0.414,fX1=0.799,fY0=0.139,fY1=0.315; // 1px printed black border (ultra-narrow 2.5px right margin!)
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     let r=229,g=222,b=212; // warm cream scanner bed
+     if(nx>=pX0&&nx<=pX1&&ny>=pY0&&ny<=pY1){
+      // Warm-aged clear lamination pouch + faint heat-seal outer rim
+      const onPouchRim=(Math.abs(nx-pX0)<0.0025||Math.abs(nx-pX1)<0.0025||Math.abs(ny-pY0)<0.0022||Math.abs(ny-pY1)<0.0022);
+      if(onPouchRim){r=198;g=189;b=175;}
+      else{r=218;g=208;b=196;}
+     }
+     if(nx>=cX0&&nx<=cX1&&ny>=cY0&&ny<=cY1){
+      // Paper cut-edge 1px bevel + cool optical-brightener white paper substrate
+      const onCutEdge=(Math.abs(ny-cY0)<0.0014||Math.abs(ny-cY1)<0.0014||Math.abs(nx-cX0)<0.0018||Math.abs(nx-cX1)<0.0018);
+      if(onCutEdge){r=190;g=184;b=183;}
+      else{r=222;g=217;b=223;}
+      // 1px black printed border frame + header divider
+      const onBlackFrame=(
+       ((Math.abs(nx-fX0)<0.0018||Math.abs(nx-fX1)<0.0018)&&ny>=fY0&&ny<=fY1)||
+       ((Math.abs(ny-fY0)<0.0014||Math.abs(ny-fY1)<0.0014||Math.abs(ny-(fY0+0.052))<0.0014)&&nx>=fX0&&nx<=fX1)
+      );
+      if(onBlackFrame){r=118;g=114;b=118;}
+      else if(Math.hypot((nx-0.618)*cw,(ny-0.242)*ch)<cw*0.072){r=216;g=198;b=118;} // yellow waterlily emblem
+      else if(nx>=fX0+0.010&&nx<=fX0+0.095&&ny>=fY0+0.058&&ny<=fY1-0.040){r=132;g=102;b=92;} // portrait
+      else if(nx>=fX0+0.115&&nx<=fX1-0.06&&ny>=fY0+0.012&&ny<=fY1-0.012&&((y%9)<2)&&((x%5)<3)){
+       if(ny>fY1-0.032){r=195;g=62;b=68;}else{r=74;g=72;b=76;}
+      }
+     }
+     dst[i]=r;dst[i+1]=g;dst[i+2]=b;dst[i+3]=255;
+    }
+   }
+  }
+ };
+ const detOldFrA4=sandboxWin.TechHatNidScanner.autoDetectCardQuad(wideYellowedPouchOldFrontA4,0,1,null,null,true);
+ assert.ok(detOldFrA4&&detOldFrA4.pts&&detOldFrA4.pts.length===4,'autoDetectCardQuad must detect Old Laminated NID Front on A4 scan');
+ assert.ok(Math.abs(detOldFrA4.pts[0].y-0.127)<0.009&&Math.abs(detOldFrA4.pts[1].y-0.127)<0.009,`Old NID Front top Y (${detOldFrA4.pts[0].y}, ${detOldFrA4.pts[1].y}) must lock onto white paper (~0.127), rejecting outer pouch (0.106) and 1px frame (0.139)`);
+ assert.ok(Math.abs(detOldFrA4.pts[2].y-0.331)<0.009&&Math.abs(detOldFrA4.pts[3].y-0.331)<0.009,`Old NID Front bottom Y (${detOldFrA4.pts[3].y}, ${detOldFrA4.pts[2].y}) must lock onto white paper (~0.331), rejecting outer pouch (0.348) and 1px frame (0.315)`);
+ assert.ok(Math.abs(detOldFrA4.pts[0].x-0.396)<0.010&&Math.abs(detOldFrA4.pts[1].x-0.803)<0.010,`Old NID Front X (${detOldFrA4.pts[0].x}, ${detOldFrA4.pts[1].x}) must lock onto white paper (~0.396..0.803), rejecting outer pouch (0.359..0.831)`);
+});
+
+(async () => {
+ const fs=require('node:fs'),path=require('node:path');
+ const nidSrc=fs.readFileSync(path.join(__dirname,'../public/js/nid-scanner.js'),'utf8');
+ const makeEl=(id)=>{
+  const attrs={'data-view':'preview'};
+  const listeners={};
+  return {
+   id,hidden:false,value:'100',disabled:false,innerHTML:'',textContent:'',dataset:{},clientWidth:640,clientHeight:480,
+   style:{setProperty(){}},
+   classList:{toggle(){},add(){},remove(){},contains:()=>false},
+   getAttribute:(k)=>attrs[k]||null,
+   setAttribute:(k,v)=>{attrs[k]=String(v);},
+   addEventListener(ev,fn){(listeners[ev]||(listeners[ev]=[])).push(fn);},
+   click(){(listeners.click||[]).forEach((fn)=>fn({preventDefault(){},stopPropagation(){},currentTarget:this}));},
+   appendChild(){},
+   querySelector:()=>null,
+   querySelectorAll:()=>[]
+  };
+ };
+ const els={
+  '#img-pane-combine':makeEl('img-pane-combine'),
+  '#imgCombineDropzone':makeEl('imgCombineDropzone'),
+  '#imgCombineStage':makeEl('imgCombineStage'),
+  '#nidPreviewPanel':makeEl('nidPreviewPanel'),
+  '#nidPaperLabel':makeEl('nidPaperLabel'),
+  '#imgCombineOutMeta':makeEl('imgCombineOutMeta'),
+  '#imgCombineSummary':makeEl('imgCombineSummary'),
+  '#nidZoomFitBtn':makeEl('nidZoomFitBtn'),
+  '#nidZoomOutBtn':makeEl('nidZoomOutBtn'),
+  '#nidZoomInBtn':makeEl('nidZoomInBtn'),
+  '#nidZoomPercent':makeEl('nidZoomPercent')
+ };
+ const makeMockCanvas=()=>{
+  const c={width:160,height:100,_data:new Uint8ClampedArray(160*100*4)};
+  c.toDataURL=()=>'data:image/jpeg;base64,AA==';
+  c.toBlob=(cb)=>cb({size:1024});
+  c.getContext=()=>new Proxy({
+   measureText:()=>({width:10}),
+   createLinearGradient:()=>({addColorStop(){}}),
+   createRadialGradient:()=>({addColorStop(){}}),
+   createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4),width:w,height:h}),
+   getImageData:(x,y,w,h)=>({data:new Uint8ClampedArray(w*h*4),width:w,height:h})
+  },{get:(t,k)=>k in t?t[k]:()=>{}});
+  return c;
+ };
+ els['#nidCropSourceCanvas']=makeMockCanvas();
+ {
+  const origGetCtx=els['#nidCropSourceCanvas'].getContext;
+  els['#nidCropSourceCanvas']._sourceDrawCount=0;
+  els['#nidCropSourceCanvas'].getContext=()=>{
+   const base=origGetCtx();
+   return new Proxy(base,{
+    get:(t,k)=>k==='drawImage'
+     ? (...args)=>{els['#nidCropSourceCanvas']._sourceDrawCount++;return t[k](...args);}
+     : t[k]
+   });
+  };
+ }
+ els['#nidLivePreviewCanvas']=makeMockCanvas();
+ const ratioPolyEl=makeEl('nidQuadPoly');
+ els['#nidQuadPoly']=ratioPolyEl;
+ els['#nidSnapRatioBtn']=makeEl('nidSnapRatioBtn');
+ els['#nidSnapPortraitRatioBtn']=makeEl('nidSnapPortraitRatioBtn');
+ const win={
+  innerWidth:1280,
+  addEventListener(){},
+  removeEventListener(){},
+  ResizeObserver:function(){return {observe(){},disconnect(){}};},
+  document:{
+   documentElement:{getAttribute:()=>'bn'},
+   querySelector:(s)=>els[s]||(els[s]=makeEl(s)),
+   querySelectorAll:()=>[],
+   createElement:(t)=>t==='canvas'?makeMockCanvas():makeEl(t),
+   addEventListener(){},
+   body:{appendChild(){}}
+  },
+  TechHatScanGeometry:{
+   load:(file)=>Promise.resolve({
+    file,name:file.name,size:1000,type:'image/jpeg',width:320,height:200,url:'blob:'+file.name,
+    img:{width:320,height:200,naturalWidth:320,naturalHeight:200}
+   })
+  },
+  requestAnimationFrame:(fn)=>fn(),
+  cancelAnimationFrame(){},
+  setTimeout:()=>1,
+  clearTimeout(){},
+  URL:{createObjectURL:()=>'blob:x',revokeObjectURL(){}},
+  Math,Uint8Array,Uint8ClampedArray,Int16Array,Int32Array,Float32Array,Float64Array,Array,Object,String,Number,Boolean,RegExp,Promise,Error
+ };
+ win.window=win;
+ require('vm').runInNewContext(nidSrc,win);
+
+ await win.TechHatNidScanner.addFiles([{name:'part1-front.jpg',type:'image/jpeg'}]);
+ assert.equal(win.TechHatNidScanner.getCount(),1,'1st upload must add 1 side');
+ assert.equal(win.TechHatNidScanner.getActiveIndex(),0,'1st upload must select index 0');
+
+ // Simulate user switching to preview before uploading Part 2
+ els['#img-pane-combine'].setAttribute('data-view','preview');
+ await win.TechHatNidScanner.addFiles([{name:'part2-back.jpg',type:'image/jpeg'}]);
+ assert.equal(win.TechHatNidScanner.getCount(),2,'2nd upload must add 2nd side');
+ assert.equal(win.TechHatNidScanner.getActiveIndex(),1,'2nd upload must automatically switch activeNidIdx to 1 (2nd image)');
+ assert.equal(els['#img-pane-combine'].getAttribute('data-view'),'split','2nd upload must restore split view so 2nd image shows in crop editor immediately');
+ passed++;
+ console.log('✓ NID Scanner sequential 2-part upload automatically selects the 2nd uploaded image and restores crop view');
+
+ // Verify clicking Portrait / Landscape crop ratio buttons changes ONLY crop box ratio without rotating the page
+ const polySpan=(ptsStr)=>{
+  const pairs=String(ptsStr||'').trim().split(/\s+/).map((s)=>s.split(',').map(Number));
+  if(pairs.length<4)return {w:0,h:0};
+  const xs=pairs.map((p)=>p[0]),ys=pairs.map((p)=>p[1]);
+  return {w:Math.max(...xs)-Math.min(...xs),h:Math.max(...ys)-Math.min(...ys)};
+ };
+ const drawsBeforePortrait=els['#nidCropSourceCanvas']._sourceDrawCount;
+ const srcWBefore=els['#nidCropSourceCanvas'].width,srcHBefore=els['#nidCropSourceCanvas'].height;
+ els['#nidSnapPortraitRatioBtn'].click();
+ assert.equal(els['#nidSnapPortraitRatioBtn'].getAttribute('aria-pressed'),'true','Clicking Portrait button must activate Portrait ratio state');
+ assert.equal(els['#nidSnapRatioBtn'].getAttribute('aria-pressed'),'false','Clicking Portrait button must deactivate Landscape ratio state');
+ assert.equal(els['#nidCropSourceCanvas']._sourceDrawCount,drawsBeforePortrait,'Clicking Portrait button must NOT redraw/rotate the source page canvas');
+ assert.equal(els['#nidCropSourceCanvas'].width,srcWBefore,'Page canvas width must stay unchanged on Portrait click');
+ assert.equal(els['#nidCropSourceCanvas'].height,srcHBefore,'Page canvas height must stay unchanged on Portrait click');
+ const portSpan=polySpan(ratioPolyEl.getAttribute('points'));
+ assert.ok(portSpan.h>portSpan.w&&Math.abs((portSpan.h/portSpan.w)-(85.6/53.98))<0.05,`Clicking Portrait must switch SVG crop box ratio to tall Portrait (h/w=${(portSpan.h/Math.max(1,portSpan.w)).toFixed(3)})`);
+
+ els['#nidSnapRatioBtn'].click();
+ assert.equal(els['#nidSnapRatioBtn'].getAttribute('aria-pressed'),'true','Clicking Landscape button must activate Landscape ratio state');
+ assert.equal(els['#nidCropSourceCanvas']._sourceDrawCount,drawsBeforePortrait,'Clicking Landscape button must NOT redraw/rotate the source page canvas');
+ const landSpan=polySpan(ratioPolyEl.getAttribute('points'));
+ assert.ok(landSpan.w>landSpan.h&&Math.abs((landSpan.w/landSpan.h)-(85.6/53.98))<0.05,`Clicking Landscape must switch SVG crop box ratio back to wide Landscape (w/h=${(landSpan.w/Math.max(1,landSpan.h)).toFixed(3)})`);
+ passed++;
+ console.log('✓ Clicking Portrait / Landscape changes ONLY crop quad ratio without rotating the page');
+
+ // Verify Portrait ID card detection keeps portrait orientation upright without rotating 90 deg sideways
+ const portraitIdImg={
+  naturalWidth:320,naturalHeight:440,width:320,height:440,
+  _drawInto(dst,cw,ch){
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     const inCard=nx>=0.22&&nx<=0.76&&ny>=0.14&&ny<=0.72;
+     let r=245,g=246,b=248;
+     if(inCard){
+      const onBorder=nx<0.235||nx>0.745||ny<0.155||ny>0.705;
+      const inHeader=ny>=0.16&&ny<=0.23&&nx>=0.25&&nx<=0.73;
+      const inAvatar=ny>=0.25&&ny<=0.43&&nx>=0.37&&nx<=0.61;
+      const inRows=ny>=0.46&&ny<=0.68&&nx>=0.27&&nx<=0.71&&((y%5)<2)&&((x%3)<2);
+      if(onBorder){r=42;g=58;b=78;}
+      else if(inHeader){r=28;g=115;b=68;}
+      else if(inAvatar){r=92;g=78;b=74;}
+      else if(inRows){r=32;g=36;b=44;}
+      else{r=228;g=234;b=240;}
+     }
+     dst[i]=r;dst[i+1]=g;dst[i+2]=b;dst[i+3]=255;
+    }
+   }
+  }
+ };
+ const makeRealCanvas=()=>{
+  let cw=160,ch=100,buf=new Uint8ClampedArray(cw*ch*4);
+  const ctx={
+   fillStyle:'#fff',imageSmoothingEnabled:true,imageSmoothingQuality:'high',
+   _drawCalls:[],
+   fillRect(x,y,w,h){ctx._drawCalls.push({op:'fillRect',x,y,w,h});},
+   save(){},restore(){},beginPath(){},clip(){},translate(){},rotate(){},scale(){},
+   moveTo(){},lineTo(){},arcTo(){},quadraticCurveTo(){},rect(){},arc(){},closePath(){},stroke(){},strokeRect(){},setLineDash(){},
+   drawImage(src,dx=0,dy=0,dw,dh){
+    const wDst=Math.round(dw||src.width||cw),hDst=Math.round(dh||src.height||ch);
+    ctx._drawCalls.push({op:'drawImage',x:dx,y:dy,w:wDst,h:hDst});
+    if(src&&typeof src._drawInto==='function'){src._drawInto(buf,cw,ch);return;}
+    if(src&&typeof src._getBuf==='function'){
+     const sBuf=src._getBuf(),sw=src.width,sh=src.height;
+     for(let y=0;y<hDst&&y<ch;y++){
+      for(let x=0;x<wDst&&x<cw;x++){
+       const u=Math.max(0,Math.min(sw-1,Math.floor((x/Math.max(1,wDst))*sw)));
+       const v=Math.max(0,Math.min(sh-1,Math.floor((y/Math.max(1,hDst))*sh)));
+       const si=(v*sw+u)*4,di=((Math.max(0,dy|0)+y)*cw+(Math.max(0,dx|0)+x))*4;
+       if(di+3<buf.length){buf[di]=sBuf[si];buf[di+1]=sBuf[si+1];buf[di+2]=sBuf[si+2];buf[di+3]=sBuf[si+3];}
+      }
+     }
+    }
+   },
+   getImageData(x=0,y=0,gw=cw,gh=ch){
+    const sub=new Uint8ClampedArray(gw*gh*4);
+    for(let r=0;r<gh;r++){
+     const sy=Math.max(0,Math.min(ch-1,y+r));
+     for(let col=0;col<gw;col++){
+      const sx=Math.max(0,Math.min(cw-1,x+col));
+      const si=(sy*cw+sx)*4,di=(r*gw+col)*4;
+      sub[di]=buf[si];sub[di+1]=buf[si+1];sub[di+2]=buf[si+2];sub[di+3]=buf[si+3];
+     }
+    }
+    return {data:sub,width:gw,height:gh};
+   },
+   createImageData:(gw,gh)=>({data:new Uint8ClampedArray(gw*gh*4),width:gw,height:gh}),
+   putImageData(imgData){buf=new Uint8ClampedArray(imgData.data);}
+  };
+  const c={
+   get width(){return cw;},set width(v){cw=Math.max(1,v|0);buf=new Uint8ClampedArray(cw*ch*4);},
+   get height(){return ch;},set height(v){ch=Math.max(1,v|0);buf=new Uint8ClampedArray(cw*ch*4);},
+   _getBuf:()=>buf,
+   getContext:()=>ctx,
+   toDataURL:()=>'data:image/jpeg;base64,AA==',
+   toBlob:(cb)=>cb({size:1024})
+  };
+  return c;
+ };
+ const portWin={
+  document:{documentElement:{getAttribute:()=>'bn'},querySelector:()=>null,querySelectorAll:()=>[],createElement:(t)=>t==='canvas'?makeRealCanvas():makeEl(t),addEventListener(){},body:{appendChild(){}}},
+  Math,Uint8Array,Uint8ClampedArray,Int16Array,Int32Array,Float32Array,Float64Array,Array,Object,String,Number,Boolean,RegExp,Promise,Error
+ };
+ portWin.window=portWin;
+ require('vm').runInNewContext(nidSrc,portWin);
+
+ const detPortrait=portWin.TechHatNidScanner.autoDetectCardQuad(portraitIdImg,0,1,null,null,true,'portrait');
+ assert.ok(detPortrait&&detPortrait.auto&&detPortrait.pts&&detPortrait.pts.length===4,'autoDetectCardQuad portrait mode must detect portrait ID card');
+ assert.equal(detPortrait.rot,0,'Portrait ID detection must keep portrait orientation upright (rot === 0) without rotating sideways');
+ const pW=(detPortrait.pts[1].x-detPortrait.pts[0].x)*portraitIdImg.width;
+ const pH=(detPortrait.pts[3].y-detPortrait.pts[0].y)*portraitIdImg.height;
+ assert.ok(pH>pW,`Portrait detected box must remain taller than wide (h=${pH.toFixed(1)}, w=${pW.toFixed(1)})`);
+ assert.ok(Math.abs(detPortrait.pts[0].x-0.22)<0.06&&Math.abs(detPortrait.pts[1].x-0.76)<0.06,'Portrait detected X must align near card left/right');
+ assert.ok(Math.abs(detPortrait.pts[0].y-0.14)<0.06&&Math.abs(detPortrait.pts[2].y-0.72)<0.06,'Portrait detected Y must align near card top/bottom');
+ passed++;
+ console.log('✓ Portrait ID card detection keeps upright 54×85.6 orientation without sideways rotation');
+
+ // Verify fixed ISO CR80 aspect ratio is preserved in rendered card even when manual crop quad is stretched square
+ const widePhoto={naturalWidth:320,naturalHeight:240,width:320,height:240,_drawInto(dst){dst.fill(230);}};
+ const stretchedQuad=[{x:0.10,y:0.08},{x:0.82,y:0.08},{x:0.82,y:0.86},{x:0.10,y:0.86}];
+ const landOut=portWin.TechHatNidScanner.renderProcessedCardCanvas({item:{img:widePhoto},rot:0,flipH:1,fineAngle:0,pts:stretchedQuad,cardOrient:'landscape'},'original',100,100,100,20,true,false,false);
+ const landAspect=landOut.width/landOut.height;
+ assert.ok(Math.abs(landAspect-(85.6/53.98))<0.025,`Stretched crop quad in Landscape must lock preview aspect to 85.6/53.98 (~1.586), got ${landAspect.toFixed(3)} (${landOut.width}x${landOut.height})`);
+ const portOut=portWin.TechHatNidScanner.renderProcessedCardCanvas({item:{img:portraitIdImg},rot:0,flipH:1,fineAngle:0,pts:stretchedQuad,cardOrient:'portrait'},'original',100,100,100,20,true,false,false);
+ const portAspect=portOut.width/portOut.height;
+ assert.ok(Math.abs(portAspect-(53.98/85.6))<0.025,`Stretched crop quad in Portrait must lock preview aspect to 53.98/85.6 (~0.631), got ${portAspect.toFixed(3)} (${portOut.width}x${portOut.height})`);
+ passed++;
+ console.log('✓ Manual stretched crop quad preserves exact ISO CR80 aspect ratio in both Landscape and Portrait preview');
+
+ // Verify Actual ID Size (506 => 85.6×54mm) & Portrait sheet layout & Card-Only printWidthMm
+ const sheetCanvas=makeRealCanvas();
+ const landCardMock=makeRealCanvas(); landCardMock.width=856; landCardMock.height=540;
+ const a4Dims=portWin.TechHatNidScanner.composeCombineSheetCanvas(sheetCanvas,[landCardMock,landCardMock],{mode:'nid-a4',gap:36,bg:'#ffffff',alignMode:'top',copySets:1,roundCorner:true,showBorder:true,showCutMarks:false,cardWInput:506},2);
+ const drawnLand=sheetCanvas.getContext('2d')._drawCalls.filter((d)=>d.op==='drawImage');
+ assert.equal(a4Dims.fullW,2480,'A4 sheet width must be 2480px');
+ assert.equal(a4Dims.printWidthMm,210,'A4 printWidthMm must be 210mm');
+ assert.equal(drawnLand[0].w,1012,'Actual ID Size (506) on 300-DPI A4 must render card width 1012px (~85.69mm)');
+ assert.equal(drawnLand[0].h,638,'Actual ID Size (506) on 300-DPI A4 must render card height 638px (~54.02mm)');
+
+ const cardOnlySheet=makeRealCanvas();
+ const vertDims=portWin.TechHatNidScanner.composeCombineSheetCanvas(cardOnlySheet,[landCardMock,landCardMock],{mode:'vertical',gap:36,bg:'#ffffff',alignMode:'top',copySets:1,roundCorner:true,showBorder:true,showCutMarks:false,cardWInput:506},2);
+ assert.equal(vertDims.fullW,1012+36*4,'Vertical Actual ID Size sheet fullW must tightly wrap 1012px card + padding');
+ assert.ok(Math.abs(vertDims.printWidthMm-(vertDims.fullW*210/2480))<0.1,'Vertical card-only printWidthMm must match physical 300-DPI mm width instead of 210mm');
+
+ const portSheet=makeRealCanvas();
+ const portCardMock=makeRealCanvas(); portCardMock.width=540; portCardMock.height=856;
+ portWin.TechHatNidScanner.composeCombineSheetCanvas(portSheet,[portCardMock,portCardMock],{mode:'nid-a4',gap:36,bg:'#ffffff',alignMode:'top',copySets:1,roundCorner:true,showBorder:true,showCutMarks:false,cardWInput:506},2);
+ const drawnPort=portSheet.getContext('2d')._drawCalls.filter((d)=>d.op==='drawImage');
+ assert.equal(drawnPort[0].w,638,'Portrait Actual ID Size on 300-DPI A4 must render width 638px (~54.02mm)');
+ assert.equal(drawnPort[0].h,1012,'Portrait Actual ID Size on 300-DPI A4 must render height 1012px (~85.69mm)');
+ passed++;
+ console.log('✓ Actual ID Size (85.6×54mm) & Portrait card sheet composition and printWidthMm verified');
+
+ // Verify real Portrait ID Card with blue header banner + landscape photo frame is detected accurately
+ const blueBannerPortraitOnDesk={
+  naturalWidth:520,naturalHeight:420,width:520,height:420,
+  _drawInto(dst,cw,ch){
+   const cX0=0.35,cX1=0.61,cY0=0.14,cY1=0.66; // tall 54:85.6 portrait card (135px x 218px, h/w ~ 1.61) on cream flatbed/desk
+   for(let y=0;y<ch;y++){
+    for(let x=0;x<cw;x++){
+     const nx=x/cw,ny=y/ch,i=(y*cw+x)*4;
+     let r=230,g=225,b=216;
+     if(nx>=cX0&&nx<=cX1&&ny>=cY0&&ny<=cY1){
+      if(ny<=cY0+0.10){r=24;g=68;b=168;} // dark navy/royal-blue vertical ID top banner
+      else if(nx>=cX0+0.06&&nx<=cX1-0.06&&ny>=cY0+0.13&&ny<=cY0+0.30){r=108;g=84;b=76;} // centered portrait photo
+      else if(nx>=cX0+0.04&&nx<=cX1-0.04&&ny>=cY0+0.33&&ny<=cY1-0.08&&((y%7)<2)&&((x%4)<3)){r=34;g=38;b=44;} // bottom details/barcode
+      else if(ny>=cY1-0.055){r=28;g=72;b=164;} // bottom accent bar
+      else{r=234;g=238;b=242;}
+     }
+     dst[i]=r;dst[i+1]=g;dst[i+2]=b;dst[i+3]=255;
+    }
+   }
+  }
+ };
+ const detBluePort=portWin.TechHatNidScanner.autoDetectCardQuad(blueBannerPortraitOnDesk,0,1,null,null,false,'portrait');
+ assert.ok(detBluePort&&!detBluePort.fallback&&detBluePort.pts&&detBluePort.pts.length===4,'Portrait mode must auto-detect vertical Portrait ID card with blue header banner without fallback');
+ assert.equal(detBluePort.rot,0,'Portrait detection on wide photo must not rotate page');
+ assert.ok(Math.abs(detBluePort.pts[0].x-0.35)<0.035&&Math.abs(detBluePort.pts[1].x-0.61)<0.035,`Blue-header Portrait ID X (${detBluePort.pts[0].x.toFixed(3)}..${detBluePort.pts[1].x.toFixed(3)}) must lock near (0.35..0.61)`);
+ assert.ok(Math.abs(detBluePort.pts[0].y-0.14)<0.035&&Math.abs(detBluePort.pts[2].y-0.66)<0.035,`Blue-header Portrait ID Y (${detBluePort.pts[0].y.toFixed(3)}..${detBluePort.pts[2].y.toFixed(3)}) must include blue top header & bottom bar (0.14..0.66)`);
+
+ // Verify interactive click on Portrait (#nidSnapPortraitRatioBtn) & Dropzone pre-select (#nidDropOrientPortrait) auto-detect Portrait ID card WITHOUT rotating page
+ const pDomEls={
+  '#img-pane-combine':makeEl('img-pane-combine'),
+  '#imgCombineDropzone':makeEl('imgCombineDropzone'),
+  '#imgCombineStage':makeEl('imgCombineStage'),
+  '#nidPreviewPanel':makeEl('nidPreviewPanel'),
+  '#nidPaperLabel':makeEl('nidPaperLabel'),
+  '#imgCombineOutMeta':makeEl('imgCombineOutMeta'),
+  '#imgCombineSummary':makeEl('imgCombineSummary'),
+  '#nidZoomFitBtn':makeEl('nidZoomFitBtn'),
+  '#nidZoomOutBtn':makeEl('nidZoomOutBtn'),
+  '#nidZoomInBtn':makeEl('nidZoomInBtn'),
+  '#nidZoomPercent':makeEl('nidZoomPercent'),
+  '#nidQuadPoly':makeEl('nidQuadPoly'),
+  '#nidSnapRatioBtn':makeEl('nidSnapRatioBtn'),
+  '#nidSnapPortraitRatioBtn':makeEl('nidSnapPortraitRatioBtn'),
+  '#nidDropOrientLandscape':makeEl('nidDropOrientLandscape'),
+  '#nidDropOrientPortrait':makeEl('nidDropOrientPortrait'),
+  '#imgCombineClearBtn':makeEl('imgCombineClearBtn')
+ };
+ pDomEls['#nidCropSourceCanvas']=makeRealCanvas();
+ pDomEls['#nidLivePreviewCanvas']=makeRealCanvas();
+ {
+  const origGetCtx=pDomEls['#nidCropSourceCanvas'].getContext;
+  pDomEls['#nidCropSourceCanvas']._sourceDrawCount=0;
+  pDomEls['#nidCropSourceCanvas'].getContext=()=>{
+   const c=origGetCtx();
+   if(!c._wrapped){
+    const origDraw=c.drawImage.bind(c);
+    c.drawImage=(...args)=>{pDomEls['#nidCropSourceCanvas']._sourceDrawCount++;return origDraw(...args);};
+    c._wrapped=true;
+   }
+   return c;
+  };
+ }
+ const pDomWin={
+  innerWidth:1280,
+  addEventListener(){},
+  removeEventListener(){},
+  ResizeObserver:function(){return {observe(){},disconnect(){}};},
+  document:{
+   documentElement:{getAttribute:()=>'bn'},
+   querySelector:(s)=>pDomEls[s]||(pDomEls[s]=makeEl(s)),
+   querySelectorAll:()=>[],
+   createElement:(t)=>t==='canvas'?makeRealCanvas():makeEl(t),
+   addEventListener(){},
+   body:{appendChild(){}}
+  },
+  TechHatScanGeometry:{load:(file)=>Promise.resolve({file,name:file.name,size:1000,type:'image/jpeg',width:blueBannerPortraitOnDesk.width,height:blueBannerPortraitOnDesk.height,url:'blob:'+file.name,img:blueBannerPortraitOnDesk})},
+  requestAnimationFrame:(fn)=>fn(),
+  cancelAnimationFrame(){},
+  setTimeout:()=>1,
+  clearTimeout(){},
+  URL:{createObjectURL:()=>'blob:x',revokeObjectURL(){}},
+  Math,Uint8Array,Uint8ClampedArray,Int16Array,Int32Array,Float32Array,Float64Array,Array,Object,String,Number,Boolean,RegExp,Promise,Error
+ };
+ pDomWin.window=pDomWin;
+ require('vm').runInNewContext(nidSrc,pDomWin);
+ // Test A: Pre-select Portrait on Dropzone -> upload automatically detects Portrait card
+ pDomEls['#nidDropOrientPortrait'].click();
+ assert.equal(pDomEls['#nidDropOrientPortrait'].getAttribute('aria-pressed'),'true','Dropzone Portrait button must activate Portrait state before upload');
+ await pDomWin.TechHatNidScanner.addFiles([{name:'portrait-preselect.jpg',type:'image/jpeg'}]);
+ const prePts=String(pDomEls['#nidQuadPoly'].getAttribute('points')||'').trim().split(/\s+/).map((s)=>s.split(',').map(Number));
+ assert.equal(prePts.length,4,'Pre-selected Portrait upload must render 4 quad points');
+ const preXs=prePts.map((p)=>p[0]),preYs=prePts.map((p)=>p[1]);
+ const preW=Math.max(...preXs)-Math.min(...preXs),preH=Math.max(...preYs)-Math.min(...preYs);
+ const cwSrc=pDomEls['#nidCropSourceCanvas'].width,chSrc=pDomEls['#nidCropSourceCanvas'].height;
+ assert.ok(preH>preW&&Math.abs((Math.min(...preXs)/cwSrc)-0.35)<0.04&&Math.abs((Math.max(...preXs)/cwSrc)-0.61)<0.04,`Pre-selected Portrait upload must auto-detect portrait card X bounds (got ${(Math.min(...preXs)/cwSrc).toFixed(3)}..${(Math.max(...preXs)/cwSrc).toFixed(3)})`);
+ assert.ok(Math.abs((Math.min(...preYs)/chSrc)-0.14)<0.04&&Math.abs((Math.max(...preYs)/chSrc)-0.66)<0.04,`Pre-selected Portrait upload must auto-detect portrait card Y bounds (got ${(Math.min(...preYs)/chSrc).toFixed(3)}..${(Math.max(...preYs)/chSrc).toFixed(3)})`);
+
+ // Test B: Clear, switch back to Landscape, re-upload in Landscape first, then click #nidSnapPortraitRatioBtn -> detects Portrait card WITHOUT rotating page
+ pDomEls['#imgCombineClearBtn'].click();
+ assert.equal(pDomEls['#nidDropOrientLandscape'].getAttribute('aria-pressed'),'true','Clear button must reset Dropzone orientation to Landscape');
+ pDomWin.TechHatNidScanner.setCardOrient('landscape');
+ await pDomWin.TechHatNidScanner.addFiles([{name:'portrait-later.jpg',type:'image/jpeg'}]);
+ const drawsBeforeSwitch=pDomEls['#nidCropSourceCanvas']._sourceDrawCount;
+ pDomEls['#nidSnapPortraitRatioBtn'].click();
+ assert.equal(pDomEls['#nidCropSourceCanvas']._sourceDrawCount,drawsBeforeSwitch,'Clicking #nidSnapPortraitRatioBtn must NOT redraw/rotate the page canvas');
+ const clickPts=String(pDomEls['#nidQuadPoly'].getAttribute('points')||'').trim().split(/\s+/).map((s)=>s.split(',').map(Number));
+ const clickXs=clickPts.map((p)=>p[0]),clickYs=clickPts.map((p)=>p[1]);
+ assert.ok(Math.abs((Math.min(...clickXs)/cwSrc)-0.35)<0.04&&Math.abs((Math.max(...clickXs)/cwSrc)-0.61)<0.04,'Clicking #nidSnapPortraitRatioBtn must auto-detect Portrait ID card X edges on the loaded image');
+ assert.ok(Math.abs((Math.min(...clickYs)/chSrc)-0.14)<0.04&&Math.abs((Math.max(...clickYs)/chSrc)-0.66)<0.04,'Clicking #nidSnapPortraitRatioBtn must auto-detect Portrait ID card Y edges on the loaded image');
+ passed++;
+ console.log('✓ Selecting Portrait ID card auto-detects Portrait card (both pre-upload & on toolbar click) without rotating page');
+
+ // Verify Svelte UI structure for requested toolbar & sidebar & print preset layout changes
+ const svelteSrc=fs.readFileSync(path.join(__dirname,'../src/components/NidCardScanner.svelte'),'utf8');
+ assert.ok(!svelteSrc.includes('id="nidSnapEdgesBtn"')&&!svelteSrc.includes('id="nidMobSnapEdges"'),'Duplicate Snap Edges button must be removed');
+ assert.ok(svelteSrc.includes('id="nidSnapRatioBtn"')&&svelteSrc.includes('id="nidSnapPortraitRatioBtn"'),'Landscape and Portrait ID ratio buttons must both exist in desktop toolbar');
+ assert.ok(svelteSrc.includes('id="nidMobSnapRatio"')&&svelteSrc.includes('id="nidMobSnapPortrait"'),'Landscape and Portrait ID ratio pills must both exist on mobile');
+ assert.ok(svelteSrc.includes('id="nidDropOrientLandscape"')&&svelteSrc.includes('id="nidDropOrientPortrait"'),'Dropzone pre-upload card orientation pills must exist');
+ const pagesSidebarIdx=svelteSrc.indexOf('id="nidPagesSidebar"');
+ const clearIdx=svelteSrc.indexOf('id="imgCombineClearBtn"');
+ const rotLIdx=svelteSrc.indexOf('id="nidRotLBtn"');
+ assert.ok(pagesSidebarIdx!==-1&&clearIdx>pagesSidebarIdx&&rotLIdx>clearIdx,'Clear & Start Over button (#imgCombineClearBtn) must be relocated inside the left sidebar before the top toolbar');
+ const clearBtnEnd=svelteSrc.indexOf('</button>',clearIdx);
+ const clearBtnSnippet=svelteSrc.slice(clearIdx,clearBtnEnd);
+ assert.ok(clearBtnEnd>clearIdx&&!clearBtnSnippet.includes('sr-only')&&clearBtnSnippet.includes('সব মুছে নতুন শুরু'),'#imgCombineClearBtn must show visible label text');
+ const previewTabIdx=svelteSrc.indexOf('data-nid-canvas-view="preview"');
+ const undoIdx=svelteSrc.indexOf('id="nidUndoBtn"');
+ const redoIdx=svelteSrc.indexOf('id="nidRedoBtn"');
+ assert.ok(previewTabIdx!==-1&&undoIdx>previewTabIdx&&redoIdx>undoIdx,'Undo/Redo buttons must be placed at the far-right end of the toolbar');
+ assert.ok(svelteSrc.includes('id="imgCombineCardW"')&&svelteSrc.includes('data-cardw="506"')&&svelteSrc.includes('id="nidSizePresets"')&&svelteSrc.includes('id="nidQuickPrintSizeBar"'),'Actual ID Size (85.6×54mm) print presets & CardW input must be present');
+ passed++;
+ console.log('✓ NidCardScanner.svelte toolbar, sidebar clear button, orientation buttons & print size presets verified');
+ console.log(`${passed} document scan tests passed`);
+})().catch((err)=>{console.error(err);process.exit(1);});

@@ -26,9 +26,9 @@
         {hidden}
         aria-label="NID Card Scanner & Print Studio"
       >
-        <input type="file" id="nidReplaceFrontInput" accept="image/*" hidden>
-        <input type="file" id="nidReplaceBackInput" accept="image/*" hidden>
-        <input type="file" id="nidReplaceExtraInput" accept="image/*" hidden>
+        <input type="file" id="nidReplaceFrontInput" accept="image/*" class="visually-hidden sr-only">
+        <input type="file" id="nidReplaceBackInput" accept="image/*" class="visually-hidden sr-only">
+        <input type="file" id="nidReplaceExtraInput" accept="image/*" class="visually-hidden sr-only">
 
         <!-- CLEAN INITIAL UPLOAD STATE (MODERN HERO DROPZONE — IDENTICAL TO DOCUMENT & PASSPORT SCANNER) -->
         <div id="imgCombineDropzone" class="ds-empty space-y-4">
@@ -36,8 +36,8 @@
             class="ds-empty-card pdf-dropzone relative flex flex-col items-center justify-center text-center py-12 px-5 sm:px-10 rounded-2xl border border-slate-200/80 dark:border-studio-border bg-[#f4f5f7] dark:bg-studio-panel/75 hover:border-blue-400/70 dark:hover:border-blue-500/60 cursor-pointer transition-all duration-200 [&.is-over]:border-blue-500 [&.is-over]:bg-blue-50/60 dark:[&.is-over]:bg-blue-500/10 shadow-[0_1px_3px_rgba(15,23,42,0.03)]"
           >
             <!-- Multi-layered Colorful Hero Illustration (Monitor + ID Card + Glossy Blue Card + Camera Outline + Plus Badge) -->
-            <div class="ds-empty-symbol relative w-44 h-34 mb-4 select-none pointer-events-none flex items-center justify-center">
-              <svg viewBox="0 0 200 150" class="w-full h-full overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <div class="ds-empty-symbol relative w-44 h-34 mb-4 select-none pointer-events-none flex items-center justify-center" style="width: 176px; height: 136px;">
+              <svg width="176" height="136" style="width: 100%; height: 100%;" viewBox="0 0 200 150" class="!w-full !h-full overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <defs>
                   <linearGradient id="nidHeroGlow" x1="65" y1="65" x2="105" y2="138" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.28" />
@@ -107,12 +107,49 @@
 
             <!-- Hero Subtitle Instruction -->
             <p
-              class="text-[15px] sm:text-[16px] font-normal text-slate-600 dark:text-slate-300 m-0 mb-7 tracking-[-0.01em] max-w-[56ch]"
+              class="text-[15px] sm:text-[16px] font-normal text-slate-600 dark:text-slate-300 m-0 mb-4 tracking-[-0.01em] max-w-[56ch]"
               data-i18n-bn="এনআইডি বা আইডি কার্ডের ছবি এখানে ড্রপ করুন, পেস্ট করুন (Ctrl+V), অথবা নিচের যেকোনো অপশন বেছে নিন"
               data-i18n-en="Drop ID card photos here, paste (Ctrl+V), or choose an option below to start"
             >
               এনআইডি বা আইডি কার্ডের ছবি এখানে ড্রপ করুন, পেস্ট করুন (Ctrl+V), অথবা নিচের যেকোনো অপশন বেছে নিন
             </p>
+
+            <!-- Card Type Pre-Selector (Landscape 85.6×54mm vs Portrait 54×85.6mm) -->
+            <div class="inline-flex flex-wrap items-center justify-center gap-1.5 mb-6 px-2.5 py-1.5 rounded-xl bg-white/90 dark:bg-studio-sidebar/90 border border-slate-200/85 dark:border-studio-border shadow-2xs" role="group" aria-label="আইডি কার্ডের ধরন নির্বাচন">
+              <span class="text-[12px] font-semibold text-slate-500 dark:text-slate-400 px-1" data-i18n-bn="কার্ডের ধরন:" data-i18n-en="Card Type:">কার্ডের ধরন:</span>
+              <button
+                type="button"
+                id="nidDropOrientLandscape"
+                aria-pressed="true"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-transparent text-[12px] font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white aria-pressed:bg-blue-500/12 dark:aria-pressed:bg-blue-500/20 aria-pressed:border-blue-500/45 aria-pressed:text-blue-700 dark:aria-pressed:text-blue-300 cursor-pointer transition-colors"
+                title="আড়াআড়ি / ল্যান্ডস্কেপ আইডি কার্ড (85.6×54mm)"
+                data-i18n-title-bn="আড়াআড়ি / ল্যান্ডস্কেপ আইডি কার্ড (85.6×54mm)"
+                data-i18n-title-en="Landscape ID Card (85.6×54mm)"
+              >
+                <svg viewBox="0 0 20 14" class="w-4 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                  <rect x="1" y="1" width="18" height="12" rx="2" />
+                  <rect x="3.5" y="4" width="4" height="5" rx="0.8" fill="currentColor" stroke="none" opacity="0.7" />
+                  <path d="M9.5 4.8h6M9.5 7.5h4.5" stroke-linecap="round" />
+                </svg>
+                <span data-i18n-bn="আড়াআড়ি ID" data-i18n-en="Landscape ID">আড়াআড়ি ID</span>
+              </button>
+              <button
+                type="button"
+                id="nidDropOrientPortrait"
+                aria-pressed="false"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-transparent text-[12px] font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white aria-pressed:bg-violet-500/12 dark:aria-pressed:bg-violet-500/20 aria-pressed:border-violet-500/45 aria-pressed:text-violet-700 dark:aria-pressed:text-violet-300 cursor-pointer transition-colors"
+                title="পোর্ট্রেট / লম্বা আইডি কার্ড (54×85.6mm)"
+                data-i18n-title-bn="পোর্ট্রেট / লম্বা আইডি কার্ড (54×85.6mm)"
+                data-i18n-title-en="Portrait ID Card (54×85.6mm)"
+              >
+                <svg viewBox="0 0 14 18" class="w-3 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                  <rect x="1" y="1" width="12" height="16" rx="2" />
+                  <rect x="4.5" y="3.5" width="5" height="4.5" rx="0.8" fill="currentColor" stroke="none" opacity="0.7" />
+                  <path d="M3.5 10.5h7M4.5 13h5" stroke-linecap="round" />
+                </svg>
+                <span data-i18n-bn="পোর্ট্রেট ID" data-i18n-en="Portrait ID">পোর্ট্রেট ID</span>
+              </button>
+            </div>
 
             <!-- Elevated White Action Cards with Colorful Modern Icons -->
             <div class="ds-empty-actions grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 w-full max-w-[840px]">
@@ -122,7 +159,7 @@
                 data-cam-slot="0"
                 class="group/btn min-h-[54px] px-5 py-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/85 dark:border-studio-border shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_22px_rgba(16,185,129,0.12)] hover:border-emerald-400/80 dark:hover:border-emerald-500/70 hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer text-slate-800 dark:text-white text-[14px] font-medium"
               >
-                <svg class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg width="24" height="24" class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.38a1.5 1.5 0 0 0 1.25-.67l.74-1.11A1.5 1.5 0 0 1 11.12 3.5h1.76a1.5 1.5 0 0 1 1.25.67l.74 1.11a1.5 1.5 0 0 0 1.25.67h1.38A2.5 2.5 0 0 1 20 8.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-9Z" fill="#3b82f6" />
                   <circle cx="12" cy="13" r="4.2" fill="#ffffff" />
                   <circle cx="12" cy="13" r="2.3" fill="#2563eb" />
@@ -137,7 +174,7 @@
                 class="group/btn min-h-[54px] px-5 py-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/85 dark:border-studio-border shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_22px_rgba(37,99,235,0.12)] hover:border-blue-400/80 dark:hover:border-blue-500/70 hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer text-slate-800 dark:text-white text-[14px] font-medium"
               >
                 <input type="file" id="nidFrontInput" name="nidFrontInput" accept="image/*" class="visually-hidden sr-only">
-                <svg class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg width="24" height="24" class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <rect x="2.5" y="4.5" width="19" height="15" rx="3" fill="#1677ff" />
                   <circle cx="8" cy="10.5" r="2.1" fill="#ffffff" />
                   <path d="M5.2 15.8c.55-1.35 1.45-2.05 2.8-2.05s2.25.7 2.8 2.05" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
@@ -152,7 +189,7 @@
                 class="group/btn min-h-[54px] px-5 py-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/85 dark:border-studio-border shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_22px_rgba(37,99,235,0.12)] hover:border-indigo-400/80 dark:hover:border-indigo-500/70 hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer text-slate-800 dark:text-white text-[14px] font-medium"
               >
                 <input type="file" id="nidBackInput" name="nidBackInput" accept="image/*" class="visually-hidden sr-only">
-                <svg class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg width="24" height="24" class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <rect x="2.5" y="4.5" width="19" height="15" rx="3" fill="#4f46e5" />
                   <rect x="2.5" y="7.5" width="19" height="2.8" fill="#c7d2fe" fill-opacity="0.85" />
                   <path d="M6 13.5h12M6 16.2h8.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" />
@@ -166,7 +203,7 @@
                 class="group/btn min-h-[54px] px-5 py-3 rounded-xl bg-white dark:bg-studio-sidebar border border-slate-200/85 dark:border-studio-border shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_22px_rgba(124,58,237,0.12)] hover:border-violet-400/80 dark:hover:border-violet-500/70 hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer text-slate-800 dark:text-white text-[14px] font-medium"
               >
                 <input type="file" id="imgCombineInput" name="imgCombineInput" accept="image/*" multiple class="visually-hidden sr-only">
-                <svg class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg width="24" height="24" class="w-6 h-6 shrink-0 transition-transform duration-150 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <rect x="2.5" y="3.5" width="16.5" height="16.5" rx="3" fill="#7c3aed" />
                   <circle cx="7.5" cy="8.5" r="1.75" fill="#ffffff" />
                   <path d="M4 17.5L9.2 11.8L13.5 16.2L15.8 13.8L17.5 17.5H4Z" fill="#ddd6fe" fill-opacity="0.9" />
@@ -337,6 +374,17 @@
                     <Icon name="lucide:camera" class="w-4 h-4 shrink-0" />
                   </button>
                 </div>
+                <button
+                  type="button"
+                  id="imgCombineClearBtn"
+                  class="w-full inline-flex items-center justify-center gap-1.5 min-h-[30px] px-2.5 py-1 rounded-md border border-rose-500/30 dark:border-rose-400/30 bg-rose-500/8 hover:bg-rose-500/15 text-rose-700 dark:text-rose-300 text-[11.5px] font-semibold cursor-pointer transition-colors"
+                  title="বর্তমান স্ক্যান মুছে নতুন করে শুরু করুন"
+                  data-i18n-title-bn="বর্তমান স্ক্যান মুছে নতুন করে শুরু করুন"
+                  data-i18n-title-en="Clear All & Start Over"
+                >
+                  <Icon name="lucide:rotate-ccw" class="w-3.5 h-3.5 shrink-0" />
+                  <span data-i18n-bn="সব মুছে নতুন শুরু" data-i18n-en="Clear & Start Over">সব মুছে নতুন শুরু</span>
+                </button>
                 <small class="text-center text-[11px] text-slate-400 dark:text-studio-muted truncate" data-i18n-bn="JPG, PNG, WebP · সামনের ও পেছনের ছবি" data-i18n-en="JPG, PNG, WebP · Front & Back Sides">JPG, PNG, WebP · সামনের ও পেছনের ছবি</small>
               </div>
             </aside>
@@ -417,47 +465,6 @@
                     <Icon name="lucide:arrow-up-down" class="w-4.5 h-4.5 text-amber-600 dark:text-amber-400 shrink-0" />
                     <span class="sr-only">Swap Sides</span>
                   </button>
-                  <button
-                    type="button"
-                    id="imgCombineClearBtn"
-                    class={btnIcon}
-                    title="সব মুছে নতুন স্ক্যান শুরু করুন"
-                    data-i18n-title-bn="সব মুছে নতুন স্ক্যান শুরু করুন"
-                    data-i18n-title-en="New Scan"
-                  >
-                    <Icon name="lucide:file-plus-2" class="w-4.5 h-4.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                    <span class="sr-only">New Scan</span>
-                  </button>
-                </div>
-
-                <span class="w-px h-4.5 bg-slate-200 dark:bg-studio-border mx-0.5 shrink-0" aria-hidden="true"></span>
-
-                <!-- Group 2: Undo & Redo -->
-                <div class="ds-toolbar-group inline-flex items-center gap-0.5 shrink-0" role="group" aria-label="History">
-                  <button
-                    type="button"
-                    id="nidUndoBtn"
-                    class={btnIcon}
-                    disabled
-                    title="পূর্বের অবস্থায় ফিরুন (Ctrl+Z)"
-                    data-i18n-title-bn="পূর্বের অবস্থায় ফিরুন (Ctrl+Z)"
-                    data-i18n-title-en="Undo (Ctrl+Z)"
-                  >
-                    <Icon name="lucide:undo-2" class="w-4.5 h-4.5 text-slate-700 dark:text-slate-300 shrink-0" />
-                    <span class="sr-only">Undo</span>
-                  </button>
-                  <button
-                    type="button"
-                    id="nidRedoBtn"
-                    class={btnIcon}
-                    disabled
-                    title="পরবর্তী অবস্থায় যান (Ctrl+Y)"
-                    data-i18n-title-bn="পরবর্তী অবস্থায় যান (Ctrl+Y)"
-                    data-i18n-title-en="Redo (Ctrl+Y)"
-                  >
-                    <Icon name="lucide:redo-2" class="w-4.5 h-4.5 text-slate-700 dark:text-slate-300 shrink-0" />
-                    <span class="sr-only">Redo</span>
-                  </button>
                 </div>
 
                 <span class="w-px h-4.5 bg-slate-200 dark:bg-studio-border mx-0.5 shrink-0" aria-hidden="true"></span>
@@ -499,41 +506,53 @@
                   </button>
                 </div>
 
-                <!-- Group 4: Step 2 — Smart Crop & Aspect Presets (Auto Detect, Snap Borders, ID Ratio, Full Image) -->
+                <!-- Group 4: Step 2 — Smart Crop & Card Orientation Ratios (Auto Detect, Landscape ID, Portrait ID, Full Image) -->
                 <div class="ds-toolbar-group inline-flex items-center gap-0.5 px-1 py-0.5 rounded-md bg-slate-100/70 dark:bg-studio-panel/60 border border-slate-200/70 dark:border-studio-border shrink-0" role="group" aria-label="Smart Crop & Ratio">
                   <button
                     type="button"
                     id="nidAutoCropBtn"
                     class={btnIcon}
-                    title="অটো কার্ড ডিটেক্ট"
-                    data-i18n-title-bn="অটো কার্ড ডিটেক্ট"
-                    data-i18n-title-en="Auto Detect Card"
+                    title="অটো কার্ড ডিটেক্ট ও সোজা করুন"
+                    data-i18n-title-bn="অটো কার্ড ডিটেক্ট ও সোজা করুন"
+                    data-i18n-title-en="Auto Detect & Straighten Card"
                   >
                     <Icon name="lucide:scan-line" class="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span class="sr-only">Auto Detect</span>
                   </button>
-                  <button
-                    type="button"
-                    id="nidSnapEdgesBtn"
-                    class={btnIcon}
-                    title="সোজা বর্ডার লাইন বরাবর স্ন্যাপ"
-                    data-i18n-title-bn="সোজা বর্ডার লাইন বরাবর স্ন্যাপ"
-                    data-i18n-title-en="Snap Straight Borders"
-                  >
-                    <Icon name="lucide:crosshair" class="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
-                    <span class="sr-only">Snap Borders</span>
-                  </button>
-                  <button
-                    type="button"
-                    id="nidSnapRatioBtn"
-                    class={btnIcon}
-                    title="আসল আইডি কার্ডের অনুপাত (85.6×54mm)"
-                    data-i18n-title-bn="আসল আইডি কার্ডের অনুপাত (85.6×54mm)"
-                    data-i18n-title-en="ID Card Ratio (85.6×54mm)"
-                  >
-                    <Icon name="lucide:credit-card" class="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                    <span class="sr-only">ID Ratio</span>
-                  </button>
+                  <div class="inline-flex items-center gap-0.5 rounded-md bg-slate-200/70 dark:bg-studio-sidebar/80 p-0.5" role="group" aria-label="ID Card Orientation">
+                    <button
+                      type="button"
+                      id="nidSnapRatioBtn"
+                      aria-pressed="true"
+                      class="inline-flex items-center gap-1 h-7 px-2 rounded border border-transparent text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:border-blue-500/40 aria-pressed:text-blue-600 dark:aria-pressed:text-blue-400 aria-pressed:shadow-2xs cursor-pointer transition-colors"
+                      title="আড়াআড়ি / ল্যান্ডস্কেপ আইডি ক্রপ রেশিও (85.6×54mm)"
+                      data-i18n-title-bn="আড়াআড়ি / ল্যান্ডস্কেপ আইডি ক্রপ রেশিও (85.6×54mm)"
+                      data-i18n-title-en="Landscape ID Crop Ratio (85.6×54mm)"
+                    >
+                      <svg viewBox="0 0 20 14" class="w-4 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                        <rect x="1" y="1" width="18" height="12" rx="2" />
+                        <rect x="3.5" y="4" width="4" height="5" rx="0.8" fill="currentColor" stroke="none" opacity="0.7" />
+                        <path d="M9.5 4.8h6M9.5 7.5h4.5" stroke-linecap="round" />
+                      </svg>
+                      <span data-i18n-bn="আড়াআড়ি" data-i18n-en="Landscape">আড়াআড়ি</span>
+                    </button>
+                    <button
+                      type="button"
+                      id="nidSnapPortraitRatioBtn"
+                      aria-pressed="false"
+                      class="inline-flex items-center gap-1 h-7 px-2 rounded border border-transparent text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white aria-pressed:bg-white dark:aria-pressed:bg-studio-surface aria-pressed:border-violet-500/40 aria-pressed:text-violet-600 dark:aria-pressed:text-violet-400 aria-pressed:shadow-2xs cursor-pointer transition-colors"
+                      title="লম্বা / পোর্ট্রেট আইডি ক্রপ রেশিও (54×85.6mm)"
+                      data-i18n-title-bn="লম্বা / পোর্ট্রেট আইডি ক্রপ রেশিও (54×85.6mm)"
+                      data-i18n-title-en="Portrait ID Crop Ratio (54×85.6mm)"
+                    >
+                      <svg viewBox="0 0 14 18" class="w-3 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                        <rect x="1" y="1" width="12" height="16" rx="2" />
+                        <rect x="4.5" y="3.5" width="5" height="4.5" rx="0.8" fill="currentColor" stroke="none" opacity="0.7" />
+                        <path d="M3.5 10.5h7M4.5 13h5" stroke-linecap="round" />
+                      </svg>
+                      <span data-i18n-bn="পোর্ট্রেট" data-i18n-en="Portrait">পোর্ট্রেট</span>
+                    </button>
+                  </div>
                   <button
                     type="button"
                     id="nidFullCropBtn"
@@ -630,6 +649,33 @@
                       <span data-i18n-bn="প্রিভিউ" data-i18n-en="Preview">প্রিভিউ</span>
                     </button>
                   </div>
+                  <span class="w-px h-4.5 bg-slate-200 dark:bg-studio-border mx-0.5 shrink-0" aria-hidden="true"></span>
+                  <div class="ds-toolbar-group inline-flex items-center gap-0.5 shrink-0" role="group" aria-label="History">
+                    <button
+                      type="button"
+                      id="nidUndoBtn"
+                      class={btnIcon}
+                      disabled
+                      title="পূর্বের অবস্থায় ফিরুন (Ctrl+Z)"
+                      data-i18n-title-bn="পূর্বের অবস্থায় ফিরুন (Ctrl+Z)"
+                      data-i18n-title-en="Undo (Ctrl+Z)"
+                    >
+                      <Icon name="lucide:undo-2" class="w-4.5 h-4.5 text-slate-700 dark:text-slate-300 shrink-0" />
+                      <span class="sr-only">Undo</span>
+                    </button>
+                    <button
+                      type="button"
+                      id="nidRedoBtn"
+                      class={btnIcon}
+                      disabled
+                      title="পরবর্তী অবস্থায় যান (Ctrl+Y)"
+                      data-i18n-title-bn="পরবর্তী অবস্থায় যান (Ctrl+Y)"
+                      data-i18n-title-en="Redo (Ctrl+Y)"
+                    >
+                      <Icon name="lucide:redo-2" class="w-4.5 h-4.5 text-slate-700 dark:text-slate-300 shrink-0" />
+                      <span class="sr-only">Redo</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -678,9 +724,9 @@
                           <button type="button" class="nid-quad-handle nid-quad-handle--edge absolute w-6 h-2 rounded-full bg-white/95 border-2 border-blue-600 shadow-[0_2px_6px_rgba(0,0,0,0.38)] -translate-x-1/2 -translate-y-1/2 rotate-[var(--edge-deg,0deg)] pointer-events-auto cursor-grab active:cursor-grabbing" data-edge="2" aria-label="নিচের ধার"></button>
                           <button type="button" class="nid-quad-handle nid-quad-handle--edge absolute w-6 h-2 rounded-full bg-white/95 border-2 border-blue-600 shadow-[0_2px_6px_rgba(0,0,0,0.38)] -translate-x-1/2 -translate-y-1/2 rotate-[var(--edge-deg,0deg)] pointer-events-auto cursor-grab active:cursor-grabbing" data-edge="3" aria-label="বাম ধার"></button>
                         </div>
-                        <canvas class="nid-crop-loupe absolute w-48 h-48 rounded-full border-3 border-blue-500 shadow-2xl pointer-events-none z-20" id="nidCropLoupe" width="220" height="220" hidden aria-hidden="true"></canvas>
                       </div>
                     </div>
+                    <canvas class="nid-crop-loupe absolute w-44 h-44 rounded-full border-3 border-blue-500 shadow-2xl pointer-events-none z-30" id="nidCropLoupe" width="240" height="240" hidden aria-hidden="true"></canvas>
 
                     <!-- CamScanner Mobile Floating Crop Assist Pills (< 1024px) -->
                     <div
@@ -690,19 +736,29 @@
                       <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#12151e]/88 backdrop-blur-md border border-white/15 shadow-lg pointer-events-auto overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         <button
                           type="button"
-                          id="nidMobSnapEdges"
-                          class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                          id="nidMobSnapRatio"
+                          aria-pressed="true"
+                          class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 aria-pressed:bg-sky-500/25 aria-pressed:border aria-pressed:border-sky-400/60 text-white text-[11px] font-bold shrink-0 cursor-pointer"
                         >
-                          <Icon name="lucide:scan-line" class="w-3.5 h-3.5 text-emerald-400" />
-                          <span data-i18n-bn="বর্ডার স্ন্যাপ" data-i18n-en="Snap Edges">বর্ডার স্ন্যাপ</span>
+                          <svg viewBox="0 0 20 14" class="w-3.5 h-2.5 text-sky-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                            <rect x="1" y="1" width="18" height="12" rx="2" />
+                            <rect x="3.5" y="4" width="4" height="5" rx="0.8" fill="currentColor" stroke="none" opacity="0.7" />
+                            <path d="M9.5 4.8h6M9.5 7.5h4.5" stroke-linecap="round" />
+                          </svg>
+                          <span data-i18n-bn="আড়াআড়ি ID" data-i18n-en="Landscape">আড়াআড়ি ID</span>
                         </button>
                         <button
                           type="button"
-                          id="nidMobSnapRatio"
-                          class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                          id="nidMobSnapPortrait"
+                          aria-pressed="false"
+                          class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-white/10 hover:bg-white/20 aria-pressed:bg-violet-500/25 aria-pressed:border aria-pressed:border-violet-400/60 text-white text-[11px] font-bold shrink-0 cursor-pointer"
                         >
-                          <Icon name="lucide:credit-card" class="w-3.5 h-3.5 text-sky-400" />
-                          <span data-i18n-bn="ID অনুপাত" data-i18n-en="ID Ratio">ID অনুপাত</span>
+                          <svg viewBox="0 0 14 18" class="w-2.5 h-3.5 text-violet-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                            <rect x="1" y="1" width="12" height="16" rx="2" />
+                            <rect x="4.5" y="3.5" width="5" height="4.5" rx="0.8" fill="currentColor" stroke="none" opacity="0.7" />
+                            <path d="M3.5 10.5h7M4.5 13h5" stroke-linecap="round" />
+                          </svg>
+                          <span data-i18n-bn="পোর্ট্রেট ID" data-i18n-en="Portrait">পোর্ট্রেট ID</span>
                         </button>
                         <button
                           type="button"
@@ -1046,6 +1102,64 @@
                       </div>
                     </fieldset>
 
+                    <!-- Card Print Size Presets (Actual 85.6×54mm vs Photocopy vs Large) -->
+                    <div class="flex flex-col gap-1.5 pt-1" id="nidAccSize">
+                      <div class="flex items-center justify-between gap-2 text-[10.5px] font-bold text-slate-600 dark:text-studio-muted">
+                        <span data-i18n-bn="কার্ডের প্রিন্ট সাইজ" data-i18n-en="Card Print Size">কার্ডের প্রিন্ট সাইজ</span>
+                        <label class="inline-flex items-center gap-1 text-[10px] font-semibold">
+                          <span data-i18n-bn="স্কেল:" data-i18n-en="Scale:">স্কেল:</span>
+                          <input
+                            type="number"
+                            id="imgCombineCardW"
+                            name="imgCombineCardW"
+                            value="660"
+                            min="420"
+                            max="950"
+                            step="10"
+                            class="w-14 h-6 px-1.5 rounded bg-slate-50 dark:bg-studio-panel border border-slate-200 dark:border-studio-border text-[11px] font-semibold text-slate-800 dark:text-studio-text text-center"
+                          >
+                        </label>
+                      </div>
+                      <div class="grid grid-cols-3 gap-1" id="nidSizePresets" role="group" aria-label="Card Print Size Presets">
+                        <button
+                          type="button"
+                          data-cardw="506"
+                          aria-pressed="false"
+                          title="আসল স্মার্ট/এনআইডি কার্ড মাপ (85.6×54mm)"
+                          data-i18n-title-bn="আসল স্মার্ট/এনআইডি কার্ড মাপ (85.6×54mm)"
+                          data-i18n-title-en="Actual ID Card Size (85.6×54mm)"
+                          class="px-1.5 py-1.5 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel text-[10.5px] font-bold text-slate-700 dark:text-studio-text hover:border-emerald-500/50 aria-pressed:bg-emerald-500/12 aria-pressed:border-emerald-600 dark:aria-pressed:border-emerald-400 aria-pressed:text-emerald-700 dark:aria-pressed:text-emerald-300 cursor-pointer transition-colors leading-tight text-center"
+                        >
+                          <span class="block" data-i18n-bn="আসল ID মাপ" data-i18n-en="Actual ID">আসল ID মাপ</span>
+                          <span class="block text-[9.5px] font-semibold opacity-75">85.6×54mm</span>
+                        </button>
+                        <button
+                          type="button"
+                          data-cardw="660"
+                          aria-pressed="true"
+                          title="স্ট্যান্ডার্ড ফটোকপি সাইজ (পড়তে সহজ)"
+                          data-i18n-title-bn="স্ট্যান্ডার্ড ফটোকপি সাইজ (পড়তে সহজ)"
+                          data-i18n-title-en="Standard Photocopy Size"
+                          class="px-1.5 py-1.5 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel text-[10.5px] font-bold text-slate-700 dark:text-studio-text hover:border-emerald-500/50 aria-pressed:bg-emerald-500/12 aria-pressed:border-emerald-600 dark:aria-pressed:border-emerald-400 aria-pressed:text-emerald-700 dark:aria-pressed:text-emerald-300 cursor-pointer transition-colors leading-tight text-center"
+                        >
+                          <span class="block" data-i18n-bn="স্ট্যান্ডার্ড" data-i18n-en="Standard">স্ট্যান্ডার্ড</span>
+                          <span class="block text-[9.5px] font-semibold opacity-75" data-i18n-bn="ফটোকপি" data-i18n-en="Photocopy">ফটোকপি</span>
+                        </button>
+                        <button
+                          type="button"
+                          data-cardw="800"
+                          aria-pressed="false"
+                          title="বড় প্রিন্ট সাইজ"
+                          data-i18n-title-bn="বড় প্রিন্ট সাইজ"
+                          data-i18n-title-en="Large Print Size"
+                          class="px-1.5 py-1.5 rounded-lg border border-slate-200 dark:border-studio-border bg-slate-50 dark:bg-studio-panel text-[10.5px] font-bold text-slate-700 dark:text-studio-text hover:border-emerald-500/50 aria-pressed:bg-emerald-500/12 aria-pressed:border-emerald-600 dark:aria-pressed:border-emerald-400 aria-pressed:text-emerald-700 dark:aria-pressed:text-emerald-300 cursor-pointer transition-colors leading-tight text-center"
+                        >
+                          <span class="block" data-i18n-bn="বড় প্রিন্ট" data-i18n-en="Large Print">বড় প্রিন্ট</span>
+                          <span class="block text-[9.5px] font-semibold opacity-75">Large</span>
+                        </button>
+                      </div>
+                    </div>
+
                     <!-- Copies, Position, Gap & Page Color Compact 2x2 Grid -->
                     <div class="grid grid-cols-2 gap-2 pt-1" id="nidAccPrintOpt">
                       <div class="flex flex-col gap-1 text-[10.5px] font-bold text-slate-600 dark:text-studio-muted">
@@ -1097,6 +1211,41 @@
 
               <!-- Export Area (Matches DocumentScanner .ds-export — Desktop Only; Mobile uses CamScanner Bottom Bar) -->
               <div class="ds-export nid-export-bar max-lg:hidden px-3 py-2 border-t border-slate-200 dark:border-studio-border bg-slate-50/70 dark:bg-studio-panel/40 flex flex-col gap-1.5 shrink-0">
+                <div class="grid grid-cols-3 gap-1" id="nidQuickPrintSizeBar" role="group" aria-label="Quick Print Size">
+                  <button
+                    type="button"
+                    data-cardw="506"
+                    aria-pressed="false"
+                    class="py-1 px-1.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-[10px] font-bold text-slate-700 dark:text-studio-text hover:border-emerald-500/50 aria-pressed:bg-emerald-600 aria-pressed:border-emerald-600 aria-pressed:text-white cursor-pointer transition-colors truncate"
+                    title="আসল আইডি কার্ডের মাপে প্রিন্ট (85.6×54mm)"
+                    data-i18n-title-bn="আসল আইডি কার্ডের মাপে প্রিন্ট (85.6×54mm)"
+                    data-i18n-title-en="Print at Actual ID Size (85.6×54mm)"
+                    data-i18n-bn="আসল ID (85×54)"
+                    data-i18n-en="Actual 85×54"
+                  >আসল ID (85×54)</button>
+                  <button
+                    type="button"
+                    data-cardw="660"
+                    aria-pressed="true"
+                    class="py-1 px-1.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-[10px] font-bold text-slate-700 dark:text-studio-text hover:border-emerald-500/50 aria-pressed:bg-emerald-600 aria-pressed:border-emerald-600 aria-pressed:text-white cursor-pointer transition-colors truncate"
+                    title="স্ট্যান্ডার্ড ফটোকপি সাইজ"
+                    data-i18n-title-bn="স্ট্যান্ডার্ড ফটোকপি সাইজ"
+                    data-i18n-title-en="Standard Photocopy Size"
+                    data-i18n-bn="ফটোকপি মাপ"
+                    data-i18n-en="Photocopy"
+                  >ফটোকপি মাপ</button>
+                  <button
+                    type="button"
+                    data-cardw="800"
+                    aria-pressed="false"
+                    class="py-1 px-1.5 rounded-md border border-slate-200 dark:border-studio-border bg-white dark:bg-studio-panel text-[10px] font-bold text-slate-700 dark:text-studio-text hover:border-emerald-500/50 aria-pressed:bg-emerald-600 aria-pressed:border-emerald-600 aria-pressed:text-white cursor-pointer transition-colors truncate"
+                    title="বড় প্রিন্ট সাইজ"
+                    data-i18n-title-bn="বড় প্রিন্ট সাইজ"
+                    data-i18n-title-en="Large Print Size"
+                    data-i18n-bn="বড় প্রিন্ট"
+                    data-i18n-en="Large"
+                  >বড় প্রিন্ট</button>
+                </div>
                 <button type="button" class="{btnBase} {btnPrimary} w-full !min-h-[36px] text-[12.5px] shadow-sm rounded-xl" id="imgCombineDownloadPdfBtn">
                   <Icon name="download" class="w-4 h-4" />
                   <span data-i18n-bn="এক্সপোর্ট ও PDF ডাউনলোড" data-i18n-en="Export & Download PDF">এক্সপোর্ট ও PDF ডাউনলোড</span>

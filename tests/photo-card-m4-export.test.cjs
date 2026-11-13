@@ -1054,19 +1054,19 @@ test('M4-PDF-01 (Defect #7): Share dropdown #pcShareDownloadPdf exports multi-pa
   assert.equal(MetadataInjector.findAiMarkers(pdfBuf).length, 0, 'Exported PDF must contain strictly zero AI markers');
 });
 
-test('M4-VER-01 (Defect #8): Cache-busting ?v=98 query strings and Nikosh font fallback are synchronized across Astro, image-tools, engine, and Svelte', () => {
+test('M4-VER-01 (Defect #8): Cache-busting ?v=99 query strings and Nikosh font fallback are synchronized across Astro, image-tools, engine, and Svelte', () => {
   const astroSrc = fs.readFileSync(path.join(projectRoot, 'src/pages/image/[tool].astro'), 'utf8');
   const toolsSrc = fs.readFileSync(path.join(projectRoot, 'public/js/image-tools.js'), 'utf8');
   const engineSrc = fs.readFileSync(path.join(projectRoot, 'public/js/photo-card-engine.js'), 'utf8');
   const svelteSrc = fs.readFileSync(path.join(projectRoot, 'src/components/PhotoCardStudio.svelte'), 'utf8');
 
-  assert.ok(astroSrc.includes('/js/photo-card-metadata.js?v=98'), '[tool].astro must load photo-card-metadata.js?v=98');
-  assert.ok(astroSrc.includes('/js/photo-card-engine.js?v=98'), '[tool].astro must load photo-card-engine.js?v=98');
-  assert.ok(astroSrc.includes('/js/image-tools.js?v=98'), '[tool].astro must load image-tools.js?v=98');
+  assert.ok(astroSrc.includes('/js/photo-card-metadata.js?v=99'), '[tool].astro must load photo-card-metadata.js?v=99');
+  assert.ok(astroSrc.includes('/js/photo-card-engine.js?v=99'), '[tool].astro must load photo-card-engine.js?v=99');
+  assert.ok(astroSrc.includes('/js/image-tools.js?v=106'), '[tool].astro must load image-tools.js?v=106');
 
-  assert.ok(toolsSrc.includes('/js/photo-card-metadata.js?v=98'), 'image-tools.js must lazy-load photo-card-metadata.js?v=98');
-  assert.ok(toolsSrc.includes('/js/photo-card-engine.js?v=98'), 'image-tools.js must lazy-load photo-card-engine.js?v=98');
-  assert.ok(engineSrc.includes('/js/photo-card-metadata.js?v=98'), 'photo-card-engine.js must reference photo-card-metadata.js?v=98');
+  assert.ok(toolsSrc.includes('/js/photo-card-metadata.js?v=99'), 'image-tools.js must lazy-load photo-card-metadata.js?v=99');
+  assert.ok(toolsSrc.includes('/js/photo-card-engine.js?v=99'), 'image-tools.js must lazy-load photo-card-engine.js?v=99');
+  assert.ok(engineSrc.includes('/js/photo-card-metadata.js?v=99'), 'photo-card-engine.js must reference photo-card-metadata.js?v=99');
 
   assert.equal(svelteSrc.includes('/fonts/Nikosh.ttf'), false, 'PhotoCardStudio.svelte must never request missing /fonts/Nikosh.ttf');
   assert.ok(svelteSrc.includes("font-family: 'Nikosh'") && svelteSrc.includes("url('/fonts/Kalpurush.ttf')"), 'Nikosh @font-face must alias cleanly to /fonts/Kalpurush.ttf');

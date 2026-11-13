@@ -58,6 +58,14 @@
         }
       });
     }
+    if (zone._vsZoneWired) return;
+    zone._vsZoneWired = true;
+    if (input && zone.tagName !== 'LABEL') {
+      zone.addEventListener('click', function (e) {
+        if (e.target && e.target.closest && e.target.closest('button, label, input, a, select, textarea, [data-vs]')) return;
+        input.click();
+      });
+    }
     ['dragenter', 'dragover'].forEach(function (ev) {
       zone.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); zone.classList.add('is-over'); });
     });

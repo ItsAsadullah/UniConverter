@@ -77,10 +77,89 @@ const localCropDataset = {
   },
 };
 
+const WINDOWS_PROTECTED_PATH_RE =
+  /(?:^|[\\/])(?:System Volume Information|\$RECYCLE\.BIN|Recovery|Config\.Msi|pagefile\.sys|swapfile\.sys|hiberfil\.sys)(?:[\\/]|$)/i;
+
+const isWindowsProtectedWatchPath = (watchPath) =>
+  WINDOWS_PROTECTED_PATH_RE.test(String(watchPath || ''));
+
+const isBenignWindowsWatcherError = (err, extraMsg = '') => {
+  const code = String(err?.code || '');
+  const combined = `${String(extraMsg || '')} ${String(err?.message || '')} ${String(err?.path || '')}`;
+  if (!/System Volume Information|\$RECYCLE\.BIN/i.test(combined)) return false;
+  return !code || /^(EINVAL|EPERM|EACCES)$/i.test(code);
+};
+
+const windowsWatcherGuard = {
+  name: 'techhat-windows-watcher-guard',
+  configResolved(config) {
+    if (config?.logger && typeof config.logger.error === 'function' && !config.logger.__thWinWatcherGuarded) {
+      const origError = config.logger.error.bind(config.logger);
+      config.logger.error = (msg, options) => {
+        if (isBenignWindowsWatcherError(options?.error, msg)) {
+          return;
+        }
+        return origError(msg, options);
+      };
+      config.logger.__thWinWatcherGuarded = true;
+    }
+  },
+  configureServer(server) {
+    const watcher = server?.watcher;
+    if (!watcher || watcher.__thWinWatcherGuarded) return;
+
+    const shouldSkipWatchAdd = (candidate) => {
+      const raw = String(candidate || '').trim();
+      if (!raw) return true;
+      if (/^[a-zA-Z]:[\\/]?$/.test(raw)) return true;
+      return isWindowsProtectedWatchPath(raw);
+    };
+
+    if (typeof watcher.add === 'function') {
+      const origAdd = watcher.add.bind(watcher);
+      watcher.add = (paths) => {
+        if (Array.isArray(paths)) {
+          const safePaths = paths.filter((p) => !shouldSkipWatchAdd(p));
+          if (safePaths.length === 0) return watcher;
+          return origAdd(safePaths);
+        }
+        if (shouldSkipWatchAdd(paths)) return watcher;
+        return origAdd(paths);
+      };
+    }
+
+    if (typeof watcher.emit === 'function') {
+      const origEmit = watcher.emit.bind(watcher);
+      watcher.emit = (event, ...args) => {
+        if (event === 'error' && isBenignWindowsWatcherError(args[0])) {
+          return true;
+        }
+        return origEmit(event, ...args);
+      };
+    }
+
+    watcher.__thWinWatcherGuarded = true;
+  },
+};
+
 export default defineConfig({
   devToolbar: { enabled: false },
   integrations: [icon(), svelte()],
-  vite: { plugins: [tailwindcss(), localCropDataset] },
+  vite: {
+    plugins: [windowsWatcherGuard, tailwindcss(), localCropDataset],
+    server: {
+      fs: {
+        strict: true,
+        allow: [process.cwd()],
+      },
+      watch: {
+        ignored: [
+          /(?:^|[\\/])(?:\.git|node_modules|dist|\.astro|System Volume Information|\$RECYCLE\.BIN|Recovery|Config\.Msi)(?:[\\/]|$)/i,
+          isWindowsProtectedWatchPath,
+        ],
+      },
+    },
+  },
   output: 'static',
   compressHTML: true,
   build: {
